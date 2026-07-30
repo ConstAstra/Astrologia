@@ -1,0 +1,97 @@
+import type { PointKey, ZodiacSign } from "../types";
+
+/**
+ * Textes dédiés pour les placements les plus lus (Soleil, Lune, Mercure,
+ * Vénus, Mars, Ascendant) × 12 signes. Pour les planètes lentes
+ * (Jupiter à Pluton, Nœud Nord), voir `compose.ts` qui génère un texte à
+ * partir de l'essence de la planète + la tonalité du signe : ces planètes
+ * bougeant peu, leur signe est une donnée plus générationnelle que
+ * strictement personnelle — un texte composé reste honnête là où 12 pavés
+ * figés pour toute une génération ne le seraient pas davantage.
+ */
+export const PLANET_IN_SIGN: Partial<Record<PointKey, Record<ZodiacSign, string>>> = {
+  sun: {
+    belier: "Un tempérament direct, entreprenant, qui a besoin d'initier et de ne pas trop attendre. La combativité naturelle du Bélier donne du courage, parfois au prix de la patience.",
+    taureau: "Une identité qui se construit dans la durée et la constance : besoin de sécurité concrète, sens du plaisir simple, attachement à ce qui est stable et fiable.",
+    gemeaux: "Une identité curieuse et changeante, qui se nourrit d'échanges et de nouveauté. Le besoin de varier les centres d'intérêt peut donner une image un peu insaisissable.",
+    cancer: "Une identité sensible, protectrice, très liée à la sphère affective et familiale. La sécurité intérieure passe par l'attachement et la mémoire des liens.",
+    lion: "Une identité qui a besoin d'être vue et reconnue, avec générosité et sens du panache. Le Soleil est ici \"chez lui\" : l'affirmation de soi est un moteur central.",
+    vierge: "Une identité qui se construit par l'utile, la précision, le souci de bien faire. L'exigence envers soi-même est forte, parfois au détriment de la confiance en soi.",
+    balance: "Une identité qui se définit beaucoup à travers la relation à l'autre : besoin d'équilibre, de justesse, d'harmonie, parfois au prix d'une difficulté à trancher seul.",
+    scorpion: "Une identité intense, qui ne fait rien à moitié, marquée par un besoin de vérité et de transformation. Le contrôle et l'intensité émotionnelle sont des thèmes centraux.",
+    sagittaire: "Une identité qui a besoin de grand air, d'horizons et de sens : optimisme, franchise, goût de la liberté de mouvement et de pensée.",
+    capricorne: "Une identité qui se construit sur la durée, avec sérieux et ambition patiente. Le besoin de structure et de reconnaissance sociale est marqué, souvent tempéré avec l'âge.",
+    verseau: "Une identité qui se définit par la différence assumée et l'indépendance d'esprit, avec un intérêt marqué pour le collectif et les idées d'avenir.",
+    poissons: "Une identité fluide, empathique, parfois difficile à cerner car perméable à ce qui l'entoure. Fort besoin d'un idéal ou d'une inspiration à laquelle se relier.",
+  },
+  moon: {
+    belier: "Des réactions émotionnelles rapides et directes, un besoin de sécurité qui passe par l'action plutôt que par l'introspection. L'impatience peut masquer une vraie vulnérabilité.",
+    taureau: "Une sensibilité qui a besoin de stabilité, de repères sensoriels et matériels concrets. Le réconfort passe par le confort, la routine et la présence physique rassurante.",
+    gemeaux: "Des besoins affectifs qui passent par l'échange verbal et la stimulation intellectuelle. Le mental prend parfois le pas sur le ressenti brut, comme un moyen de gérer l'émotion.",
+    cancer: "La Lune est ici dans son signe : une sensibilité à fleur de peau, une mémoire affective très développée, un besoin fort de nid et de sécurité familiale.",
+    lion: "Un besoin affectif de reconnaissance et de démonstrativité : on aime et on veut être aimé avec panache. La fierté peut rendre la vulnérabilité difficile à montrer.",
+    vierge: "Une sensibilité qui se rassure par l'ordre, l'utilité et le contrôle du détail. L'anxiété se calme en \"faisant\", en rendant service, en organisant le réel.",
+    balance: "Un besoin affectif fort d'harmonie et de présence à deux : la sécurité intérieure dépend beaucoup de la qualité des relations et de l'absence de conflit.",
+    scorpion: "Une sensibilité intense, profonde, parfois secrète : les émotions ne se vivent jamais à moitié, avec un vrai besoin de confiance et de vérité affective.",
+    sagittaire: "Un besoin affectif de liberté et d'espace : la sécurité intérieure passe par le mouvement, la découverte, la possibilité de croire en quelque chose de plus grand.",
+    capricorne: "Une sensibilité pudique, qui se protège par la maîtrise de soi et la retenue. La sécurité affective se construit souvent tardivement, mais alors très solidement.",
+    verseau: "Un rapport aux émotions plus mental que fusionnel, avec un besoin de liberté même dans les liens les plus proches. L'amitié compte souvent autant que la passion.",
+    poissons: "Une sensibilité poreuse, empathique jusqu'à parfois se perdre dans celle des autres. Un grand besoin d'un espace de retrait, de rêverie ou de spiritualité.",
+  },
+  mercury: {
+    belier: "Une pensée vive, spontanée, qui tranche vite — parfois avant d'avoir tout examiné. Le débat stimule, la nuance est un exercice à cultiver.",
+    taureau: "Une pensée concrète, posée, qui a besoin de temps pour mûrir mais qui, une fois formée, change difficilement d'avis. Bon sens pratique plutôt que théorie abstraite.",
+    gemeaux: "Mercure est ici dans son élément : curiosité tous azimuts, aisance verbale, plaisir du contact et de l'apprentissage rapide, parfois au prix de l'approfondissement.",
+    cancer: "Une pensée colorée par l'émotion et la mémoire : on raisonne aussi avec le ressenti, l'intuition, le vécu familial — pas seulement avec la logique pure.",
+    lion: "Une expression qui a besoin de convaincre et de marquer les esprits : sens du récit, conviction affirmée, parfois manque d'écoute de l'avis contraire.",
+    vierge: "Mercure est également très à l'aise ici : esprit analytique, souci du détail exact, sens critique développé, goût pour ce qui est utile et vérifiable.",
+    balance: "Une pensée qui pèse le pour et le contre, cherche le compromis et la formulation diplomate — parfois au prix d'une indécision ou d'un discours trop consensuel.",
+    scorpion: "Un esprit qui va chercher sous la surface : sens de la psychologie, du sous-entendu, goût des sujets tabous ou complexes plutôt que du bavardage léger.",
+    sagittaire: "Une pensée large, qui préfère la vue d'ensemble et les grandes idées aux détails. Franchise directe, parfois maladroite, mais toujours sincère.",
+    capricorne: "Un esprit structuré, qui va à l'essentiel avec méthode et sérieux. La réflexion est souvent orientée vers l'utilité concrète et le long terme.",
+    verseau: "Une pensée originale, qui aime sortir des sentiers battus et envisager l'avenir autrement. Bonne capacité d'abstraction, parfois au prix du détachement émotionnel.",
+    poissons: "Une pensée intuitive, associative, plus proche de l'image et du ressenti que de la logique linéaire — précieuse pour la créativité, plus difficile pour la précision factuelle.",
+  },
+  venus: {
+    belier: "Un désir spontané, direct, qui aime la conquête autant que la relation installée. L'attirance se joue vite, parfois au prix de la constance.",
+    taureau: "Vénus est ici dans son élément : sensualité affirmée, goût du confort partagé, fidélité et attachement profond à ce qui est stable et sensoriellement satisfaisant.",
+    gemeaux: "Un désir qui se nourrit d'échange, de légèreté et de variété : la séduction passe par les mots et la curiosité, avec un besoin de ne pas s'ennuyer.",
+    cancer: "Une affectivité tendre, protectrice, qui cherche la fusion et la sécurité dans le lien. L'attachement est profond, parfois possessif par peur de la perte.",
+    lion: "Un désir généreux, théâtral, qui aime séduire avec panache et être admiré en retour. Le cœur est grand, la fierté aussi.",
+    vierge: "Une affectivité pudique, qui s'exprime souvent par les services rendus plutôt que par de grandes démonstrations. Le souci de bien faire s'étend à la relation.",
+    balance: "Vénus est également très à l'aise ici : sens aigu de l'harmonie relationnelle, charme, goût esthétique marqué, besoin fort de partenariat équilibré.",
+    scorpion: "Un désir intense, exclusif, qui ne se satisfait pas de la superficialité. L'attachement est profond, parfois jaloux ou fusionnel, mais rarement tiède.",
+    sagittaire: "Une affectivité qui a besoin d'air et de liberté : on aime partager des idées et des aventures, avec une certaine réticence à l'enfermement routinier.",
+    capricorne: "Un désir sérieux, qui s'engage progressivement mais durablement. La séduction passe parfois au second plan derrière la construction concrète du lien.",
+    verseau: "Une affectivité originale, qui privilégie l'amitié et la liberté dans la relation. La routine et la possessivité sont mal vécues ; l'indépendance est non négociable.",
+    poissons: "Un désir romantique, fusionnel, parfois idéalisé jusqu'à l'illusion. Grande capacité d'empathie amoureuse, avec un risque de sacrifice de soi dans le lien.",
+  },
+  mars: {
+    belier: "Mars est ici dans son élément : énergie directe, courage, besoin d'agir vite et de relever des défis. L'impatience et l'impulsivité sont le revers de cette vitalité.",
+    taureau: "Une énergie qui s'engage lentement mais avec une endurance redoutable. La colère, rare, met longtemps à monter — et tout aussi longtemps à redescendre.",
+    gemeaux: "Une énergie qui s'exprime par la parole et l'agilité mentale plutôt que par la force physique. Besoin de varier les fronts d'action, au risque de la dispersion.",
+    cancer: "Une combativité indirecte, plus défensive qu'offensive : on se bat surtout pour protéger les siens ou son territoire affectif. La colère passe parfois par la bouderie.",
+    lion: "Une énergie fière, qui aime s'affirmer avec panache et être vue en train de réussir. Le courage est réel, l'ego aussi.",
+    vierge: "Une énergie appliquée au détail et à l'efficacité concrète : on agit avec méthode plutôt qu'avec force brute, et l'auto-critique peut freiner l'élan.",
+    balance: "Une combativité qui préfère la stratégie et la diplomatie à l'affrontement direct — au risque de temporiser trop longtemps avant d'agir.",
+    scorpion: "Mars est traditionnellement très à l'aise ici : détermination intense, capacité de résistance et de contre-attaque, énergie sexuelle et pulsionnelle marquée.",
+    sagittaire: "Une énergie enthousiaste, qui s'engage pour des causes ou des idéaux avec une franchise parfois abrupte. Besoin de grand espace pour se déployer.",
+    capricorne: "Une énergie qui s'inscrit dans la durée et vise des objectifs concrets à long terme, avec discipline. Ambition patiente plutôt qu'impulsivité.",
+    verseau: "Une combativité qui s'exprime volontiers pour des causes collectives, avec un côté rebelle assumé face à l'autorité et aux conventions.",
+    poissons: "Une énergie moins frontale, qui passe par l'intuition, l'évitement du conflit direct ou l'engagement pour des causes idéalistes plutôt que pour soi.",
+  },
+  asc: {
+    belier: "Une allure vive, directe, un abord franc qui va droit au but. La première impression donnée est celle d'une énergie prête à en découdre.",
+    taureau: "Une présence posée, rassurante, ancrée dans le corps et le concret. Le rythme est lent mais la solidité de l'allure inspire confiance.",
+    gemeaux: "Un abord vif, curieux, bavard : on capte vite l'attention par l'esprit et le contact facile, avec une allure souvent jeune ou mobile.",
+    cancer: "Une présence douce, sensible, parfois réservée au premier abord — le temps d'évaluer si l'environnement est sûr avant de se livrer davantage.",
+    lion: "Une allure qui ne passe pas inaperçue : prestance, chaleur, sens naturel de la mise en scène de soi.",
+    vierge: "Une présence discrète, soignée, souvent perçue comme sérieuse et compétente dès le premier contact.",
+    balance: "Un abord charmant, courtois, esthétiquement soigné, avec un vrai souci de faire bonne impression et de créer une relation agréable.",
+    scorpion: "Une présence magnétique et intense, qui intrigue et parfois impressionne — on sent d'emblée une profondeur qui ne se dévoile pas facilement.",
+    sagittaire: "Une allure enjouée, franche, parfois débordante d'enthousiasme — l'humour et l'optimisme sont souvent la première carte de visite.",
+    capricorne: "Une présence sobre, réservée, qui inspire d'emblée le sérieux et la fiabilité — parfois perçue comme distante avant d'être mieux connue.",
+    verseau: "Un abord original, un brin décalé, qui affiche sa différence sans complexe dès la première rencontre.",
+    poissons: "Une présence douce, rêveuse, parfois insaisissable — le regard semble souvent porté un peu ailleurs.",
+  },
+};

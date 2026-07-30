@@ -1,0 +1,115 @@
+// Schéma Prisma — Astrologia
+// SQLite en local (fichier unique, zéro config). Migrable vers PostgreSQL en
+// production (voir README) : il suffit de changer le provider + l'adapter.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  name         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Entitlement unifié (indépendant du moyen de paiement) ---
+  // "free" | "trialing" | "active" | "past_due" | "canceled"
+  subscriptionStatus String    @default("free")
+  // "monthly" | "annual" | null
+  subscriptionPlan   String?
+  // "stripe" | "apple" | null — quelle plateforme a vendu l'abonnement en cours
+  entitlementSource  String?
+  currentPeriodEnd   DateTime?
+
+  // Solde de jetons (achats à l'unité, Stripe ou Apple consumable IAP)
+  credits Int @default(0)
+
+  // --- Stripe (web) ---
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String? @unique
+
+  // --- Apple (App Store) ---
+  // originalTransactionId Apple : identifiant stable qui suit un abonnement
+  // à travers ses renouvellements, utilisé pour relier les notifications
+  // App Store Server à ce compte.
+  appleOriginalTransactionId String? @unique
+
+  profiles     Profile[]
+  creditGrants CreditGrant[]
+  unlocks      Unlock[]
+}
+
+model Profile {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label  String
+  isSelf Boolean @default(false)
+
+  birthDate   String // format ISO "YYYY-MM-DD"
+  birthTime   String? // format "HH:mm", null si heure inconnue
+  timeUnknown Boolean @default(false)
+
+  locationName String
+  latitude     Float
+  longitude    Float
+  tzName       String // fuseau IANA, ex: "Europe/Paris"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unlocksAsPrimary   Unlock[] @relation("UnlockPrimaryProfile")
+  unlocksAsSecondary Unlock[] @relation("UnlockSecondaryProfile")
+}
+
+// Historique des achats de crédits (packs), quelle que soit la plateforme.
+// Sert de journal d'audit + idempotence (un transactionId Apple/Stripe ne
+// doit jamais être crédité deux fois).
+model CreditGrant {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  source        String // "stripe" | "apple"
+  externalId    String @unique // Stripe payment_intent / session id, ou Apple transactionId
+  creditsAdded  Int
+  amountCents   Int?
+  currency      String?
+
+  createdAt DateTime @default(now())
+}
+
+// Une "interprétation" débloquée (synastrie, composite, cartographie...) :
+// soit via un crédit dépensé, soit via l'abonnement actif. Permet de savoir
+// ce à quoi l'utilisateur a déjà accès sans re-payer, et sert d'audit trail.
+model Unlock {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // "natal" | "synastry" | "composite" | "astrocartography"
+  feature String
+
+  primaryProfileId String
+  primaryProfile   Profile @relation("UnlockPrimaryProfile", fields: [primaryProfileId], references: [id], onDelete: Cascade)
+
+  secondaryProfileId String?
+  secondaryProfile   Profile? @relation("UnlockSecondaryProfile", fields: [secondaryProfileId], references: [id], onDelete: Cascade)
+
+  // "credit" | "subscription"
+  method String
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, feature, primaryProfileId, secondaryProfileId])
+}

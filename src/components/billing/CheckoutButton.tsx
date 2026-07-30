@@ -1,0 +1,62 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { isNativeApp, purchaseAppleProduct } from "@/lib/native/storekit";
+import type { CreditPackId, SubscriptionPlanId } from "@/lib/billing/plans";
+
+type Target =
+  | { kind: "subscription"; plan: SubscriptionPlanId; appleProductId: string }
+  | { kind: "credits"; pack: CreditPackId; appleProductId: string };
+
+export function CheckoutButton({
+  target,
+  children,
+  variant = "primary",
+}: {
+  target: Target;
+  children: React.ReactNode;
+  variant?: "primary" | "secondary";
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function handleClick() {
+    setLoading(true);
+    setError(null);
+    try {
+      if (isNativeApp()) {
+        await purchaseAppleProduct(target.appleProductId);
+        router.refresh();
+        return;
+      }
+
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          target.kind === "subscription"
+            ? { kind: "subscription", plan: target.plan }
+            : { kind: "credits", pack: target.pack }
+        ),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Erreur inconnue");
+      window.location.href = data.url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Une erreur est survenue.");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div>
+      <Button variant={variant} className="w-full" disabled={loading} onClick={handleClick}>
+        {loading ? "Redirection…" : children}
+      </Button>
+      {error && <p className="mt-2 text-xs text-terracotta">{error}</p>}
+    </div>
+  );
+}

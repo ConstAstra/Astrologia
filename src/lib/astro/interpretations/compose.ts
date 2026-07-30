@@ -1,0 +1,70 @@
+import type { Aspect, AspectKey, HouseCusps, PointKey, ZodiacSign } from "../types";
+import type { SynastryAspect } from "../synastry";
+import { PLANET_META } from "./planets";
+import { SIGN_META } from "./signs";
+import { HOUSE_META } from "./houses";
+import { PLANET_IN_SIGN } from "./planet-in-sign";
+import { ASPECT_META } from "./aspects";
+import { ASTROCARTO_TEXT, LINE_TYPE_META } from "./astrocartography-content";
+import type { LineTypeKey } from "./astrocartography-content";
+import { signOf } from "../signs";
+
+export function describePlanetInSign(point: PointKey, sign: ZodiacSign): string {
+  const planet = PLANET_META[point];
+  const custom = PLANET_IN_SIGN[point]?.[sign];
+  if (custom) return custom;
+  const signMeta = SIGN_META[sign];
+  return `${planet.name} exprime ici ${planet.keyword}, teinté${
+    planet.name.endsWith("e") ? "e" : ""
+  } par la tonalité ${signMeta.name} (${signMeta.keyword}). ${signMeta.paragraph}`;
+}
+
+export function describePlanetInHouse(point: PointKey, houseNumber: number): string {
+  const planet = PLANET_META[point];
+  const house = HOUSE_META[houseNumber - 1];
+  if (!house) return "";
+  return `${planet.name} en ${house.name} : cette énergie (${planet.keyword}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
+}
+
+export function describeAspect(aspect: Aspect | SynastryAspect, context: "natal" | "synastry" | "composite" = "natal"): string {
+  const meta = ASPECT_META[aspect.aspect as AspectKey];
+  const keyA = "a" in aspect ? aspect.a : aspect.personA;
+  const keyB = "b" in aspect ? aspect.b : aspect.personB;
+  const nameA = PLANET_META[keyA]?.name ?? keyA;
+  const nameB = PLANET_META[keyB]?.name ?? keyB;
+  const gap = Math.abs(aspect.exact).toFixed(1);
+
+  const subject =
+    context === "synastry"
+      ? `Le ${nameA} de la première personne et le ${nameB} de la seconde`
+      : context === "composite"
+        ? `Le ${nameA} et le ${nameB} du couple`
+        : `${nameA} et ${nameB}`;
+
+  return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}`;
+}
+
+export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey): string {
+  const planetMeta = PLANET_META[planet];
+  const lineMeta = LINE_TYPE_META[type];
+  const text = ASTROCARTO_TEXT[planet as keyof typeof ASTROCARTO_TEXT]?.[type];
+  return `${planetMeta.name} — ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
+}
+
+export function describeHouseSystem(houses: HouseCusps): string {
+  const labels: Record<string, string> = {
+    "whole-sign": "signes entiers",
+    equal: "maisons égales",
+    porphyry: "Porphyre",
+    placidus: "Placidus",
+  };
+  const label = labels[houses.system] ?? houses.system;
+  if (houses.fellBackToWholeSign) {
+    return `Le système Placidus n'est pas calculable à cette latitude (trop proche du cercle polaire) : le thème utilise automatiquement les signes entiers, un système traditionnel et toujours défini, pour rester fiable plutôt que d'afficher une fausse précision.`;
+  }
+  return `Système de maisons utilisé : ${label}.`;
+}
+
+export function signOfPoint(longitude: number) {
+  return signOf(longitude);
+}
