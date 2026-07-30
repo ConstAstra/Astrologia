@@ -112,6 +112,22 @@ export function AstrocartographyMap({ data }: { data: WorldMapData }) {
           {data.countryPaths.map((d, i) => (
             <path key={i} d={d} fill="#ffffff12" stroke="#ffffff22" strokeWidth={0.5} />
           ))}
+          {data.countryLabels.map((label, i) => (
+            <text
+              key={i}
+              x={label.x}
+              y={label.y}
+              textAnchor="middle"
+              fontSize={9}
+              fontWeight={600}
+              letterSpacing={0.3}
+              fill="#c7cbdc"
+              opacity={0.85}
+              style={{ textTransform: "uppercase" }}
+            >
+              {label.name}
+            </text>
+          ))}
           {data.lines
             .filter((l) => visiblePlanets.has(l.planet) && visibleTypes.has(l.type))
             .map((line, i) => (

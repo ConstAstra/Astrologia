@@ -9,9 +9,11 @@ import type { HouseSystem, PointKey } from "@/lib/astro/types";
 import { signOf } from "@/lib/astro/signs";
 import { formatLongitude } from "@/lib/astro/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import {
   describeAspect,
   describeHouseSystem,
+  describeLifeMission,
   describePlanetInHouse,
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
@@ -58,6 +60,9 @@ export default async function ThemeNatalPage({
 
   const aspectKeys: PointKey[] = chart.hasReliableHouses ? DISPLAY_POINTS : [...PLANET_KEYS];
   const aspects = computeAspects(chart.points, aspectKeys);
+
+  const northNode = chart.points.northNode;
+  const mission = describeLifeMission(signOf(northNode.longitude), chart.hasReliableHouses ? northNode.house : undefined);
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude })
@@ -147,6 +152,42 @@ export default async function ThemeNatalPage({
                   </Card>
                 );
               })}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="font-display text-2xl">Mission de vie</h2>
+            <p className="mt-1 text-xs text-muted">
+              Lecture de l&apos;axe des Nœuds lunaires : le Nœud Nord comme direction d&apos;évolution à
+              apprivoiser, le Nœud Sud comme terrain déjà acquis à ne pas surinvestir.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">☊ Nœud Nord</p>
+                  <Badge tone="gold">
+                    {SIGN_META[mission.northSign].name}
+                    {mission.northHouse ? ` · Maison ${mission.northHouse}` : ""}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionSignText}</p>
+                {mission.missionHouseText && (
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionHouseText}</p>
+                )}
+              </Card>
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">☋ Nœud Sud</p>
+                  <Badge>
+                    {SIGN_META[mission.southSign].name}
+                    {mission.southHouse ? ` · Maison ${mission.southHouse}` : ""}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
+                {mission.comfortHouseText && (
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortHouseText}</p>
+                )}
+              </Card>
             </div>
           </section>
 
