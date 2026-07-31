@@ -12,16 +12,40 @@ export interface PickableProfile {
   sunSign: ZodiacSign;
 }
 
+const TEXT = {
+  fr: {
+    instructions: (
+      <>
+        Cliquez sur deux avatars : <span className="text-gold-strong">1</span> = première personne,{" "}
+        <span className="text-gold-strong">2</span> = seconde.
+      </>
+    ),
+    view: "Voir",
+  },
+  en: {
+    instructions: (
+      <>
+        Click two avatars: <span className="text-gold-strong">1</span> = first person,{" "}
+        <span className="text-gold-strong">2</span> = second.
+      </>
+    ),
+    view: "View",
+  },
+};
+
 export function AvatarPairPicker({
   profiles,
   basePath,
+  locale = "fr",
 }: {
   profiles: PickableProfile[];
   basePath: string;
+  locale?: "fr" | "en";
 }) {
   const router = useRouter();
   const [a, setA] = useState<string | null>(null);
   const [b, setB] = useState<string | null>(null);
+  const t = TEXT[locale];
 
   function handlePick(id: string) {
     if (id === a) {
@@ -45,10 +69,7 @@ export function AvatarPairPicker({
 
   return (
     <div>
-      <p className="text-sm text-muted">
-        Cliquez sur deux avatars : <span className="text-gold-strong">1</span> = première personne,{" "}
-        <span className="text-gold-strong">2</span> = seconde.
-      </p>
+      <p className="text-sm text-muted">{t.instructions}</p>
       <div className="mt-4 flex flex-wrap gap-4">
         {profiles.map((p) => {
           const rank = p.id === a ? 1 : p.id === b ? 2 : null;
@@ -73,7 +94,7 @@ export function AvatarPairPicker({
       </div>
       <div className="mt-5">
         <Button disabled={!a || !b} onClick={() => router.push(`${basePath}?a=${a}&b=${b}`)}>
-          Voir
+          {t.view}
         </Button>
       </div>
     </div>

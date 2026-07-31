@@ -6,21 +6,78 @@ import Link from "next/link";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
 
-const FEATURE_LABELS: Record<string, { title: string; description: string }> = {
-  synastry: {
-    title: "Débloquer cette synastrie",
-    description:
-      "Découvrez les aspects croisés entre les deux thèmes et la superposition des maisons — analyse complète, à vous pour toujours une fois débloquée.",
+type Locale = "fr" | "en";
+
+const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description: string }>> = {
+  fr: {
+    synastry: {
+      title: "Débloquer cette synastrie",
+      description:
+        "Découvrez les aspects croisés entre les deux thèmes et la superposition des maisons — analyse complète, à vous pour toujours une fois débloquée.",
+    },
+    composite: {
+      title: "Débloquer ce thème composite",
+      description:
+        "Le thème du couple lui-même, calculé par la méthode des points médians, avec sa roue et ses aspects internes.",
+    },
+    astrocartography: {
+      title: "Débloquer cette cartographie",
+      description:
+        "Vos lignes planétaires (MC, IC, Ascendant, Descendant) projetées sur la carte du monde, avec leur interprétation.",
+    },
   },
-  composite: {
-    title: "Débloquer ce thème composite",
-    description:
-      "Le thème du couple lui-même, calculé par la méthode des points médians, avec sa roue et ses aspects internes.",
+  en: {
+    synastry: {
+      title: "Unlock this synastry",
+      description:
+        "Discover the cross-aspects between the two charts and the house overlay — full analysis, yours forever once unlocked.",
+    },
+    composite: {
+      title: "Unlock this composite chart",
+      description: "The couple's own chart, calculated with the midpoint method, with its wheel and internal aspects.",
+    },
+    astrocartography: {
+      title: "Unlock this astrocartography",
+      description: "Your planetary lines (MC, IC, Ascendant, Descendant) projected on the world map, with their interpretation.",
+    },
   },
-  astrocartography: {
-    title: "Débloquer cette cartographie",
-    description:
-      "Vos lignes planétaires (MC, IC, Ascendant, Descendant) projetées sur la carte du monde, avec leur interprétation.",
+};
+
+const TEXT: Record<
+  Locale,
+  {
+    premiumContent: string;
+    loading: string;
+    unlockWithCredit: (credits: number) => string;
+    buyCredits: string;
+    goPremium: string;
+    genericError: string;
+    alreadySubscribed: string;
+    checkSubscription: string;
+    pricingHref: string;
+  }
+> = {
+  fr: {
+    premiumContent: "Contenu Premium",
+    loading: "Un instant…",
+    unlockWithCredit: (credits) => `Débloquer avec 1 crédit (${credits} disponible${credits > 1 ? "s" : ""})`,
+    buyCredits: "Acheter des crédits",
+    goPremium: "Passer Premium (illimité)",
+    genericError: "Erreur",
+    alreadySubscribed: "Déjà abonné ou crédité ailleurs ?",
+    checkSubscription: "Vérifier mon abonnement",
+    pricingHref: "/tarifs",
+  },
+  en: {
+    premiumContent: "Premium content",
+    loading: "One moment…",
+    unlockWithCredit: (credits) => `Unlock with 1 credit (${credits} available)`,
+    buyCredits: "Buy credits",
+    goPremium: "Go Premium (unlimited)",
+    genericError: "Error",
+    alreadySubscribed: "Already subscribed or credited elsewhere?",
+    checkSubscription: "Check my subscription",
+    pricingHref: "/en/pricing",
   },
 };
 
@@ -29,16 +86,19 @@ export function UnlockGate({
   profileIdA,
   profileIdB,
   credits,
+  locale = "fr",
 }: {
   feature: "synastry" | "composite" | "astrocartography";
   profileIdA: string;
   profileIdB?: string;
   credits: number;
+  locale?: Locale;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const meta = FEATURE_LABELS[feature];
+  const meta = FEATURE_LABELS[locale][feature];
+  const t = TEXT[locale];
 
   async function handleUnlock() {
     setLoading(true);
@@ -50,39 +110,39 @@ export function UnlockGate({
         body: JSON.stringify({ feature, profileIdA, profileIdB }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Erreur");
+      if (!res.ok) throw new Error(data.error ?? t.genericError);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
+      setError(e instanceof Error ? e.message : t.genericError);
       setLoading(false);
     }
   }
 
   return (
     <Card className="mx-auto max-w-lg p-8 text-center">
-      <Eyebrow>Contenu Premium</Eyebrow>
+      <Eyebrow>{t.premiumContent}</Eyebrow>
       <h2 className="font-display mt-3 text-2xl">{meta.title}</h2>
       <p className="mt-3 text-sm text-muted">{meta.description}</p>
 
       <div className="mt-6 space-y-3">
         {credits > 0 ? (
           <Button className="w-full" disabled={loading} onClick={handleUnlock}>
-            {loading ? "Un instant…" : `Débloquer avec 1 crédit (${credits} disponible${credits > 1 ? "s" : ""})`}
+            {loading ? t.loading : t.unlockWithCredit(credits)}
           </Button>
         ) : (
-          <ButtonLink href="/tarifs" className="w-full">
-            Acheter des crédits
+          <ButtonLink href={t.pricingHref} className="w-full">
+            {t.buyCredits}
           </ButtonLink>
         )}
-        <ButtonLink href="/tarifs" variant="secondary" className="w-full">
-          Passer Premium (illimité)
+        <ButtonLink href={t.pricingHref} variant="secondary" className="w-full">
+          {t.goPremium}
         </ButtonLink>
       </div>
       {error && <p className="mt-3 text-xs text-terracotta">{error}</p>}
       <p className="mt-4 text-xs text-muted/70">
-        Déjà abonné ou crédité ailleurs ?{" "}
+        {t.alreadySubscribed}{" "}
         <Link href="/dashboard/abonnement" className="underline">
-          Vérifier mon abonnement
+          {t.checkSubscription}
         </Link>
       </p>
     </Card>

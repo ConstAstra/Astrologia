@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RELATIONSHIP_META, RELATIONSHIP_TYPES } from "@/lib/astro/interpretations/relationship";
+import { RELATIONSHIP_META_EN } from "@/lib/astro/interpretations/relationship.en";
 import type { RelationshipType } from "@/lib/astro/interpretations/relationship";
 
 export function RelationshipTabs({
@@ -7,12 +8,15 @@ export function RelationshipTabs({
   basePath,
   a,
   b,
+  locale = "fr",
 }: {
   active: RelationshipType;
   basePath: string;
   a: string;
   b: string;
+  locale?: "fr" | "en";
 }) {
+  const meta = locale === "en" ? RELATIONSHIP_META_EN : RELATIONSHIP_META;
   return (
     <div className="flex flex-wrap gap-2 text-xs">
       {RELATIONSHIP_TYPES.map((type) => (
@@ -25,7 +29,7 @@ export function RelationshipTabs({
               : "border-border-soft text-muted hover:text-foreground"
           }`}
         >
-          {RELATIONSHIP_META[type].label}
+          {meta[type].label}
         </Link>
       ))}
     </div>
