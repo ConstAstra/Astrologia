@@ -13,6 +13,9 @@ export function SiteHeader() {
           <Link href="/methode" className="hover:text-foreground">
             La méthode
           </Link>
+          <Link href="/compatibilite" className="hover:text-foreground">
+            Compatibilité
+          </Link>
           <Link href="/tarifs" className="hover:text-foreground">
             Tarifs
           </Link>

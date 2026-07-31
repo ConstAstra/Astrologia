@@ -18,6 +18,7 @@ export function SiteFooter() {
               <p className="mb-3 font-medium text-foreground">Produit</p>
               <ul className="space-y-2 text-muted">
                 <li><Link href="/methode" className="hover:text-foreground">La méthode</Link></li>
+                <li><Link href="/compatibilite" className="hover:text-foreground">Compatibilité</Link></li>
                 <li><Link href="/tarifs" className="hover:text-foreground">Tarifs</Link></li>
                 <li><Link href="/inscription" className="hover:text-foreground">Créer un compte</Link></li>
               </ul>
