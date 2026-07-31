@@ -1,6 +1,7 @@
 import { ZODIAC_SIGNS } from "../types";
 import type { Aspect, AspectKey, HouseCusps, PointKey, ZodiacSign } from "../types";
 import type { SynastryAspect } from "../synastry";
+import type { TransitAspect } from "../transits";
 import { PLANET_META } from "./planets";
 import { SIGN_META } from "./signs";
 import { HOUSE_META } from "./houses";
@@ -70,6 +71,24 @@ export function describeAspect(aspect: Aspect | SynastryAspect, context: "natal"
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
   return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}${themeSentence}`;
+}
+
+/** Aspect entre une planète en transit (aujourd'hui) et un point du thème natal. */
+export function describeTransitAspect(aspect: TransitAspect): string {
+  const meta = ASPECT_META[aspect.aspect];
+  const transitName = PLANET_META[aspect.transitingPlanet].name;
+  const natalName = PLANET_META[aspect.natalPoint]?.name ?? aspect.natalPoint;
+  const gap = Math.abs(aspect.exact).toFixed(1);
+  const timing = aspect.applying
+    ? "L'aspect se resserre : son influence monte en puissance dans les prochains jours."
+    : "L'aspect se relâche : son influence était plus forte il y a quelques jours et s'estompe désormais.";
+
+  const pairTheme = getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
+  const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
+
+  return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec votre ${natalName} natal${
+    natalName.endsWith("e") ? "e" : ""
+  } (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey): string {

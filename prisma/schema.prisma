@@ -42,9 +42,10 @@ model User {
   // App Store Server à ce compte.
   appleOriginalTransactionId String? @unique
 
-  profiles     Profile[]
-  creditGrants CreditGrant[]
-  unlocks      Unlock[]
+  profiles           Profile[]
+  creditGrants       CreditGrant[]
+  unlocks            Unlock[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Profile {
@@ -112,4 +113,22 @@ model Unlock {
   createdAt DateTime @default(now())
 
   @@index([userId, feature, primaryProfileId, secondaryProfileId])
+}
+
+// Jeton à usage unique pour la réinitialisation de mot de passe. Seul le
+// hash du jeton est stocké (comme un mot de passe) : le jeton en clair
+// n'existe que dans l'e-mail envoyé à l'utilisateur et dans l'URL qu'il
+// visite, jamais en base.
+model PasswordResetToken {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

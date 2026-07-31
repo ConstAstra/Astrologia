@@ -21,7 +21,12 @@ export default function ConnexionPage() {
               <AuthForm mode="login" />
             </Suspense>
           </div>
-          <p className="mt-6 text-center text-sm text-muted">
+          <p className="mt-4 text-center text-sm text-muted">
+            <Link href="/mot-de-passe-oublie" className="text-gold-strong hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-sm text-muted">
             Pas encore de compte ?{" "}
             <Link href="/inscription" className="text-gold-strong hover:underline">
               Créer un compte

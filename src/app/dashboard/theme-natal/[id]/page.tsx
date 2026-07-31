@@ -21,6 +21,7 @@ import {
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
+import { OverviewCard } from "@/components/chart/OverviewCard";
 
 const HOUSE_SYSTEMS: { id: HouseSystem; label: string }[] = [
   { id: "placidus", label: "Placidus" },
@@ -79,6 +80,21 @@ export default async function ThemeNatalPage({
             {profile.birthDate} {profile.timeUnknown ? "· heure inconnue" : `à ${profile.birthTime}`} ·{" "}
             {profile.locationName}
           </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              href={`/dashboard/transits/${profile.id}`}
+              className="inline-block rounded-full border border-sage/40 px-3 py-1 text-xs text-sage hover:bg-sage/10"
+            >
+              ☾ Voir les transits du jour
+            </Link>
+            <a
+              href={`/api/share/theme-natal/${profile.id}`}
+              download={`${profile.label}-theme-astral.png`}
+              className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs text-gold-strong hover:bg-gold/10"
+            >
+              ⤓ Partager (image)
+            </a>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
           {HOUSE_SYSTEMS.map((h) => (
@@ -108,6 +124,10 @@ export default async function ThemeNatalPage({
           {describeHouseSystem(chart.houses)}
         </Card>
       )}
+
+      <div className="mt-6">
+        <OverviewCard points={chart.points} hasReliableHouses={chart.hasReliableHouses} />
+      </div>
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[420px_1fr]">
         <Card className="p-4">

@@ -75,6 +75,12 @@ export default async function ProfilsPage() {
                   Thème natal
                 </Link>
                 <Link
+                  href={`/dashboard/transits/${profile.id}`}
+                  className="rounded-full border border-sage/40 px-3 py-1 text-sage hover:bg-sage/10"
+                >
+                  Transits du jour
+                </Link>
+                <Link
                   href={`/dashboard/cartographie/${profile.id}`}
                   className="rounded-full border border-border-soft px-3 py-1 text-muted hover:text-foreground"
                 >
