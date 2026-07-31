@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { WorldMapData } from "./ProjectedLine";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import type { PlanetKey } from "@/lib/astro/types";
 
 const PLANET_COLORS: Record<string, string> = {
@@ -41,7 +42,8 @@ function toSegmentedPath(points: { x: number; y: number }[], width: number): str
   return d;
 }
 
-export function AstrocartographyMap({ data }: { data: WorldMapData }) {
+export function AstrocartographyMap({ data, locale = "fr" }: { data: WorldMapData; locale?: "fr" | "en" }) {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
   const allPlanets = useMemo(() => {
     const set = new Set<PlanetKey>();
     data.lines.forEach((l) => set.add(l.planet));
@@ -86,7 +88,7 @@ export function AstrocartographyMap({ data }: { data: WorldMapData }) {
                 opacity: visiblePlanets.has(p) ? 1 : 0.5,
               }}
             >
-              {PLANET_META[p].symbol} {PLANET_META[p].name}
+              {planetMap[p].symbol} {planetMap[p].name}
             </button>
           ))}
         </div>

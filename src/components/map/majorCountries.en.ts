@@ -1,0 +1,28 @@
+import type { MajorCountry } from "./majorCountries";
+
+export const MAJOR_COUNTRIES_EN: MajorCountry[] = [
+  { name: "United States", lat: 39, lon: -98 },
+  { name: "Canada", lat: 56, lon: -106 },
+  { name: "Mexico", lat: 23, lon: -102 },
+  { name: "Brazil", lat: -10, lon: -52 },
+  { name: "Argentina", lat: -35, lon: -64 },
+  { name: "France", lat: 47, lon: 2, dy: 6 },
+  { name: "United Kingdom", lat: 54, lon: -2, dy: -12 },
+  { name: "Spain", lat: 40, lon: -3.7, dx: 20, dy: 18 },
+  { name: "Portugal", lat: 39.5, lon: -8, dx: -32, dy: 16 },
+  { name: "Germany", lat: 51, lon: 10, dx: 18, dy: -4 },
+  { name: "Italy", lat: 42.5, lon: 12.5, dx: 16, dy: 20 },
+  { name: "Russia", lat: 61, lon: 60 },
+  { name: "Morocco", lat: 31.8, lon: -7, dy: 14 },
+  { name: "Egypt", lat: 26.8, lon: 30.8 },
+  { name: "Nigeria", lat: 9.1, lon: 8 },
+  { name: "South Africa", lat: -29, lon: 24 },
+  { name: "Saudi Arabia", lat: 24, lon: 45, dy: 8 },
+  { name: "Turkey", lat: 39, lon: 35, dy: -10 },
+  { name: "India", lat: 22, lon: 79 },
+  { name: "China", lat: 35, lon: 103, dx: -10 },
+  { name: "Japan", lat: 36.5, lon: 138, dx: 10, dy: -12 },
+  { name: "South Korea", lat: 36, lon: 127.8, dx: -6, dy: 12 },
+  { name: "Indonesia", lat: -2, lon: 118 },
+  { name: "Australia", lat: -25, lon: 134 },
+];

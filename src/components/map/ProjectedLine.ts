@@ -1,5 +1,6 @@
 import { buildWorldMap } from "./worldPaths";
 import { MAJOR_COUNTRIES } from "./majorCountries";
+import { MAJOR_COUNTRIES_EN } from "./majorCountries.en";
 import type { AstroCartoLine } from "@/lib/astro/astrocartography";
 import type { PlanetKey } from "@/lib/astro/types";
 
@@ -24,8 +25,14 @@ export interface WorldMapData {
   countryLabels: CountryLabel[];
 }
 
-export function projectAstroCartoLines(lines: AstroCartoLine[], width = 960, height = 500): WorldMapData {
+export function projectAstroCartoLines(
+  lines: AstroCartoLine[],
+  width = 960,
+  height = 500,
+  locale: "fr" | "en" = "fr"
+): WorldMapData {
   const map = buildWorldMap(width, height);
+  const countries = locale === "en" ? MAJOR_COUNTRIES_EN : MAJOR_COUNTRIES;
 
   const projected: ProjectedLine[] = lines.map((line) => {
     if (line.longitude !== undefined) {
@@ -41,7 +48,7 @@ export function projectAstroCartoLines(lines: AstroCartoLine[], width = 960, hei
     return { planet: line.planet, type: line.type, points };
   });
 
-  const countryLabels: CountryLabel[] = MAJOR_COUNTRIES.map((c) => {
+  const countryLabels: CountryLabel[] = countries.map((c) => {
     const proj = map.projectLatLon(c.lat, c.lon);
     return proj ? { name: c.name, x: proj[0] + (c.dx ?? 0), y: proj[1] + (c.dy ?? 0) } : null;
   }).filter((l): l is CountryLabel => l !== null);

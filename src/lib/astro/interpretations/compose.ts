@@ -15,6 +15,7 @@ import { ASPECT_META } from "./aspects";
 import { ASPECT_META_EN } from "./aspects.en";
 import { ASTROCARTO_TEXT, LINE_TYPE_META } from "./astrocartography-content";
 import type { LineTypeKey } from "./astrocartography-content";
+import { ASTROCARTO_TEXT_EN, LINE_TYPE_META_EN } from "./astrocartography-content.en";
 import {
   NORTH_NODE_HOUSE_MISSION,
   NORTH_NODE_SIGN_MISSION,
@@ -223,11 +224,15 @@ export function describeActivatedSynastryAspect(
   return `Votre ${synMeta.name.toLowerCase()} ${synMeta.symbol} entre le ${personName} de ${personLabel} et le ${partnerName} de ${partnerLabel} est réactivé aujourd'hui : ${transitPlanetName} en transit forme ${transitMeta.name.toLowerCase()} avec le ${personName} de ${personLabel} (écart à l'exact : ${gap}°).${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;
 }
 
-export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey): string {
-  const planetMeta = PLANET_META[planet];
-  const lineMeta = LINE_TYPE_META[type];
-  const text = ASTROCARTO_TEXT[planet as keyof typeof ASTROCARTO_TEXT]?.[type];
-  return `${planetMeta.name} — ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
+export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, locale: Locale = "fr"): string {
+  const planetMeta = (locale === "en" ? PLANET_META_EN : PLANET_META)[planet];
+  const lineMetaMap = locale === "en" ? LINE_TYPE_META_EN : LINE_TYPE_META;
+  const textMap = locale === "en" ? ASTROCARTO_TEXT_EN : ASTROCARTO_TEXT;
+  const lineMeta = lineMetaMap[type];
+  const text = textMap[planet as keyof typeof textMap]?.[type];
+  return locale === "en"
+    ? `${planetMeta.name} — ${lineMeta.name}: ${text ?? lineMeta.explanation}`
+    : `${planetMeta.name} — ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
 }
 
 export function describeHouseSystem(houses: HouseCusps, locale: Locale = "fr"): string {
