@@ -35,6 +35,17 @@ const DECAN_RULER_FLAVOR: Record<DecanRuler, string> = {
   Jupiter: "une coloration Jupiter : plus ample, plus optimiste, plus tourné vers l'expansion et la confiance.",
 };
 
+const DECAN_RULER_FLAVOR_EN: Record<DecanRuler, string> = {
+  Mars: "a Mars coloring: more direct, more impatient, more focused on immediate action than the rest of the sign.",
+  Soleil: "a Sun coloring: more assertive, more centered on recognition and conscious self-expression.",
+  Vénus: "a Venus coloring: gentler, more attuned to harmony, relationships and aesthetic pleasure.",
+  Mercure: "a Mercury coloring: more mental, more curious, more attentive to detail and communication.",
+  Lune: "a Moon coloring: more instinctive, more sensitive, more dependent on mood and the need for emotional security.",
+  Saturne: "a Saturn coloring: more serious, more structured, more concerned with staying power and responsibility.",
+  Jupiter: "a Jupiter coloring: broader, more optimistic, more focused on expansion and confidence.",
+};
+
+
 // Degrés critiques classiques (tradition occidentale), par modalité.
 const CRITICAL_DEGREES_BY_MODALITY: Record<"Cardinal" | "Fixe" | "Mutable", number[]> = {
   Cardinal: [0, 13, 26],
@@ -89,7 +100,7 @@ export interface DegreeReading {
   criticalText?: string;
 }
 
-export function computeDegreeReading(longitude: number): DegreeReading {
+export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "fr"): DegreeReading {
   const l = ((longitude % 360) + 360) % 360;
   const signIndex = Math.floor(l / 30);
   const sign = ZODIAC_SIGNS[signIndex];
@@ -124,19 +135,35 @@ export function computeDegreeReading(longitude: number): DegreeReading {
   }
   const isCritical = criticalOrb <= CRITICAL_ORB;
 
-  const decanText = `${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°), à ${formatDegMin(
-    posInDecan
-  )} de son entrée (encore ${formatDegMin(remainingInDecan)} avant le décan suivant) : ${DECAN_RULER_FLAVOR[decanRuler]}`;
+  const decanText =
+    locale === "en"
+      ? `${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°), ${formatDegMin(
+          posInDecan
+        )} into it (${formatDegMin(remainingInDecan)} left before the next decan): ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
+      : `${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°), à ${formatDegMin(
+          posInDecan
+        )} de son entrée (encore ${formatDegMin(remainingInDecan)} avant le décan suivant) : ${DECAN_RULER_FLAVOR[decanRuler]}`;
 
-  const phaseText = `Phase ${phase} du signe (${formatDegMin(posInPhase)} depuis son entrée dans cette phase, encore ${formatDegMin(
-    remainingInPhase
-  )} avant la phase suivante) : ${
-    phase === "précoce"
-      ? "l'énergie s'exprime ici de façon encore brute et spontanée — la version la plus \"pure\", et parfois la moins maîtrisée, du signe."
-      : phase === "tardive"
-        ? "l'énergie est ici mûrie, parfois déjà en transition vers la thématique du signe suivant — une forme plus consciente, parfois plus lasse, de cette énergie."
-        : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus caractéristique du signe."
-  }`;
+  const phaseText =
+    locale === "en"
+      ? `${phaseLabelEn(phase)} phase of the sign (${formatDegMin(posInPhase)} since entering this phase, ${formatDegMin(
+          remainingInPhase
+        )} left before the next phase): ${
+          phase === "précoce"
+            ? "the energy expresses itself here in a still-raw, spontaneous way — the most \"pure,\" and sometimes least controlled, version of the sign."
+            : phase === "tardive"
+              ? "the energy here is matured, sometimes already transitioning toward the theme of the next sign — a more conscious, sometimes more weary, form of this energy."
+              : "the energy here is fully settled, in its most stable and characteristic version of the sign."
+        }`
+      : `Phase ${phase} du signe (${formatDegMin(posInPhase)} depuis son entrée dans cette phase, encore ${formatDegMin(
+          remainingInPhase
+        )} avant la phase suivante) : ${
+          phase === "précoce"
+            ? "l'énergie s'exprime ici de façon encore brute et spontanée — la version la plus \"pure\", et parfois la moins maîtrisée, du signe."
+            : phase === "tardive"
+              ? "l'énergie est ici mûrie, parfois déjà en transition vers la thématique du signe suivant — une forme plus consciente, parfois plus lasse, de cette énergie."
+              : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus caractéristique du signe."
+        }`;
 
   return {
     exactDegreeInSign: exact,
@@ -148,19 +175,33 @@ export function computeDegreeReading(longitude: number): DegreeReading {
     phaseText,
     isAnaretic,
     anareticText: isAnaretic
-      ? `Degré anarétique (29e degré, à ${formatDegMin(remainingInSign)} de la fin du signe) : point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose — une énergie à vif, parfois précipitée.`
+      ? locale === "en"
+        ? `Anaretic degree (29th degree, ${formatDegMin(remainingInSign)} from the end of the sign): a point of maximum tension before the sign changes, often felt as an urgency to "wrap up" what this sign had to teach before moving on — a raw, sometimes rushed, energy.`
+        : `Degré anarétique (29e degré, à ${formatDegMin(remainingInSign)} de la fin du signe) : point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose — une énergie à vif, parfois précipitée.`
       : undefined,
     nearestCriticalDegree,
     criticalOrb,
     isCritical,
     criticalText: isCritical
-      ? `Degré "critique" selon la tradition classique : à ${formatDegMin(criticalOrb)} ${
-          criticalOrb <= EXACT_THRESHOLD ? "quasi exactement" : "du repère traditionnel"
-        } de ${nearestCriticalDegree}°, un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
+      ? locale === "en"
+        ? `"Critical" degree per classical tradition: ${formatDegMin(criticalOrb)} ${
+            criticalOrb <= EXACT_THRESHOLD ? "almost exactly" : "from the traditional marker"
+          } of ${nearestCriticalDegree}°, a point astrologers have long considered charged, where the sign's theme shows up with particular intensity or sharpness.`
+        : `Degré "critique" selon la tradition classique : à ${formatDegMin(criticalOrb)} ${
+            criticalOrb <= EXACT_THRESHOLD ? "quasi exactement" : "du repère traditionnel"
+          } de ${nearestCriticalDegree}°, un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
       : undefined,
   };
 }
 
+function phaseLabelEn(phase: DegreeReading["phase"]): string {
+  return phase === "précoce" ? "Early" : phase === "tardive" ? "Late" : "Middle";
+}
+
 function decanNumberLabel(decanIndex: number): string {
   return decanIndex === 0 ? "1er" : `${decanIndex + 1}e`;
+}
+
+function decanNumberLabelEn(decanIndex: number): string {
+  return decanIndex === 0 ? "1st" : decanIndex === 1 ? "2nd" : "3rd";
 }

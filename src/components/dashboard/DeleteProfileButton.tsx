@@ -3,10 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function DeleteProfileButton({ profileId }: { profileId: string }) {
+const TEXT = {
+  fr: { deleting: "Suppression…", confirm: "Confirmer ?", delete: "Supprimer" },
+  en: { deleting: "Deleting…", confirm: "Confirm?", delete: "Delete" },
+};
+
+export function DeleteProfileButton({ profileId, locale = "fr" }: { profileId: string; locale?: "fr" | "en" }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [loading, setLoading] = useState(false);
+  const t = TEXT[locale];
 
   async function handleDelete() {
     setLoading(true);
@@ -21,7 +27,7 @@ export function DeleteProfileButton({ profileId }: { profileId: string }) {
         disabled={loading}
         className="rounded-full border border-terracotta/50 px-3 py-1 text-terracotta"
       >
-        {loading ? "Suppression…" : "Confirmer ?"}
+        {loading ? t.deleting : t.confirm}
       </button>
     );
   }
@@ -31,7 +37,7 @@ export function DeleteProfileButton({ profileId }: { profileId: string }) {
       onClick={() => setConfirming(true)}
       className="rounded-full border border-border-soft px-3 py-1 text-muted hover:text-terracotta"
     >
-      Supprimer
+      {t.delete}
     </button>
   );
 }

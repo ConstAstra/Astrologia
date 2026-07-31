@@ -14,7 +14,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <>
-      <DashboardNav email={user.email} credits={user.credits} isPremium={isPremiumActive(user)} />
+      <DashboardNav
+        email={user.email}
+        credits={user.credits}
+        isPremium={isPremiumActive(user)}
+        locale={user.locale === "en" ? "en" : "fr"}
+      />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">{children}</main>
     </>
   );

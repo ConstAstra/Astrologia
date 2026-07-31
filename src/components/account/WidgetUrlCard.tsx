@@ -2,8 +2,22 @@
 
 import { useState } from "react";
 
-export function WidgetUrlCard({ widgetUrl }: { widgetUrl: string }) {
+const TEXT = {
+  fr: {
+    description: "URL du widget iOS (écran d'accueil) — à coller dans la configuration du widget une fois l'app installée.",
+    copied: "Copié !",
+    copy: "Copier",
+  },
+  en: {
+    description: "iOS widget URL (home screen) — paste into the widget's configuration once the app is installed.",
+    copied: "Copied!",
+    copy: "Copy",
+  },
+};
+
+export function WidgetUrlCard({ widgetUrl, locale = "fr" }: { widgetUrl: string; locale?: "fr" | "en" }) {
   const [copied, setCopied] = useState(false);
+  const t = TEXT[locale];
 
   async function copy() {
     try {
@@ -11,16 +25,13 @@ export function WidgetUrlCard({ widgetUrl }: { widgetUrl: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Presse-papiers indisponible : l'utilisateur peut copier le lien à la main.
+      // Clipboard unavailable: the user can still copy the link by hand.
     }
   }
 
   return (
     <div>
-      <p className="text-sm text-muted">
-        URL du widget iOS (écran d&apos;accueil) — à coller dans la configuration du widget une fois l&apos;app
-        installée.
-      </p>
+      <p className="text-sm text-muted">{t.description}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <input
           readOnly
@@ -33,7 +44,7 @@ export function WidgetUrlCard({ widgetUrl }: { widgetUrl: string }) {
           onClick={copy}
           className="shrink-0 rounded-full border border-gold/40 px-3 py-2 text-xs text-gold-strong hover:bg-gold/10"
         >
-          {copied ? "Copié !" : "Copier"}
+          {copied ? t.copied : t.copy}
         </button>
       </div>
     </div>

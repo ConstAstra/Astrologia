@@ -63,12 +63,14 @@ export function ChartWheel({
   houseCusps,
   aspects,
   size = 560,
+  locale = "fr",
 }: {
   points: WheelPoint[];
   ascendant: number;
   houseCusps: number[];
   aspects: Aspect[];
   size?: number;
+  locale?: "fr" | "en";
 }) {
   const cx = size / 2;
   const cy = size / 2;
@@ -93,7 +95,7 @@ export function ChartWheel({
       height={size}
       style={{ width: "100%", height: "auto", maxWidth: size, display: "block" }}
       role="img"
-      aria-label="Roue astrologique"
+      aria-label={locale === "en" ? "Astrological wheel" : "Roue astrologique"}
     >
       <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="var(--border-soft)" strokeWidth={1} />
 

@@ -4,10 +4,15 @@ import type { SynastryAspect } from "../synastry";
 import type { TransitAspect } from "../transits";
 import type { ActivatedSynastryAspect } from "../synastry-transits";
 import { PLANET_META } from "./planets";
+import { PLANET_META_EN } from "./planets.en";
 import { SIGN_META } from "./signs";
+import { SIGN_META_EN } from "./signs.en";
 import { HOUSE_META } from "./houses";
+import { HOUSE_META_EN } from "./houses.en";
 import { PLANET_IN_SIGN } from "./planet-in-sign";
+import { PLANET_IN_SIGN_EN } from "./planet-in-sign.en";
 import { ASPECT_META } from "./aspects";
+import { ASPECT_META_EN } from "./aspects.en";
 import { ASTROCARTO_TEXT, LINE_TYPE_META } from "./astrocartography-content";
 import type { LineTypeKey } from "./astrocartography-content";
 import {
@@ -16,10 +21,19 @@ import {
   SOUTH_NODE_HOUSE_COMFORT,
   SOUTH_NODE_SIGN_COMFORT,
 } from "./lunar-nodes";
+import {
+  NORTH_NODE_HOUSE_MISSION_EN,
+  NORTH_NODE_SIGN_MISSION_EN,
+  SOUTH_NODE_HOUSE_COMFORT_EN,
+  SOUTH_NODE_SIGN_COMFORT_EN,
+} from "./lunar-nodes.en";
 import { getPairTheme, isRomanticCodedPair } from "./pair-themes";
+import { getPairThemeEn } from "./pair-themes.en";
 import { computeDegreeReading } from "../degrees";
 import { signOf } from "../signs";
 import type { RelationshipType } from "./relationship";
+
+export type Locale = "fr" | "en";
 
 const GENERATIONAL_POINTS = new Set<PointKey>(["uranus", "neptune", "pluto"]);
 
@@ -39,13 +53,30 @@ function isRomanticCodedPlanetInSign(point: PointKey, sign: ZodiacSign): boolean
   return flagged === true || flagged.has(sign);
 }
 
-export function describePlanetInSign(point: PointKey, sign: ZodiacSign, relationshipType?: RelationshipType): string {
-  const planet = PLANET_META[point];
+export function describePlanetInSign(
+  point: PointKey,
+  sign: ZodiacSign,
+  relationshipType?: RelationshipType,
+  locale: Locale = "fr"
+): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const customMap = locale === "en" ? PLANET_IN_SIGN_EN : PLANET_IN_SIGN;
+  const planet = planetMap[point];
   const suppressRomantic =
     relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPlanetInSign(point, sign);
-  const custom = suppressRomantic ? undefined : PLANET_IN_SIGN[point]?.[sign];
+  const custom = suppressRomantic ? undefined : customMap[point]?.[sign];
   if (custom) return custom;
-  const signMeta = SIGN_META[sign];
+  const signMeta = signMap[sign];
+
+  if (locale === "en") {
+    const base = `${planet.name} expresses here ${planet.keyword}, colored by the ${signMeta.name} tone (${signMeta.keyword}). ${signMeta.paragraph}`;
+    if (GENERATIONAL_POINTS.has(point)) {
+      return `${base} Since ${planet.name} stays for years (even decades) in the same sign, this placement marks an entire generation rather than a strictly personal trait: what's truly yours plays out mainly through its house and aspects, read below.`;
+    }
+    return base;
+  }
+
   const base = `${planet.name} exprime ici ${planet.keyword}, teinté${
     planet.name.endsWith("e") ? "e" : ""
   } par la tonalité ${signMeta.name} (${signMeta.keyword}). ${signMeta.paragraph}`;
@@ -57,32 +88,60 @@ export function describePlanetInSign(point: PointKey, sign: ZodiacSign, relation
 }
 
 /** Lecture du degré exact (décan, phase précoce/médiane/tardive, degré anarétique ou critique). */
-export function describeDegree(longitude: number): string {
-  const r = computeDegreeReading(longitude);
-  const parts = [`À ${r.degreeLabel} du signe.`, r.decanText, r.phaseText];
+export function describeDegree(longitude: number, locale: Locale = "fr"): string {
+  const r = computeDegreeReading(longitude, locale);
+  const parts =
+    locale === "en" ? [`${r.degreeLabel} into the sign.`, r.decanText, r.phaseText] : [`À ${r.degreeLabel} du signe.`, r.decanText, r.phaseText];
   if (r.isAnaretic) parts.push(r.anareticText!);
   if (r.isCritical) parts.push(r.criticalText!);
   return parts.join(" ");
 }
 
-export function describePlanetInHouse(point: PointKey, houseNumber: number): string {
-  const planet = PLANET_META[point];
-  const house = HOUSE_META[houseNumber - 1];
+export function describePlanetInHouse(point: PointKey, houseNumber: number, locale: Locale = "fr"): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
+  const planet = planetMap[point];
+  const house = houseList[houseNumber - 1];
   if (!house) return "";
+  if (locale === "en") {
+    return `${planet.name} in ${house.name}: this energy (${planet.keyword}) expresses itself above all through ${house.keyword}. ${house.paragraph}`;
+  }
   return `${planet.name} en ${house.name} : cette énergie (${planet.keyword}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
 }
 
 export function describeAspect(
   aspect: Aspect | SynastryAspect,
   context: "natal" | "synastry" | "composite" = "natal",
-  relationshipType?: RelationshipType
+  relationshipType?: RelationshipType,
+  locale: Locale = "fr"
 ): string {
-  const meta = ASPECT_META[aspect.aspect as AspectKey];
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
+  const meta = aspectMap[aspect.aspect as AspectKey];
   const keyA = "a" in aspect ? aspect.a : aspect.personA;
   const keyB = "b" in aspect ? aspect.b : aspect.personB;
-  const nameA = PLANET_META[keyA]?.name ?? keyA;
-  const nameB = PLANET_META[keyB]?.name ?? keyB;
+  const nameA = planetMap[keyA]?.name ?? keyA;
+  const nameB = planetMap[keyB]?.name ?? keyB;
   const gap = Math.abs(aspect.exact).toFixed(1);
+
+  // Les thèmes de fond formulés en langage de couple (désir, séduction,
+  // attachement amoureux) n'ont rien à faire dans une lecture famille,
+  // amitié ou professionnelle — on ne les affiche qu'en lecture natale
+  // (auto-description) ou en cadrage romantique.
+  const suppressRomantic =
+    context !== "natal" && relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPair(keyA, keyB);
+
+  if (locale === "en") {
+    const subject =
+      context === "synastry"
+        ? `The first person's ${nameA} and the second person's ${nameB}`
+        : context === "composite"
+          ? `The composite chart's ${nameA} and ${nameB}`
+          : `${nameA} and ${nameB}`;
+    const pairTheme = suppressRomantic ? undefined : getPairThemeEn(keyA, keyB);
+    const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
+    return `${subject} form ${meta.name.toLowerCase()} ${meta.symbol} (gap to exact: ${gap}°). ${meta.description}${themeSentence}`;
+  }
 
   const subject =
     context === "synastry"
@@ -91,12 +150,6 @@ export function describeAspect(
         ? `Le ${nameA} et le ${nameB} du thème composite`
         : `${nameA} et ${nameB}`;
 
-  // Les thèmes de fond formulés en langage de couple (désir, séduction,
-  // attachement amoureux) n'ont rien à faire dans une lecture famille,
-  // amitié ou professionnelle — on ne les affiche qu'en lecture natale
-  // (auto-description) ou en cadrage romantique.
-  const suppressRomantic =
-    context !== "natal" && relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPair(keyA, keyB);
   const pairTheme = suppressRomantic ? undefined : getPairTheme(keyA, keyB);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
@@ -177,7 +230,21 @@ export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey): str
   return `${planetMeta.name} — ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
 }
 
-export function describeHouseSystem(houses: HouseCusps): string {
+export function describeHouseSystem(houses: HouseCusps, locale: Locale = "fr"): string {
+  if (locale === "en") {
+    const labelsEn: Record<string, string> = {
+      "whole-sign": "whole sign",
+      equal: "equal houses",
+      porphyry: "Porphyry",
+      placidus: "Placidus",
+    };
+    const labelEn = labelsEn[houses.system] ?? houses.system;
+    if (houses.fellBackToWholeSign) {
+      return `The Placidus system can't be calculated at this latitude (too close to the polar circle): the chart automatically falls back to whole sign houses, a traditional system that's always defined, to stay reliable rather than showing a false precision.`;
+    }
+    return `House system used: ${labelEn}.`;
+  }
+
   const labels: Record<string, string> = {
     "whole-sign": "signes entiers",
     equal: "maisons égales",
@@ -221,17 +288,21 @@ export interface LifeMission {
  * la maison opposés) comme terrain acquis à ne pas surinvestir. Voir
  * `lunar-nodes.ts` pour le détail de chaque texte.
  */
-export function describeLifeMission(northNodeSign: ZodiacSign, northNodeHouse?: number): LifeMission {
+export function describeLifeMission(northNodeSign: ZodiacSign, northNodeHouse?: number, locale: Locale = "fr"): LifeMission {
   const southSign = oppositeSign(northNodeSign);
   const southHouse = northNodeHouse ? oppositeHouse(northNodeHouse) : undefined;
+  const missionSign = locale === "en" ? NORTH_NODE_SIGN_MISSION_EN : NORTH_NODE_SIGN_MISSION;
+  const comfortSign = locale === "en" ? SOUTH_NODE_SIGN_COMFORT_EN : SOUTH_NODE_SIGN_COMFORT;
+  const missionHouse = locale === "en" ? NORTH_NODE_HOUSE_MISSION_EN : NORTH_NODE_HOUSE_MISSION;
+  const comfortHouse = locale === "en" ? SOUTH_NODE_HOUSE_COMFORT_EN : SOUTH_NODE_HOUSE_COMFORT;
   return {
     northSign: northNodeSign,
     southSign,
     northHouse: northNodeHouse,
     southHouse,
-    missionSignText: NORTH_NODE_SIGN_MISSION[northNodeSign],
-    comfortSignText: SOUTH_NODE_SIGN_COMFORT[southSign],
-    missionHouseText: northNodeHouse ? NORTH_NODE_HOUSE_MISSION[northNodeHouse] : undefined,
-    comfortHouseText: southHouse ? SOUTH_NODE_HOUSE_COMFORT[southHouse] : undefined,
+    missionSignText: missionSign[northNodeSign],
+    comfortSignText: comfortSign[southSign],
+    missionHouseText: northNodeHouse ? missionHouse[northNodeHouse] : undefined,
+    comfortHouseText: southHouse ? comfortHouse[southHouse] : undefined,
   };
 }

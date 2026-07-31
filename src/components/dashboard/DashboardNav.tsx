@@ -4,25 +4,52 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Badge } from "@/components/ui/Card";
+import { LocaleToggle } from "./LocaleToggle";
 
-const LINKS = [
-  { href: "/dashboard/profils", label: "Profils" },
-  { href: "/dashboard/synastrie", label: "Synastrie" },
-  { href: "/dashboard/composite", label: "Composite" },
-  { href: "/dashboard/abonnement", label: "Abonnement" },
-];
+type Locale = "fr" | "en";
+
+const TEXT: Record<Locale, { profiles: string; synastry: string; composite: string; subscription: string; credit: string; credits: string; logout: string }> = {
+  fr: {
+    profiles: "Profils",
+    synastry: "Synastrie",
+    composite: "Composite",
+    subscription: "Abonnement",
+    credit: "crédit",
+    credits: "crédits",
+    logout: "Déconnexion",
+  },
+  en: {
+    profiles: "Profiles",
+    synastry: "Synastry",
+    composite: "Composite",
+    subscription: "Subscription",
+    credit: "credit",
+    credits: "credits",
+    logout: "Log out",
+  },
+};
 
 export function DashboardNav({
   email,
   credits,
   isPremium,
+  locale = "fr",
 }: {
   email: string;
   credits: number;
   isPremium: boolean;
+  locale?: Locale;
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = TEXT[locale];
+
+  const links = [
+    { href: "/dashboard/profils", label: t.profiles },
+    { href: "/dashboard/synastrie", label: t.synastry },
+    { href: "/dashboard/composite", label: t.composite },
+    { href: "/dashboard/abonnement", label: t.subscription },
+  ];
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -37,7 +64,7 @@ export function DashboardNav({
           <Logo />
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-muted md:flex">
-          {LINKS.map((link) => (
+          {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -48,10 +75,11 @@ export function DashboardNav({
           ))}
         </nav>
         <div className="flex items-center gap-3 text-sm">
-          {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} crédit{credits > 1 ? "s" : ""}</Badge>}
+          {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
           <span className="hidden text-muted sm:inline">{email}</span>
+          <LocaleToggle locale={locale} />
           <button onClick={logout} className="text-muted hover:text-foreground">
-            Déconnexion
+            {t.logout}
           </button>
         </div>
       </div>

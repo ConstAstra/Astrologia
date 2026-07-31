@@ -9,7 +9,9 @@ import type { HouseSystem, PointKey } from "@/lib/astro/types";
 import { signOf } from "@/lib/astro/signs";
 import { formatLongitude } from "@/lib/astro/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import {
   describeAspect,
   describeDegree,
@@ -19,19 +21,85 @@ import {
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
+import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
 import { WidgetUrlCard } from "@/components/account/WidgetUrlCard";
 
-const HOUSE_SYSTEMS: { id: HouseSystem; label: string }[] = [
-  { id: "placidus", label: "Placidus" },
-  { id: "whole-sign", label: "Signes entiers" },
-  { id: "equal", label: "Maisons égales" },
-  { id: "porphyry", label: "Porphyre" },
+type Locale = "fr" | "en";
+
+const HOUSE_SYSTEMS: { id: HouseSystem; labelFr: string; labelEn: string }[] = [
+  { id: "placidus", labelFr: "Placidus", labelEn: "Placidus" },
+  { id: "whole-sign", labelFr: "Signes entiers", labelEn: "Whole sign" },
+  { id: "equal", labelFr: "Maisons égales", labelEn: "Equal houses" },
+  { id: "porphyry", labelFr: "Porphyre", labelEn: "Porphyry" },
 ];
 
 const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc"];
+
+const TEXT: Record<
+  Locale,
+  {
+    eyebrow: string;
+    unknownTime: string;
+    at: string;
+    transits: string;
+    share: string;
+    unreliableHouses: string;
+    positions: string;
+    house: string;
+    degree: string;
+    lifeMission: string;
+    lifeMissionIntro: string;
+    northNode: string;
+    southNode: string;
+    aspects: string;
+    noAspects: string;
+    widgetUrlBase: string;
+  }
+> = {
+  fr: {
+    eyebrow: "Thème natal",
+    unknownTime: "· heure inconnue",
+    at: "à",
+    transits: "☾ Voir les transits du jour",
+    share: "⤓ Partager (image)",
+    unreliableHouses:
+      "Heure de naissance inconnue : l'Ascendant, le Milieu du Ciel et les maisons ne sont pas affichés, plutôt que d'afficher une estimation trompeuse.",
+    positions: "Positions",
+    house: "Maison",
+    degree: "Degré —",
+    lifeMission: "Mission de vie",
+    lifeMissionIntro:
+      "Lecture de l'axe des Nœuds lunaires : le Nœud Nord comme direction d'évolution à apprivoiser, le Nœud Sud comme terrain déjà acquis à ne pas surinvestir.",
+    northNode: "☊ Nœud Nord",
+    southNode: "☋ Nœud Sud",
+    aspects: "Aspects",
+    noAspects: "Aucun aspect détecté dans les orbes retenues.",
+    widgetUrlBase: "http://localhost:3000",
+  },
+  en: {
+    eyebrow: "Natal chart",
+    unknownTime: "· unknown time",
+    at: "at",
+    transits: "☾ See today's transits",
+    share: "⤓ Share (image)",
+    unreliableHouses:
+      "Unknown birth time: the Ascendant, Midheaven and houses aren't shown, rather than displaying a misleading estimate.",
+    positions: "Positions",
+    house: "House",
+    degree: "Degree —",
+    lifeMission: "Life mission",
+    lifeMissionIntro:
+      "A reading of the lunar Nodes axis: the North Node as a direction of growth to embrace, the South Node as already-familiar ground not to over-invest in.",
+    northNode: "☊ North Node",
+    southNode: "☋ South Node",
+    aspects: "Aspects",
+    noAspects: "No aspect detected within the orbs used.",
+    widgetUrlBase: "http://localhost:3000",
+  },
+};
 
 export default async function ThemeNatalPage({
   params,
@@ -44,8 +112,17 @@ export default async function ThemeNatalPage({
   const { id } = await params;
   const { maisons } = await searchParams;
 
-  const profile = await prisma.profile.findFirst({ where: { id, userId } });
+  const [profile, user] = await Promise.all([
+    prisma.profile.findFirst({ where: { id, userId } }),
+    prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+  ]);
   if (!profile) notFound();
+
+  const locale: Locale = user.locale === "en" ? "en" : "fr";
+  const t = TEXT[locale];
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
 
   const houseSystem: HouseSystem = (HOUSE_SYSTEMS.find((h) => h.id === maisons)?.id ?? "placidus");
 
@@ -65,7 +142,11 @@ export default async function ThemeNatalPage({
   const aspects = computeAspects(chart.points, aspectKeys);
 
   const northNode = chart.points.northNode;
-  const mission = describeLifeMission(signOf(northNode.longitude), chart.hasReliableHouses ? northNode.house : undefined);
+  const mission = describeLifeMission(
+    signOf(northNode.longitude),
+    chart.hasReliableHouses ? northNode.house : undefined,
+    locale
+  );
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude })
@@ -75,10 +156,10 @@ export default async function ThemeNatalPage({
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Eyebrow>Thème natal</Eyebrow>
+          <Eyebrow>{t.eyebrow}</Eyebrow>
           <h1 className="font-display mt-2 text-3xl">{profile.label}</h1>
           <p className="mt-1 text-sm text-muted">
-            {profile.birthDate} {profile.timeUnknown ? "· heure inconnue" : `à ${profile.birthTime}`} ·{" "}
+            {profile.birthDate} {profile.timeUnknown ? t.unknownTime : `${t.at} ${profile.birthTime}`} ·{" "}
             {profile.locationName}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -86,14 +167,14 @@ export default async function ThemeNatalPage({
               href={`/dashboard/transits/${profile.id}`}
               className="inline-block rounded-full border border-sage/40 px-3 py-1 text-xs text-sage hover:bg-sage/10"
             >
-              ☾ Voir les transits du jour
+              {t.transits}
             </Link>
             <a
               href={`/api/share/theme-natal/${profile.id}`}
               download={`${profile.label}-theme-astral.png`}
               className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs text-gold-strong hover:bg-gold/10"
             >
-              ⤓ Partager (image)
+              {t.share}
             </a>
           </div>
         </div>
@@ -108,7 +189,7 @@ export default async function ThemeNatalPage({
                   : "border-border-soft text-muted hover:text-foreground"
               }`}
             >
-              {h.label}
+              {locale === "en" ? h.labelEn : h.labelFr}
             </Link>
           ))}
         </div>
@@ -116,23 +197,23 @@ export default async function ThemeNatalPage({
 
       {!chart.hasReliableHouses && (
         <Card className="mt-6 border-terracotta/40 bg-terracotta/5 p-4 text-sm text-terracotta">
-          Heure de naissance inconnue : l&apos;Ascendant, le Milieu du Ciel et les maisons ne sont pas
-          affichés, plutôt que d&apos;afficher une estimation trompeuse.
+          {t.unreliableHouses}
         </Card>
       )}
       {chart.houses.fellBackToWholeSign && (
         <Card className="mt-6 border-terracotta/40 bg-terracotta/5 p-4 text-sm text-terracotta">
-          {describeHouseSystem(chart.houses)}
+          {describeHouseSystem(chart.houses, locale)}
         </Card>
       )}
 
       <div className="mt-6">
-        <OverviewCard points={chart.points} hasReliableHouses={chart.hasReliableHouses} />
+        <OverviewCard points={chart.points} hasReliableHouses={chart.hasReliableHouses} locale={locale} />
       </div>
 
       <Card className="mt-6 p-5">
         <WidgetUrlCard
-          widgetUrl={`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/widget/theme-natal/${profile.id}?token=${profile.widgetToken}`}
+          widgetUrl={`${process.env.NEXT_PUBLIC_SITE_URL || t.widgetUrlBase}/api/widget/theme-natal/${profile.id}?token=${profile.widgetToken}`}
+          locale={locale}
         />
       </Card>
 
@@ -143,21 +224,22 @@ export default async function ThemeNatalPage({
             ascendant={chart.hasReliableHouses ? chart.houses.ascendant : 0}
             houseCusps={chart.hasReliableHouses ? chart.houses.cusps : Array.from({ length: 12 }, (_, i) => i * 30)}
             aspects={aspects}
+            locale={locale}
           />
           {chart.hasReliableHouses && (
-            <p className="mt-3 text-center text-xs text-muted">{describeHouseSystem(chart.houses)}</p>
+            <p className="mt-3 text-center text-xs text-muted">{describeHouseSystem(chart.houses, locale)}</p>
           )}
         </Card>
 
         <div className="space-y-8">
           <section>
-            <h2 className="font-display text-2xl">Positions</h2>
+            <h2 className="font-display text-2xl">{t.positions}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {DISPLAY_POINTS.map((key) => {
                 const point = chart.points[key];
                 if (!point) return null;
                 if (!chart.hasReliableHouses && (key === "asc" || key === "mc")) return null;
-                const meta = PLANET_META[key];
+                const meta = planetMap[key];
                 const sign = signOf(point.longitude);
                 return (
                   <Card key={key} className="p-4">
@@ -167,19 +249,19 @@ export default async function ThemeNatalPage({
                       </p>
                       <div className="flex items-center gap-1.5">
                         {point.retrograde && <Badge tone="terracotta">Rx</Badge>}
-                        {point.house && <Badge>Maison {point.house}</Badge>}
+                        {point.house && <Badge>{t.house} {point.house}</Badge>}
                       </div>
                     </div>
                     <p className="mt-1 text-sm text-gold-strong">
-                      {formatLongitude(point.longitude)} {sign}
+                      {formatLongitude(point.longitude)} {signMap[sign].name}
                     </p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign)}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, undefined, locale)}</p>
                     {point.house && (
-                      <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house)}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house, locale)}</p>
                     )}
                     <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
-                      <span className="text-gold-strong/90">Degré — </span>
-                      {describeDegree(point.longitude)}
+                      <span className="text-gold-strong/90">{t.degree} </span>
+                      {describeDegree(point.longitude, locale)}
                     </p>
                   </Card>
                 );
@@ -188,18 +270,15 @@ export default async function ThemeNatalPage({
           </section>
 
           <section>
-            <h2 className="font-display text-2xl">Mission de vie</h2>
-            <p className="mt-1 text-xs text-muted">
-              Lecture de l&apos;axe des Nœuds lunaires : le Nœud Nord comme direction d&apos;évolution à
-              apprivoiser, le Nœud Sud comme terrain déjà acquis à ne pas surinvestir.
-            </p>
+            <h2 className="font-display text-2xl">{t.lifeMission}</h2>
+            <p className="mt-1 text-xs text-muted">{t.lifeMissionIntro}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium">☊ Nœud Nord</p>
+                  <p className="font-medium">{t.northNode}</p>
                   <Badge tone="gold">
-                    {SIGN_META[mission.northSign].name}
-                    {mission.northHouse ? ` · Maison ${mission.northHouse}` : ""}
+                    {signMap[mission.northSign].name}
+                    {mission.northHouse ? ` · ${t.house} ${mission.northHouse}` : ""}
                   </Badge>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionSignText}</p>
@@ -209,10 +288,10 @@ export default async function ThemeNatalPage({
               </Card>
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium">☋ Nœud Sud</p>
+                  <p className="font-medium">{t.southNode}</p>
                   <Badge>
-                    {SIGN_META[mission.southSign].name}
-                    {mission.southHouse ? ` · Maison ${mission.southHouse}` : ""}
+                    {signMap[mission.southSign].name}
+                    {mission.southHouse ? ` · ${t.house} ${mission.southHouse}` : ""}
                   </Badge>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
@@ -224,21 +303,21 @@ export default async function ThemeNatalPage({
           </section>
 
           <section>
-            <h2 className="font-display text-2xl">Aspects</h2>
+            <h2 className="font-display text-2xl">{t.aspects}</h2>
             <div className="mt-4 space-y-3">
-              {aspects.length === 0 && <p className="text-sm text-muted">Aucun aspect détecté dans les orbes retenues.</p>}
+              {aspects.length === 0 && <p className="text-sm text-muted">{t.noAspects}</p>}
               {aspects.map((aspect, i) => (
                 <Card key={i} className="p-4">
                   <div className="flex items-center justify-between text-sm">
                     <p className="font-medium">
-                      {PLANET_META[aspect.a].symbol} {PLANET_META[aspect.a].name} {ASPECT_META[aspect.aspect].symbol}{" "}
-                      {PLANET_META[aspect.b].symbol} {PLANET_META[aspect.b].name}
+                      {planetMap[aspect.a].symbol} {planetMap[aspect.a].name} {aspectMap[aspect.aspect].symbol}{" "}
+                      {planetMap[aspect.b].symbol} {planetMap[aspect.b].name}
                     </p>
-                    <Badge tone={ASPECT_META[aspect.aspect].tone === "harmonieux" ? "sage" : ASPECT_META[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
-                      {ASPECT_META[aspect.aspect].name}
+                    <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
+                      {aspectMap[aspect.aspect].name}
                     </Badge>
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect)}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "natal", undefined, locale)}</p>
                 </Card>
               ))}
             </div>

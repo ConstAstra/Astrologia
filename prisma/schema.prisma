@@ -32,6 +32,13 @@ model User {
   // Solde de jetons (achats à l'unité, Stripe ou Apple consumable IAP)
   credits Int @default(0)
 
+  // --- Préférences ---
+  // Langue de l'interface tableau de bord + des e-mails ("fr" | "en").
+  // Le site marketing (public, non authentifié) utilise des URLs séparées
+  // (/en/*) plutôt que cette préférence, car il doit rester indexable par
+  // les moteurs de recherche dans les deux langues.
+  locale String @default("fr")
+
   // --- Notifications ---
   dailyHoroscopeOptIn Boolean @default(true)
   // Permet un désabonnement en un clic depuis l'e-mail, sans authentification.
