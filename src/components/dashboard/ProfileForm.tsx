@@ -5,7 +5,69 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import type { GeocodeResult } from "@/app/api/geocode/route";
 
-export function ProfileForm() {
+type Locale = "fr" | "en";
+
+const TEXT: Record<Locale, {
+  labelField: string;
+  labelPlaceholder: string;
+  isSelf: string;
+  birthDate: string;
+  birthTime: string;
+  timeUnknown: string;
+  location: string;
+  locationPlaceholder: string;
+  searching: string;
+  timezoneDetected: (tz: string) => string;
+  errorNoLocation: string;
+  errorNoDate: string;
+  errorNoTime: string;
+  errorCreate: string;
+  errorGeneric: string;
+  submitting: string;
+  submit: string;
+}> = {
+  fr: {
+    labelField: "Nom / prénom (pour vous y retrouver)",
+    labelPlaceholder: "Ex : Moi, Camille, Papa…",
+    isSelf: "C'est mon propre thème",
+    birthDate: "Date de naissance",
+    birthTime: "Heure de naissance",
+    timeUnknown: "Heure inconnue (Ascendant et maisons désactivés)",
+    location: "Lieu de naissance",
+    locationPlaceholder: "Ex : Lyon, France",
+    searching: "Recherche…",
+    timezoneDetected: (tz) => `Fuseau détecté : ${tz}`,
+    errorNoLocation: "Choisissez un lieu de naissance dans la liste proposée.",
+    errorNoDate: "La date de naissance est requise.",
+    errorNoTime: "Indiquez l'heure de naissance, ou cochez \"heure inconnue\".",
+    errorCreate: "Erreur lors de la création du profil.",
+    errorGeneric: "Une erreur est survenue.",
+    submitting: "Calcul en cours…",
+    submit: "Créer le profil et voir le thème",
+  },
+  en: {
+    labelField: "Name (so you can tell profiles apart)",
+    labelPlaceholder: "E.g.: Me, Camille, Dad…",
+    isSelf: "This is my own chart",
+    birthDate: "Birth date",
+    birthTime: "Birth time",
+    timeUnknown: "Unknown time (Ascendant and houses disabled)",
+    location: "Birth place",
+    locationPlaceholder: "E.g.: Lyon, France",
+    searching: "Searching…",
+    timezoneDetected: (tz) => `Detected time zone: ${tz}`,
+    errorNoLocation: "Choose a birth place from the suggested list.",
+    errorNoDate: "Birth date is required.",
+    errorNoTime: "Enter the birth time, or check \"unknown time\".",
+    errorCreate: "Error creating the profile.",
+    errorGeneric: "Something went wrong.",
+    submitting: "Calculating…",
+    submit: "Create the profile and view the chart",
+  },
+};
+
+export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
+  const t = TEXT[locale];
   const router = useRouter();
   const [label, setLabel] = useState("");
   const [isSelf, setIsSelf] = useState(false);
@@ -54,15 +116,15 @@ export function ProfileForm() {
     setError(null);
 
     if (!selected) {
-      setError("Choisissez un lieu de naissance dans la liste proposée.");
+      setError(t.errorNoLocation);
       return;
     }
     if (!birthDate) {
-      setError("La date de naissance est requise.");
+      setError(t.errorNoDate);
       return;
     }
     if (!timeUnknown && !birthTime) {
-      setError("Indiquez l'heure de naissance, ou cochez \"heure inconnue\".");
+      setError(t.errorNoTime);
       return;
     }
 
@@ -84,11 +146,11 @@ export function ProfileForm() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Erreur lors de la création du profil.");
+      if (!res.ok) throw new Error(data.error ?? t.errorCreate);
       router.push(`/dashboard/theme-natal/${data.profile.id}`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+      setError(err instanceof Error ? err.message : t.errorGeneric);
       setSubmitting(false);
     }
   }
@@ -97,7 +159,7 @@ export function ProfileForm() {
     <form onSubmit={onSubmit} className="space-y-5">
       <div>
         <label className="mb-1 block text-sm text-muted" htmlFor="label">
-          Nom / prénom (pour vous y retrouver)
+          {t.labelField}
         </label>
         <input
           id="label"
@@ -105,19 +167,19 @@ export function ProfileForm() {
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
-          placeholder="Ex : Moi, Camille, Papa…"
+          placeholder={t.labelPlaceholder}
         />
       </div>
 
       <label className="flex items-center gap-2 text-sm text-muted">
         <input type="checkbox" checked={isSelf} onChange={(e) => setIsSelf(e.target.checked)} />
-        C&apos;est mon propre thème
+        {t.isSelf}
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm text-muted" htmlFor="birthDate">
-            Date de naissance
+            {t.birthDate}
           </label>
           <input
             id="birthDate"
@@ -130,7 +192,7 @@ export function ProfileForm() {
         </div>
         <div>
           <label className="mb-1 block text-sm text-muted" htmlFor="birthTime">
-            Heure de naissance
+            {t.birthTime}
           </label>
           <input
             id="birthTime"
@@ -142,24 +204,24 @@ export function ProfileForm() {
           />
           <label className="mt-1 flex items-center gap-2 text-xs text-muted">
             <input type="checkbox" checked={timeUnknown} onChange={(e) => setTimeUnknown(e.target.checked)} />
-            Heure inconnue (Ascendant et maisons désactivés)
+            {t.timeUnknown}
           </label>
         </div>
       </div>
 
       <div className="relative">
         <label className="mb-1 block text-sm text-muted" htmlFor="location">
-          Lieu de naissance
+          {t.location}
         </label>
         <input
           id="location"
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
-          placeholder="Ex : Lyon, France"
+          placeholder={t.locationPlaceholder}
           className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
           autoComplete="off"
         />
-        {searching && <p className="mt-1 text-xs text-muted">Recherche…</p>}
+        {searching && <p className="mt-1 text-xs text-muted">{t.searching}</p>}
         {results.length > 0 && !selected && (
           <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border-soft bg-background-elevated shadow-lg">
             {results.map((r, i) => (
@@ -179,13 +241,13 @@ export function ProfileForm() {
             ))}
           </ul>
         )}
-        {selected && <p className="mt-1 text-xs text-sage">Fuseau détecté : {selected.tzName}</p>}
+        {selected && <p className="mt-1 text-xs text-sage">{t.timezoneDetected(selected.tzName)}</p>}
       </div>
 
       {error && <p className="text-sm text-terracotta">{error}</p>}
 
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting ? "Calcul en cours…" : "Créer le profil et voir le thème"}
+        {submitting ? t.submitting : t.submit}
       </Button>
     </form>
   );
