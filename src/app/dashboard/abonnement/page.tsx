@@ -5,6 +5,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
 import { NotificationToggle } from "@/components/account/NotificationToggle";
 import { ReferralCard } from "@/components/account/ReferralCard";
+import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
+import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
+import { DeleteAccountForm } from "@/components/account/DeleteAccountForm";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 
 const STATUS_LABELS: Record<Locale, Record<string, string>> = {
@@ -45,6 +48,10 @@ const TEXT: Record<Locale, {
   buyCredits: string;
   referral: string;
   notifications: string;
+  account: string;
+  changeEmail: string;
+  changePassword: string;
+  dangerZone: string;
 }> = {
   fr: {
     eyebrow: "Abonnement",
@@ -67,6 +74,10 @@ const TEXT: Record<Locale, {
     buyCredits: "Acheter des crédits",
     referral: "Parrainage",
     notifications: "Notifications",
+    account: "Compte",
+    changeEmail: "Adresse e-mail",
+    changePassword: "Mot de passe",
+    dangerZone: "Zone dangereuse",
   },
   en: {
     eyebrow: "Subscription",
@@ -89,6 +100,10 @@ const TEXT: Record<Locale, {
     buyCredits: "Buy credits",
     referral: "Referral",
     notifications: "Notifications",
+    account: "Account",
+    changeEmail: "Email address",
+    changePassword: "Password",
+    dangerZone: "Danger zone",
   },
 };
 
@@ -174,6 +189,28 @@ export default async function AbonnementPage({
         <p className="text-sm text-muted">{t.notifications}</p>
         <div className="mt-3">
           <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} locale={locale} />
+        </div>
+      </Card>
+
+      <Card className="mt-6 p-6">
+        <p className="font-display text-xl">{t.account}</p>
+        <div className="mt-4">
+          <p className="text-sm text-muted">{t.changeEmail}</p>
+          <div className="mt-2">
+            <ChangeEmailForm currentEmail={user.email} locale={locale} />
+          </div>
+        </div>
+        <div className="mt-6 border-t border-border-soft pt-6">
+          <p className="text-sm text-muted">{t.changePassword}</p>
+          <div className="mt-2">
+            <ChangePasswordForm locale={locale} />
+          </div>
+        </div>
+        <div className="mt-6 border-t border-border-soft pt-6">
+          <p className="text-sm text-muted">{t.dangerZone}</p>
+          <div className="mt-2">
+            <DeleteAccountForm locale={locale} />
+          </div>
         </div>
       </Card>
     </div>
