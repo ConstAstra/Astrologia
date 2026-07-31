@@ -9,13 +9,18 @@ import { PLANET_KEYS } from "@/lib/astro/types";
 import type { PointKey } from "@/lib/astro/types";
 import { signOf, formatLongitude } from "@/lib/astro/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
+import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
+import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeAspect, describeDegree, describePlanetInSign } from "@/lib/astro/interpretations/compose";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
   relationshipAspectNote,
 } from "@/lib/astro/interpretations/relationship";
+import { RELATIONSHIP_META_EN, relationshipAspectNoteEn } from "@/lib/astro/interpretations/relationship.en";
 import type { RelationshipType } from "@/lib/astro/interpretations/relationship";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { AvatarPairPicker } from "@/components/dashboard/AvatarPairPicker";
@@ -24,7 +29,47 @@ import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 
+type Locale = "fr" | "en";
+
 const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc"];
+
+const TEXT: Record<
+  Locale,
+  {
+    composite: string;
+    needTwoProfiles: string;
+    needTwoProfilesBody: string;
+    chooseTwo: string;
+    profileNotFound: string;
+    positions: string;
+    house: string;
+    degree: string;
+    internalAspects: string;
+  }
+> = {
+  fr: {
+    composite: "Thème composite",
+    needTwoProfiles: "Il vous faut deux profils",
+    needTwoProfilesBody: "Ajoutez un second profil pour calculer un thème composite.",
+    chooseTwo: "Choisissez deux profils",
+    profileNotFound: "Profil introuvable.",
+    positions: "Positions du composite",
+    house: "Maison",
+    degree: "Degré —",
+    internalAspects: "Aspects internes",
+  },
+  en: {
+    composite: "Composite chart",
+    needTwoProfiles: "You need two profiles",
+    needTwoProfilesBody: "Add a second profile to calculate a composite chart.",
+    chooseTwo: "Choose two profiles",
+    profileNotFound: "Profile not found.",
+    positions: "Composite positions",
+    house: "House",
+    degree: "Degree —",
+    internalAspects: "Internal aspects",
+  },
+};
 
 export default async function CompositePage({
   searchParams,
@@ -35,14 +80,24 @@ export default async function CompositePage({
   const { a, b, relation } = await searchParams;
   const relationshipType: RelationshipType = isRelationshipType(relation) ? relation : "romantique";
 
-  const profiles = await prisma.profile.findMany({ where: { userId }, orderBy: { createdAt: "asc" } });
+  const [profiles, currentUser] = await Promise.all([
+    prisma.profile.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+  ]);
+  const locale: Locale = currentUser.locale === "en" ? "en" : "fr";
+  const t = TEXT[locale];
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
+  const relationshipMeta = locale === "en" ? RELATIONSHIP_META_EN : RELATIONSHIP_META;
+  const getAspectNote = locale === "en" ? relationshipAspectNoteEn : relationshipAspectNote;
 
   if (profiles.length < 2) {
     return (
       <div>
-        <Eyebrow>Thème composite</Eyebrow>
-        <h1 className="font-display mt-2 text-3xl">Il vous faut deux profils</h1>
-        <p className="mt-3 text-sm text-muted">Ajoutez un second profil pour calculer un thème composite.</p>
+        <Eyebrow>{t.composite}</Eyebrow>
+        <h1 className="font-display mt-2 text-3xl">{t.needTwoProfiles}</h1>
+        <p className="mt-3 text-sm text-muted">{t.needTwoProfilesBody}</p>
       </div>
     );
   }
@@ -63,10 +118,10 @@ export default async function CompositePage({
   if (!a || !b) {
     return (
       <div>
-        <Eyebrow>Thème composite</Eyebrow>
-        <h1 className="font-display mt-2 text-3xl">Choisissez deux profils</h1>
+        <Eyebrow>{t.composite}</Eyebrow>
+        <h1 className="font-display mt-2 text-3xl">{t.chooseTwo}</h1>
         <Card className="mt-6 p-6">
-          <AvatarPairPicker profiles={pickable} basePath="/dashboard/composite" />
+          <AvatarPairPicker profiles={pickable} basePath="/dashboard/composite" locale={locale} />
         </Card>
       </div>
     );
@@ -74,12 +129,11 @@ export default async function CompositePage({
 
   const profileA = profiles.find((p) => p.id === a);
   const profileB = profiles.find((p) => p.id === b);
-  if (!profileA || !profileB) return <p className="text-muted">Profil introuvable.</p>;
+  if (!profileA || !profileB) return <p className="text-muted">{t.profileNotFound}</p>;
   const sunA = pickable.find((p) => p.id === a)!.sunSign;
   const sunB = pickable.find((p) => p.id === b)!.sunSign;
 
   const [primaryProfileId, secondaryProfileId] = canonicalPair(a, b);
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   const access = await hasFeatureAccess(userId, { feature: "composite", primaryProfileId, secondaryProfileId });
 
   const header = (
@@ -90,13 +144,13 @@ export default async function CompositePage({
           <PixelAvatar seed={b} sunSign={sunB} size={56} />
         </div>
         <div>
-          <Eyebrow>Thème composite</Eyebrow>
+          <Eyebrow>{t.composite}</Eyebrow>
           <h1 className="font-display text-3xl">
             {profileA.label} &amp; {profileB.label}
           </h1>
         </div>
       </div>
-      <RelationshipTabs active={relationshipType} basePath="/dashboard/composite" a={a} b={b} />
+      <RelationshipTabs active={relationshipType} basePath="/dashboard/composite" a={a} b={b} locale={locale} />
     </div>
   );
 
@@ -105,7 +159,7 @@ export default async function CompositePage({
       <div>
         {header}
         <div className="mt-8">
-          <UnlockGate feature="composite" profileIdA={a} profileIdB={b} credits={user.credits} />
+          <UnlockGate feature="composite" profileIdA={a} profileIdB={b} credits={currentUser.credits} locale={locale} />
         </div>
       </div>
     );
@@ -127,7 +181,7 @@ export default async function CompositePage({
   return (
     <div>
       {header}
-      <Card className="mt-6 p-5 text-sm text-muted">{RELATIONSHIP_META[relationshipType].compositeFraming}</Card>
+      <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].compositeFraming}</Card>
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[420px_1fr]">
         <Card className="p-4">
@@ -136,12 +190,13 @@ export default async function CompositePage({
             ascendant={composite.houses.ascendant}
             houseCusps={composite.houses.cusps}
             aspects={aspects}
+            locale={locale}
           />
         </Card>
 
         <div className="space-y-8">
           <section>
-            <h2 className="font-display text-2xl">Positions du composite</h2>
+            <h2 className="font-display text-2xl">{t.positions}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {DISPLAY_POINTS.map((key) => {
                 const point = composite.points[key];
@@ -151,17 +206,19 @@ export default async function CompositePage({
                   <Card key={key} className="p-4">
                     <div className="flex items-center justify-between">
                       <p className="font-medium">
-                        {PLANET_META[key].symbol} {PLANET_META[key].name}
+                        {planetMap[key].symbol} {planetMap[key].name}
                       </p>
-                      {point.house && <Badge>Maison {point.house}</Badge>}
+                      {point.house && <Badge>{t.house} {point.house}</Badge>}
                     </div>
                     <p className="mt-1 text-sm text-gold-strong">
-                      {formatLongitude(point.longitude)} {sign}
+                      {formatLongitude(point.longitude)} {signMap[sign].name}
                     </p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, relationshipType)}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">
+                      {describePlanetInSign(key, sign, relationshipType, locale)}
+                    </p>
                     <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
-                      <span className="text-gold-strong/90">Degré — </span>
-                      {describeDegree(point.longitude)}
+                      <span className="text-gold-strong/90">{t.degree} </span>
+                      {describeDegree(point.longitude, locale)}
                     </p>
                   </Card>
                 );
@@ -170,22 +227,24 @@ export default async function CompositePage({
           </section>
 
           <section>
-            <h2 className="font-display text-2xl">Aspects internes</h2>
+            <h2 className="font-display text-2xl">{t.internalAspects}</h2>
             <div className="mt-4 space-y-3">
               {aspects.map((aspect, i) => {
-                const note = relationshipAspectNote(aspect.a, aspect.b, relationshipType);
+                const note = getAspectNote(aspect.a, aspect.b, relationshipType);
                 return (
                   <Card key={i} className="p-4">
                     <div className="flex items-center justify-between text-sm">
                       <p className="font-medium">
-                        {PLANET_META[aspect.a].symbol} {PLANET_META[aspect.a].name} {ASPECT_META[aspect.aspect].symbol}{" "}
-                        {PLANET_META[aspect.b].symbol} {PLANET_META[aspect.b].name}
+                        {planetMap[aspect.a].symbol} {planetMap[aspect.a].name} {aspectMap[aspect.aspect].symbol}{" "}
+                        {planetMap[aspect.b].symbol} {planetMap[aspect.b].name}
                       </p>
-                      <Badge tone={ASPECT_META[aspect.aspect].tone === "harmonieux" ? "sage" : ASPECT_META[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
-                        {ASPECT_META[aspect.aspect].name}
+                      <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
+                        {aspectMap[aspect.aspect].name}
                       </Badge>
                     </div>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "composite", relationshipType)}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">
+                      {describeAspect(aspect, "composite", relationshipType, locale)}
+                    </p>
                     {note && <p className="mt-1 text-xs leading-relaxed text-gold-strong">{note}</p>}
                   </Card>
                 );
