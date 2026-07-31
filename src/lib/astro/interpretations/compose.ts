@@ -38,7 +38,7 @@ export function describePlanetInSign(point: PointKey, sign: ZodiacSign): string 
 /** Lecture du degré exact (décan, phase précoce/médiane/tardive, degré anarétique ou critique). */
 export function describeDegree(longitude: number): string {
   const r = computeDegreeReading(longitude);
-  const parts = [r.decanText, r.phaseText];
+  const parts = [`À ${r.degreeLabel} du signe.`, r.decanText, r.phaseText];
   if (r.isAnaretic) parts.push(r.anareticText!);
   if (r.isCritical) parts.push(r.criticalText!);
   return parts.join(" ");
