@@ -1,0 +1,133 @@
+import { timingSafeEqual } from "crypto";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { computeNatalChart } from "@/lib/astro/chart";
+import { computeComposite } from "@/lib/astro/composite";
+import { composeDailyHoroscope } from "@/lib/astro/interpretations/daily-horoscope";
+import { composeSynastryTransitSection } from "@/lib/astro/interpretations/synastry-transit";
+import type { BirthInput } from "@/lib/astro/types";
+import { sendEmail } from "@/lib/email";
+
+function chartInputFor(profile: {
+  birthDate: string;
+  birthTime: string | null;
+  tzName: string;
+  latitude: number;
+  longitude: number;
+  timeUnknown: boolean;
+}): BirthInput {
+  return {
+    date: profile.birthDate,
+    time: profile.birthTime,
+    tzName: profile.tzName,
+    latitude: profile.latitude,
+    longitude: profile.longitude,
+    timeUnknown: profile.timeUnknown,
+  };
+}
+
+export const runtime = "nodejs";
+
+function isAuthorized(request: Request): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+
+  const header = request.headers.get("authorization") ?? "";
+  const provided = header.replace(/^Bearer\s+/i, "");
+  const a = Buffer.from(provided);
+  const b = Buffer.from(secret);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+// Déclenchée quotidiennement par un scheduler externe (Vercel Cron, cron OS,
+// GitHub Actions…) — voir README ("Horoscope quotidien"). Vercel Cron envoie
+// des requêtes GET avec l'en-tête `Authorization: Bearer $CRON_SECRET`, d'où
+// la prise en charge de GET et POST.
+async function runDailyHoroscope(request: Request) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
+  }
+
+  const users = await prisma.user.findMany({
+    where: { dailyHoroscopeOptIn: true },
+    include: { profiles: { where: { isSelf: true }, take: 1 } },
+  });
+
+  const now = new Date();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  let sent = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  for (const user of users) {
+    const profile = user.profiles[0];
+    if (!profile) {
+      skipped += 1;
+      continue;
+    }
+
+    try {
+      const chart = computeNatalChart(chartInputFor(profile), "placidus");
+      const horoscope = composeDailyHoroscope(chart, profile.label, now);
+      const unsubscribeUrl = `${siteUrl}/api/notifications/unsubscribe?token=${user.unsubscribeToken}`;
+
+      // Paires de synastrie déverrouillées par cet utilisateur : on ajoute
+      // une section "transits du jour sur le thème composite" par relation,
+      // dans le même e-mail plutôt qu'un envoi séparé par couple.
+      const synastryUnlocks = await prisma.unlock.findMany({
+        where: { userId: user.id, feature: "synastry" },
+        distinct: ["primaryProfileId", "secondaryProfileId"],
+        include: { primaryProfile: true, secondaryProfile: true },
+      });
+
+      const synastrySections = synastryUnlocks
+        .filter((u) => u.secondaryProfile)
+        .map((u) => {
+          const profileA = u.primaryProfile;
+          const profileB = u.secondaryProfile!;
+          const chartA = profileA.id === profile.id ? chart : computeNatalChart(chartInputFor(profileA), "placidus");
+          const chartB = profileB.id === profile.id ? chart : computeNatalChart(chartInputFor(profileB), "placidus");
+          const composite = computeComposite(chartA, chartB);
+          return composeSynastryTransitSection(composite, profileA.label, profileB.label, now);
+        });
+
+      await sendEmail({
+        to: user.email,
+        subject: horoscope.subject,
+        html: `
+          <p><strong>${horoscope.headline}</strong></p>
+          ${horoscope.paragraphs.map((p) => `<p>${p}</p>`).join("\n")}
+          <p><a href="${siteUrl}/dashboard/transits/${profile.id}">Voir le détail des transits du jour</a></p>
+          ${synastrySections
+            .map(
+              (s) => `
+            <hr/>
+            <p><strong>${s.heading}</strong></p>
+            <p>${s.paragraph}</p>
+          `
+            )
+            .join("\n")}
+          <hr/>
+          <p style="font-size:12px;color:#888;">
+            Vous recevez cet e-mail car vous êtes inscrit(e) sur Astrologia.
+            <a href="${unsubscribeUrl}">Se désabonner de l'horoscope quotidien</a>.
+          </p>
+        `,
+      });
+      sent += 1;
+    } catch (err) {
+      errors.push(`${user.id}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  return NextResponse.json({ sent, skipped, errors });
+}
+
+export async function GET(request: Request) {
+  return runDailyHoroscope(request);
+}
+
+export async function POST(request: Request) {
+  return runDailyHoroscope(request);
+}

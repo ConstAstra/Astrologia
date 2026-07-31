@@ -26,6 +26,14 @@ intégrés Apple côté iOS, système de crédits à l'unité).
   (voir plus bas).
 - **Méthodologie transparente** : page `/methode` qui documente chaque choix
   (zodiaque, éphémérides, orbes, limites assumées).
+- **Horoscope quotidien par e-mail** : rappel court chaque jour (phase
+  lunaire + transit du jour le plus signifiant, relié au Big 3 et à la
+  dominante élémentaire du thème natal), plus une section par synastrie
+  déverrouillée (transits du jour sur le thème composite du couple).
+  Opt-in par défaut, désabonnement en un clic. Voir « Horoscope quotidien »
+  ci-dessous pour la configuration du scheduler.
+- **Carte de partage** : image PNG générée à la volée (`/api/share/theme-natal/[id]`)
+  pour partager son thème (avatar + Big 3) sur les réseaux.
 
 ## Stack technique
 
@@ -67,6 +75,8 @@ Toutes les variables sont documentées dans `.env.example`. Résumé :
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Paiements web |
 | `APPLE_*` | Achats intégrés iOS (voir section dédiée) |
 | `CAPACITOR_SERVER_URL` | URL chargée par l'app iOS |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Envoi d'e-mails (mot de passe oublié, horoscope quotidien) — vide en dev, logge dans la console |
+| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope` (voir « Horoscope quotidien ») |
 
 ### Stripe (web)
 
@@ -110,6 +120,29 @@ requise. Sa politique d'usage limite à 1 requête/seconde et interdit un usage
 commercial intensif sans instance auto-hébergée — au-delà d'un certain
 volume, prévoir un fournisseur payant (voir commentaire dans
 `src/app/api/geocode/route.ts`).
+
+### Horoscope quotidien
+
+`/api/cron/daily-horoscope` (GET ou POST) parcourt les utilisateurs
+opt-in (`dailyHoroscopeOptIn`), envoie à chacun un e-mail personnalisé
+(phase lunaire, transit du jour, Big 3, dominante élémentaire) plus une
+section par synastrie déverrouillée. Elle doit être déclenchée une fois par
+jour par un scheduler externe — Next.js ne planifie rien tout seul.
+
+Authentification : en-tête `Authorization: Bearer $CRON_SECRET`.
+
+- **Vercel Cron** : ajoutez dans `vercel.json`
+  ```json
+  { "crons": [{ "path": "/api/cron/daily-horoscope", "schedule": "0 7 * * *" }] }
+  ```
+  Vercel ajoute automatiquement l'en-tête `Authorization` avec la valeur de
+  `CRON_SECRET` définie dans les variables d'environnement du projet.
+- **Cron OS / autre hébergeur** :
+  ```bash
+  curl -X POST https://votre-domaine.example/api/cron/daily-horoscope \
+    -H "Authorization: Bearer $CRON_SECRET"
+  ```
+- **En local** : `curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily-horoscope`.
 
 ## Passer en production
 

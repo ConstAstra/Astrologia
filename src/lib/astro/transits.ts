@@ -3,6 +3,11 @@ import { aspectBetweenPoints } from "./aspects";
 import { MAJOR_ASPECTS, MINOR_ASPECTS, PLANET_KEYS } from "./types";
 import type { AspectKey, EclipticPoint, NatalChart, PlanetKey, PointKey } from "./types";
 
+// Sous-ensemble de NatalChart : accepte aussi un CompositeChart (pas de
+// julianDay/ramc/etc. pour un thème composite, qui n'a pas de lieu réel),
+// pour pouvoir calculer les transits du jour sur le thème d'un couple.
+type TransitableChart = Pick<NatalChart, "points" | "hasReliableHouses">;
+
 export interface TransitAspect {
   transitingPlanet: PlanetKey;
   natalPoint: PointKey;
@@ -29,7 +34,7 @@ export function computeTransitingPositions(date: Date = new Date()): Record<Plan
 
 /** Aspects entre les planètes en transit et les points d'un thème natal. */
 export function computeTransitAspects(
-  natalChart: NatalChart,
+  natalChart: TransitableChart,
   date: Date = new Date(),
   options: { includeMinor?: boolean } = {}
 ): TransitAspect[] {

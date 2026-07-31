@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
+import { NotificationToggle } from "@/components/account/NotificationToggle";
 
 const STATUS_LABELS: Record<string, string> = {
   free: "Gratuit",
@@ -70,6 +71,13 @@ export default async function AbonnementPage({
             Acheter des crédits
           </ButtonLink>
           {user.entitlementSource === "stripe" && <ManageBillingButton />}
+        </div>
+      </Card>
+
+      <Card className="mt-6 p-6">
+        <p className="text-sm text-muted">Notifications</p>
+        <div className="mt-3">
+          <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} />
         </div>
       </Card>
     </div>

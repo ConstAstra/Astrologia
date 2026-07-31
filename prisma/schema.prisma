@@ -32,6 +32,11 @@ model User {
   // Solde de jetons (achats à l'unité, Stripe ou Apple consumable IAP)
   credits Int @default(0)
 
+  // --- Notifications ---
+  dailyHoroscopeOptIn Boolean @default(true)
+  // Permet un désabonnement en un clic depuis l'e-mail, sans authentification.
+  unsubscribeToken    String  @unique @default(cuid())
+
   // --- Stripe (web) ---
   stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
