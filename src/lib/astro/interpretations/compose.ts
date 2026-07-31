@@ -158,11 +158,23 @@ export function describeAspect(
 }
 
 /** Aspect entre une planète en transit (aujourd'hui) et un point du thème natal. */
-export function describeTransitAspect(aspect: TransitAspect): string {
-  const meta = ASPECT_META[aspect.aspect];
-  const transitName = PLANET_META[aspect.transitingPlanet].name;
-  const natalName = PLANET_META[aspect.natalPoint]?.name ?? aspect.natalPoint;
+export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "fr"): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
+  const meta = aspectMap[aspect.aspect];
+  const transitName = planetMap[aspect.transitingPlanet].name;
+  const natalName = planetMap[aspect.natalPoint]?.name ?? aspect.natalPoint;
   const gap = Math.abs(aspect.exact).toFixed(1);
+
+  if (locale === "en") {
+    const timing = aspect.applying
+      ? "The aspect is tightening: its influence is building over the coming days."
+      : "The aspect is loosening: its influence was stronger a few days ago and is now fading.";
+    const pairTheme = getPairThemeEn(aspect.transitingPlanet, aspect.natalPoint);
+    const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
+    return `Transiting ${transitName} forms ${meta.name.toLowerCase()} ${meta.symbol} with your natal ${natalName} (orb: ${gap}°). ${meta.description}${themeSentence} ${timing}`;
+  }
+
   const timing = aspect.applying
     ? "L'aspect se resserre : son influence monte en puissance dans les prochains jours."
     : "L'aspect se relâche : son influence était plus forte il y a quelques jours et s'estompe désormais.";
