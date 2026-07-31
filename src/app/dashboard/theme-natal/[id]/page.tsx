@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeAspects } from "@/lib/astro/aspects";
+import { computeDominance } from "@/lib/astro/dominance";
 import { PLANET_KEYS } from "@/lib/astro/types";
 import type { HouseSystem, PointKey } from "@/lib/astro/types";
 import { signOf } from "@/lib/astro/signs";
@@ -22,10 +23,13 @@ import {
 } from "@/lib/astro/interpretations/compose";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
+import { composeChartSynthesis } from "@/lib/astro/interpretations/synthesis";
+import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
 import { WidgetUrlCard } from "@/components/account/WidgetUrlCard";
+import { UnlockGate } from "@/components/billing/UnlockGate";
 
 type Locale = "fr" | "en";
 
@@ -57,6 +61,18 @@ const TEXT: Record<
     aspects: string;
     noAspects: string;
     widgetUrlBase: string;
+    ascendantRulerTitle: string;
+    signHeading: string;
+    houseHeading: string;
+    synthesisTitle: string;
+    synthesisPremium: string;
+    synthesisOverviewHeading: string;
+    synthesisAscendantRulerHeading: string;
+    synthesisContradictionsHeading: string;
+    synthesisContradictionsIntro: string;
+    synthesisStrengthsHeading: string;
+    synthesisStrengthsIntro: string;
+    noneDetected: string;
   }
 > = {
   fr: {
@@ -78,6 +94,18 @@ const TEXT: Record<
     aspects: "Aspects",
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
     widgetUrlBase: "http://localhost:3000",
+    ascendantRulerTitle: "Maître de l'Ascendant",
+    signHeading: "En signe",
+    houseHeading: "En maison",
+    synthesisTitle: "Lecture de synthèse",
+    synthesisPremium: "Premium",
+    synthesisOverviewHeading: "Vue d'ensemble",
+    synthesisAscendantRulerHeading: "Le maître de l'Ascendant",
+    synthesisContradictionsHeading: "Vos contradictions internes",
+    synthesisContradictionsIntro: "Là où deux logiques de votre thème tirent dans des directions différentes.",
+    synthesisStrengthsHeading: "Vos points d'appui",
+    synthesisStrengthsIntro: "Là où plusieurs parties de votre thème travaillent naturellement dans le même sens.",
+    noneDetected: "Aucun élément notable détecté ici.",
   },
   en: {
     eyebrow: "Natal chart",
@@ -98,6 +126,18 @@ const TEXT: Record<
     aspects: "Aspects",
     noAspects: "No aspect detected within the orbs used.",
     widgetUrlBase: "http://localhost:3000",
+    ascendantRulerTitle: "Ascendant ruler",
+    signHeading: "In sign",
+    houseHeading: "In house",
+    synthesisTitle: "Synthesis reading",
+    synthesisPremium: "Premium",
+    synthesisOverviewHeading: "Overview",
+    synthesisAscendantRulerHeading: "Your Ascendant ruler",
+    synthesisContradictionsHeading: "Your internal contradictions",
+    synthesisContradictionsIntro: "Where two logics in your chart pull in different directions.",
+    synthesisStrengthsHeading: "Your points of strength",
+    synthesisStrengthsIntro: "Where several parts of your chart naturally work in the same direction.",
+    noneDetected: "No notable element detected here.",
   },
 };
 
@@ -151,6 +191,13 @@ export default async function ThemeNatalPage({
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude })
   );
+
+  const dominance = computeDominance(chart.points, chart.hasReliableHouses);
+  const ascendantRuler = dominance.ascendantRuler;
+  const ascendantRulerPoint = ascendantRuler ? chart.points[ascendantRuler] : undefined;
+
+  const synthesisAccess = await hasFeatureAccess(userId, { feature: "synthesis", primaryProfileId: profile.id });
+  const synthesis = synthesisAccess ? composeChartSynthesis(chart, locale) : null;
 
   return (
     <div>
@@ -208,6 +255,95 @@ export default async function ThemeNatalPage({
 
       <div className="mt-6">
         <OverviewCard points={chart.points} hasReliableHouses={chart.hasReliableHouses} locale={locale} />
+      </div>
+
+      {ascendantRuler && ascendantRulerPoint && (
+        <Card className="mt-6 p-6">
+          <Eyebrow>{t.ascendantRulerTitle}</Eyebrow>
+          <p className="mt-3 flex items-center gap-2 font-display text-xl">
+            <span>{planetMap[ascendantRuler].symbol}</span>
+            <span>{planetMap[ascendantRuler].name}</span>
+            <span className="text-sm font-normal text-muted">
+              {formatLongitude(ascendantRulerPoint.longitude)} {signMap[signOf(ascendantRulerPoint.longitude)].name}
+              {ascendantRulerPoint.house ? ` · ${t.house} ${ascendantRulerPoint.house}` : ""}
+            </span>
+          </p>
+          <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
+            <p>
+              <span className="text-xs uppercase tracking-wide text-muted/70">{t.signHeading} </span>
+              {describePlanetInSign(ascendantRuler, signOf(ascendantRulerPoint.longitude), undefined, locale)}
+            </p>
+            {ascendantRulerPoint.house && (
+              <p>
+                <span className="text-xs uppercase tracking-wide text-muted/70">{t.houseHeading} </span>
+                {describePlanetInHouse(ascendantRuler, ascendantRulerPoint.house, locale)}
+              </p>
+            )}
+          </div>
+        </Card>
+      )}
+
+      <div className="mt-6">
+        {synthesis ? (
+          <Card className="p-6">
+            <div className="flex items-center gap-3">
+              <Eyebrow>{t.synthesisTitle}</Eyebrow>
+              <Badge tone="gold">{t.synthesisPremium}</Badge>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisOverviewHeading}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.overview}</p>
+            </div>
+
+            {synthesis.ascendantRulerIntro && (
+              <div className="mt-6 border-t border-border-soft pt-6">
+                <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisAscendantRulerHeading}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.ascendantRulerIntro}</p>
+                {synthesis.ascendantRulerSign && (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.ascendantRulerSign}</p>
+                )}
+                {synthesis.ascendantRulerHouse && (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.ascendantRulerHouse}</p>
+                )}
+              </div>
+            )}
+
+            <div className="mt-6 border-t border-border-soft pt-6">
+              <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisContradictionsHeading}</p>
+              <p className="mt-1 text-xs text-muted/70">{t.synthesisContradictionsIntro}</p>
+              <div className="mt-3 space-y-3">
+                {synthesis.contradictions.length === 0 ? (
+                  <p className="text-sm text-muted">{t.noneDetected}</p>
+                ) : (
+                  synthesis.contradictions.map((c, i) => (
+                    <p key={i} className="text-sm leading-relaxed text-muted">
+                      {c}
+                    </p>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="mt-6 border-t border-border-soft pt-6">
+              <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisStrengthsHeading}</p>
+              <p className="mt-1 text-xs text-muted/70">{t.synthesisStrengthsIntro}</p>
+              <div className="mt-3 space-y-3">
+                {synthesis.strengths.length === 0 ? (
+                  <p className="text-sm text-muted">{t.noneDetected}</p>
+                ) : (
+                  synthesis.strengths.map((s, i) => (
+                    <p key={i} className="text-sm leading-relaxed text-muted">
+                      {s}
+                    </p>
+                  ))
+                )}
+              </div>
+            </div>
+          </Card>
+        ) : (
+          <UnlockGate feature="synthesis" profileIdA={profile.id} credits={user.credits} locale={locale} />
+        )}
       </div>
 
       <Card className="mt-6 p-5">

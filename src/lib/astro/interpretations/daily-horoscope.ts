@@ -1,7 +1,7 @@
 import type { NatalChart } from "../types";
 import { computeTransitAspects, computeTransitingPositions } from "../transits";
 import { computeMoonPhase } from "../moonphase";
-import { computeBigThree, computeDominance, PERSONAL_PLANET_KEYS } from "../dominance";
+import { computeBigThree, computeDominance } from "../dominance";
 import { describeTransitAspect, type Locale } from "./compose";
 import { MOON_PHASE_TEXT } from "./moonphase-content";
 import { MOON_PHASE_TEXT_EN, MOON_PHASE_LABEL_EN } from "./moonphase-content.en";
@@ -70,21 +70,11 @@ export function composeDailyHoroscope(
   const transitAspects = computeTransitAspects(chart, date);
   const featured = transitAspects.find((a) => a.major) ?? transitAspects[0];
   const big3 = computeBigThree(chart.points, chart.hasReliableHouses);
-  const dominance = computeDominance(chart.points);
-  // Préfère l'élément le mieux représenté parmi les seules planètes
-  // personnelles (Soleil à Mars) : la dominante "toutes planètes confondues"
-  // peut être portée uniquement par des planètes lentes partagées avec toute
-  // une génération (ex. Uranus/Neptune sur le même signe pendant des années),
-  // ce qui n'apporte aucune personnalisation réelle à ce paragraphe.
-  let dominantElement = dominance.dominantElements[0];
-  let bestPersonalCount = 0;
-  for (const element of Object.keys(dominance.elementPlanets) as (keyof typeof dominance.elementPlanets)[]) {
-    const personalCount = dominance.elementPlanets[element].filter((p) => PERSONAL_PLANET_KEYS.includes(p)).length;
-    if (personalCount > bestPersonalCount) {
-      bestPersonalCount = personalCount;
-      dominantElement = element;
-    }
-  }
+  // computeDominance calcule déjà sur les seules planètes personnelles +
+  // maître de l'Ascendant (voir dominance.ts) : cette dominante est
+  // garantie personnellement pertinente, jamais purement générationnelle.
+  const dominance = computeDominance(chart.points, chart.hasReliableHouses);
+  const dominantElement = dominance.dominantElements[0];
 
   const highlights: string[] = [];
 

@@ -25,6 +25,11 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
       description:
         "Vos lignes planétaires (MC, IC, Ascendant, Descendant) projetées sur la carte du monde, avec leur interprétation.",
     },
+    synthesis: {
+      title: "Débloquer la lecture de synthèse",
+      description:
+        "Une lecture d'ensemble qui relie Big 3, dominantes, maître de l'Ascendant, contradictions internes et aspects porteurs en un seul récit cohérent — plutôt que des placements isolés à interpréter soi-même.",
+    },
   },
   en: {
     synastry: {
@@ -39,6 +44,11 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
     astrocartography: {
       title: "Unlock this astrocartography",
       description: "Your planetary lines (MC, IC, Ascendant, Descendant) projected on the world map, with their interpretation.",
+    },
+    synthesis: {
+      title: "Unlock the synthesis reading",
+      description:
+        "A holistic reading that ties Big 3, dominances, Ascendant ruler, internal contradictions and standout aspects into one coherent narrative — instead of isolated placements you have to interpret yourself.",
     },
   },
 };
@@ -88,7 +98,7 @@ export function UnlockGate({
   credits,
   locale = "fr",
 }: {
-  feature: "synastry" | "composite" | "astrocartography";
+  feature: "synastry" | "composite" | "astrocartography" | "synthesis";
   profileIdA: string;
   profileIdB?: string;
   credits: number;

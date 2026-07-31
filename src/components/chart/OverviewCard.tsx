@@ -1,4 +1,4 @@
-import { computeBigThree, computeDominance, isGenerationalOnly } from "@/lib/astro/dominance";
+import { computeBigThree, computeDominance } from "@/lib/astro/dominance";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
@@ -27,7 +27,7 @@ const TEXT: Record<Locale, {
   unknownTime: string;
   distribution: string;
   composedOf: (planets: string) => string;
-  generationalNote: string;
+  basis: string;
 }> = {
   fr: {
     overview: "Vue d'ensemble",
@@ -37,8 +37,7 @@ const TEXT: Record<Locale, {
     unknownTime: "Heure inconnue",
     distribution: "Répartition par élément",
     composedOf: (planets) => `Porté par : ${planets}.`,
-    generationalNote:
-      "Aucune de vos planètes personnelles (Soleil à Mars) n'y contribue : cette dominante vient uniquement de planètes lentes, partagées avec toute votre génération — elle en dit plus sur votre époque que sur vous individuellement.",
+    basis: "Calculée sur vos 5 planètes personnelles (Soleil à Mars) et le maître de votre Ascendant — pas sur l'ensemble du thème, pour rester représentative de vous plutôt que de votre génération.",
   },
   en: {
     overview: "Overview",
@@ -48,8 +47,7 @@ const TEXT: Record<Locale, {
     unknownTime: "Unknown time",
     distribution: "Breakdown by element",
     composedOf: (planets) => `Driven by: ${planets}.`,
-    generationalNote:
-      "None of your personal planets (Sun through Mars) contribute to it: this dominance comes only from slow-moving planets shared with your whole generation — it says more about your era than about you individually.",
+    basis: "Calculated from your 5 personal planets (Sun through Mars) and your Ascendant ruler — not the whole chart, to stay representative of you rather than your generation.",
   },
 };
 
@@ -69,7 +67,7 @@ export function OverviewCard({
   const t = TEXT[locale];
 
   const big3 = computeBigThree(points, hasReliableHouses);
-  const dominance = computeDominance(points);
+  const dominance = computeDominance(points, hasReliableHouses);
   const maxCount = Math.max(1, ...Object.values(dominance.elementCounts));
 
   return (
@@ -103,6 +101,7 @@ export function OverviewCard({
 
       <div className="mt-6">
         <p className="text-xs uppercase tracking-wide text-muted">{t.distribution}</p>
+        <p className="mt-1 text-xs text-muted/70">{t.basis}</p>
         <div className="mt-3 space-y-2">
           {(Object.keys(dominance.elementCounts) as (keyof typeof dominance.elementCounts)[]).map((element) => (
             <div key={element} className="flex items-center gap-3">
@@ -125,27 +124,23 @@ export function OverviewCard({
       <div className="mt-5 space-y-3 text-xs leading-relaxed text-muted">
         {dominance.dominantElements.map((e) => {
           const planets = dominance.elementPlanets[e];
-          const generational = isGenerationalOnly(planets);
           return (
             <div key={e}>
               <p>{elementText[e]}</p>
               <p className="mt-1 text-muted/70">
                 {t.composedOf(planets.map((p) => `${planetMap[p].symbol} ${planetMap[p].name}`).join(", "))}
               </p>
-              {generational && <p className="mt-1 italic text-muted/70">{t.generationalNote}</p>}
             </div>
           );
         })}
         {dominance.dominantModalities.map((m) => {
           const planets = dominance.modalityPlanets[m];
-          const generational = isGenerationalOnly(planets);
           return (
             <div key={m}>
               <p>{modalityText[m]}</p>
               <p className="mt-1 text-muted/70">
                 {t.composedOf(planets.map((p) => `${planetMap[p].symbol} ${planetMap[p].name}`).join(", "))}
               </p>
-              {generational && <p className="mt-1 italic text-muted/70">{t.generationalNote}</p>}
             </div>
           );
         })}

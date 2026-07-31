@@ -1,22 +1,23 @@
 import { signOf } from "./signs";
 import { SIGN_META } from "./interpretations/signs";
-import { PLANET_KEYS } from "./types";
+import { ascendantRulerOf } from "./interpretations/rulership";
 import type { EclipticPoint, PointKey, ZodiacSign } from "./types";
 
 const ELEMENTS = ["Feu", "Terre", "Air", "Eau"] as const;
 const MODALITIES = ["Cardinal", "Fixe", "Mutable"] as const;
 
-// Compte les 10 corps classiques + modernes (Soleil à Pluton) : une
-// pondération égale et transparente, plutôt qu'un système de points
-// propriétaire difficile à justifier précisément.
-const DOMINANCE_POINTS: PointKey[] = PLANET_KEYS.filter((k) => k !== "northNode");
-
 // Les planètes "personnelles" (Soleil à Mars) bougent vite et distinguent un
-// individu de ses pairs ; Uranus, Neptune et Pluton bougent si lentement
-// qu'ils sont quasi identiques pour toute une génération née à quelques
-// années d'écart. Une dominante portée uniquement par ces trois-là décrit
-// donc surtout une époque, pas la personne — d'où l'intérêt d'exposer cette
-// distinction plutôt que de la laisser noyée dans un compte à poids égal.
+// individu de ses pairs — contrairement aux planètes lentes (Jupiter à
+// Pluton), quasi identiques pour toute une génération née à quelques années
+// d'écart. Compter les 9-10 planètes à poids égal (comme dans une première
+// version de ce module) peut donc faire ressortir une "dominante" qui ne
+// dit en réalité rien de la personne, seulement de son époque.
+//
+// La dominante est donc calculée uniquement sur : les 5 planètes
+// personnelles + le maître de l'Ascendant (la planète qui gouverne le signe
+// levant, considérée en astrologie comme le "chef d'orchestre" du thème,
+// qu'elle soit rapide ou lente — sa lenteur ne change rien à sa pertinence
+// individuelle puisqu'elle est choisie pour son rôle, pas pour sa vitesse).
 export const PERSONAL_PLANET_KEYS: PointKey[] = ["sun", "moon", "mercury", "venus", "mars"];
 
 export interface DominanceReading {
@@ -27,20 +28,32 @@ export interface DominanceReading {
   modalityPlanets: Record<(typeof MODALITIES)[number], PointKey[]>;
   dominantElements: (typeof ELEMENTS)[number][];
   dominantModalities: (typeof MODALITIES)[number][];
+  /** Le maître de l'Ascendant utilisé dans le calcul, s'il a pu être déterminé (heure de naissance connue). */
+  ascendantRuler: PointKey | null;
 }
 
-/** Vrai si aucune planète personnelle (Soleil-Mars) ne contribue à ce total — la dominante reflète alors surtout la génération, pas l'individu. */
+/** Vrai si aucune planète personnelle (Soleil-Mars) ne contribue à ce total. Conservé pour usage défensif : la nouvelle méthode de calcul (personnelles + maître d'Ascendant) rend ce cas rare en pratique. */
 export function isGenerationalOnly(planets: PointKey[]): boolean {
   return planets.length > 0 && !planets.some((p) => PERSONAL_PLANET_KEYS.includes(p));
 }
 
-export function computeDominance(points: Partial<Record<PointKey, EclipticPoint>>): DominanceReading {
+export function computeDominance(
+  points: Partial<Record<PointKey, EclipticPoint>>,
+  hasReliableHouses = true
+): DominanceReading {
   const elementCounts: Record<string, number> = { Feu: 0, Terre: 0, Air: 0, Eau: 0 };
   const modalityCounts: Record<string, number> = { Cardinal: 0, Fixe: 0, Mutable: 0 };
   const elementPlanets: Record<string, PointKey[]> = { Feu: [], Terre: [], Air: [], Eau: [] };
   const modalityPlanets: Record<string, PointKey[]> = { Cardinal: [], Fixe: [], Mutable: [] };
 
-  for (const key of DOMINANCE_POINTS) {
+  const ascendantRuler =
+    hasReliableHouses && points.asc ? ascendantRulerOf(signOf(points.asc.longitude)) : null;
+
+  const dominancePoints: PointKey[] = ascendantRuler
+    ? [...PERSONAL_PLANET_KEYS, ...(PERSONAL_PLANET_KEYS.includes(ascendantRuler) ? [] : [ascendantRuler])]
+    : PERSONAL_PLANET_KEYS;
+
+  for (const key of dominancePoints) {
     const point = points[key];
     if (!point) continue;
     const sign = signOf(point.longitude);
@@ -62,6 +75,7 @@ export function computeDominance(points: Partial<Record<PointKey, EclipticPoint>
     modalityPlanets: modalityPlanets as DominanceReading["modalityPlanets"],
     dominantElements: ELEMENTS.filter((e) => elementCounts[e] === maxElement && maxElement > 0),
     dominantModalities: MODALITIES.filter((m) => modalityCounts[m] === maxModality && maxModality > 0),
+    ascendantRuler,
   };
 }
 

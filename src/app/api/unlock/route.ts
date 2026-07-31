@@ -5,7 +5,7 @@ import { getCurrentUserId } from "@/lib/auth/session";
 import { PaywallError, canonicalPair, unlockFeature } from "@/lib/billing/entitlements";
 
 const schema = z.object({
-  feature: z.enum(["synastry", "composite", "astrocartography"]),
+  feature: z.enum(["synastry", "composite", "astrocartography", "synthesis"]),
   profileIdA: z.string(),
   profileIdB: z.string().optional(),
 });
