@@ -5,29 +5,29 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 
-export const metadata: Metadata = { title: "Mot de passe oublié — Astrologia" };
+export const metadata: Metadata = { title: "Forgot password — Astrologia" };
 
-export default function ForgotPasswordPage() {
+export default function ForgotPasswordEnPage() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader locale="en" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md p-8">
-          <h1 className="font-display text-3xl">Mot de passe oublié</h1>
+          <h1 className="font-display text-3xl">Forgot password</h1>
           <p className="mt-2 text-sm text-muted">
-            Indiquez votre e-mail, nous vous envoyons un lien pour choisir un nouveau mot de passe.
+            Enter your email and we&apos;ll send you a link to choose a new password.
           </p>
           <div className="mt-6">
-            <ForgotPasswordForm locale="fr" />
+            <ForgotPasswordForm locale="en" />
           </div>
           <p className="mt-6 text-center text-sm text-muted">
-            <Link href="/connexion" className="text-gold-strong hover:underline">
-              Retour à la connexion
+            <Link href="/en/login" className="text-gold-strong hover:underline">
+              Back to log in
             </Link>
           </p>
         </Card>
       </main>
-      <SiteFooter />
+      <SiteFooter locale="en" />
     </>
   );
 }

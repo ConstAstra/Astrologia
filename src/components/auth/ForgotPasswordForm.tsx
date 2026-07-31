@@ -3,7 +3,25 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 
-export function ForgotPasswordForm() {
+type Locale = "fr" | "en";
+
+const TEXT: Record<Locale, { email: string; genericError: string; loading: string; submit: string }> = {
+  fr: {
+    email: "E-mail",
+    genericError: "Une erreur est survenue.",
+    loading: "Un instant…",
+    submit: "Envoyer le lien de réinitialisation",
+  },
+  en: {
+    email: "Email",
+    genericError: "Something went wrong.",
+    loading: "One moment…",
+    submit: "Send reset link",
+  },
+};
+
+export function ForgotPasswordForm({ locale = "fr" }: { locale?: Locale }) {
+  const t = TEXT[locale];
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,13 +38,13 @@ export function ForgotPasswordForm() {
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.get("email") }),
+        body: JSON.stringify({ email: form.get("email"), locale }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Une erreur est survenue.");
+      if (!res.ok) throw new Error(data.error ?? t.genericError);
       setMessage(data.message);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+      setError(err instanceof Error ? err.message : t.genericError);
     } finally {
       setLoading(false);
     }
@@ -40,7 +58,7 @@ export function ForgotPasswordForm() {
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
         <label className="mb-1 block text-sm text-muted" htmlFor="email">
-          E-mail
+          {t.email}
         </label>
         <input
           id="email"
@@ -55,7 +73,7 @@ export function ForgotPasswordForm() {
       {error && <p className="text-sm text-terracotta">{error}</p>}
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Un instant…" : "Envoyer le lien de réinitialisation"}
+        {loading ? t.loading : t.submit}
       </Button>
     </form>
   );

@@ -5,6 +5,12 @@ import { computeBigThree } from "@/lib/astro/dominance";
 import { computeMoonPhase } from "@/lib/astro/moonphase";
 import { computeTransitAspects } from "@/lib/astro/transits";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
+import { MOON_PHASE_LABEL_EN } from "@/lib/astro/interpretations/moonphase-content.en";
+import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
+import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
+import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 
 export const runtime = "nodejs";
 
@@ -21,10 +27,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Jeton manquant." }, { status: 400 });
   }
 
-  const profile = await prisma.profile.findFirst({ where: { id, widgetToken: token } });
+  const profile = await prisma.profile.findFirst({ where: { id, widgetToken: token }, include: { user: true } });
   if (!profile) {
     return NextResponse.json({ error: "Profil introuvable ou jeton invalide." }, { status: 404 });
   }
+
+  const locale: "fr" | "en" = profile.user.locale === "en" ? "en" : "fr";
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
 
   const now = new Date();
   const chart = computeNatalChart(
@@ -47,14 +58,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({
     label: profile.label,
     date: now.toISOString().slice(0, 10),
-    sunSign: SIGN_META[big3.sun].name,
-    sunSymbol: SIGN_META[big3.sun].symbol,
-    moonSign: SIGN_META[big3.moon].name,
-    ascendantSign: big3.ascendant ? SIGN_META[big3.ascendant].name : null,
-    moonPhase: moon.name,
+    sunSign: signMap[big3.sun].name,
+    sunSymbol: signMap[big3.sun].symbol,
+    moonSign: signMap[big3.moon].name,
+    ascendantSign: big3.ascendant ? signMap[big3.ascendant].name : null,
+    moonPhase: locale === "en" ? MOON_PHASE_LABEL_EN[moon.name] : moon.name,
     moonIlluminatedPercent: Math.round(moon.illuminatedFraction * 100),
     transitHeadline: featured
-      ? `${featured.transitingPlanet} ${featured.aspect} ${featured.natalPoint}`
+      ? `${planetMap[featured.transitingPlanet].name} ${aspectMap[featured.aspect].symbol} ${planetMap[featured.natalPoint].name}`
       : null,
   });
 }

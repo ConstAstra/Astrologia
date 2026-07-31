@@ -22,7 +22,7 @@ export default function LoginEnPage() {
             </Suspense>
           </div>
           <p className="mt-4 text-center text-sm text-muted">
-            <Link href="/mot-de-passe-oublie" className="text-gold-strong hover:underline">
+            <Link href="/en/forgot-password" className="text-gold-strong hover:underline">
               Forgot password?
             </Link>
           </p>
