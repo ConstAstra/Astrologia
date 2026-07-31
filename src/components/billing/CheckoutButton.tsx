@@ -10,18 +10,26 @@ type Target =
   | { kind: "subscription"; plan: SubscriptionPlanId; appleProductId: string }
   | { kind: "credits"; pack: CreditPackId; appleProductId: string };
 
+const TEXT = {
+  fr: { loading: "Redirection…", unknownError: "Erreur inconnue", genericError: "Une erreur est survenue." },
+  en: { loading: "Redirecting…", unknownError: "Unknown error", genericError: "Something went wrong." },
+};
+
 export function CheckoutButton({
   target,
   children,
   variant = "primary",
+  locale = "fr",
 }: {
   target: Target;
   children: React.ReactNode;
   variant?: "primary" | "secondary";
+  locale?: "fr" | "en";
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const t = TEXT[locale];
 
   async function handleClick() {
     setLoading(true);
@@ -43,10 +51,10 @@ export function CheckoutButton({
         ),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Erreur inconnue");
+      if (!res.ok) throw new Error(data.error ?? t.unknownError);
       window.location.href = data.url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Une erreur est survenue.");
+      setError(e instanceof Error ? e.message : t.genericError);
       setLoading(false);
     }
   }
@@ -54,7 +62,7 @@ export function CheckoutButton({
   return (
     <div>
       <Button variant={variant} className="w-full" disabled={loading} onClick={handleClick}>
-        {loading ? "Redirection…" : children}
+        {loading ? t.loading : children}
       </Button>
       {error && <p className="mt-2 text-xs text-terracotta">{error}</p>}
     </div>

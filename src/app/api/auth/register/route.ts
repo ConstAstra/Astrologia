@@ -6,12 +6,34 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { createSessionCookie } from "@/lib/auth/session";
 
-const schema = z.object({
-  email: z.string().trim().toLowerCase().email("Adresse e-mail invalide"),
-  password: z.string().min(8, "8 caractères minimum"),
-  name: z.string().trim().min(1).max(100).optional(),
-  ref: z.string().trim().min(1).max(20).optional(),
-});
+const MESSAGES = {
+  fr: {
+    invalidEmail: "Adresse e-mail invalide",
+    passwordMin: "8 caractères minimum",
+    invalidRequest: "Requête invalide",
+    alreadyExists: "Un compte existe déjà avec cet e-mail.",
+    genericError: "Une erreur est survenue, réessayez.",
+  },
+  en: {
+    invalidEmail: "Invalid email address",
+    passwordMin: "8 characters minimum",
+    invalidRequest: "Invalid request",
+    alreadyExists: "An account already exists with this email.",
+    genericError: "Something went wrong, please try again.",
+  },
+} as const;
+
+type Locale = keyof typeof MESSAGES;
+
+function buildSchema(locale: Locale) {
+  const m = MESSAGES[locale];
+  return z.object({
+    email: z.string().trim().toLowerCase().email(m.invalidEmail),
+    password: z.string().min(8, m.passwordMin),
+    name: z.string().trim().min(1).max(100).optional(),
+    ref: z.string().trim().min(1).max(20).optional(),
+  });
+}
 
 function generateReferralCode(): string {
   return randomBytes(5).toString("hex");
@@ -19,15 +41,18 @@ function generateReferralCode(): string {
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
-  const parsed = schema.safeParse(body);
+  const locale: Locale = body?.locale === "en" ? "en" : "fr";
+  const m = MESSAGES[locale];
+
+  const parsed = buildSchema(locale).safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Requête invalide" }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues[0]?.message ?? m.invalidRequest }, { status: 400 });
   }
   const { email, password, name, ref } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return NextResponse.json({ error: "Un compte existe déjà avec cet e-mail." }, { status: 409 });
+    return NextResponse.json({ error: m.alreadyExists }, { status: 409 });
   }
 
   const passwordHash = await hashPassword(password);
@@ -55,7 +80,7 @@ export async function POST(request: Request) {
     }
   }
   if (!user) {
-    return NextResponse.json({ error: "Une erreur est survenue, réessayez." }, { status: 500 });
+    return NextResponse.json({ error: m.genericError }, { status: 500 });
   }
 
   await createSessionCookie(user.id);
