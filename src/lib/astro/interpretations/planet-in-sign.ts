@@ -2,12 +2,14 @@ import type { PointKey, ZodiacSign } from "../types";
 
 /**
  * Textes dédiés pour les placements les plus lus (Soleil, Lune, Mercure,
- * Vénus, Mars, Ascendant) × 12 signes. Pour les planètes lentes
- * (Jupiter à Pluton, Nœud Nord), voir `compose.ts` qui génère un texte à
- * partir de l'essence de la planète + la tonalité du signe : ces planètes
- * bougeant peu, leur signe est une donnée plus générationnelle que
- * strictement personnelle — un texte composé reste honnête là où 12 pavés
- * figés pour toute une génération ne le seraient pas davantage.
+ * Vénus, Mars, Jupiter, Saturne, Ascendant) × 12 signes — Jupiter et Saturne
+ * changent de signe tous les ~1 à 2,5 ans, assez lentement pour marquer une
+ * classe d'âge mais assez vite pour rester une donnée réellement
+ * personnelle, contrairement à Uranus/Neptune/Pluton (plusieurs décennies
+ * par signe) qui restent générationnelles : pour ces trois-là et le Nœud
+ * Nord, voir `compose.ts`, qui compose un texte à partir de l'essence de la
+ * planète et de la tonalité du signe plutôt que d'inventer une nuance
+ * individuelle qui n'existerait pas vraiment à cette échelle de temps.
  */
 export const PLANET_IN_SIGN: Partial<Record<PointKey, Record<ZodiacSign, string>>> = {
   sun: {
@@ -79,6 +81,34 @@ export const PLANET_IN_SIGN: Partial<Record<PointKey, Record<ZodiacSign, string>
     capricorne: "Une énergie qui s'inscrit dans la durée et vise des objectifs concrets à long terme, avec discipline. Ambition patiente plutôt qu'impulsivité.",
     verseau: "Une combativité qui s'exprime volontiers pour des causes collectives, avec un côté rebelle assumé face à l'autorité et aux conventions.",
     poissons: "Une énergie moins frontale, qui passe par l'intuition, l'évitement du conflit direct ou l'engagement pour des causes idéalistes plutôt que pour soi.",
+  },
+  jupiter: {
+    belier: "Une confiance qui se construit dans l'audace et le premier élan : on grandit en osant, en fonçant, quitte à se tromper. La chance semble sourire à qui prend les devants.",
+    taureau: "Une confiance qui se construit dans le concret et la patience : on grandit en consolidant ce qui existe déjà plutôt qu'en dispersant ses efforts. Sens de l'abondance sensorielle.",
+    gemeaux: "Une confiance qui se construit par la curiosité et l'accumulation de savoirs variés : on grandit en multipliant les échanges, les lectures, les points de vue.",
+    cancer: "Une confiance qui se construit dans le lien affectif et familial : on grandit en prenant soin, en se sentant appartenir à un cercle protecteur, en donnant sans compter.",
+    lion: "Une confiance généreuse et rayonnante : on grandit en s'exposant, en créant, en misant sur sa propre valeur avec un optimisme parfois démesuré.",
+    vierge: "Une confiance qui se construit par la compétence et le service rendu : on grandit en perfectionnant son savoir-faire, avec une exigence qui peut freiner l'élan naturel de Jupiter.",
+    balance: "Une confiance qui se construit à travers la relation et la justice : on grandit en s'associant, en recherchant l'équilibre et le consensus plutôt qu'en avançant seul.",
+    scorpion: "Une confiance qui se construit dans l'intensité et la transformation : on grandit en traversant des épreuves profondes plutôt qu'en restant à la surface des choses.",
+    sagittaire: "Jupiter est ici dans son élément : optimisme, soif de sens et d'horizons larges, foi presque naturelle en l'avenir et en ses propres capacités.",
+    capricorne: "Une confiance qui se construit dans la durée et la discipline : on grandit lentement mais solidement, en gagnant une autorité méritée plutôt qu'offerte.",
+    verseau: "Une confiance qui se construit dans la différence assumée et l'appartenance à un collectif : on grandit en s'ouvrant à des idées nouvelles et à des causes plus larges que soi.",
+    poissons: "Une confiance qui se construit dans le lâcher-prise et l'intuition : on grandit en faisant confiance à un mouvement plus grand que soi, parfois au prix du sens du réel.",
+  },
+  saturn: {
+    belier: "Une discipline qui s'apprend par l'action : Saturne freine l'impulsivité naturelle du Bélier, ce qui peut être vécu comme une frustration avant de devenir une force de patience.",
+    taureau: "Saturne est particulièrement à l'aise ici : sens naturel de la construction lente, de la solidité, de la valeur qui se mérite plutôt qu'elle ne se donne.",
+    gemeaux: "Une discipline qui s'apprend par la rigueur intellectuelle : Saturne canalise la dispersion naturelle des Gémeaux vers un savoir plus structuré, parfois au prix de la spontanéité.",
+    cancer: "Une discipline qui s'apprend dans le rapport à la famille et à la sécurité affective : souvent un sentiment de responsabilité précoce, ou une pudeur émotionnelle à dépasser.",
+    lion: "Une discipline qui s'apprend dans le rapport à la reconnaissance : la confiance en soi doit ici se construire pas à pas, souvent après avoir douté de sa propre valeur.",
+    vierge: "Une discipline qui s'apprend dans le rapport au détail et à l'exigence : le perfectionnisme naturel de la Vierge peut ici devenir sévérité envers soi-même, à assouplir avec le temps.",
+    balance: "Une discipline qui s'apprend dans la relation : engagement mesuré, sens aigu de la justice, mais aussi une peur initiale de l'engagement à dépasser pour construire du solide à deux.",
+    scorpion: "Une discipline qui s'apprend dans le rapport au contrôle et à la transformation : besoin de maîtriser l'intensité intérieure plutôt que de la fuir ou de la subir.",
+    sagittaire: "Une discipline qui s'apprend dans le rapport aux croyances : Saturne structure l'enthousiasme du Sagittaire, l'obligeant à vérifier concrètement ce en quoi il croit.",
+    capricorne: "Saturne est ici dans son élément : sens inné de la responsabilité, de la structure et de l'ambition patiente — souvent une maturité précoce, qui se bonifie avec l'âge.",
+    verseau: "Une discipline qui s'apprend dans le rapport au groupe et à la différence : structurer sa singularité pour qu'elle serve un projet collectif plutôt que de rester marginale.",
+    poissons: "Une discipline qui s'apprend dans le rapport au flou et au lâcher-prise : donner une forme concrète à l'intuition et à la sensibilité, sans les étouffer.",
   },
   asc: {
     belier: "Une allure vive, directe, un abord franc qui va droit au but. La première impression donnée est celle d'une énergie prête à en découdre.",

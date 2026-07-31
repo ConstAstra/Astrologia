@@ -29,6 +29,15 @@ export const METHODOLOGY: MethodologySection[] = [
     ],
   },
   {
+    title: "Interprétation du degré exact",
+    body: [
+      "Au-delà du signe, chaque point est lu à son degré précis via trois repères classiques, tous calculés (jamais recopiés d'un texte tiers) : le décan, la phase dans le signe, et les degrés particuliers.",
+      "Le décan divise chaque signe de 30° en trois tranches de 10°, chacune sous l'influence d'une planète selon l'ordre chaldéen (Mars, Soleil, Vénus, Mercure, Lune, Saturne, Jupiter), qui se répète en boucle sur les 36 décans du zodiaque — c'est le système de décans le plus répandu en astrologie occidentale, distinct des \"symboles sabians\" (que nous ne proposons pas, faute de pouvoir garantir la fidélité d'un texte source centenaire).",
+      "La phase précoce (0-9°), médiane (10-19°) ou tardive (20-29°) nuance l'intensité et la maturité avec lesquelles le signe s'exprime.",
+      "Le 29e degré de chaque signe (\"degré anarétique\") est traditionnellement lu comme un point de tension avant le changement de signe. Les degrés dits \"critiques\" (0°/13°/26° pour les signes cardinaux, 8°/21° pour les fixes, 4°/17° pour les mutables) sont un repère traditionnel supplémentaire, à prendre comme une nuance et non comme une preuve.",
+    ],
+  },
+  {
     title: "Aspects et orbes",
     body: [
       "Les aspects majeurs (conjonction, opposition, carré, trigone, sextile) sont calculés avec des orbes de 5 à 8° selon l'aspect ; les aspects mineurs (quinconce, semi-sextile, semi-carré, sesqui-carré) avec des orbes plus serrés de 2 à 3°, conformément aux usages courants en astrologie occidentale moderne.",

@@ -12,6 +12,7 @@ import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import {
   describeAspect,
+  describeDegree,
   describeHouseSystem,
   describeLifeMission,
   describePlanetInHouse,
@@ -149,6 +150,10 @@ export default async function ThemeNatalPage({
                     {point.house && (
                       <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house)}</p>
                     )}
+                    <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
+                      <span className="text-gold-strong/90">Degré — </span>
+                      {describeDegree(point.longitude)}
+                    </p>
                   </Card>
                 );
               })}

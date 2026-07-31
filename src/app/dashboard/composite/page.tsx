@@ -10,7 +10,7 @@ import type { PointKey } from "@/lib/astro/types";
 import { signOf, formatLongitude } from "@/lib/astro/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
-import { describeAspect, describePlanetInSign } from "@/lib/astro/interpretations/compose";
+import { describeAspect, describeDegree, describePlanetInSign } from "@/lib/astro/interpretations/compose";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -159,6 +159,10 @@ export default async function CompositePage({
                       {formatLongitude(point.longitude)} {sign}
                     </p>
                     <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign)}</p>
+                    <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
+                      <span className="text-gold-strong/90">Degré — </span>
+                      {describeDegree(point.longitude)}
+                    </p>
                   </Card>
                 );
               })}

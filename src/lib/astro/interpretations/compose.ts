@@ -14,16 +14,34 @@ import {
   SOUTH_NODE_HOUSE_COMFORT,
   SOUTH_NODE_SIGN_COMFORT,
 } from "./lunar-nodes";
+import { getPairTheme } from "./pair-themes";
+import { computeDegreeReading } from "../degrees";
 import { signOf } from "../signs";
+
+const GENERATIONAL_POINTS = new Set<PointKey>(["uranus", "neptune", "pluto"]);
 
 export function describePlanetInSign(point: PointKey, sign: ZodiacSign): string {
   const planet = PLANET_META[point];
   const custom = PLANET_IN_SIGN[point]?.[sign];
   if (custom) return custom;
   const signMeta = SIGN_META[sign];
-  return `${planet.name} exprime ici ${planet.keyword}, teinté${
+  const base = `${planet.name} exprime ici ${planet.keyword}, teinté${
     planet.name.endsWith("e") ? "e" : ""
   } par la tonalité ${signMeta.name} (${signMeta.keyword}). ${signMeta.paragraph}`;
+
+  if (GENERATIONAL_POINTS.has(point)) {
+    return `${base} ${planet.name} restant des années (voire des décennies) dans le même signe, ce placement marque toute une génération plutôt qu'un trait strictement personnel : ce qui vous est propre se joue surtout dans sa maison et ses aspects, à lire ci-dessous.`;
+  }
+  return base;
+}
+
+/** Lecture du degré exact (décan, phase précoce/médiane/tardive, degré anarétique ou critique). */
+export function describeDegree(longitude: number): string {
+  const r = computeDegreeReading(longitude);
+  const parts = [r.decanText, r.phaseText];
+  if (r.isAnaretic) parts.push(r.anareticText!);
+  if (r.isCritical) parts.push(r.criticalText!);
+  return parts.join(" ");
 }
 
 export function describePlanetInHouse(point: PointKey, houseNumber: number): string {
@@ -48,7 +66,10 @@ export function describeAspect(aspect: Aspect | SynastryAspect, context: "natal"
         ? `Le ${nameA} et le ${nameB} du couple`
         : `${nameA} et ${nameB}`;
 
-  return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}`;
+  const pairTheme = getPairTheme(keyA, keyB);
+  const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
+
+  return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}${themeSentence}`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey): string {
