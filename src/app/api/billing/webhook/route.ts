@@ -4,6 +4,26 @@ import { prisma } from "@/lib/db";
 import { getStripe } from "@/lib/billing/stripe";
 import type { SubscriptionPlanId } from "@/lib/billing/plans";
 import { grantReferralRewardOnce } from "@/lib/billing/entitlements";
+import { sendEmail } from "@/lib/email";
+
+const PAYMENT_ISSUE_TEXT = {
+  fr: {
+    failedSubject: "Échec de paiement — Astrologia",
+    failedBody: (url: string) =>
+      `<p>Bonjour,</p><p>Le paiement de votre abonnement Astrologia a échoué. Merci de mettre à jour votre moyen de paiement pour éviter une interruption de votre accès Premium.</p><p><a href="${url}">Mettre à jour mon moyen de paiement</a></p>`,
+    actionSubject: "Action requise pour votre paiement — Astrologia",
+    actionBody: (url: string) =>
+      `<p>Bonjour,</p><p>Votre banque demande une confirmation supplémentaire pour valider le paiement de votre abonnement Astrologia (authentification 3D Secure).</p><p><a href="${url}">Confirmer mon paiement</a></p>`,
+  },
+  en: {
+    failedSubject: "Payment failed — Astrologia",
+    failedBody: (url: string) =>
+      `<p>Hello,</p><p>The payment for your Astrologia subscription failed. Please update your payment method to avoid losing your Premium access.</p><p><a href="${url}">Update my payment method</a></p>`,
+    actionSubject: "Action required for your payment — Astrologia",
+    actionBody: (url: string) =>
+      `<p>Hello,</p><p>Your bank requires additional confirmation to validate the payment for your Astrologia subscription (3D Secure authentication).</p><p><a href="${url}">Confirm my payment</a></p>`,
+  },
+};
 
 async function findUserIdForCustomer(customerId: string, metadataUserId?: string | null) {
   if (metadataUserId) return metadataUserId;
@@ -46,6 +66,31 @@ async function syncSubscription(subscription: Stripe.Subscription) {
   if (subscription.status === "active") {
     await grantReferralRewardOnce(userId);
   }
+}
+
+async function notifyPaymentIssue(invoice: Stripe.Invoice, kind: "failed" | "action_required") {
+  const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+  if (!customerId) return;
+
+  const userId = await findUserIdForCustomer(customerId, null);
+  if (!userId) {
+    console.error(`Webhook Stripe: impossible de retrouver l'utilisateur pour le paiement ${kind}`, customerId);
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
+
+  const locale: "fr" | "en" = user.locale === "en" ? "en" : "fr";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const actionUrl = invoice.hosted_invoice_url ?? `${siteUrl}/dashboard/abonnement`;
+  const t = PAYMENT_ISSUE_TEXT[locale];
+
+  await sendEmail({
+    to: user.email,
+    subject: kind === "failed" ? t.failedSubject : t.actionSubject,
+    html: kind === "failed" ? t.failedBody(actionUrl) : t.actionBody(actionUrl),
+  });
 }
 
 async function grantCreditsOnce(params: {
@@ -133,6 +178,25 @@ export async function POST(request: Request) {
           data: { subscriptionStatus: "canceled" },
         });
       }
+      break;
+    }
+    case "invoice.payment_failed": {
+      // Le statut de l'abonnement lui-même (past_due, unpaid...) est mis à
+      // jour séparément via customer.subscription.updated, que Stripe
+      // envoie aussi lors d'un échec de paiement — cet événement sert
+      // uniquement à prévenir l'utilisateur pour qu'il agisse vite.
+      await notifyPaymentIssue(event.data.object as Stripe.Invoice, "failed");
+      break;
+    }
+    case "invoice.payment_action_required": {
+      await notifyPaymentIssue(event.data.object as Stripe.Invoice, "action_required");
+      break;
+    }
+    case "charge.dispute.created": {
+      const dispute = event.data.object as Stripe.Dispute;
+      console.error(
+        `[ALERTE] Litige Stripe (chargeback) créé : charge=${dispute.charge}, montant=${dispute.amount}${dispute.currency}, motif=${dispute.reason}. Répondre dans le dashboard Stripe avant l'échéance.`
+      );
       break;
     }
     default:
