@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { prisma } from "@/lib/db";
 import { getStripe } from "@/lib/billing/stripe";
 import type { SubscriptionPlanId } from "@/lib/billing/plans";
+import { grantReferralRewardOnce } from "@/lib/billing/entitlements";
 
 async function findUserIdForCustomer(customerId: string, metadataUserId?: string | null) {
   if (metadataUserId) return metadataUserId;
@@ -35,6 +36,16 @@ async function syncSubscription(subscription: Stripe.Subscription) {
       currentPeriodEnd,
     },
   });
+
+  // Le parrainage n'est récompensé qu'au premier paiement réel — pas à la
+  // création de l'abonnement, qui peut n'être qu'un essai gratuit pas
+  // encore facturé. `status: "active"` couvre aussi bien l'abonnement sans
+  // essai que la conversion post-essai (Stripe renvoie alors un nouvel
+  // événement `customer.subscription.updated`, qui repasse par cette même
+  // fonction).
+  if (subscription.status === "active") {
+    await grantReferralRewardOnce(userId);
+  }
 }
 
 async function grantCreditsOnce(params: {
@@ -101,6 +112,7 @@ export async function POST(request: Request) {
             amountCents: session.amount_total,
             currency: session.currency,
           });
+          await grantReferralRewardOnce(userId);
         }
       }
       break;

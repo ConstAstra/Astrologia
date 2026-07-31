@@ -9,6 +9,7 @@ import {
   appleProductIdForPack,
   appleProductIdForPlan,
 } from "@/lib/billing/plans";
+import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
 
 export const metadata: Metadata = {
   title: "Tarifs — Astrologia",
@@ -36,7 +37,7 @@ export default function TarifsPage() {
               <p className="font-display mt-2 text-3xl">0 €</p>
               <ul className="mt-6 flex-1 space-y-3 text-sm text-muted">
                 <li>✓ Thème astral complet, illimité</li>
-                <li>✓ Jusqu&apos;à 6 profils enregistrés</li>
+                <li>✓ Jusqu&apos;à {FREE_PROFILE_LIMIT} profils enregistrés</li>
                 <li>✓ Interprétations détaillées du thème natal</li>
                 <li className="text-muted/60">— Synastrie, composite, cartographie : à l&apos;unité (voir crédits)</li>
               </ul>
@@ -70,7 +71,9 @@ export default function TarifsPage() {
                 {(SUBSCRIPTION_PLANS.annual.amountCents / 100).toFixed(0)} € <span className="text-base text-muted">/ an</span>
               </p>
               <p className="text-xs text-sage">
-                Soit {(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)} €/mois — économisez environ 34 %
+                Soit {(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)} €/mois — économisez environ{" "}
+                {Math.round((1 - SUBSCRIPTION_PLANS.annual.amountCents / (SUBSCRIPTION_PLANS.monthly.amountCents * 12)) * 100)}
+                %
               </p>
               <ul className="mt-6 flex-1 space-y-3 text-sm text-muted">
                 <li>✓ Tout Premium</li>

@@ -113,6 +113,19 @@ publier, il faudra, depuis un Mac :
 
 Le site web, lui, est testable et fonctionnel tel quel.
 
+#### Widget iOS (écran d'accueil)
+
+`ios/App/AstrologiaWidget/AstrologiaWidget.swift` est un fichier de
+référence (WidgetKit + SwiftUI) — même mise en garde que ci-dessus, non
+compilé/testé ici. Il consomme `/api/widget/theme-natal/[id]?token=...`
+(endpoint JSON déjà fonctionnel et testable, contrairement au widget
+lui-même) — l'URL complète, avec son jeton, est copiable depuis la page
+"Thème natal" du site. Le fichier Swift documente en commentaire les
+étapes manuelles Xcode nécessaires (créer le target Widget Extension,
+partager l'URL via un App Group). `Profile.widgetToken` est un jeton
+opaque dédié à cet usage : WidgetKit ne partage pas les cookies de session
+du navigateur.
+
 ### Géocodage
 
 Le lieu de naissance est géocodé via Nominatim (OpenStreetMap), sans clé

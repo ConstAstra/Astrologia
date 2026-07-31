@@ -58,10 +58,21 @@ const PAIR_THEMES: Partial<Record<string, string>> = {
     "Le grand rapport entre expansion et structure : oser grandir tout en acceptant des limites réalistes. Leur cycle rythme les décennies (dimension générationnelle), mais la maison où il se joue reste, elle, personnelle.",
 };
 
+// Thèmes de fond formulés en langage de couple (désir, séduction,
+// attachement amoureux) — à ne jamais afficher tels quels pour une
+// synastrie ou un composite cadré famille/amitié/professionnel : le texte
+// générique reste pertinent en lecture natale (auto-description) ou en
+// cadrage romantique uniquement.
+const ROMANTIC_CODED_PAIRS = new Set(["mars-venus", "sun-venus", "moon-venus", "saturn-venus"]);
+
 function pairKey(a: PointKey, b: PointKey): string {
   return [a, b].sort().join("-");
 }
 
 export function getPairTheme(a: PointKey, b: PointKey): string | undefined {
   return PAIR_THEMES[pairKey(a, b)];
+}
+
+export function isRomanticCodedPair(a: PointKey, b: PointKey): boolean {
+  return ROMANTIC_CODED_PAIRS.has(pairKey(a, b));
 }

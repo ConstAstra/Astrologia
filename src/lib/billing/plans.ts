@@ -10,14 +10,22 @@ export const SUBSCRIPTION_PLANS: Record<
   SubscriptionPlanId,
   { label: string; amountCents: number; interval: "month" | "year"; trialDays: number }
 > = {
-  monthly: { label: "Mensuel", amountCents: 999, interval: "month", trialDays: 7 },
-  annual: { label: "Annuel", amountCents: 7900, interval: "year", trialDays: 7 },
+  // Aligné sur le marché (Chani, Nebula, The Pattern ~13-15€/mois) plutôt
+  // que sous-évalué vs la profondeur réelle du contenu (degrés exacts,
+  // transits, horoscope personnalisé, synastrie/composite).
+  monthly: { label: "Mensuel", amountCents: 1299, interval: "month", trialDays: 7 },
+  // ~43% de remise vs 12 mois au tarif mensuel : ancre ronde, l'annuel doit
+  // rester l'option la plus rentable pour maximiser la LTV.
+  annual: { label: "Annuel", amountCents: 8900, interval: "year", trialDays: 7 },
 };
 
 export const CREDIT_PACKS: Record<CreditPackId, { label: string; credits: number; amountCents: number }> = {
   pack_1: { label: "1 déblocage", credits: 1, amountCents: 299 },
   pack_5: { label: "5 déblocages", credits: 5, amountCents: 999 },
-  pack_12: { label: "12 déblocages", credits: 12, amountCents: 1999 },
+  // Volontairement moins rentable au déblocage que l'abonnement (2,08€ vs
+  // ~1,08€/mois pour un accès illimité) : au-delà de 4-5 lectures par an,
+  // l'abonnement doit rester le choix évident.
+  pack_12: { label: "12 déblocages", credits: 12, amountCents: 2499 },
 };
 
 export const CURRENCY = "eur";

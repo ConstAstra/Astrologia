@@ -167,7 +167,7 @@ export default async function SynastriePage({
                     {ASPECT_META[aspect.aspect].name}
                   </Badge>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "synastry")}</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "synastry", relationshipType)}</p>
                 {note && <p className="mt-1 text-xs leading-relaxed text-gold-strong">{note}</p>}
               </Card>
             );

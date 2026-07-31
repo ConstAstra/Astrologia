@@ -86,6 +86,7 @@ export async function verifyAppleTransaction(signedTransactionInfo: string): Pro
 
 import { prisma } from "@/lib/db";
 import { APPLE_PRODUCT_MAP } from "./plans";
+import { grantReferralRewardOnce } from "./entitlements";
 
 /**
  * Applique une transaction Apple vérifiée à un utilisateur : abonnement ou
@@ -127,6 +128,9 @@ export async function applyAppleTransaction(decoded: JWSTransactionDecodedPayloa
         currentPeriodEnd: decoded.expiresDate ? new Date(decoded.expiresDate) : null,
       },
     });
+    // Comme côté Stripe, le parrainage n'est récompensé qu'au premier
+    // paiement réel — jamais sur une révocation/remboursement.
+    if (!revoked) await grantReferralRewardOnce(user.id);
     return;
   }
 
@@ -147,4 +151,5 @@ export async function applyAppleTransaction(decoded: JWSTransactionDecodedPayloa
     }),
     prisma.user.update({ where: { id: user.id }, data: { credits: { increment: mapping.credits } } }),
   ]);
+  await grantReferralRewardOnce(user.id);
 }

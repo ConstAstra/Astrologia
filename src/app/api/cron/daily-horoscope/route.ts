@@ -102,6 +102,9 @@ async function runDailyHoroscope(request: Request) {
         to: user.email,
         subject: horoscope.subject,
         html: `
+          ${horoscope.highlights
+            .map((h) => `<p style="background:#fff7e6;border-left:3px solid #d7b781;padding:8px 12px;"><strong>${h}</strong></p>`)
+            .join("\n")}
           <p><strong>${horoscope.headline}</strong></p>
           ${horoscope.paragraphs.map((p) => `<p>${p}</p>`).join("\n")}
           <p><a href="${siteUrl}/dashboard/transits/${profile.id}">Voir le détail des transits du jour</a></p>

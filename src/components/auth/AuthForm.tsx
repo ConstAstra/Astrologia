@@ -19,7 +19,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     const payload = {
       email: form.get("email"),
       password: form.get("password"),
-      ...(mode === "register" ? { name: form.get("name") || undefined } : {}),
+      ...(mode === "register"
+        ? { name: form.get("name") || undefined, ref: searchParams.get("ref") || undefined }
+        : {}),
     };
 
     try {

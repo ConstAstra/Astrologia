@@ -4,6 +4,7 @@ import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
 import { NotificationToggle } from "@/components/account/NotificationToggle";
+import { ReferralCard } from "@/components/account/ReferralCard";
 
 const STATUS_LABELS: Record<string, string> = {
   free: "Gratuit",
@@ -23,6 +24,11 @@ export default async function AbonnementPage({
   const { success, canceled } = await searchParams;
 
   const isPremium = user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing";
+  const successfulReferrals = await prisma.user.count({
+    where: { referredByUserId: user.id, referralRewardGranted: true },
+  });
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const referralUrl = `${siteUrl}/inscription?ref=${user.referralCode}`;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -71,6 +77,13 @@ export default async function AbonnementPage({
             Acheter des crédits
           </ButtonLink>
           {user.entitlementSource === "stripe" && <ManageBillingButton />}
+        </div>
+      </Card>
+
+      <Card className="mt-6 p-6">
+        <p className="text-sm text-muted">Parrainage</p>
+        <div className="mt-3">
+          <ReferralCard referralUrl={referralUrl} successfulReferrals={successfulReferrals} />
         </div>
       </Card>
 

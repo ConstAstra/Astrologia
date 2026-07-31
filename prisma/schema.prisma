@@ -37,6 +37,17 @@ model User {
   // Permet un désabonnement en un clic depuis l'e-mail, sans authentification.
   unsubscribeToken    String  @unique @default(cuid())
 
+  // --- Parrainage ---
+  // Code court à partager (ex: ?ref=CODE à l'inscription). Généré côté
+  // application (pas de @default ici : voir la migration pour le backfill
+  // des lignes existantes).
+  referralCode          String  @unique
+  referredByUserId      String?
+  referredBy            User?   @relation("Referrals", fields: [referredByUserId], references: [id], onDelete: SetNull)
+  referrals             User[]  @relation("Referrals")
+  // Empêche de créditer deux fois le même parrainage (1er achat du filleul seulement).
+  referralRewardGranted Boolean @default(false)
+
   // --- Stripe (web) ---
   stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
@@ -76,6 +87,11 @@ model Profile {
 
   unlocksAsPrimary   Unlock[] @relation("UnlockPrimaryProfile")
   unlocksAsSecondary Unlock[] @relation("UnlockSecondaryProfile")
+
+  // Jeton opaque pour le widget iOS : WidgetKit ne partage pas les cookies
+  // de session du navigateur, donc l'accès en lecture seule au résumé du
+  // jour passe par ce jeton plutôt que par l'authentification classique.
+  widgetToken String @unique @default(cuid())
 }
 
 // Historique des achats de crédits (packs), quelle que soit la plateforme.

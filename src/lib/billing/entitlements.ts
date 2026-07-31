@@ -1,6 +1,32 @@
 import { prisma } from "@/lib/db";
 
-export const FREE_PROFILE_LIMIT = 6;
+// Volontairement bas : assez pour tester la synastrie (vous + 1 autre)
+// sans lever toute pression à passer Premium, qui vend justement les
+// profils illimités comme argument.
+export const FREE_PROFILE_LIMIT = 3;
+export const REFERRAL_REWARD_CREDITS = 2;
+
+/**
+ * Crédite le parrain ET le filleul dès le premier achat réel de ce dernier
+ * (abonnement ou pack de crédits, Stripe ou Apple) — jamais à l'inscription
+ * seule, pour limiter la fraude aux faux comptes. Idempotent via
+ * `referralRewardGranted` : ne récompense jamais deux fois le même filleul.
+ */
+export async function grantReferralRewardOnce(referredUserId: string): Promise<void> {
+  const referred = await prisma.user.findUnique({ where: { id: referredUserId } });
+  if (!referred || !referred.referredByUserId || referred.referralRewardGranted) return;
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: referred.id },
+      data: { credits: { increment: REFERRAL_REWARD_CREDITS }, referralRewardGranted: true },
+    }),
+    prisma.user.update({
+      where: { id: referred.referredByUserId },
+      data: { credits: { increment: REFERRAL_REWARD_CREDITS } },
+    }),
+  ]);
+}
 
 export type UnlockFeature = "synastry" | "composite" | "astrocartography";
 

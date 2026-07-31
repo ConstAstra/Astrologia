@@ -158,7 +158,7 @@ export default async function CompositePage({
                     <p className="mt-1 text-sm text-gold-strong">
                       {formatLongitude(point.longitude)} {sign}
                     </p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign)}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, relationshipType)}</p>
                     <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">Degré — </span>
                       {describeDegree(point.longitude)}
@@ -185,7 +185,7 @@ export default async function CompositePage({
                         {ASPECT_META[aspect.aspect].name}
                       </Badge>
                     </div>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "composite")}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "composite", relationshipType)}</p>
                     {note && <p className="mt-1 text-xs leading-relaxed text-gold-strong">{note}</p>}
                   </Card>
                 );

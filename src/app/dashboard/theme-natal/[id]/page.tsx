@@ -22,6 +22,7 @@ import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
+import { WidgetUrlCard } from "@/components/account/WidgetUrlCard";
 
 const HOUSE_SYSTEMS: { id: HouseSystem; label: string }[] = [
   { id: "placidus", label: "Placidus" },
@@ -128,6 +129,12 @@ export default async function ThemeNatalPage({
       <div className="mt-6">
         <OverviewCard points={chart.points} hasReliableHouses={chart.hasReliableHouses} />
       </div>
+
+      <Card className="mt-6 p-5">
+        <WidgetUrlCard
+          widgetUrl={`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/widget/theme-natal/${profile.id}?token=${profile.widgetToken}`}
+        />
+      </Card>
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[420px_1fr]">
         <Card className="p-4">

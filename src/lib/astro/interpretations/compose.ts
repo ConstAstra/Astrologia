@@ -16,15 +16,34 @@ import {
   SOUTH_NODE_HOUSE_COMFORT,
   SOUTH_NODE_SIGN_COMFORT,
 } from "./lunar-nodes";
-import { getPairTheme } from "./pair-themes";
+import { getPairTheme, isRomanticCodedPair } from "./pair-themes";
 import { computeDegreeReading } from "../degrees";
 import { signOf } from "../signs";
+import type { RelationshipType } from "./relationship";
 
 const GENERATIONAL_POINTS = new Set<PointKey>(["uranus", "neptune", "pluto"]);
 
-export function describePlanetInSign(point: PointKey, sign: ZodiacSign): string {
+// Placements dont le texte personnalisé est formulé en langage de couple
+// (désir, séduction, attachement amoureux) — Vénus dans son ensemble, plus
+// le Mars en Scorpion qui mentionne explicitement l'énergie sexuelle. À
+// éviter pour interpréter le thème composite d'une relation non romantique
+// (le composite existe aussi pour la famille, l'amitié, le professionnel).
+const ROMANTIC_CODED_PLANET_IN_SIGN: Partial<Record<PointKey, true | Set<ZodiacSign>>> = {
+  venus: true,
+  mars: new Set(["scorpion"]),
+};
+
+function isRomanticCodedPlanetInSign(point: PointKey, sign: ZodiacSign): boolean {
+  const flagged = ROMANTIC_CODED_PLANET_IN_SIGN[point];
+  if (!flagged) return false;
+  return flagged === true || flagged.has(sign);
+}
+
+export function describePlanetInSign(point: PointKey, sign: ZodiacSign, relationshipType?: RelationshipType): string {
   const planet = PLANET_META[point];
-  const custom = PLANET_IN_SIGN[point]?.[sign];
+  const suppressRomantic =
+    relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPlanetInSign(point, sign);
+  const custom = suppressRomantic ? undefined : PLANET_IN_SIGN[point]?.[sign];
   if (custom) return custom;
   const signMeta = SIGN_META[sign];
   const base = `${planet.name} exprime ici ${planet.keyword}, teinté${
@@ -53,7 +72,11 @@ export function describePlanetInHouse(point: PointKey, houseNumber: number): str
   return `${planet.name} en ${house.name} : cette énergie (${planet.keyword}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
 }
 
-export function describeAspect(aspect: Aspect | SynastryAspect, context: "natal" | "synastry" | "composite" = "natal"): string {
+export function describeAspect(
+  aspect: Aspect | SynastryAspect,
+  context: "natal" | "synastry" | "composite" = "natal",
+  relationshipType?: RelationshipType
+): string {
   const meta = ASPECT_META[aspect.aspect as AspectKey];
   const keyA = "a" in aspect ? aspect.a : aspect.personA;
   const keyB = "b" in aspect ? aspect.b : aspect.personB;
@@ -65,10 +88,16 @@ export function describeAspect(aspect: Aspect | SynastryAspect, context: "natal"
     context === "synastry"
       ? `Le ${nameA} de la première personne et le ${nameB} de la seconde`
       : context === "composite"
-        ? `Le ${nameA} et le ${nameB} du couple`
+        ? `Le ${nameA} et le ${nameB} du thème composite`
         : `${nameA} et ${nameB}`;
 
-  const pairTheme = getPairTheme(keyA, keyB);
+  // Les thèmes de fond formulés en langage de couple (désir, séduction,
+  // attachement amoureux) n'ont rien à faire dans une lecture famille,
+  // amitié ou professionnelle — on ne les affiche qu'en lecture natale
+  // (auto-description) ou en cadrage romantique.
+  const suppressRomantic =
+    context !== "natal" && relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPair(keyA, keyB);
+  const pairTheme = suppressRomantic ? undefined : getPairTheme(keyA, keyB);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
   return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}${themeSentence}`;
@@ -102,7 +131,13 @@ export function describeCompositeTransitAspect(aspect: TransitAspect): string {
     ? "L'aspect se resserre : son influence monte en puissance dans les prochains jours pour la relation."
     : "L'aspect se relâche : son influence était plus forte il y a quelques jours et s'estompe désormais.";
 
-  const pairTheme = getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
+  // Le thème composite existe pour tout type de relation (famille, amitié,
+  // pro, pas seulement les couples) et cette fonction n'a pas connaissance
+  // du cadrage choisi : on écarte par prudence les thèmes de fond formulés
+  // en langage de couple plutôt que de risquer d'en afficher un à tort.
+  const pairTheme = isRomanticCodedPair(aspect.transitingPlanet, aspect.natalPoint)
+    ? undefined
+    : getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
   return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec le ${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
@@ -127,7 +162,9 @@ export function describeActivatedSynastryAspect(
   const transitPlanetName = PLANET_META[transit.transitingPlanet].name;
   const gap = Math.abs(transit.exact).toFixed(1);
 
-  const pairTheme = getPairTheme(personPoint, partnerPoint);
+  // Même prudence que pour le composite : cette fonction ne sait pas si le
+  // lien est romantique, familial, amical ou professionnel.
+  const pairTheme = isRomanticCodedPair(personPoint, partnerPoint) ? undefined : getPairTheme(personPoint, partnerPoint);
   const themeSentence = pairTheme ? ` Thème de fond du lien : ${pairTheme}` : "";
 
   return `Votre ${synMeta.name.toLowerCase()} ${synMeta.symbol} entre le ${personName} de ${personLabel} et le ${partnerName} de ${partnerLabel} est réactivé aujourd'hui : ${transitPlanetName} en transit forme ${transitMeta.name.toLowerCase()} avec le ${personName} de ${personLabel} (écart à l'exact : ${gap}°).${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;
