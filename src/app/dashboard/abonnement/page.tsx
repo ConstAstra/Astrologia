@@ -5,13 +5,91 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
 import { NotificationToggle } from "@/components/account/NotificationToggle";
 import { ReferralCard } from "@/components/account/ReferralCard";
+import type { Locale } from "@/lib/astro/interpretations/compose";
 
-const STATUS_LABELS: Record<string, string> = {
-  free: "Gratuit",
-  trialing: "Essai gratuit en cours",
-  active: "Actif",
-  past_due: "Paiement en retard",
-  canceled: "Résilié",
+const STATUS_LABELS: Record<Locale, Record<string, string>> = {
+  fr: {
+    free: "Gratuit",
+    trialing: "Essai gratuit en cours",
+    active: "Actif",
+    past_due: "Paiement en retard",
+    canceled: "Résilié",
+  },
+  en: {
+    free: "Free",
+    trialing: "Free trial in progress",
+    active: "Active",
+    past_due: "Payment overdue",
+    canceled: "Canceled",
+  },
+};
+
+const TEXT: Record<Locale, {
+  eyebrow: string;
+  title: string;
+  paymentConfirmed: string;
+  paymentCanceled: string;
+  status: string;
+  premium: string;
+  free: string;
+  plan: (p: string) => string;
+  monthly: string;
+  yearly: string;
+  accessUntil: string;
+  renewsOn: string;
+  managedVia: (source: string) => string;
+  stripeWeb: string;
+  appleStore: string;
+  creditsBalance: string;
+  goPremium: string;
+  buyCredits: string;
+  referral: string;
+  notifications: string;
+}> = {
+  fr: {
+    eyebrow: "Abonnement",
+    title: "Votre compte",
+    paymentConfirmed: "Paiement confirmé, merci !",
+    paymentCanceled: "Paiement annulé — vous n'avez pas été débité.",
+    status: "Statut",
+    premium: "Premium",
+    free: "Gratuit",
+    plan: (p) => `Formule : ${p}`,
+    monthly: "Mensuelle",
+    yearly: "Annuelle",
+    accessUntil: "Accès jusqu'au",
+    renewsOn: "Renouvellement le",
+    managedVia: (source) => `Géré via ${source}.`,
+    stripeWeb: "Stripe (web)",
+    appleStore: "l'App Store (Apple)",
+    creditsBalance: "Solde de crédits :",
+    goPremium: "Passer Premium",
+    buyCredits: "Acheter des crédits",
+    referral: "Parrainage",
+    notifications: "Notifications",
+  },
+  en: {
+    eyebrow: "Subscription",
+    title: "Your account",
+    paymentConfirmed: "Payment confirmed, thank you!",
+    paymentCanceled: "Payment canceled — you were not charged.",
+    status: "Status",
+    premium: "Premium",
+    free: "Free",
+    plan: (p) => `Plan: ${p}`,
+    monthly: "Monthly",
+    yearly: "Yearly",
+    accessUntil: "Access until",
+    renewsOn: "Renews on",
+    managedVia: (source) => `Managed via ${source}.`,
+    stripeWeb: "Stripe (web)",
+    appleStore: "the App Store (Apple)",
+    creditsBalance: "Credit balance:",
+    goPremium: "Go Premium",
+    buyCredits: "Buy credits",
+    referral: "Referral",
+    notifications: "Notifications",
+  },
 };
 
 export default async function AbonnementPage({
@@ -23,74 +101,79 @@ export default async function AbonnementPage({
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   const { success, canceled } = await searchParams;
 
+  const locale: Locale = user.locale === "en" ? "en" : "fr";
+  const t = TEXT[locale];
+  const statusLabels = STATUS_LABELS[locale];
+
   const isPremium = user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing";
   const successfulReferrals = await prisma.user.count({
     where: { referredByUserId: user.id, referralRewardGranted: true },
   });
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const referralUrl = `${siteUrl}/inscription?ref=${user.referralCode}`;
+  const signupPath = locale === "en" ? "/en/signup" : "/inscription";
+  const referralUrl = `${siteUrl}${signupPath}?ref=${user.referralCode}`;
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Eyebrow>Abonnement</Eyebrow>
-      <h1 className="font-display mt-2 text-3xl">Votre compte</h1>
+      <Eyebrow>{t.eyebrow}</Eyebrow>
+      <h1 className="font-display mt-2 text-3xl">{t.title}</h1>
 
-      {success && (
-        <Card className="mt-6 border-sage/40 bg-sage/10 p-4 text-sm text-sage">Paiement confirmé, merci !</Card>
-      )}
+      {success && <Card className="mt-6 border-sage/40 bg-sage/10 p-4 text-sm text-sage">{t.paymentConfirmed}</Card>}
       {canceled && (
         <Card className="mt-6 border-terracotta/40 bg-terracotta/10 p-4 text-sm text-terracotta">
-          Paiement annulé — vous n&apos;avez pas été débité.
+          {t.paymentCanceled}
         </Card>
       )}
 
       <Card className="mt-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted">Statut</p>
-            <p className="font-display mt-1 text-2xl">{STATUS_LABELS[user.subscriptionStatus] ?? user.subscriptionStatus}</p>
+            <p className="text-sm text-muted">{t.status}</p>
+            <p className="font-display mt-1 text-2xl">{statusLabels[user.subscriptionStatus] ?? user.subscriptionStatus}</p>
           </div>
-          {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>Gratuit</Badge>}
+          {isPremium ? <Badge tone="gold">{t.premium}</Badge> : <Badge>{t.free}</Badge>}
         </div>
         {user.subscriptionPlan && (
-          <p className="mt-2 text-sm text-muted">Formule : {user.subscriptionPlan === "monthly" ? "Mensuelle" : "Annuelle"}</p>
+          <p className="mt-2 text-sm text-muted">
+            {t.plan(user.subscriptionPlan === "monthly" ? t.monthly : t.yearly)}
+          </p>
         )}
         {user.currentPeriodEnd && (
           <p className="text-sm text-muted">
-            {user.subscriptionStatus === "canceled" ? "Accès jusqu'au" : "Renouvellement le"}{" "}
-            {new Date(user.currentPeriodEnd).toLocaleDateString("fr-FR")}
+            {user.subscriptionStatus === "canceled" ? t.accessUntil : t.renewsOn}{" "}
+            {new Date(user.currentPeriodEnd).toLocaleDateString(locale === "en" ? "en-US" : "fr-FR")}
           </p>
         )}
         {user.entitlementSource && (
           <p className="mt-1 text-xs text-muted/70">
-            Géré via {user.entitlementSource === "stripe" ? "Stripe (web)" : "l'App Store (Apple)"}.
+            {t.managedVia(user.entitlementSource === "stripe" ? t.stripeWeb : t.appleStore)}
           </p>
         )}
 
         <p className="mt-4 text-sm text-muted">
-          Solde de crédits : <span className="text-gold-strong">{user.credits}</span>
+          {t.creditsBalance} <span className="text-gold-strong">{user.credits}</span>
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {!isPremium && <ButtonLink href="/tarifs">Passer Premium</ButtonLink>}
-          <ButtonLink href="/tarifs" variant="secondary">
-            Acheter des crédits
+          {!isPremium && <ButtonLink href={locale === "en" ? "/en/pricing" : "/tarifs"}>{t.goPremium}</ButtonLink>}
+          <ButtonLink href={locale === "en" ? "/en/pricing" : "/tarifs"} variant="secondary">
+            {t.buyCredits}
           </ButtonLink>
-          {user.entitlementSource === "stripe" && <ManageBillingButton />}
+          {user.entitlementSource === "stripe" && <ManageBillingButton locale={locale} />}
         </div>
       </Card>
 
       <Card className="mt-6 p-6">
-        <p className="text-sm text-muted">Parrainage</p>
+        <p className="text-sm text-muted">{t.referral}</p>
         <div className="mt-3">
-          <ReferralCard referralUrl={referralUrl} successfulReferrals={successfulReferrals} />
+          <ReferralCard referralUrl={referralUrl} successfulReferrals={successfulReferrals} locale={locale} />
         </div>
       </Card>
 
       <Card className="mt-6 p-6">
-        <p className="text-sm text-muted">Notifications</p>
+        <p className="text-sm text-muted">{t.notifications}</p>
         <div className="mt-3">
-          <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} />
+          <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} locale={locale} />
         </div>
       </Card>
     </div>

@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-export function ManageBillingButton() {
+const TEXT = {
+  fr: { loading: "Un instant…", manage: "Gérer mon abonnement (Stripe)" },
+  en: { loading: "One moment…", manage: "Manage my subscription (Stripe)" },
+};
+
+export function ManageBillingButton({ locale = "fr" }: { locale?: "fr" | "en" }) {
+  const t = TEXT[locale];
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
@@ -16,7 +22,7 @@ export function ManageBillingButton() {
 
   return (
     <Button variant="secondary" disabled={loading} onClick={handleClick}>
-      {loading ? "Un instant…" : "Gérer mon abonnement (Stripe)"}
+      {loading ? t.loading : t.manage}
     </Button>
   );
 }

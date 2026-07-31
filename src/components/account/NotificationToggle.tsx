@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 
-export function NotificationToggle({ initialOptIn }: { initialOptIn: boolean }) {
+const TEXT = {
+  fr: { title: "Horoscope quotidien par e-mail", subtitle: "Un rappel court chaque jour : phase lunaire et transit du jour." },
+  en: { title: "Daily horoscope by email", subtitle: "A short daily reminder: moon phase and today's transit." },
+};
+
+export function NotificationToggle({ initialOptIn, locale = "fr" }: { initialOptIn: boolean; locale?: "fr" | "en" }) {
+  const t = TEXT[locale];
   const [optIn, setOptIn] = useState(initialOptIn);
   const [loading, setLoading] = useState(false);
 
@@ -27,8 +33,8 @@ export function NotificationToggle({ initialOptIn }: { initialOptIn: boolean }) 
   return (
     <label className="flex items-center justify-between gap-4">
       <span className="text-sm">
-        Horoscope quotidien par e-mail
-        <span className="block text-xs text-muted">Un rappel court chaque jour : phase lunaire et transit du jour.</span>
+        {t.title}
+        <span className="block text-xs text-muted">{t.subtitle}</span>
       </span>
       <button
         type="button"

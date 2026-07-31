@@ -2,7 +2,41 @@
 
 import { useState } from "react";
 
-export function ReferralCard({ referralUrl, successfulReferrals }: { referralUrl: string; successfulReferrals: number }) {
+const TEXT = {
+  fr: {
+    invite: (
+      <>
+        Invitez un proche : vous recevez chacun <span className="text-gold-strong">2 crédits offerts</span> dès son
+        premier achat.
+      </>
+    ),
+    copy: "Copier",
+    copied: "Copié !",
+    converted: (n: number) => `${n} filleul${n > 1 ? "s" : ""} converti${n > 1 ? "s" : ""} jusqu'ici — merci !`,
+  },
+  en: {
+    invite: (
+      <>
+        Invite someone: you each get <span className="text-gold-strong">2 free credits</span> as soon as they make
+        their first purchase.
+      </>
+    ),
+    copy: "Copy",
+    copied: "Copied!",
+    converted: (n: number) => `${n} referral${n > 1 ? "s" : ""} converted so far — thank you!`,
+  },
+};
+
+export function ReferralCard({
+  referralUrl,
+  successfulReferrals,
+  locale = "fr",
+}: {
+  referralUrl: string;
+  successfulReferrals: number;
+  locale?: "fr" | "en";
+}) {
+  const t = TEXT[locale];
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -17,10 +51,7 @@ export function ReferralCard({ referralUrl, successfulReferrals }: { referralUrl
 
   return (
     <div>
-      <p className="text-sm text-muted">
-        Invitez un proche : vous recevez chacun <span className="text-gold-strong">2 crédits offerts</span> dès son
-        premier achat.
-      </p>
+      <p className="text-sm text-muted">{t.invite}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <input
           readOnly
@@ -33,14 +64,10 @@ export function ReferralCard({ referralUrl, successfulReferrals }: { referralUrl
           onClick={copy}
           className="shrink-0 rounded-full border border-gold/40 px-3 py-2 text-xs text-gold-strong hover:bg-gold/10"
         >
-          {copied ? "Copié !" : "Copier"}
+          {copied ? t.copied : t.copy}
         </button>
       </div>
-      {successfulReferrals > 0 && (
-        <p className="mt-2 text-xs text-muted/70">
-          {successfulReferrals} filleul{successfulReferrals > 1 ? "s" : ""} converti{successfulReferrals > 1 ? "s" : ""} jusqu&apos;ici — merci !
-        </p>
-      )}
+      {successfulReferrals > 0 && <p className="mt-2 text-xs text-muted/70">{t.converted(successfulReferrals)}</p>}
     </div>
   );
 }
