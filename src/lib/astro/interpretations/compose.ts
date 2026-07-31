@@ -188,22 +188,33 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
 }
 
 /** Aspect entre une planète en transit (aujourd'hui) et un point du thème composite d'un couple. */
-export function describeCompositeTransitAspect(aspect: TransitAspect): string {
-  const meta = ASPECT_META[aspect.aspect];
-  const transitName = PLANET_META[aspect.transitingPlanet].name;
-  const compositeName = PLANET_META[aspect.natalPoint]?.name ?? aspect.natalPoint;
+export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Locale = "fr"): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
+  const meta = aspectMap[aspect.aspect];
+  const transitName = planetMap[aspect.transitingPlanet].name;
+  const compositeName = planetMap[aspect.natalPoint]?.name ?? aspect.natalPoint;
   const gap = Math.abs(aspect.exact).toFixed(1);
-  const timing = aspect.applying
-    ? "L'aspect se resserre : son influence monte en puissance dans les prochains jours pour la relation."
-    : "L'aspect se relâche : son influence était plus forte il y a quelques jours et s'estompe désormais.";
 
   // Le thème composite existe pour tout type de relation (famille, amitié,
   // pro, pas seulement les couples) et cette fonction n'a pas connaissance
   // du cadrage choisi : on écarte par prudence les thèmes de fond formulés
   // en langage de couple plutôt que de risquer d'en afficher un à tort.
-  const pairTheme = isRomanticCodedPair(aspect.transitingPlanet, aspect.natalPoint)
-    ? undefined
-    : getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
+  const suppressRomantic = isRomanticCodedPair(aspect.transitingPlanet, aspect.natalPoint);
+
+  if (locale === "en") {
+    const timing = aspect.applying
+      ? "The aspect is tightening: its influence is building over the coming days for the relationship."
+      : "The aspect is loosening: its influence was stronger a few days ago and is now fading.";
+    const pairTheme = suppressRomantic ? undefined : getPairThemeEn(aspect.transitingPlanet, aspect.natalPoint);
+    const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
+    return `Transiting ${transitName} forms ${meta.name.toLowerCase()} ${meta.symbol} with the ${compositeName} of your relationship's composite chart (orb: ${gap}°). ${meta.description}${themeSentence} ${timing}`;
+  }
+
+  const timing = aspect.applying
+    ? "L'aspect se resserre : son influence monte en puissance dans les prochains jours pour la relation."
+    : "L'aspect se relâche : son influence était plus forte il y a quelques jours et s'estompe désormais.";
+  const pairTheme = suppressRomantic ? undefined : getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
   return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec le ${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
@@ -213,24 +224,35 @@ export function describeCompositeTransitAspect(aspect: TransitAspect): string {
 export function describeActivatedSynastryAspect(
   activated: ActivatedSynastryAspect,
   labelA: string,
-  labelB: string
+  labelB: string,
+  locale: Locale = "fr"
 ): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
   const { synastryAspect, transit, side } = activated;
   const personLabel = side === "A" ? labelA : labelB;
   const partnerLabel = side === "A" ? labelB : labelA;
   const personPoint = side === "A" ? synastryAspect.personA : synastryAspect.personB;
   const partnerPoint = side === "A" ? synastryAspect.personB : synastryAspect.personA;
-  const personName = PLANET_META[personPoint]?.name ?? personPoint;
-  const partnerName = PLANET_META[partnerPoint]?.name ?? partnerPoint;
+  const personName = planetMap[personPoint]?.name ?? personPoint;
+  const partnerName = planetMap[partnerPoint]?.name ?? partnerPoint;
 
-  const synMeta = ASPECT_META[synastryAspect.aspect];
-  const transitMeta = ASPECT_META[transit.aspect];
-  const transitPlanetName = PLANET_META[transit.transitingPlanet].name;
+  const synMeta = aspectMap[synastryAspect.aspect];
+  const transitMeta = aspectMap[transit.aspect];
+  const transitPlanetName = planetMap[transit.transitingPlanet].name;
   const gap = Math.abs(transit.exact).toFixed(1);
 
   // Même prudence que pour le composite : cette fonction ne sait pas si le
   // lien est romantique, familial, amical ou professionnel.
-  const pairTheme = isRomanticCodedPair(personPoint, partnerPoint) ? undefined : getPairTheme(personPoint, partnerPoint);
+  const suppressRomantic = isRomanticCodedPair(personPoint, partnerPoint);
+
+  if (locale === "en") {
+    const pairTheme = suppressRomantic ? undefined : getPairThemeEn(personPoint, partnerPoint);
+    const themeSentence = pairTheme ? ` Underlying theme of the bond: ${pairTheme}` : "";
+    return `Your ${synMeta.name.toLowerCase()} ${synMeta.symbol} between ${personLabel}'s ${personName} and ${partnerLabel}'s ${partnerName} is reactivated today: transiting ${transitPlanetName} forms ${transitMeta.name.toLowerCase()} with ${personLabel}'s ${personName} (orb: ${gap}°).${themeSentence} This is the moment when this dynamic between you two is most likely to manifest concretely.`;
+  }
+
+  const pairTheme = suppressRomantic ? undefined : getPairTheme(personPoint, partnerPoint);
   const themeSentence = pairTheme ? ` Thème de fond du lien : ${pairTheme}` : "";
 
   return `Votre ${synMeta.name.toLowerCase()} ${synMeta.symbol} entre le ${personName} de ${personLabel} et le ${partnerName} de ${partnerLabel} est réactivé aujourd'hui : ${transitPlanetName} en transit forme ${transitMeta.name.toLowerCase()} avec le ${personName} de ${personLabel} (écart à l'exact : ${gap}°).${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;

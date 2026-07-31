@@ -6,7 +6,21 @@ import { computeComposite } from "@/lib/astro/composite";
 import { composeDailyHoroscope } from "@/lib/astro/interpretations/daily-horoscope";
 import { composeCompositeTransitSection, composeSynastryTransitSection } from "@/lib/astro/interpretations/synastry-transit";
 import type { BirthInput } from "@/lib/astro/types";
+import type { Locale } from "@/lib/astro/interpretations/compose";
 import { sendEmail } from "@/lib/email";
+
+const EMAIL_TEXT: Record<Locale, { viewTransits: string; footer: string; unsubscribe: string }> = {
+  fr: {
+    viewTransits: "Voir le détail des transits du jour",
+    footer: "Vous recevez cet e-mail car vous êtes inscrit(e) sur Astrologia.",
+    unsubscribe: "Se désabonner de l'horoscope quotidien",
+  },
+  en: {
+    viewTransits: "See today's full transit details",
+    footer: "You are receiving this email because you are registered on Astrologia.",
+    unsubscribe: "Unsubscribe from the daily horoscope",
+  },
+};
 
 function chartInputFor(profile: {
   birthDate: string;
@@ -68,8 +82,10 @@ async function runDailyHoroscope(request: Request) {
     }
 
     try {
+      const locale: Locale = user.locale === "en" ? "en" : "fr";
+      const t = EMAIL_TEXT[locale];
       const chart = computeNatalChart(chartInputFor(profile), "placidus");
-      const horoscope = composeDailyHoroscope(chart, profile.label, now);
+      const horoscope = composeDailyHoroscope(chart, profile.label, now, locale);
       const unsubscribeUrl = `${siteUrl}/api/notifications/unsubscribe?token=${user.unsubscribeToken}`;
 
       // Paires "synastrie" et "composite" déverrouillées par cet utilisateur :
@@ -93,9 +109,9 @@ async function runDailyHoroscope(request: Request) {
 
           if (u.feature === "composite") {
             const composite = computeComposite(chartA, chartB);
-            return composeCompositeTransitSection(composite, profileA.label, profileB.label, now);
+            return composeCompositeTransitSection(composite, profileA.label, profileB.label, now, locale);
           }
-          return composeSynastryTransitSection(chartA, chartB, profileA.label, profileB.label, now);
+          return composeSynastryTransitSection(chartA, chartB, profileA.label, profileB.label, now, locale);
         });
 
       await sendEmail({
@@ -107,7 +123,7 @@ async function runDailyHoroscope(request: Request) {
             .join("\n")}
           <p><strong>${horoscope.headline}</strong></p>
           ${horoscope.paragraphs.map((p) => `<p>${p}</p>`).join("\n")}
-          <p><a href="${siteUrl}/dashboard/transits/${profile.id}">Voir le détail des transits du jour</a></p>
+          <p><a href="${siteUrl}/dashboard/transits/${profile.id}">${t.viewTransits}</a></p>
           ${relationshipSections
             .map(
               (s) => `
@@ -119,8 +135,8 @@ async function runDailyHoroscope(request: Request) {
             .join("\n")}
           <hr/>
           <p style="font-size:12px;color:#888;">
-            Vous recevez cet e-mail car vous êtes inscrit(e) sur Astrologia.
-            <a href="${unsubscribeUrl}">Se désabonner de l'horoscope quotidien</a>.
+            ${t.footer}
+            <a href="${unsubscribeUrl}">${t.unsubscribe}</a>.
           </p>
         `,
       });
