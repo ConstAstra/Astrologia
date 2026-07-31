@@ -1,4 +1,4 @@
-import { computeBigThree, computeDominance } from "@/lib/astro/dominance";
+import { computeBigThree, computeDominance, isGenerationalOnly } from "@/lib/astro/dominance";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
@@ -19,7 +19,16 @@ const ELEMENT_COLORS: Record<string, string> = {
 
 const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
 
-const TEXT: Record<Locale, { overview: string; sun: string; moon: string; ascendant: string; unknownTime: string; distribution: string }> = {
+const TEXT: Record<Locale, {
+  overview: string;
+  sun: string;
+  moon: string;
+  ascendant: string;
+  unknownTime: string;
+  distribution: string;
+  composedOf: (planets: string) => string;
+  generationalNote: string;
+}> = {
   fr: {
     overview: "Vue d'ensemble",
     sun: "Soleil",
@@ -27,6 +36,9 @@ const TEXT: Record<Locale, { overview: string; sun: string; moon: string; ascend
     ascendant: "Ascendant",
     unknownTime: "Heure inconnue",
     distribution: "Répartition par élément",
+    composedOf: (planets) => `Porté par : ${planets}.`,
+    generationalNote:
+      "Aucune de vos planètes personnelles (Soleil à Mars) n'y contribue : cette dominante vient uniquement de planètes lentes, partagées avec toute votre génération — elle en dit plus sur votre époque que sur vous individuellement.",
   },
   en: {
     overview: "Overview",
@@ -35,6 +47,9 @@ const TEXT: Record<Locale, { overview: string; sun: string; moon: string; ascend
     ascendant: "Ascendant",
     unknownTime: "Unknown time",
     distribution: "Breakdown by element",
+    composedOf: (planets) => `Driven by: ${planets}.`,
+    generationalNote:
+      "None of your personal planets (Sun through Mars) contribute to it: this dominance comes only from slow-moving planets shared with your whole generation — it says more about your era than about you individually.",
   },
 };
 
@@ -107,13 +122,33 @@ export function OverviewCard({
         </div>
       </div>
 
-      <div className="mt-5 space-y-2 text-xs leading-relaxed text-muted">
-        {dominance.dominantElements.map((e) => (
-          <p key={e}>{elementText[e]}</p>
-        ))}
-        {dominance.dominantModalities.map((m) => (
-          <p key={m}>{modalityText[m]}</p>
-        ))}
+      <div className="mt-5 space-y-3 text-xs leading-relaxed text-muted">
+        {dominance.dominantElements.map((e) => {
+          const planets = dominance.elementPlanets[e];
+          const generational = isGenerationalOnly(planets);
+          return (
+            <div key={e}>
+              <p>{elementText[e]}</p>
+              <p className="mt-1 text-muted/70">
+                {t.composedOf(planets.map((p) => `${planetMap[p].symbol} ${planetMap[p].name}`).join(", "))}
+              </p>
+              {generational && <p className="mt-1 italic text-muted/70">{t.generationalNote}</p>}
+            </div>
+          );
+        })}
+        {dominance.dominantModalities.map((m) => {
+          const planets = dominance.modalityPlanets[m];
+          const generational = isGenerationalOnly(planets);
+          return (
+            <div key={m}>
+              <p>{modalityText[m]}</p>
+              <p className="mt-1 text-muted/70">
+                {t.composedOf(planets.map((p) => `${planetMap[p].symbol} ${planetMap[p].name}`).join(", "))}
+              </p>
+              {generational && <p className="mt-1 italic text-muted/70">{t.generationalNote}</p>}
+            </div>
+          );
+        })}
       </div>
     </Card>
   );

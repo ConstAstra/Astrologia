@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeDominance, computeBigThree } from "@/lib/astro/dominance";
+import { computeDominance, computeBigThree, isGenerationalOnly } from "@/lib/astro/dominance";
 import type { EclipticPoint, PointKey } from "@/lib/astro/types";
 
 function point(key: PointKey, longitude: number): EclipticPoint {
@@ -55,6 +55,38 @@ describe("computeDominance", () => {
     const dominance = computeDominance({ sun: point("sun", 5) });
     const total = Object.values(dominance.elementCounts).reduce((a, b) => a + b, 0);
     expect(total).toBe(1);
+  });
+
+  it("lists which planets compose each element/modality count, in place of a black-box number", () => {
+    const points: Partial<Record<PointKey, EclipticPoint>> = {
+      sun: point("sun", 5), // Bélier: Feu
+      moon: point("moon", 95), // Cancer: Eau
+      saturn: point("saturn", 65), // Gémeaux: Air
+    };
+    const dominance = computeDominance(points);
+    expect(dominance.elementPlanets.Feu).toEqual(["sun"]);
+    expect(dominance.elementPlanets.Eau).toEqual(["moon"]);
+    expect(dominance.elementPlanets.Air).toEqual(["saturn"]);
+    expect(dominance.elementPlanets.Terre).toEqual([]);
+  });
+});
+
+describe("isGenerationalOnly", () => {
+  it("is true when only outer/slow planets contribute (shared with a whole birth cohort)", () => {
+    // Real case: someone with Saturn in Gémeaux, Uranus in Verseau, Neptune
+    // in Verseau all landing on Air, and no personal planet (Sun-Mars) in
+    // Air at all — the "dominant" element says nothing about them
+    // individually, only about when they were born.
+    expect(isGenerationalOnly(["saturn", "uranus", "neptune"])).toBe(true);
+  });
+
+  it("is false as soon as a single personal planet contributes", () => {
+    expect(isGenerationalOnly(["sun", "uranus", "neptune"])).toBe(false);
+    expect(isGenerationalOnly(["moon"])).toBe(false);
+  });
+
+  it("is false for an empty list (nothing to flag)", () => {
+    expect(isGenerationalOnly([])).toBe(false);
   });
 });
 
