@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "smoke:astro": "tsx scripts/smoke-test-astro.ts"
   },
   "dependencies": {
@@ -46,6 +47,7 @@
     "playwright": "^1.62.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }
