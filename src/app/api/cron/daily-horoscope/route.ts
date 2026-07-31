@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeComposite } from "@/lib/astro/composite";
 import { composeDailyHoroscope } from "@/lib/astro/interpretations/daily-horoscope";
-import { composeSynastryTransitSection } from "@/lib/astro/interpretations/synastry-transit";
+import { composeCompositeTransitSection, composeSynastryTransitSection } from "@/lib/astro/interpretations/synastry-transit";
 import type { BirthInput } from "@/lib/astro/types";
 import { sendEmail } from "@/lib/email";
 
@@ -72,24 +72,30 @@ async function runDailyHoroscope(request: Request) {
       const horoscope = composeDailyHoroscope(chart, profile.label, now);
       const unsubscribeUrl = `${siteUrl}/api/notifications/unsubscribe?token=${user.unsubscribeToken}`;
 
-      // Paires de synastrie déverrouillées par cet utilisateur : on ajoute
-      // une section "transits du jour sur le thème composite" par relation,
-      // dans le même e-mail plutôt qu'un envoi séparé par couple.
-      const synastryUnlocks = await prisma.unlock.findMany({
-        where: { userId: user.id, feature: "synastry" },
-        distinct: ["primaryProfileId", "secondaryProfileId"],
+      // Paires "synastrie" et "composite" déverrouillées par cet utilisateur :
+      // deux techniques distinctes, chacune réservée à la fonctionnalité
+      // payante correspondante — on n'ajoute jamais l'une en bonus de
+      // l'autre. Les deux sections possibles viennent enrichir le même
+      // e-mail plutôt qu'un envoi séparé par couple.
+      const relationshipUnlocks = await prisma.unlock.findMany({
+        where: { userId: user.id, feature: { in: ["synastry", "composite"] }, secondaryProfileId: { not: null } },
+        distinct: ["feature", "primaryProfileId", "secondaryProfileId"],
         include: { primaryProfile: true, secondaryProfile: true },
       });
 
-      const synastrySections = synastryUnlocks
+      const relationshipSections = relationshipUnlocks
         .filter((u) => u.secondaryProfile)
         .map((u) => {
           const profileA = u.primaryProfile;
           const profileB = u.secondaryProfile!;
           const chartA = profileA.id === profile.id ? chart : computeNatalChart(chartInputFor(profileA), "placidus");
           const chartB = profileB.id === profile.id ? chart : computeNatalChart(chartInputFor(profileB), "placidus");
-          const composite = computeComposite(chartA, chartB);
-          return composeSynastryTransitSection(composite, profileA.label, profileB.label, now);
+
+          if (u.feature === "composite") {
+            const composite = computeComposite(chartA, chartB);
+            return composeCompositeTransitSection(composite, profileA.label, profileB.label, now);
+          }
+          return composeSynastryTransitSection(chartA, chartB, profileA.label, profileB.label, now);
         });
 
       await sendEmail({
@@ -99,7 +105,7 @@ async function runDailyHoroscope(request: Request) {
           <p><strong>${horoscope.headline}</strong></p>
           ${horoscope.paragraphs.map((p) => `<p>${p}</p>`).join("\n")}
           <p><a href="${siteUrl}/dashboard/transits/${profile.id}">Voir le détail des transits du jour</a></p>
-          ${synastrySections
+          ${relationshipSections
             .map(
               (s) => `
             <hr/>

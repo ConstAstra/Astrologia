@@ -2,6 +2,7 @@ import { ZODIAC_SIGNS } from "../types";
 import type { Aspect, AspectKey, HouseCusps, PointKey, ZodiacSign } from "../types";
 import type { SynastryAspect } from "../synastry";
 import type { TransitAspect } from "../transits";
+import type { ActivatedSynastryAspect } from "../synastry-transits";
 import { PLANET_META } from "./planets";
 import { SIGN_META } from "./signs";
 import { HOUSE_META } from "./houses";
@@ -105,6 +106,31 @@ export function describeCompositeTransitAspect(aspect: TransitAspect): string {
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
   return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec le ${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
+}
+
+/** Aspect de synastrie réactivé aujourd'hui par un transit sur le point natal de l'un des deux partenaires. */
+export function describeActivatedSynastryAspect(
+  activated: ActivatedSynastryAspect,
+  labelA: string,
+  labelB: string
+): string {
+  const { synastryAspect, transit, side } = activated;
+  const personLabel = side === "A" ? labelA : labelB;
+  const partnerLabel = side === "A" ? labelB : labelA;
+  const personPoint = side === "A" ? synastryAspect.personA : synastryAspect.personB;
+  const partnerPoint = side === "A" ? synastryAspect.personB : synastryAspect.personA;
+  const personName = PLANET_META[personPoint]?.name ?? personPoint;
+  const partnerName = PLANET_META[partnerPoint]?.name ?? partnerPoint;
+
+  const synMeta = ASPECT_META[synastryAspect.aspect];
+  const transitMeta = ASPECT_META[transit.aspect];
+  const transitPlanetName = PLANET_META[transit.transitingPlanet].name;
+  const gap = Math.abs(transit.exact).toFixed(1);
+
+  const pairTheme = getPairTheme(personPoint, partnerPoint);
+  const themeSentence = pairTheme ? ` Thème de fond du lien : ${pairTheme}` : "";
+
+  return `Votre ${synMeta.name.toLowerCase()} ${synMeta.symbol} entre le ${personName} de ${personLabel} et le ${partnerName} de ${partnerLabel} est réactivé aujourd'hui : ${transitPlanetName} en transit forme ${transitMeta.name.toLowerCase()} avec le ${personName} de ${personLabel} (écart à l'exact : ${gap}°).${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey): string {
