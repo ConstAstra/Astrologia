@@ -7,6 +7,7 @@ const display = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 const body = Inter({
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <SkyScroll />
         <div className="starfield" aria-hidden="true" />
+        <div className="grain" aria-hidden="true" />
         {children}
       </body>
     </html>
