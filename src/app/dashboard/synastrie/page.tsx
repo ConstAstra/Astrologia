@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { canonicalPair, hasFeatureAccess } from "@/lib/billing/entitlements";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
+import { computeCompatibilityScore } from "@/lib/astro/compatibility-score";
 import { quickSunSign } from "@/lib/astro/quick";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
@@ -21,6 +22,7 @@ import type { RelationshipType } from "@/lib/astro/interpretations/relationship"
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { AvatarPairPicker } from "@/components/dashboard/AvatarPairPicker";
 import { RelationshipTabs } from "@/components/dashboard/RelationshipTabs";
+import { CompatibilityMeter } from "@/components/dashboard/CompatibilityMeter";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 
@@ -38,6 +40,7 @@ const TEXT: Record<
     noMajorAspects: string;
     planetsOf: (b: string, a: string) => string;
     inHouse: (house: number) => string;
+    compatibilityLabel: string;
   }
 > = {
   fr: {
@@ -50,6 +53,7 @@ const TEXT: Record<
     noMajorAspects: "Aucun aspect majeur détecté dans les orbes retenues.",
     planetsOf: (b, a) => `Planètes de ${b} dans les maisons de ${a}`,
     inHouse: (house) => `en maison ${house} —`,
+    compatibilityLabel: "Compatibilité astrologique",
   },
   en: {
     synastry: "Synastry",
@@ -61,6 +65,7 @@ const TEXT: Record<
     noMajorAspects: "No major aspect detected within the orbs used.",
     planetsOf: (b, a) => `${b}'s planets in ${a}'s houses`,
     inHouse: (house) => `in house ${house} —`,
+    compatibilityLabel: "Astrological compatibility",
   },
 };
 
@@ -185,10 +190,22 @@ export default async function SynastriePage({
 
   const synastry = computeSynastry(chartA, chartB);
   const majorAspects = synastry.aspects.filter((asp) => asp.major);
+  const { percentage: compatibilityPercentage } = computeCompatibilityScore(synastry.aspects);
 
   return (
     <div>
       {header}
+
+      <Card className="mt-6 flex justify-center p-6">
+        <CompatibilityMeter
+          percentage={compatibilityPercentage}
+          seedA={a}
+          seedB={b}
+          sunA={sunA}
+          sunB={sunB}
+          label={t.compatibilityLabel}
+        />
+      </Card>
 
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].synastryFraming}</Card>
 
