@@ -92,7 +92,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
   },
   asc: {
     name: "Ascendant",
-    symbol: "AS",
+    symbol: "ASC",
     keyword: "the social mask, bearing, first impression given",
     essence:
       "The Ascendant is the sign that was rising on the eastern horizon at the moment of birth. It colors appearance, immediate reflexes, the way of approaching the world — often perceived by others even before the Sun.",
@@ -108,7 +108,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
   },
   desc: {
     name: "Descendant",
-    symbol: "DS",
+    symbol: "DSC",
     keyword: "relating to others and what one seeks in partnership",
     essence:
       "Opposite the Ascendant, the Descendant describes what one projects onto others and seeks in a partnership — often what completes us or attracts us in a partner.",
@@ -116,7 +116,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
   },
   ic: {
     name: "Imum Coeli",
-    symbol: "FC",
+    symbol: "IC",
     keyword: "roots, family and intimacy",
     essence:
       "Opposite the Midheaven, the Imum Coeli evokes family roots, home, intimacy and what is silently passed down from one generation to the next.",
