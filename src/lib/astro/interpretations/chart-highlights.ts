@@ -4,38 +4,6 @@ import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
 import type { Locale } from "./compose";
 
-// Trait court par signe — utilisé pour opposer le masque (Ascendant, ce
-// qu'on voit) au fond (Soleil, ce qui vous porte réellement).
-const SIGN_TRAIT: Record<string, string> = {
-  belier: "foncez sans demander la permission",
-  taureau: "ne bougez que si c'est du solide",
-  gemeaux: "changez de sujet avant qu'on vous le demande",
-  cancer: "protégez ce que vous aimez, sans compromis",
-  lion: "voulez qu'on vous regarde",
-  vierge: "corrigez ce qui cloche, même sans qu'on demande",
-  balance: "négociez même quand personne ne négocie",
-  scorpion: "voyez ce qu'on essaie de cacher",
-  sagittaire: "dites ce que vous pensez, tant pis",
-  capricorne: "construisez pendant que les autres parlent",
-  verseau: "faites bande à part, par principe",
-  poissons: "sentez avant de comprendre",
-};
-
-const SIGN_TRAIT_EN: Record<string, string> = {
-  belier: "move before asking permission",
-  taureau: "won't budge unless it's solid",
-  gemeaux: "change the subject before anyone asks",
-  cancer: "protect what you love, no compromise",
-  lion: "want to be looked at",
-  vierge: "fix what's off, even uninvited",
-  balance: "negotiate even when no one's negotiating",
-  scorpion: "see what people try to hide",
-  sagittaire: "say what you think, consequences later",
-  capricorne: "build while everyone else is talking",
-  verseau: "stand apart, on principle",
-  poissons: "feel before you understand",
-};
-
 // Un seul mot par signe — le "caractère" affiché sur la carte d'identité
 // partageable, volontairement sans aucun terme technique (pas de nom de
 // planète ni d'aspect, illisible pour qui ne connaît pas l'astrologie).
@@ -132,37 +100,15 @@ function composeSunMoonLine(sunSign: ZodiacSign, moonSign: ZodiacSign, locale: L
 }
 
 /**
- * Deux phrases, chacune ancrée sur des placements réels et nommés du
- * thème (signes du Soleil/Lune/Ascendant) plutôt que sur un seul facteur à
- * faible cardinalité pris isolément (un élément parmi 4, une tonalité
- * parmi 3) — le risque sinon est de produire des phrases correctes mais
- * interchangeables d'un thème à l'autre. Pas de redite du
- * Soleil/Lune/Ascendant déjà affiché juste en dessous (OverviewCard) : ici,
- * la relation *entre* les placements, pas les placements eux-mêmes.
- * Réutilisé tel quel sur la carte d'identité partageable.
+ * Une phrase ancrée sur les signes réels du Soleil et de la Lune, plutôt
+ * que sur un seul facteur à faible cardinalité pris isolément (un élément
+ * parmi 4) — le risque sinon est de produire une phrase correcte mais
+ * interchangeable d'un thème à l'autre. Pas de redite du Soleil/Lune déjà
+ * affiché juste en dessous (OverviewCard) : ici, la relation *entre* les
+ * deux placements, pas les placements eux-mêmes. Réutilisé tel quel sur la
+ * carte d'identité partageable.
  */
 export function composeChartHighlights(chart: NatalChart, locale: Locale = "fr"): string[] {
-  const signTrait = locale === "en" ? SIGN_TRAIT_EN : SIGN_TRAIT;
-
   const big3 = computeBigThree(chart.points, chart.hasReliableHouses);
-
-  const lines: string[] = [];
-
-  if (big3.ascendant && big3.ascendant !== big3.sun) {
-    lines.push(
-      locale === "en"
-        ? `People assume you ${signTrait[big3.ascendant]}. What actually drives you is that you ${signTrait[big3.sun]}.`
-        : `En façade, vous ${signTrait[big3.ascendant]}. Ce qui vous fait vraiment avancer, c'est que vous ${signTrait[big3.sun]}.`
-    );
-  } else {
-    lines.push(
-      locale === "en"
-        ? "What you show and what drives you are the same thing — rare, and not always comfortable."
-        : "Ce que vous montrez et ce qui vous anime, c'est la même chose — rare, et pas toujours confortable."
-    );
-  }
-
-  lines.push(composeSunMoonLine(big3.sun, big3.moon, locale));
-
-  return lines;
+  return [composeSunMoonLine(big3.sun, big3.moon, locale)];
 }
