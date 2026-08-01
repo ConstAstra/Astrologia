@@ -24,6 +24,7 @@ import {
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartSynthesis } from "@/lib/astro/interpretations/synthesis";
+import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
@@ -50,6 +51,7 @@ const TEXT: Record<
     at: string;
     transits: string;
     share: string;
+    inBrief: string;
     unreliableHouses: string;
     positions: string;
     house: string;
@@ -80,7 +82,8 @@ const TEXT: Record<
     unknownTime: "· heure inconnue",
     at: "à",
     transits: "☾ Voir les transits du jour",
-    share: "⤓ Partager (image)",
+    share: "⤓ Carte à partager",
+    inBrief: "En bref",
     unreliableHouses:
       "Heure de naissance inconnue : l'Ascendant, le Milieu du Ciel et les maisons ne sont pas affichés, plutôt que d'afficher une estimation trompeuse.",
     positions: "Positions",
@@ -112,7 +115,8 @@ const TEXT: Record<
     unknownTime: "· unknown time",
     at: "at",
     transits: "☾ See today's transits",
-    share: "⤓ Share (image)",
+    share: "⤓ Shareable card",
+    inBrief: "In brief",
     unreliableHouses:
       "Unknown birth time: the Ascendant, Midheaven and houses aren't shown, rather than displaying a misleading estimate.",
     positions: "Positions",
@@ -180,6 +184,7 @@ export default async function ThemeNatalPage({
 
   const aspectKeys: PointKey[] = chart.hasReliableHouses ? DISPLAY_POINTS : [...PLANET_KEYS];
   const aspects = computeAspects(chart.points, aspectKeys);
+  const chartHighlights = composeChartHighlights(chart, aspectKeys, locale);
 
   const northNode = chart.points.northNode;
   const mission = describeLifeMission(
@@ -241,6 +246,18 @@ export default async function ThemeNatalPage({
           ))}
         </div>
       </div>
+
+      <Card className="mt-6 p-6">
+        <Eyebrow>{t.inBrief}</Eyebrow>
+        <ul className="mt-3 space-y-2">
+          {chartHighlights.map((line, i) => (
+            <li key={i} className="flex gap-3 text-sm leading-relaxed sm:text-base">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-strong" aria-hidden="true" />
+              <span className="font-medium text-foreground">{line}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
 
       {!chart.hasReliableHouses && (
         <Card className="mt-6 border-terracotta/40 bg-terracotta/5 p-4 text-sm text-terracotta">

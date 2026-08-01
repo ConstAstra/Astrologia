@@ -31,6 +31,18 @@ const ASPECT_COLOR: Record<string, string> = {
   neutre: "#c77b8a",
 };
 
+// Même palette que OverviewCard/le badge d'avatar — un fond de gradin très
+// discret par élément pour que la roue se lise d'un coup d'œil (les 4
+// éléments qui reviennent tous les 3 signes) plutôt qu'un simple damier.
+const ELEMENT_WEDGE_COLOR: Record<string, string> = {
+  Feu: "#c96b4a",
+  Terre: "#9fc0a3",
+  Air: "#c77b8a",
+  Eau: "#8a9fc4",
+};
+
+const ANGLE_LABELS: Record<number, string> = { 0: "AS", 3: "IC", 6: "DS", 9: "MC" };
+
 function resolveCollisions(points: { key: PointKey; angle: number }[], minGap: number) {
   const sorted = [...points].sort((a, b) => a.angle - b.angle);
   const radiusOffset = new Map<PointKey, number>();
@@ -97,6 +109,15 @@ export function ChartWheel({
       role="img"
       aria-label={locale === "en" ? "Astrological wheel" : "Roue astrologique"}
     >
+      <defs>
+        <radialGradient id="wheel-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#e8935f" stopOpacity={0.14} />
+          <stop offset="70%" stopColor="#e8935f" stopOpacity={0.04} />
+          <stop offset="100%" stopColor="#e8935f" stopOpacity={0} />
+        </radialGradient>
+      </defs>
+
+      <circle cx={cx} cy={cy} r={rOuter * 1.04} fill="url(#wheel-glow)" />
       <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="var(--border-soft)" strokeWidth={1} />
 
       {ZODIAC_SIGNS.map((sign, i) => {
@@ -110,7 +131,8 @@ export function ChartWheel({
           <g key={sign}>
             <path
               d={describeArcPath(cx, cy, rZodiacOuter, rZodiacInner, startAngle, endAngle)}
-              fill={i % 2 === 0 ? "#ffffff08" : "#ffffff02"}
+              fill={ELEMENT_WEDGE_COLOR[meta.element]}
+              fillOpacity={i % 2 === 0 ? 0.1 : 0.05}
               stroke="var(--border-soft)"
               strokeWidth={0.5}
             />
@@ -149,6 +171,19 @@ export function ChartWheel({
             <text x={labelPos.x} y={labelPos.y} textAnchor="middle" dominantBaseline="central" fontSize={size * 0.022} fill="var(--muted)">
               {i + 1}
             </text>
+            {ANGLE_LABELS[i] && (
+              <text
+                x={outer.x}
+                y={outer.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={size * 0.024}
+                fontWeight={600}
+                fill="var(--gold-strong)"
+              >
+                {ANGLE_LABELS[i]}
+              </text>
+            )}
           </g>
         );
       })}
@@ -178,7 +213,7 @@ export function ChartWheel({
           );
         })}
 
-      <circle cx={cx} cy={cy} r={rAspect} fill="none" stroke="var(--border-soft)" strokeWidth={0.75} />
+      <circle cx={cx} cy={cy} r={rAspect} fill="url(#wheel-glow)" stroke="var(--border-soft)" strokeWidth={0.75} />
 
       {displayPoints.map((p) => {
         const baseAngle = longitudeToSvgAngleDeg(p.longitude, ascendant);
@@ -187,18 +222,20 @@ export function ChartWheel({
         const pos = polarToXY(cx, cy, r, baseAngle);
         const meta = PLANET_META[p.key];
         return (
-          <text
-            key={p.key}
-            x={pos.x}
-            y={pos.y}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={size * 0.034}
-            fill="var(--foreground)"
-          >
-            <title>{`${meta.name} — ${SIGN_META[signOf(p.longitude)].name}`}</title>
-            {meta.symbol}
-          </text>
+          <g key={p.key}>
+            <circle cx={pos.x} cy={pos.y} r={size * 0.024} fill="#1f1420" stroke="#e8935f" strokeWidth={0.75} />
+            <text
+              x={pos.x}
+              y={pos.y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={size * 0.03}
+              fill="#f2b799"
+            >
+              <title>{`${meta.name} — ${SIGN_META[signOf(p.longitude)].name}`}</title>
+              {meta.symbol}
+            </text>
+          </g>
         );
       })}
     </svg>
