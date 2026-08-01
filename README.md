@@ -1,4 +1,4 @@
-# Astrologia
+# Astrologium
 
 Application d'astrologie occidentale : thème natal, synastrie, thème composite
 et cartographie astrologique — calculée avec des éphémérides précises,
@@ -115,7 +115,7 @@ Le site web, lui, est testable et fonctionnel tel quel.
 
 #### Widget iOS (écran d'accueil)
 
-`ios/App/AstrologiaWidget/AstrologiaWidget.swift` est un fichier de
+`ios/App/AstrologiumWidget/AstrologiumWidget.swift` est un fichier de
 référence (WidgetKit + SwiftUI) — même mise en garde que ci-dessus, non
 compilé/testé ici. Il consomme `/api/widget/theme-natal/[id]?token=...`
 (endpoint JSON déjà fonctionnel et testable, contrairement au widget

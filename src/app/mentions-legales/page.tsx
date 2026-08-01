@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 
-export const metadata: Metadata = { title: "Mentions légales — Astrologia" };
+export const metadata: Metadata = { title: "Mentions légales — Astrologium" };
 
 export default function MentionsLegalesPage() {
   return (
@@ -41,7 +41,7 @@ export default function MentionsLegalesPage() {
             <div>
               <h2 className="font-display text-xl text-foreground">Nature du service</h2>
               <p className="mt-2">
-                Astrologia propose des calculs et interprétations astrologiques à visée de réflexion
+                Astrologium propose des calculs et interprétations astrologiques à visée de réflexion
                 personnelle et de divertissement. Ces contenus ne constituent ni un avis médical, ni un avis
                 juridique ou financier, ni une prédiction garantie d&apos;événements futurs. L&apos;éditeur ne
                 saurait être tenu responsable des décisions prises sur la base des lectures fournies.

@@ -26,7 +26,7 @@ describe("register + login", () => {
     const data = await res.json();
     expect(data.email).toBe(email);
     // register() must have set the session cookie via createSessionCookie.
-    expect(cookieJar.get("astrologia_session")).toBeDefined();
+    expect(cookieJar.get("astrologium_session")).toBeDefined();
   });
 
   it("rejects registering the same email twice", async () => {
@@ -41,11 +41,11 @@ describe("register + login", () => {
 
     const wrongRes = await login(jsonRequest({ email, password: "wrongpassword" }));
     expect(wrongRes.status).toBe(401);
-    expect(cookieJar.get("astrologia_session")).toBeUndefined();
+    expect(cookieJar.get("astrologium_session")).toBeUndefined();
 
     const rightRes = await login(jsonRequest({ email, password: "hunter22" }));
     expect(rightRes.status).toBe(200);
-    expect(cookieJar.get("astrologia_session")).toBeDefined();
+    expect(cookieJar.get("astrologium_session")).toBeDefined();
   });
 
   it("rejects an unknown email with the same generic message as a wrong password (no user enumeration)", async () => {

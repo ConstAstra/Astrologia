@@ -5,7 +5,7 @@ import { Card, Eyebrow } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
-  title: "Astrologia — Natal Chart, Synastry, Composite & Astrocartography",
+  title: "Astrologium — Natal Chart, Synastry, Composite & Astrocartography",
   description:
     "Create your natal chart, synastry, composite chart and astrocartography. Precise calculations, method fully explained, in English.",
 };

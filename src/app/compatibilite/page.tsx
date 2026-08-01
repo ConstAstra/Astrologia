@@ -7,7 +7,7 @@ import { ZODIAC_SIGNS } from "@/lib/astro/types";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 
 export const metadata: Metadata = {
-  title: "Compatibilité astrologique des signes — Astrologia",
+  title: "Compatibilité astrologique des signes — Astrologium",
   description:
     "Compatibilité entre les 12 signes du zodiaque : éléments, modalités, forces et points de vigilance de chaque duo, expliqués clairement.",
 };

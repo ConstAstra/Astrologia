@@ -59,7 +59,7 @@ export async function POST(request: Request) {
             currency: CURRENCY,
             unit_amount: plan.amountCents,
             recurring: { interval: plan.interval },
-            product_data: { name: `Astrologia Premium — ${plan.label}` },
+            product_data: { name: `Astrologium Premium — ${plan.label}` },
           },
         },
       ],
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         price_data: {
           currency: CURRENCY,
           unit_amount: pack.amountCents,
-          product_data: { name: `Astrologia — ${pack.label}` },
+          product_data: { name: `Astrologium — ${pack.label}` },
         },
       },
     ],

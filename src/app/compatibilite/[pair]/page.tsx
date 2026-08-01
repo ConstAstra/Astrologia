@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ pair: str
   const b = SIGN_META[signB];
 
   return {
-    title: `Compatibilité ${a.name} et ${b.name} — Astrologia`,
+    title: `Compatibilité ${a.name} et ${b.name} — Astrologium`,
     description: `Compatibilité entre ${a.name} et ${b.name} : affinité d'éléments et de modalités, forces et points de vigilance du duo, expliqués clairement.`,
     alternates: { canonical: `/compatibilite/${canonicalSlug(signA, signB)}` },
   };

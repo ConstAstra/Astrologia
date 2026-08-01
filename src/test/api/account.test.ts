@@ -108,7 +108,7 @@ describe("account management", () => {
 
       const gone = await prisma.user.findUnique({ where: { email: disposableEmail } });
       expect(gone).toBeNull();
-      expect(cookieJar.get("astrologia_session")).toBeUndefined();
+      expect(cookieJar.get("astrologium_session")).toBeUndefined();
     });
 
     it("cascades profile deletion along with the account", async () => {

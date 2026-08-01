@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 import { AuthForm } from "@/components/auth/AuthForm";
 
-export const metadata: Metadata = { title: "Create an account — Astrologia" };
+export const metadata: Metadata = { title: "Create an account — Astrologium" };
 
 export default function SignupEnPage() {
   return (

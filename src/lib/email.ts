@@ -17,7 +17,7 @@ export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<
     return;
   }
 
-  const from = process.env.EMAIL_FROM || "Astrologia <no-reply@astrologia.app>";
+  const from = process.env.EMAIL_FROM || "Astrologium <no-reply@astrologium.app>";
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {

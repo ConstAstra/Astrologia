@@ -5,8 +5,8 @@ import { Card, Eyebrow } from "@/components/ui/Card";
 import { METHODOLOGY } from "@/lib/astro/interpretations/methodology";
 
 export const metadata: Metadata = {
-  title: "La méthode — Astrologia",
-  description: "Comment Astrologia calcule vos thèmes : zodiaque, éphémérides, maisons, aspects, synastrie, composite, cartographie.",
+  title: "La méthode — Astrologium",
+  description: "Comment Astrologium calcule vos thèmes : zodiaque, éphémérides, maisons, aspects, synastrie, composite, cartographie.",
 };
 
 export default function MethodePage() {

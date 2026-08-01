@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
-export const metadata: Metadata = { title: "Reset password — Astrologia" };
+export const metadata: Metadata = { title: "Reset password — Astrologium" };
 
 export default async function ResetPasswordEnPage({
   searchParams,

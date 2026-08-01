@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 
-export const metadata: Metadata = { title: "Mot de passe oublié — Astrologia" };
+export const metadata: Metadata = { title: "Mot de passe oublié — Astrologium" };
 
 export default function ForgotPasswordPage() {
   return (

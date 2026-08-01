@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 
-export const metadata: Metadata = { title: "Confidentialité — Astrologia" };
+export const metadata: Metadata = { title: "Confidentialité — Astrologium" };
 
 export default function ConfidentialitePage() {
   return (

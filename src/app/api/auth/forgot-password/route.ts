@@ -13,10 +13,10 @@ const TEXT = {
   fr: {
     successMessage: "Si un compte existe pour cette adresse, un e-mail de réinitialisation vient d'être envoyé.",
     resetPath: "/reinitialiser-mot-de-passe",
-    subject: "Réinitialisation de votre mot de passe Astrologia",
+    subject: "Réinitialisation de votre mot de passe Astrologium",
     body: (name: string, resetUrl: string) => `
       <p>Bonjour${name},</p>
-      <p>Vous avez demandé à réinitialiser votre mot de passe Astrologia. Ce lien est valable une heure :</p>
+      <p>Vous avez demandé à réinitialiser votre mot de passe Astrologium. Ce lien est valable une heure :</p>
       <p><a href="${resetUrl}">${resetUrl}</a></p>
       <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail.</p>
     `,
@@ -24,10 +24,10 @@ const TEXT = {
   en: {
     successMessage: "If an account exists for this address, a reset email has just been sent.",
     resetPath: "/en/reset-password",
-    subject: "Reset your Astrologia password",
+    subject: "Reset your Astrologium password",
     body: (name: string, resetUrl: string) => `
       <p>Hello${name},</p>
-      <p>You requested to reset your Astrologia password. This link is valid for one hour:</p>
+      <p>You requested to reset your Astrologium password. This link is valid for one hour:</p>
       <p><a href="${resetUrl}">${resetUrl}</a></p>
       <p>If you didn't request this, simply ignore this email.</p>
     `,

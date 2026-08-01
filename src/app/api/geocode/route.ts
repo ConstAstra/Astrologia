@@ -84,7 +84,7 @@ async function geocode(query: string): Promise<GeocodeResult[]> {
 
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "Astrologia/1.0 (contact via app settings)",
+        "User-Agent": "Astrologium/1.0 (contact via app settings)",
         Accept: "application/json",
       },
     });

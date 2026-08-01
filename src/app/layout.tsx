@@ -17,7 +17,7 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Astrologia — Thème astral, synastrie, composite & cartographie",
+  title: "Astrologium — Thème astral, synastrie, composite & cartographie",
   description:
     "Créez votre thème astral, votre synastrie, votre thème composite et votre cartographie astrologique. Calculs précis, méthode expliquée, lecture en français.",
 };

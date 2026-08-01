@@ -12,7 +12,7 @@ import {
 import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
 
 export const metadata: Metadata = {
-  title: "Pricing — Astrologia",
+  title: "Pricing — Astrologium",
   description: "Free natal chart. Synastry, composite and astrocartography one at a time, or unlimited with Premium.",
 };
 

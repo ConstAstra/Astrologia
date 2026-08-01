@@ -12,12 +12,12 @@ import { sendEmail } from "@/lib/email";
 const EMAIL_TEXT: Record<Locale, { viewTransits: string; footer: string; unsubscribe: string }> = {
   fr: {
     viewTransits: "Voir le détail des transits du jour",
-    footer: "Vous recevez cet e-mail car vous êtes inscrit(e) sur Astrologia.",
+    footer: "Vous recevez cet e-mail car vous êtes inscrit(e) sur Astrologium.",
     unsubscribe: "Se désabonner de l'horoscope quotidien",
   },
   en: {
     viewTransits: "See today's full transit details",
-    footer: "You are receiving this email because you are registered on Astrologia.",
+    footer: "You are receiving this email because you are registered on Astrologium.",
     unsubscribe: "Unsubscribe from the daily horoscope",
   },
 };

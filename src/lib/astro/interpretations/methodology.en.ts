@@ -4,7 +4,7 @@ export const METHODOLOGY_EN: MethodologySection[] = [
   {
     title: "The zodiac used: tropical, geocentric",
     body: [
-      "Astrologia uses the tropical (Western) zodiac, anchored to the seasons: 0° Aries always corresponds to the spring equinox, regardless of where the constellations actually sit in the sky. This is the system used by the vast majority of Western astrology (as opposed to the sidereal zodiac used in Vedic/Indian astrology).",
+      "Astrologium uses the tropical (Western) zodiac, anchored to the seasons: 0° Aries always corresponds to the spring equinox, regardless of where the constellations actually sit in the sky. This is the system used by the vast majority of Western astrology (as opposed to the sidereal zodiac used in Vedic/Indian astrology).",
       "Positions are geocentric: calculated from the center of the Earth, as astrological tradition requires, rather than from the surface (topocentric) — the difference is negligible anyway for anything other than the Moon.",
       "Longitudes are apparent (they account for light travel time and aberration), in line with standard practice in serious ephemeris software.",
     ],

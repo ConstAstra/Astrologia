@@ -7,7 +7,7 @@ export const METHODOLOGY: MethodologySection[] = [
   {
     title: "Le zodiaque utilisé : tropical, géocentrique",
     body: [
-      "Astrologia utilise le zodiaque tropical (occidental), calé sur les saisons : 0° Bélier correspond toujours à l'équinoxe de printemps, quelle que soit la position réelle des constellations dans le ciel. C'est le système utilisé par l'immense majorité de l'astrologie occidentale (par opposition au zodiaque sidéral utilisé en astrologie védique/indienne).",
+      "Astrologium utilise le zodiaque tropical (occidental), calé sur les saisons : 0° Bélier correspond toujours à l'équinoxe de printemps, quelle que soit la position réelle des constellations dans le ciel. C'est le système utilisé par l'immense majorité de l'astrologie occidentale (par opposition au zodiaque sidéral utilisé en astrologie védique/indienne).",
       "Les positions sont géocentriques : calculées depuis le centre de la Terre, comme le veut la tradition astrologique, et non depuis la surface (topocentrique) — la différence est de toute façon négligeable pour tout ce qui n'est pas la Lune.",
       "Les longitudes sont apparentes (elles tiennent compte du temps de parcours de la lumière et de l'aberration), conformément à la pratique standard des logiciels d'éphémérides sérieux.",
     ],

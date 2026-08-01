@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 
-export const metadata: Metadata = { title: "Désabonnement confirmé — Astrologia" };
+export const metadata: Metadata = { title: "Désabonnement confirmé — Astrologium" };
 
 export default function UnsubscribeConfirmedPage() {
   return (

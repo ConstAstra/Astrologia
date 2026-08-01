@@ -8,20 +8,20 @@ import { sendEmail } from "@/lib/email";
 
 const PAYMENT_ISSUE_TEXT = {
   fr: {
-    failedSubject: "Échec de paiement — Astrologia",
+    failedSubject: "Échec de paiement — Astrologium",
     failedBody: (url: string) =>
-      `<p>Bonjour,</p><p>Le paiement de votre abonnement Astrologia a échoué. Merci de mettre à jour votre moyen de paiement pour éviter une interruption de votre accès Premium.</p><p><a href="${url}">Mettre à jour mon moyen de paiement</a></p>`,
-    actionSubject: "Action requise pour votre paiement — Astrologia",
+      `<p>Bonjour,</p><p>Le paiement de votre abonnement Astrologium a échoué. Merci de mettre à jour votre moyen de paiement pour éviter une interruption de votre accès Premium.</p><p><a href="${url}">Mettre à jour mon moyen de paiement</a></p>`,
+    actionSubject: "Action requise pour votre paiement — Astrologium",
     actionBody: (url: string) =>
-      `<p>Bonjour,</p><p>Votre banque demande une confirmation supplémentaire pour valider le paiement de votre abonnement Astrologia (authentification 3D Secure).</p><p><a href="${url}">Confirmer mon paiement</a></p>`,
+      `<p>Bonjour,</p><p>Votre banque demande une confirmation supplémentaire pour valider le paiement de votre abonnement Astrologium (authentification 3D Secure).</p><p><a href="${url}">Confirmer mon paiement</a></p>`,
   },
   en: {
-    failedSubject: "Payment failed — Astrologia",
+    failedSubject: "Payment failed — Astrologium",
     failedBody: (url: string) =>
-      `<p>Hello,</p><p>The payment for your Astrologia subscription failed. Please update your payment method to avoid losing your Premium access.</p><p><a href="${url}">Update my payment method</a></p>`,
-    actionSubject: "Action required for your payment — Astrologia",
+      `<p>Hello,</p><p>The payment for your Astrologium subscription failed. Please update your payment method to avoid losing your Premium access.</p><p><a href="${url}">Update my payment method</a></p>`,
+    actionSubject: "Action required for your payment — Astrologium",
     actionBody: (url: string) =>
-      `<p>Hello,</p><p>Your bank requires additional confirmation to validate the payment for your Astrologia subscription (3D Secure authentication).</p><p><a href="${url}">Confirm my payment</a></p>`,
+      `<p>Hello,</p><p>Your bank requires additional confirmation to validate the payment for your Astrologium subscription (3D Secure authentication).</p><p><a href="${url}">Confirm my payment</a></p>`,
   },
 };
 

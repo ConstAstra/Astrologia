@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
 
-export const metadata: Metadata = { title: "Conditions générales — Astrologia" };
+export const metadata: Metadata = { title: "Conditions générales — Astrologium" };
 
 export default function ConditionsGeneralesPage() {
   return (
@@ -20,7 +20,7 @@ export default function ConditionsGeneralesPage() {
             <div>
               <h2 className="font-display text-xl text-foreground">1. Objet</h2>
               <p className="mt-2">
-                Astrologia fournit des calculs et interprétations astrologiques (thème natal, synastrie,
+                Astrologium fournit des calculs et interprétations astrologiques (thème natal, synastrie,
                 thème composite, cartographie astrologique) à des fins de réflexion personnelle et de
                 divertissement. Le service ne constitue pas un conseil professionnel (médical, juridique,
                 financier ou psychologique) et ne garantit aucune prédiction d&apos;événement futur.
@@ -34,7 +34,7 @@ export default function ConditionsGeneralesPage() {
                 (synastrie, thème composite, cartographie) requièrent soit un abonnement Premium (mensuel ou
                 annuel, résiliable à tout moment, essai gratuit selon l&apos;offre en vigueur), soit
                 l&apos;achat de crédits à l&apos;unité. Les paiements sont traités par Stripe (web) ou Apple
-                (application iOS) ; aucune coordonnée bancaire n&apos;est stockée par Astrologia.
+                (application iOS) ; aucune coordonnée bancaire n&apos;est stockée par Astrologium.
               </p>
             </div>
 
@@ -53,7 +53,7 @@ export default function ConditionsGeneralesPage() {
               <h2 className="font-display text-xl text-foreground">4. Responsabilité</h2>
               <p className="mt-2">
                 Les interprétations fournies sont de nature symbolique et générale. L&apos;utilisateur reste seul
-                responsable des décisions prises sur la base de ces contenus. Astrologia s&apos;efforce d&apos;assurer
+                responsable des décisions prises sur la base de ces contenus. Astrologium s&apos;efforce d&apos;assurer
                 l&apos;exactitude des calculs astronomiques mais ne peut garantir une exactitude absolue,
                 notamment en cas d&apos;heure de naissance imprécise fournie par l&apos;utilisateur.
               </p>

@@ -81,7 +81,7 @@ export function SiteFooter({ locale = "fr" }: { locale?: Locale }) {
           </div>
         </div>
         <p className="mt-10 text-xs text-muted/70">
-          © {new Date().getFullYear()} Astrologia. {t.copyright}
+          © {new Date().getFullYear()} Astrologium. {t.copyright}
         </p>
       </div>
     </footer>

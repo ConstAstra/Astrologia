@@ -38,17 +38,17 @@ export type AppleProductMapping =
   | { kind: "credits"; pack: CreditPackId; credits: number };
 
 export const APPLE_PRODUCT_MAP: Record<string, AppleProductMapping> = {
-  "com.astrologia.app.sub.monthly": { kind: "subscription", plan: "monthly" },
-  "com.astrologia.app.sub.annual": { kind: "subscription", plan: "annual" },
-  "com.astrologia.app.credits.1": { kind: "credits", pack: "pack_1", credits: 1 },
-  "com.astrologia.app.credits.5": { kind: "credits", pack: "pack_5", credits: 5 },
-  "com.astrologia.app.credits.12": { kind: "credits", pack: "pack_12", credits: 12 },
+  "com.astrologium.app.sub.monthly": { kind: "subscription", plan: "monthly" },
+  "com.astrologium.app.sub.annual": { kind: "subscription", plan: "annual" },
+  "com.astrologium.app.credits.1": { kind: "credits", pack: "pack_1", credits: 1 },
+  "com.astrologium.app.credits.5": { kind: "credits", pack: "pack_5", credits: 5 },
+  "com.astrologium.app.credits.12": { kind: "credits", pack: "pack_12", credits: 12 },
 };
 
 export function appleProductIdForPlan(plan: SubscriptionPlanId): string {
-  return `com.astrologia.app.sub.${plan}`;
+  return `com.astrologium.app.sub.${plan}`;
 }
 
 export function appleProductIdForPack(pack: CreditPackId): string {
-  return `com.astrologia.app.credits.${CREDIT_PACKS[pack].credits}`;
+  return `com.astrologium.app.credits.${CREDIT_PACKS[pack].credits}`;
 }

@@ -5,11 +5,11 @@ import type { CapacitorConfig } from "@capacitor/cli";
 // être "exporté" en statique). Seuls les achats intégrés (StoreKit) sont
 // natifs ; tout le reste passe par le site web.
 const config: CapacitorConfig = {
-  appId: "com.astrologia.app",
-  appName: "Astrologia",
+  appId: "com.astrologium.app",
+  appName: "Astrologium",
   webDir: "public",
   server: {
-    url: process.env.CAPACITOR_SERVER_URL ?? "https://app.astrologia.example",
+    url: process.env.CAPACITOR_SERVER_URL ?? "https://app.astrologium.example",
     cleartext: false,
   },
   ios: {

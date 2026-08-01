@@ -16,7 +16,7 @@ export const runtime = "nodejs";
 
 /**
  * Résumé du jour au format JSON, pensé pour un widget iOS (WidgetKit) — voir
- * ios/App/AstrologiaWidget/. WidgetKit ne partage pas les cookies de
+ * ios/App/AstrologiumWidget/. WidgetKit ne partage pas les cookies de
  * session du navigateur ; l'accès passe donc par `Profile.widgetToken`
  * (jeton opaque dédié) plutôt que par l'authentification classique.
  */
