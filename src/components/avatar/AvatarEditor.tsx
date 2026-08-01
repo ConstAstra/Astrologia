@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/Button";
 type Locale = "fr" | "en";
 
 const HAIR_STYLE_NAMES: Record<Locale, string[]> = {
-  fr: ["Classique", "Mohawk", "Raie sur le côté", "Afro", "Bouclé", "Court"],
-  en: ["Classic", "Mohawk", "Side part", "Afro", "Curly", "Short"],
+  fr: ["Classique", "Mohawk", "Raie sur le côté", "Ample", "Bouclé", "Court"],
+  en: ["Classic", "Mohawk", "Side part", "Ample", "Curly", "Short"],
 };
 
 const BG_SWATCHES = ["#4a2a1f", "#243a2c", "#3a2440", "#1f2c40", "#241a2c", "#1f1420"];
