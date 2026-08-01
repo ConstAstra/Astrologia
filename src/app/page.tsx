@@ -37,6 +37,9 @@ export default function Home() {
             Partez à la découverte de <em className="text-gold-strong italic">vous-même et des autres</em>{" "}
             grâce à l&apos;astrologie.
           </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-balance text-xl text-foreground/90">
+            Comprenez-vous mieux et vos relations grâce à des pistes astrologiques.
+          </p>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
             Thème astral, synastrie, thème composite et cartographie astrologique. Chaque calcul, chaque
             système de maisons, chaque orbe est documenté : vous savez toujours ce que vous lisez et pourquoi.

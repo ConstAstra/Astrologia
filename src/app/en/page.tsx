@@ -43,6 +43,9 @@ export default function HomeEn() {
           <h1 className="font-display mx-auto mt-5 max-w-3xl text-balance text-4xl font-semibold leading-tight sm:text-6xl">
             Discover <em className="text-gold-strong italic">yourself and others</em> through astrology.
           </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-balance text-xl text-foreground/90">
+            Understand yourself and your relationships better, through astrological insights.
+          </p>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
             Natal chart, synastry, composite chart and astrocartography. Every calculation, every house
             system, every orb is documented: you always know what you&apos;re reading and why.
