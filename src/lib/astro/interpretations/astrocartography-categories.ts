@@ -24,13 +24,15 @@ type ThemeTag = { category: ThemeCategory; valence: "positive" | "challenging" }
 
 // Chaque couple (planète, type de ligne) peut porter plusieurs thèmes — les
 // lignes DC (rencontres) alimentent surtout "amour", les MC (vocation,
-// image publique) alimentent "carrière", Neptune et le Nœud Nord (chemin
-// d'évolution) alimentent "spirituel", et les lignes AC des planètes
+// image publique) alimentent "carrière", et les lignes AC des planètes
 // bénéfiques (Jupiter, Vénus, Soleil, Mercure) alimentent "voyage" — une
 // ligne AC colore d'abord le vécu quotidien, agréable ou non selon la
-// planète. Valence "challenging" = ligne réelle et notable, mais plus
-// difficile à vivre pour ce thème précis (toujours affichée dans une
-// lecture complète, jamais dans un classement "meilleurs endroits").
+// planète. "Spirituel" est alimenté par Neptune et le Nœud Nord (chemin
+// d'évolution) mais aussi par les lignes IC (racines, intériorité) de la
+// Lune, Jupiter et Saturne, qui touchent chacune à sa façon à l'intime.
+// Valence "challenging" = ligne réelle et notable, mais plus difficile à
+// vivre pour ce thème précis (toujours affichée dans une lecture complète,
+// jamais dans un classement "meilleurs endroits").
 const LINE_THEME_TAGS: Partial<Record<PlanetKey, Partial<Record<LineTypeKey, ThemeTag[]>>>> = {
   sun: {
     MC: [{ category: "career", valence: "positive" }],
@@ -38,6 +40,7 @@ const LINE_THEME_TAGS: Partial<Record<PlanetKey, Partial<Record<LineTypeKey, The
     DC: [{ category: "love", valence: "positive" }],
   },
   moon: {
+    MC: [{ category: "career", valence: "positive" }],
     AC: [{ category: "travel", valence: "positive" }],
     DC: [{ category: "love", valence: "positive" }],
     IC: [{ category: "spiritual", valence: "positive" }],
@@ -83,6 +86,7 @@ const LINE_THEME_TAGS: Partial<Record<PlanetKey, Partial<Record<LineTypeKey, The
   },
   pluto: {
     MC: [{ category: "career", valence: "challenging" }],
+    AC: [{ category: "travel", valence: "challenging" }],
     DC: [{ category: "love", valence: "challenging" }],
   },
   northNode: {

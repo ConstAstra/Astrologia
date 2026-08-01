@@ -135,7 +135,7 @@ export function composeDailyHoroscope(
   const paragraphs = [`☾ ${moonLabel} — ${moonTextMap[moon.name]}`];
 
   if (featured) {
-    paragraphs.push(describeTransitAspect(featured, locale));
+    paragraphs.push(describeTransitAspect(featured, locale, true));
     if (dominantElement) {
       const elementLabel = locale === "en" ? ELEMENT_LABEL_EN[dominantElement] : dominantElement;
       paragraphs.push(

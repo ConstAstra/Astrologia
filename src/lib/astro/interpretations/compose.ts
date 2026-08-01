@@ -3,7 +3,7 @@ import type { Aspect, AspectKey, HouseCusps, PointKey, ZodiacSign } from "../typ
 import type { SynastryAspect } from "../synastry";
 import type { TransitAspect } from "../transits";
 import type { ActivatedSynastryAspect } from "../synastry-transits";
-import { PLANET_META } from "./planets";
+import { PLANET_META, PLANET_GENDER_FR } from "./planets";
 import { PLANET_META_EN } from "./planets.en";
 import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
@@ -37,6 +37,20 @@ import type { RelationshipType } from "./relationship";
 export type Locale = "fr" | "en";
 
 const GENERATIONAL_POINTS = new Set<PointKey>(["uranus", "neptune", "pluto"]);
+
+// Article défini français accordé (le/la/l'), utilisé partout où un nom de
+// point est inséré dans une phrase — évite de coder "le" en dur devant des
+// points féminins (Lune, Vénus, Part de Fortune) ou masculins à voyelle
+// initiale (Ascendant, Uranus).
+function frArticle(point: PointKey, name: string): string {
+  if (/^[aeiouyàâäéèêëîïôöùûü]/i.test(name)) return "l'";
+  return PLANET_GENDER_FR[point] === "f" ? "la " : "le ";
+}
+
+function frArticleCap(point: PointKey, name: string): string {
+  const article = frArticle(point, name);
+  return article.charAt(0).toUpperCase() + article.slice(1);
+}
 
 // Placements dont le texte personnalisé est formulé en langage de couple
 // (désir, séduction, attachement amoureux) — Vénus dans son ensemble, plus
@@ -79,7 +93,7 @@ export function describePlanetInSign(
   }
 
   const base = `${planet.name} exprime ici ${planet.keyword}, teinté${
-    planet.name.endsWith("e") ? "e" : ""
+    PLANET_GENDER_FR[point] === "f" ? "e" : ""
   } par la tonalité ${signMeta.name} (${signMeta.keyword}). ${signMeta.paragraph}`;
 
   if (GENERATIONAL_POINTS.has(point)) {
@@ -146,9 +160,9 @@ export function describeAspect(
 
   const subject =
     context === "synastry"
-      ? `Le ${nameA} de la première personne et le ${nameB} de la seconde`
+      ? `${frArticleCap(keyA, nameA)}${nameA} de la première personne et ${frArticle(keyB, nameB)}${nameB} de la seconde`
       : context === "composite"
-        ? `Le ${nameA} et le ${nameB} du thème composite`
+        ? `${frArticleCap(keyA, nameA)}${nameA} et ${frArticle(keyB, nameB)}${nameB} du thème composite`
         : `${nameA} et ${nameB}`;
 
   const pairTheme = suppressRomantic ? undefined : getPairTheme(keyA, keyB);
@@ -157,8 +171,14 @@ export function describeAspect(
   return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}${themeSentence}`;
 }
 
-/** Aspect entre une planète en transit (aujourd'hui) et un point du thème natal. */
-export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "fr"): string {
+/**
+ * Aspect entre une planète en transit (aujourd'hui) et un point du thème
+ * natal. `omitOrb` retire la précision technique en degrés (utile pour
+ * l'e-mail quotidien, un contexte sans autre repère pour l'interpréter —
+ * gardée par défaut sur la page transits, où elle voisine avec le détail
+ * des positions).
+ */
+export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "fr", omitOrb = false): string {
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
   const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
   const meta = aspectMap[aspect.aspect];
@@ -172,7 +192,8 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
       : "The aspect is loosening: its influence was stronger a few days ago and is now fading.";
     const pairTheme = getPairThemeEn(aspect.transitingPlanet, aspect.natalPoint);
     const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
-    return `Transiting ${transitName} forms ${meta.name.toLowerCase()} ${meta.symbol} with your natal ${natalName} (orb: ${gap}°). ${meta.description}${themeSentence} ${timing}`;
+    const orbClause = omitOrb ? "" : ` (orb: ${gap}°)`;
+    return `Transiting ${transitName} forms ${meta.name.toLowerCase()} ${meta.symbol} with your natal ${natalName}${orbClause}. ${meta.description}${themeSentence} ${timing}`;
   }
 
   const timing = aspect.applying
@@ -182,9 +203,10 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
   const pairTheme = getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
+  const orbClause = omitOrb ? "" : ` (écart à l'exact : ${gap}°)`;
   return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec votre ${natalName} natal${
-    natalName.endsWith("e") ? "e" : ""
-  } (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
+    PLANET_GENDER_FR[aspect.natalPoint] === "f" ? "e" : ""
+  }${orbClause}. ${meta.description}${themeSentence} ${timing}`;
 }
 
 /** Aspect entre une planète en transit (aujourd'hui) et un point du thème composite d'un couple. */
@@ -217,7 +239,7 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
   const pairTheme = suppressRomantic ? undefined : getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
 
-  return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec le ${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
+  return `${transitName} en transit forme ${meta.name.toLowerCase()} ${meta.symbol} avec ${frArticle(aspect.natalPoint, compositeName)}${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°). ${meta.description}${themeSentence} ${timing}`;
 }
 
 /** Aspect de synastrie réactivé aujourd'hui par un transit sur le point natal de l'un des deux partenaires. */
@@ -255,7 +277,9 @@ export function describeActivatedSynastryAspect(
   const pairTheme = suppressRomantic ? undefined : getPairTheme(personPoint, partnerPoint);
   const themeSentence = pairTheme ? ` Thème de fond du lien : ${pairTheme}` : "";
 
-  return `Votre ${synMeta.name.toLowerCase()} ${synMeta.symbol} entre le ${personName} de ${personLabel} et le ${partnerName} de ${partnerLabel} est réactivé aujourd'hui : ${transitPlanetName} en transit forme ${transitMeta.name.toLowerCase()} avec le ${personName} de ${personLabel} (écart à l'exact : ${gap}°).${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;
+  const personArticle = frArticle(personPoint, personName);
+  const partnerArticle = frArticle(partnerPoint, partnerName);
+  return `Votre ${synMeta.name.toLowerCase()} ${synMeta.symbol} entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} est réactivé aujourd'hui : ${transitPlanetName} en transit forme ${transitMeta.name.toLowerCase()} avec ${personArticle}${personName} de ${personLabel} (écart à l'exact : ${gap}°).${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, locale: Locale = "fr"): string {

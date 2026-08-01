@@ -1,5 +1,27 @@
 import type { PointKey } from "../types";
 
+// Genre grammatical français de chaque point — sert à accorder les articles
+// (le/la/l') et les adjectifs dans les phrases générées par compose.ts.
+// Sans objet en anglais (pas de genre grammatical).
+export const PLANET_GENDER_FR: Record<PointKey, "m" | "f"> = {
+  sun: "m",
+  moon: "f",
+  mercury: "m",
+  venus: "f",
+  mars: "m",
+  jupiter: "m",
+  saturn: "m",
+  uranus: "m",
+  neptune: "m",
+  pluto: "m",
+  northNode: "m",
+  asc: "m",
+  mc: "m",
+  desc: "m",
+  ic: "m",
+  fortune: "f", // la Part de Fortune
+};
+
 export interface PlanetMeta {
   name: string;
   symbol: string;

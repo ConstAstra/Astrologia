@@ -78,7 +78,9 @@ export default async function SynastriePage({
 }) {
   const userId = await requireUserId();
   const { a, b, relation } = await searchParams;
-  const relationshipType: RelationshipType = isRelationshipType(relation) ? relation : "romantique";
+  // Ne jamais présumer une relation amoureuse par défaut : l'amitié est le
+  // cadrage le plus neutre tant que l'utilisateur n'a pas choisi un onglet.
+  const relationshipType: RelationshipType = isRelationshipType(relation) ? relation : "amitie";
 
   const [profiles, currentUser] = await Promise.all([
     prisma.profile.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),

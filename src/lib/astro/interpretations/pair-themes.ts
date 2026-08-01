@@ -66,7 +66,7 @@ const PAIR_THEMES: Partial<Record<string, string>> = {
 // synastrie ou un composite cadré famille/amitié/professionnel : le texte
 // générique reste pertinent en lecture natale (auto-description) ou en
 // cadrage romantique uniquement.
-const ROMANTIC_CODED_PAIRS = new Set(["mars-venus", "sun-venus", "moon-venus", "saturn-venus"]);
+const ROMANTIC_CODED_PAIRS = new Set(["mars-venus", "sun-venus", "moon-venus", "saturn-venus", "mercury-venus"]);
 
 function pairKey(a: PointKey, b: PointKey): string {
   return [a, b].sort().join("-");

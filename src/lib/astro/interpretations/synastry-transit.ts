@@ -13,7 +13,7 @@ const TEXT: Record<Locale, { compositeHeading: (a: string, b: string) => string;
     compositeHeading: (a, b) => `Votre thème composite : ${a} & ${b}`,
     compositeNeutral: "Aucun transit marquant sur le thème composite aujourd'hui : une période plus neutre pour la relation.",
     synastryHeading: (a, b) => `Votre synastrie : ${a} & ${b}`,
-    synastryNeutral: "Aucun aspect de synastrie particulièrement réactivé aujourd'hui : une période plus neutre pour cette dynamique de couple.",
+    synastryNeutral: "Aucun aspect de synastrie particulièrement réactivé aujourd'hui : une période plus neutre pour cette relation.",
   },
   en: {
     compositeHeading: (a, b) => `Your composite chart: ${a} & ${b}`,
@@ -45,8 +45,9 @@ export function composeCompositeTransitSection(
 // Aspects de synastrie (comparaison directe des deux thèmes natals)
 // réactivés par les transits du jour — réservé aux paires ayant
 // déverrouillé la fonctionnalité "synastrie". Technique distincte du thème
-// composite : on ne recalcule aucun thème, on regarde si un lien de couple
-// déjà existant est « allumé » aujourd'hui.
+// composite : on ne recalcule aucun thème, on regarde si un lien déjà
+// existant entre les deux personnes (quel que soit le type de relation)
+// est « allumé » aujourd'hui.
 export function composeSynastryTransitSection(
   chartA: NatalChart,
   chartB: NatalChart,
