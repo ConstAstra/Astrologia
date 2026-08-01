@@ -11,7 +11,7 @@ import { MAJOR_COUNTRIES_EN } from "@/components/map/majorCountries.en";
 import { projectAstroCartoLines } from "@/components/map/ProjectedLine";
 import { AstrocartographyMap } from "@/components/map/AstrocartographyMap";
 import { CountrySelect } from "@/components/map/CountrySelect";
-import { describeAstroCartoLine, type Locale } from "@/lib/astro/interpretations/compose";
+import { describeAstroCartoLine, explainCountryRanking, type Locale } from "@/lib/astro/interpretations/compose";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { LINE_TYPE_META } from "@/lib/astro/interpretations/astrocartography-content";
@@ -193,6 +193,9 @@ export default async function CartographiePage({
                         {r.supportingLines
                           .map((l) => `${planetMap[l.planet].symbol} ${planetMap[l.planet].name} — ${lineTypeMap[l.type].name}`)
                           .join(" · ")}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted/80">
+                        {explainCountryRanking(r.supportingLines, locale)}
                       </p>
                     </li>
                   ))}

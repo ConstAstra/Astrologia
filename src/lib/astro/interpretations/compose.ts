@@ -269,6 +269,29 @@ export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, loca
     : `${planetMeta.name} — ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
 }
 
+/**
+ * Explique pourquoi un pays ressort en tête du classement "meilleurs
+ * endroits" pour un thème donné : combien de lignes favorables le
+ * traversent réellement, et ce que ce(s) type(s) de ligne gouverne(nt)
+ * concrètement (réutilise `LINE_TYPE_META`, déjà écrit pour ça, plutôt que
+ * d'inventer un nouveau texte par thème).
+ */
+export function explainCountryRanking(
+  supportingLines: { type: LineTypeKey }[],
+  locale: Locale = "fr"
+): string {
+  const lineMetaMap = locale === "en" ? LINE_TYPE_META_EN : LINE_TYPE_META;
+  const count = supportingLines.length;
+  const types = Array.from(new Set(supportingLines.map((l) => l.type)));
+  const explanations = types.map((t) => lineMetaMap[t].explanation).join(" ");
+  const plural = count > 1;
+
+  if (locale === "en") {
+    return `${count} line${plural ? "s" : ""} favorable to this theme actually cross${plural ? "" : "es"} this country — the more of them line up here, the more this theme tends to play out concretely. ${explanations}`;
+  }
+  return `${count} ligne${plural ? "s" : ""} favorable${plural ? "s" : ""} à ce thème traverse${plural ? "nt" : ""} réellement ce pays — plus elles se recoupent ici, plus ce thème a de chances de se concrétiser dans le vécu quotidien. ${explanations}`;
+}
+
 export function describeHouseSystem(houses: HouseCusps, locale: Locale = "fr"): string {
   if (locale === "en") {
     const labelsEn: Record<string, string> = {
