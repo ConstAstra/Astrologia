@@ -1,8 +1,5 @@
-import type { NatalChart, PointKey, ZodiacSign } from "../types";
-import { computeAspects } from "../aspects";
+import type { NatalChart, ZodiacSign } from "../types";
 import { computeBigThree } from "../dominance";
-import { ASPECT_META } from "./aspects";
-import { ASPECT_META_EN } from "./aspects.en";
 import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
 import type { Locale } from "./compose";
@@ -134,82 +131,20 @@ function composeSunMoonLine(sunSign: ZodiacSign, moonSign: ZodiacSign, locale: L
     : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce qui vous anime et ce qui vous rassure ne sont pas la même chose — assez différents pour se compléter, assez proches pour ne pas se combattre.`;
 }
 
-// Ce que représente chaque point en langage courant, sans aucun terme
-// technique — sert à décrire un aspect réel (pas juste sa "tonalité") sans
-// jamais nommer de planète ni d'angle. Volontairement restreint aux points
-// personnels les plus reconnaissables (mêmes points que synthesis.ts, moins
-// Mercure/Vénus/Mars qui restent moins lisibles hors jargon) pour ne jamais
-// tomber sur un point obscur comme le Nœud Nord.
-const POINT_DOMAIN: Record<Locale, Partial<Record<PointKey, string>>> = {
-  fr: {
-    sun: "ce qui vous anime",
-    moon: "votre besoin de sécurité",
-    mercury: "votre façon de penser",
-    venus: "ce que vous aimez",
-    mars: "votre façon d'agir",
-    asc: "l'image que vous projetez",
-    mc: "ce que vous visez",
-  },
-  en: {
-    sun: "what drives you",
-    moon: "your need for reassurance",
-    mercury: "how your mind works",
-    venus: "what you're drawn to",
-    mars: "how you take action",
-    asc: "the image you project",
-    mc: "what you're aiming for",
-  },
-};
-
-const HIGHLIGHT_ASPECT_POINTS: PointKey[] = ["sun", "moon", "mercury", "venus", "mars", "asc", "mc"];
-
 /**
- * Décrit un aspect réel du thème (une paire de points précise, pas une
- * "tonalité" abstraite) en langage courant : chaque paire de points produit
- * un couple de domaines différent, ce qui — combiné aux trois tonalités
- * possibles — donne largement de quoi distinguer deux thèmes différents,
- * sans jamais nommer de planète.
- */
-function describeDomainAspect(a: PointKey, b: PointKey, tone: string, locale: Locale): string {
-  const domain = POINT_DOMAIN[locale];
-  const first = domain[a]!;
-  const second = domain[b]!;
-  const firstCapitalized = first.charAt(0).toUpperCase() + first.slice(1);
-
-  if (locale === "en") {
-    if (tone === "tendu")
-      return `${firstCapitalized} and ${second} pull in different directions — endured, it exhausts you; understood, it builds you.`;
-    if (tone === "harmonieux")
-      return `${firstCapitalized} and ${second} agree so easily that you may never actually be tested on it.`;
-    return `${firstCapitalized} and ${second} cross without clashing or aligning — a blind spot more than a battle.`;
-  }
-  if (tone === "tendu")
-    return `${firstCapitalized} et ${second} tirent dans des directions différentes — mal vécu, ça épuise ; compris, ça construit.`;
-  if (tone === "harmonieux")
-    return `${firstCapitalized} et ${second} s'accordent si facilement que vous n'êtes peut-être jamais mis·e à l'épreuve là-dessus.`;
-  return `${firstCapitalized} et ${second} se croisent sans se heurter ni s'accorder — un angle mort plus qu'un combat.`;
-}
-
-/**
- * Trois phrases, chacune ancrée sur des placements réels et nommés du
- * thème (signes du Soleil/Lune/Ascendant, paire de points en aspect) plutôt
- * que sur un seul facteur à faible cardinalité pris isolément (un élément
- * parmi 4, une tonalité parmi 3) — le risque sinon est de produire des
- * phrases correctes mais interchangeables d'un thème à l'autre. Pas de
- * redite du Soleil/Lune/Ascendant déjà affiché juste en dessous
- * (OverviewCard) : ici, la relation *entre* les placements, pas les
- * placements eux-mêmes. Réutilisé tel quel sur la carte d'identité
- * partageable.
+ * Deux phrases, chacune ancrée sur des placements réels et nommés du
+ * thème (signes du Soleil/Lune/Ascendant) plutôt que sur un seul facteur à
+ * faible cardinalité pris isolément (un élément parmi 4, une tonalité
+ * parmi 3) — le risque sinon est de produire des phrases correctes mais
+ * interchangeables d'un thème à l'autre. Pas de redite du
+ * Soleil/Lune/Ascendant déjà affiché juste en dessous (OverviewCard) : ici,
+ * la relation *entre* les placements, pas les placements eux-mêmes.
+ * Réutilisé tel quel sur la carte d'identité partageable.
  */
 export function composeChartHighlights(chart: NatalChart, locale: Locale = "fr"): string[] {
-  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
   const signTrait = locale === "en" ? SIGN_TRAIT_EN : SIGN_TRAIT;
 
   const big3 = computeBigThree(chart.points, chart.hasReliableHouses);
-  const domainAspects = computeAspects(chart.points, HIGHLIGHT_ASPECT_POINTS).filter(
-    (a) => a.major && POINT_DOMAIN.fr[a.a] && POINT_DOMAIN.fr[a.b]
-  );
-  const tightest = domainAspects[0];
 
   const lines: string[] = [];
 
@@ -228,11 +163,6 @@ export function composeChartHighlights(chart: NatalChart, locale: Locale = "fr")
   }
 
   lines.push(composeSunMoonLine(big3.sun, big3.moon, locale));
-
-  if (tightest) {
-    const tone = aspectMap[tightest.aspect].tone;
-    lines.push(describeDomainAspect(tightest.a, tightest.b, tone, locale));
-  }
 
   return lines;
 }
