@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
+import { SkyScroll } from "@/components/SkyScroll";
 
 const display = Cormorant_Garamond({
   variable: "--font-display",
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        <SkyScroll />
         <div className="starfield" aria-hidden="true" />
         {children}
       </body>
