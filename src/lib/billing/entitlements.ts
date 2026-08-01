@@ -36,7 +36,7 @@ export class PaywallError extends Error {
   }
 }
 
-function isSubscriptionActive(user: { subscriptionStatus: string; currentPeriodEnd: Date | null }) {
+export function isPremiumActive(user: { subscriptionStatus: string; currentPeriodEnd: Date | null }) {
   if (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "trialing") return false;
   if (user.currentPeriodEnd && user.currentPeriodEnd.getTime() < Date.now()) return false;
   return true;
@@ -62,7 +62,7 @@ interface FeatureTarget {
 /** Le thème natal seul est toujours gratuit et illimité — c'est la porte d'entrée du produit. */
 export async function hasFeatureAccess(userId: string, target: FeatureTarget): Promise<boolean> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
-  if (isSubscriptionActive(user)) return true;
+  if (isPremiumActive(user)) return true;
 
   const existing = await prisma.unlock.findFirst({
     where: {
@@ -94,7 +94,7 @@ export async function unlockFeature(userId: string, target: FeatureTarget): Prom
 
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
-  if (isSubscriptionActive(user)) {
+  if (isPremiumActive(user)) {
     await prisma.unlock.create({
       data: {
         userId,

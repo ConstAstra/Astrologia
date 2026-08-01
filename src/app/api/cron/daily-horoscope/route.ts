@@ -9,22 +9,16 @@ import type { BirthInput } from "@/lib/astro/types";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 import { sendEmail } from "@/lib/email";
 
-const EMAIL_TEXT: Record<
-  Locale,
-  { viewTransits: string; footer: string; unsubscribe: string; streakLine: (n: number) => string }
-> = {
+const EMAIL_TEXT: Record<Locale, { viewTransits: string; footer: string; unsubscribe: string }> = {
   fr: {
     viewTransits: "Voir le détail des transits du jour",
     footer: "Vous recevez cet e-mail car vous êtes inscrit(e) sur Astrologia.",
     unsubscribe: "Se désabonner de l'horoscope quotidien",
-    streakLine: (n) =>
-      `Vous en êtes à ${n} jour${n > 1 ? "s" : ""} d'affilée — ouvrez l'app aujourd'hui pour continuer votre série.`,
   },
   en: {
     viewTransits: "See today's full transit details",
     footer: "You are receiving this email because you are registered on Astrologia.",
     unsubscribe: "Unsubscribe from the daily horoscope",
-    streakLine: (n) => `You're on a ${n}-day streak — open the app today to keep it going.`,
   },
 };
 
@@ -124,11 +118,6 @@ async function runDailyHoroscope(request: Request) {
         to: user.email,
         subject: horoscope.subject,
         html: `
-          ${
-            user.currentStreak > 0
-              ? `<p style="background:#241a2c;color:#f2b799;border-radius:999px;display:inline-block;padding:6px 14px;font-size:13px;">${t.streakLine(user.currentStreak)}</p>`
-              : ""
-          }
           ${horoscope.highlights
             .map((h) => `<p style="background:#fdf1e8;border-left:3px solid #e8935f;padding:8px 12px;"><strong>${h}</strong></p>`)
             .join("\n")}

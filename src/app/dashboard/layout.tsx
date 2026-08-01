@@ -1,13 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { recordDailyActivity } from "@/lib/streak";
+import { isPremiumActive } from "@/lib/billing/entitlements";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
-
-function isPremiumActive(user: { subscriptionStatus: string; currentPeriodEnd: Date | null }) {
-  if (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "trialing") return false;
-  if (user.currentPeriodEnd && user.currentPeriodEnd.getTime() < Date.now()) return false;
-  return true;
-}
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
