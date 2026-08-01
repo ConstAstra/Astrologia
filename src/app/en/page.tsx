@@ -44,7 +44,7 @@ export default function HomeEn() {
             Discover <em className="text-gold-strong italic">yourself and others</em> through astrology.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-balance text-xl text-foreground/90">
-            Understand yourself and your relationships better, through astrological insights.
+            Your chart, your relationships, your partnership, your places to live: each with its own reading.
           </p>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
             Natal chart, synastry, composite chart and astrocartography. Every calculation, every house

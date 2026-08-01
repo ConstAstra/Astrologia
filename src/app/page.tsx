@@ -38,7 +38,7 @@ export default function Home() {
             grâce à l&apos;astrologie.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-balance text-xl text-foreground/90">
-            Comprenez-vous mieux et vos relations grâce à des pistes astrologiques.
+            Votre thème, vos relations, votre couple, vos lieux de vie : à chacun sa lecture.
           </p>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
             Thème astral, synastrie, thème composite et cartographie astrologique. Chaque calcul, chaque
