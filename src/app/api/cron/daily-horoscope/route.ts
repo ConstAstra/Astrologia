@@ -119,7 +119,7 @@ async function runDailyHoroscope(request: Request) {
         subject: horoscope.subject,
         html: `
           ${horoscope.highlights
-            .map((h) => `<p style="background:#fff7e6;border-left:3px solid #d7b781;padding:8px 12px;"><strong>${h}</strong></p>`)
+            .map((h) => `<p style="background:#fdf1e8;border-left:3px solid #e8935f;padding:8px 12px;"><strong>${h}</strong></p>`)
             .join("\n")}
           <p><strong>${horoscope.headline}</strong></p>
           ${horoscope.paragraphs.map((p) => `<p>${p}</p>`).join("\n")}

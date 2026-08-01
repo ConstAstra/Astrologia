@@ -17,12 +17,13 @@ export function Eyebrow({ children }: { children: ReactNode }) {
   );
 }
 
-export function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "gold" | "sage" | "terracotta" }) {
+export function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "gold" | "sage" | "terracotta" | "pop" }) {
   const toneClasses = {
     neutral: "border-border-soft text-muted",
     gold: "border-gold/40 text-gold-strong bg-gold/10",
     sage: "border-sage/40 text-sage bg-sage/10",
     terracotta: "border-terracotta/40 text-terracotta bg-terracotta/10",
+    pop: "border-pop/50 text-pop-strong bg-pop/15",
   }[tone];
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${toneClasses}`}>

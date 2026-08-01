@@ -52,9 +52,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           alignItems: "center",
           justifyContent: "space-between",
           padding: "72px 64px",
-          background: "linear-gradient(160deg, #05060d 0%, #0d1020 55%, #1a1633 100%)",
+          background: "linear-gradient(160deg, #7a5024 0%, #55324e 45%, #1f1420 100%)",
           fontFamily: "serif",
-          color: "#f4f2ea",
+          color: "#f7ece2",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -62,13 +62,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
             style={{
               width: 14,
               height: 14,
-              background: "linear-gradient(135deg, #e9cd9c, #8c7fdb)",
+              background: "linear-gradient(135deg, #f2b799, #c77b8a)",
               transform: "rotate(45deg)",
             }}
           />
           <div style={{ display: "flex", fontSize: 34, letterSpacing: 2 }}>
             <span>Astrolog</span>
-            <span style={{ color: "#e9cd9c" }}>ia</span>
+            <span style={{ color: "#f2b799" }}>ia</span>
           </div>
         </div>
 
@@ -94,10 +94,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                 minWidth: 220,
               }}
             >
-              <div style={{ display: "flex", fontSize: 22, color: "#a9acc4", letterSpacing: 1 }}>
+              <div style={{ display: "flex", fontSize: 22, color: "#c9a8ad", letterSpacing: 1 }}>
                 {row.label.toUpperCase()}
               </div>
-              <div style={{ display: "flex", fontSize: 34, color: "#e9cd9c" }}>{row.sign}</div>
+              <div style={{ display: "flex", fontSize: 34, color: "#f2b799" }}>{row.sign}</div>
             </div>
           ))}
         </div>

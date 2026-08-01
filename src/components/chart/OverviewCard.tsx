@@ -11,10 +11,10 @@ import { Card, Eyebrow } from "@/components/ui/Card";
 type Locale = "fr" | "en";
 
 const ELEMENT_COLORS: Record<string, string> = {
-  Feu: "#dd9a78",
-  Terre: "#8fc2a0",
-  Air: "#8c7fdb",
-  Eau: "#7f9fdb",
+  Feu: "#c96b4a",
+  Terre: "#9fc0a3",
+  Air: "#c77b8a",
+  Eau: "#8a9fc4",
 };
 
 const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };

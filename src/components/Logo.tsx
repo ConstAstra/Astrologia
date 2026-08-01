@@ -8,8 +8,8 @@ export function Logo({ className = "" }: { className?: string }) {
         />
         <defs>
           <linearGradient id="astrologia-star-gradient" x1="3" y1="2" x2="21" y2="20">
-            <stop offset="0" stopColor="#e9cd9c" />
-            <stop offset="1" stopColor="#8c7fdb" />
+            <stop offset="0" stopColor="#f2b799" />
+            <stop offset="1" stopColor="#c77b8a" />
           </linearGradient>
         </defs>
       </svg>

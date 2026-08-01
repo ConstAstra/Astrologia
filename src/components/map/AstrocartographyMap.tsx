@@ -7,12 +7,12 @@ import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import type { PlanetKey } from "@/lib/astro/types";
 
 const PLANET_COLORS: Record<string, string> = {
-  sun: "#e9cd9c",
+  sun: "#f2b799",
   moon: "#c9d3e8",
   mercury: "#9fd6c6",
   venus: "#e6a6c7",
   mars: "#dd7a63",
-  jupiter: "#d7b781",
+  jupiter: "#e8935f",
   saturn: "#8f8fae",
   uranus: "#7fd1d1",
   neptune: "#7f9fdb",

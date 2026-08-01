@@ -26,9 +26,9 @@ const DISPLAY_ORDER: PointKey[] = [
 ];
 
 const ASPECT_COLOR: Record<string, string> = {
-  harmonieux: "#8fc2a0",
-  tendu: "#dd9a78",
-  neutre: "#8c7fdb",
+  harmonieux: "#9fc0a3",
+  tendu: "#c96b4a",
+  neutre: "#c77b8a",
 };
 
 function resolveCollisions(points: { key: PointKey; angle: number }[], minGap: number) {
