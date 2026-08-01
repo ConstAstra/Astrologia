@@ -51,6 +51,7 @@ const TEXT: Record<
     unknownTime: string;
     at: string;
     transits: string;
+    solarReturn: string;
     inBrief: string;
     unreliableHouses: string;
     positions: string;
@@ -82,6 +83,7 @@ const TEXT: Record<
     unknownTime: "· heure inconnue",
     at: "à",
     transits: "☾ Voir les transits du jour",
+    solarReturn: "✷ Révolution solaire",
     inBrief: "En bref",
     unreliableHouses:
       "Heure de naissance inconnue : l'Ascendant, le Milieu du Ciel et les maisons ne sont pas affichés, plutôt que d'afficher une estimation trompeuse.",
@@ -114,6 +116,7 @@ const TEXT: Record<
     unknownTime: "· unknown time",
     at: "at",
     transits: "☾ See today's transits",
+    solarReturn: "✷ Solar return",
     inBrief: "In brief",
     unreliableHouses:
       "Unknown birth time: the Ascendant, Midheaven and houses aren't shown, rather than displaying a misleading estimate.",
@@ -182,7 +185,7 @@ export default async function ThemeNatalPage({
 
   const aspectKeys: PointKey[] = chart.hasReliableHouses ? DISPLAY_POINTS : [...PLANET_KEYS];
   const aspects = computeAspects(chart.points, aspectKeys);
-  const chartHighlights = composeChartHighlights(chart, aspectKeys, locale);
+  const chartHighlights = composeChartHighlights(chart, locale);
 
   const northNode = chart.points.northNode;
   const mission = describeLifeMission(
@@ -218,6 +221,12 @@ export default async function ThemeNatalPage({
               className="inline-block rounded-full border border-sage/40 px-3 py-1 text-xs text-sage hover:bg-sage/10"
             >
               {t.transits}
+            </Link>
+            <Link
+              href={`/dashboard/revolution-solaire/${profile.id}`}
+              className="inline-block rounded-full border border-violet/40 px-3 py-1 text-xs text-violet hover:bg-violet/10"
+            >
+              {t.solarReturn}
             </Link>
             <ShareCardButton
               profileId={profile.id}
