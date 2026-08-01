@@ -44,6 +44,14 @@ model User {
   // Permet un désabonnement en un clic depuis l'e-mail, sans authentification.
   unsubscribeToken    String  @unique @default(cuid())
 
+  // --- Série de connexions (streak) ---
+  // Jours consécutifs avec au moins une visite du tableau de bord. Mis à
+  // jour par recordDailyActivity() (src/lib/streak.ts), appelé une fois par
+  // requête dans le layout du dashboard — idempotent sur une même journée UTC.
+  currentStreak  Int     @default(0)
+  longestStreak  Int     @default(0)
+  lastActiveDate String? // "YYYY-MM-DD" (UTC), date de la dernière visite comptée
+
   // --- Parrainage ---
   // Code court à partager (ex: ?ref=CODE à l'inscription). Généré côté
   // application (pas de @default ici : voir la migration pour le backfill

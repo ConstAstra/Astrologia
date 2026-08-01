@@ -4,11 +4,25 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Badge } from "@/components/ui/Card";
+import { StreakBadge } from "./StreakBadge";
 import { LocaleToggle } from "./LocaleToggle";
 
 type Locale = "fr" | "en";
 
-const TEXT: Record<Locale, { profiles: string; synastry: string; composite: string; subscription: string; credit: string; credits: string; logout: string }> = {
+const TEXT: Record<
+  Locale,
+  {
+    profiles: string;
+    synastry: string;
+    composite: string;
+    subscription: string;
+    credit: string;
+    credits: string;
+    logout: string;
+    streakDay: string;
+    streakDays: string;
+  }
+> = {
   fr: {
     profiles: "Profils",
     synastry: "Synastrie",
@@ -17,6 +31,8 @@ const TEXT: Record<Locale, { profiles: string; synastry: string; composite: stri
     credit: "crédit",
     credits: "crédits",
     logout: "Déconnexion",
+    streakDay: "jour",
+    streakDays: "jours",
   },
   en: {
     profiles: "Profiles",
@@ -26,6 +42,8 @@ const TEXT: Record<Locale, { profiles: string; synastry: string; composite: stri
     credit: "credit",
     credits: "credits",
     logout: "Log out",
+    streakDay: "day",
+    streakDays: "days",
   },
 };
 
@@ -34,11 +52,15 @@ export function DashboardNav({
   credits,
   isPremium,
   locale = "fr",
+  streak = 0,
+  streakMilestone = false,
 }: {
   email: string;
   credits: number;
   isPremium: boolean;
   locale?: Locale;
+  streak?: number;
+  streakMilestone?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -75,6 +97,7 @@ export function DashboardNav({
           ))}
         </nav>
         <div className="flex items-center gap-3 text-sm">
+          <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
           <span className="hidden text-muted sm:inline">{email}</span>
           <LocaleToggle locale={locale} />
