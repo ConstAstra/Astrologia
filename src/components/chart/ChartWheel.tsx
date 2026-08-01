@@ -43,6 +43,21 @@ const ELEMENT_WEDGE_COLOR: Record<string, string> = {
 
 const ANGLE_LABELS: Record<number, string> = { 0: "AS", 3: "IC", 6: "DS", 9: "MC" };
 
+// Petits points fixes façon starfield, dispersés dans l'anneau intérieur —
+// écho discret du fond étoilé du reste de l'app, purement décoratif.
+const STAR_DOTS: [number, number, number][] = [
+  [0.32, -0.71, 0.006],
+  [-0.55, -0.44, 0.004],
+  [0.68, 0.31, 0.005],
+  [-0.28, 0.66, 0.004],
+  [0.12, -0.38, 0.003],
+  [-0.66, 0.12, 0.005],
+  [0.44, 0.58, 0.004],
+  [-0.14, -0.63, 0.003],
+  [0.58, -0.18, 0.004],
+  [-0.42, -0.14, 0.003],
+];
+
 function resolveCollisions(points: { key: PointKey; angle: number }[], minGap: number) {
   const sorted = [...points].sort((a, b) => a.angle - b.angle);
   const radiusOffset = new Map<PointKey, number>();
@@ -100,6 +115,9 @@ export function ChartWheel({
   const angled = displayPoints.map((p) => ({ key: p.key, angle: longitudeToSvgAngleDeg(p.longitude, ascendant) }));
   const collisionOffsets = resolveCollisions(angled, 8);
 
+  const sunPoint = points.find((p) => p.key === "sun");
+  const sunSymbol = sunPoint ? SIGN_META[signOf(sunPoint.longitude)].symbol : null;
+
   return (
     <svg
       viewBox={`0 0 ${size} ${size}`}
@@ -119,6 +137,25 @@ export function ChartWheel({
 
       <circle cx={cx} cy={cy} r={rOuter * 1.04} fill="url(#wheel-glow)" />
       <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="var(--border-soft)" strokeWidth={1} />
+
+      {/* Filigrane du signe solaire au centre — signature discrète, "votre ciel" plutôt qu'un instrument générique. */}
+      {sunSymbol && (
+        <text
+          x={cx}
+          y={cy}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={size * 0.34}
+          fill="var(--gold-strong)"
+          opacity={0.06}
+        >
+          {sunSymbol}
+        </text>
+      )}
+
+      {STAR_DOTS.map(([px, py, r], i) => (
+        <circle key={i} cx={cx + px * rZodiacInner} cy={cy + py * rZodiacInner} r={r * size} fill="#ffffff" opacity={0.35} />
+      ))}
 
       {ZODIAC_SIGNS.map((sign, i) => {
         const signLon = i * 30;
@@ -221,18 +258,23 @@ export function ChartWheel({
         const r = rPlanetBase - offset * (size * 0.028);
         const pos = polarToXY(cx, cy, r, baseAngle);
         const meta = PLANET_META[p.key];
+        // La pastille se teinte selon l'élément du signe occupé — la même
+        // couleur qu'on retrouve sur les quartiers du zodiaque, pour relier
+        // "quelle planète" à "dans quel registre" d'un coup d'œil.
+        const pointSign = SIGN_META[signOf(p.longitude)];
+        const tint = ELEMENT_WEDGE_COLOR[pointSign.element];
         return (
           <g key={p.key}>
-            <circle cx={pos.x} cy={pos.y} r={size * 0.024} fill="#1f1420" stroke="#e8935f" strokeWidth={0.75} />
+            <circle cx={pos.x} cy={pos.y} r={size * 0.024} fill="#1f1420" stroke={tint} strokeWidth={1} />
             <text
               x={pos.x}
               y={pos.y}
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={size * 0.03}
-              fill="#f2b799"
+              fill={tint}
             >
-              <title>{`${meta.name} — ${SIGN_META[signOf(p.longitude)].name}`}</title>
+              <title>{`${meta.name} — ${pointSign.name}`}</title>
               {meta.symbol}
             </text>
           </g>

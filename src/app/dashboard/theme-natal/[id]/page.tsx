@@ -31,6 +31,7 @@ import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
 import { WidgetUrlCard } from "@/components/account/WidgetUrlCard";
 import { UnlockGate } from "@/components/billing/UnlockGate";
+import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
 
 type Locale = "fr" | "en";
 
@@ -50,7 +51,6 @@ const TEXT: Record<
     unknownTime: string;
     at: string;
     transits: string;
-    share: string;
     inBrief: string;
     unreliableHouses: string;
     positions: string;
@@ -82,7 +82,6 @@ const TEXT: Record<
     unknownTime: "· heure inconnue",
     at: "à",
     transits: "☾ Voir les transits du jour",
-    share: "⤓ Carte à partager",
     inBrief: "En bref",
     unreliableHouses:
       "Heure de naissance inconnue : l'Ascendant, le Milieu du Ciel et les maisons ne sont pas affichés, plutôt que d'afficher une estimation trompeuse.",
@@ -115,7 +114,6 @@ const TEXT: Record<
     unknownTime: "· unknown time",
     at: "at",
     transits: "☾ See today's transits",
-    share: "⤓ Shareable card",
     inBrief: "In brief",
     unreliableHouses:
       "Unknown birth time: the Ascendant, Midheaven and houses aren't shown, rather than displaying a misleading estimate.",
@@ -221,13 +219,11 @@ export default async function ThemeNatalPage({
             >
               {t.transits}
             </Link>
-            <a
-              href={`/api/share/theme-natal/${profile.id}`}
-              download={`${profile.label}-theme-astral.png`}
-              className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs text-gold-strong hover:bg-gold/10"
-            >
-              {t.share}
-            </a>
+            <ShareCardButton
+              profileId={profile.id}
+              fileName={`${profile.label}-carte-astrale.png`}
+              locale={locale}
+            />
           </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
