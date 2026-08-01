@@ -1,5 +1,6 @@
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { computeAvatarTraits } from "./avatarTraits";
+import type { AvatarOverrides } from "./avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 
 // Avatar pixel-art déterministe façon Habbo : chaque profil obtient un
@@ -7,19 +8,28 @@ import type { ZodiacSign } from "@/lib/astro/types";
 // identifiant, plus un badge du signe solaire — pratique pour repérer un
 // profil au premier coup d'œil parmi plusieurs thèmes enregistrés.
 // La génération des traits est partagée avec `renderAvatarDataUri` (utilisé
-// pour la carte de partage) via `avatarTraits.ts`.
+// pour la carte de partage) via `avatarTraits.ts`. Quand la Lune/l'Ascendant
+// sont connus, ils biaisent (sans jamais toucher la peau) la couleur de
+// cheveux/tenue générée — et `overrides` (éditeur manuel) a toujours le
+// dernier mot, champ par champ.
 
 export function PixelAvatar({
   seed,
   sunSign,
+  moonSign,
+  ascSign,
+  overrides,
   size = 64,
 }: {
   seed: string;
   sunSign?: ZodiacSign;
+  moonSign?: ZodiacSign;
+  ascSign?: ZodiacSign;
+  overrides?: AvatarOverrides;
   size?: number;
 }) {
   const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId } =
-    computeAvatarTraits(seed, sunSign);
+    computeAvatarTraits(seed, sunSign, moonSign, ascSign, overrides);
 
   const grid = 12;
   const unit = size / grid;
@@ -87,14 +97,14 @@ export function PixelAvatar({
       {/* Badge signe solaire */}
       {sunSign && (
         <g>
-          <circle cx={size - unit * 1.6} cy={size - unit * 1.6} r={unit * 1.7} fill="#0d1020" stroke="#d7b781" strokeWidth={1} />
+          <circle cx={size - unit * 1.6} cy={size - unit * 1.6} r={unit * 1.7} fill="#1f1420" stroke="#e8935f" strokeWidth={1} />
           <text
             x={size - unit * 1.6}
             y={size - unit * 1.6}
             textAnchor="middle"
             dominantBaseline="central"
             fontSize={unit * 1.7}
-            fill="#e9cd9c"
+            fill="#f2b799"
           >
             {SIGN_META[sunSign].symbol}
           </text>

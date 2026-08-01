@@ -6,9 +6,10 @@ import { ButtonLink } from "@/components/ui/Button";
 import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
 import { DeleteProfileButton } from "@/components/dashboard/DeleteProfileButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
-import { quickSunSign } from "@/lib/astro/quick";
+import { quickSunSign, quickMoonSign } from "@/lib/astro/quick";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
+import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 
 type Locale = "fr" | "en";
 
@@ -22,6 +23,7 @@ const TEXT: Record<
     empty: string;
     createFirst: string;
     unknownTime: string;
+    editAvatar: string;
     natalChart: string;
     transits: string;
     astrocartography: string;
@@ -39,6 +41,7 @@ const TEXT: Record<
     empty: "Aucun profil pour le moment. Ajoutez votre date, heure et lieu de naissance pour révéler votre thème astral.",
     createFirst: "Créer mon premier thème",
     unknownTime: "· heure inconnue",
+    editAvatar: "Personnaliser l'avatar",
     natalChart: "Thème natal",
     transits: "Transits du jour",
     astrocartography: "Cartographie",
@@ -55,6 +58,7 @@ const TEXT: Record<
     empty: "No profile yet. Add your birth date, time and place to reveal your natal chart.",
     createFirst: "Create my first chart",
     unknownTime: "· unknown time",
+    editAvatar: "Customize avatar",
     natalChart: "Natal chart",
     transits: "Today's transits",
     astrocartography: "Astrocartography",
@@ -79,17 +83,30 @@ export default async function ProfilsPage() {
   const t = TEXT[locale];
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
 
-  const withSigns = profiles.map((profile) => ({
-    profile,
-    sunSign: quickSunSign({
+  const withSigns = profiles.map((profile) => {
+    const birthInput = {
       date: profile.birthDate,
       time: profile.birthTime,
       tzName: profile.tzName,
       latitude: profile.latitude,
       longitude: profile.longitude,
       timeUnknown: profile.timeUnknown,
-    }),
-  }));
+    };
+    let overrides: AvatarOverrides | undefined;
+    if (profile.avatarOverrides) {
+      try {
+        overrides = JSON.parse(profile.avatarOverrides) as AvatarOverrides;
+      } catch {
+        overrides = undefined;
+      }
+    }
+    return {
+      profile,
+      sunSign: quickSunSign(birthInput),
+      moonSign: quickMoonSign(birthInput),
+      overrides,
+    };
+  });
 
   return (
     <div>
@@ -111,10 +128,10 @@ export default async function ProfilsPage() {
         </Card>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {withSigns.map(({ profile, sunSign }) => (
+          {withSigns.map(({ profile, sunSign, moonSign, overrides }) => (
             <Card key={profile.id} className="flex flex-col p-6">
               <div className="flex items-center gap-4">
-                <PixelAvatar seed={profile.id} sunSign={sunSign} size={64} />
+                <PixelAvatar seed={profile.id} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={64} />
                 <div>
                   <p className="font-display text-xl">{profile.label}</p>
                   <p className="text-xs text-gold-strong">{signMap[sunSign].name}</p>
@@ -126,6 +143,12 @@ export default async function ProfilsPage() {
               </p>
               <p className="text-sm text-muted">{profile.locationName}</p>
               <div className="mt-5 flex flex-wrap gap-2 text-sm">
+                <Link
+                  href={`/dashboard/profils/${profile.id}/avatar`}
+                  className="rounded-full border border-violet/40 px-3 py-1 text-violet hover:bg-violet/10"
+                >
+                  {t.editAvatar}
+                </Link>
                 <Link
                   href={`/dashboard/theme-natal/${profile.id}`}
                   className="rounded-full border border-gold/40 px-3 py-1 text-gold-strong hover:bg-gold/10"

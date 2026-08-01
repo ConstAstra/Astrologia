@@ -1,4 +1,5 @@
 import { computeAvatarTraits } from "./avatarTraits";
+import type { AvatarOverrides } from "./avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 
@@ -8,9 +9,16 @@ import { SIGN_META } from "@/lib/astro/interpretations/signs";
  * carte de partage générée par `next/og` (Satori), où `react-dom/server`
  * ne peut pas être importé depuis une route handler.
  */
-export function renderAvatarDataUri(seed: string, sunSign: ZodiacSign, size = 256): string {
+export function renderAvatarDataUri(
+  seed: string,
+  sunSign: ZodiacSign,
+  size = 256,
+  moonSign?: ZodiacSign,
+  ascSign?: ZodiacSign,
+  overrides?: AvatarOverrides
+): string {
   const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId } =
-    computeAvatarTraits(seed, sunSign);
+    computeAvatarTraits(seed, sunSign, moonSign, ascSign, overrides);
   const grid = 12;
   const unit = size / grid;
 
@@ -41,8 +49,8 @@ export function renderAvatarDataUri(seed: string, sunSign: ZodiacSign, size = 25
   // navigateur utilisé par PixelAvatar.
   const badgeLabel = SIGN_META[sunSign].name.slice(0, 3).toUpperCase();
   const badgeSvg = `<g>
-    <circle cx="${size - unit * 1.6}" cy="${size - unit * 1.6}" r="${unit * 1.7}" fill="#0d1020" stroke="#d7b781" stroke-width="1"/>
-    <text x="${size - unit * 1.6}" y="${size - unit * 1.6}" text-anchor="middle" dominant-baseline="central" font-size="${unit * 1.05}" fill="#e9cd9c">${badgeLabel}</text>
+    <circle cx="${size - unit * 1.6}" cy="${size - unit * 1.6}" r="${unit * 1.7}" fill="#1f1420" stroke="#e8935f" stroke-width="1"/>
+    <text x="${size - unit * 1.6}" y="${size - unit * 1.6}" text-anchor="middle" dominant-baseline="central" font-size="${unit * 1.05}" fill="#f2b799">${badgeLabel}</text>
   </g>`;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">

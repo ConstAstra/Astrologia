@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
+import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 
 const RADIUS = 42;
@@ -35,6 +36,12 @@ export function CompatibilityMeter({
   seedB,
   sunA,
   sunB,
+  moonA,
+  moonB,
+  ascA,
+  ascB,
+  overridesA,
+  overridesB,
   label,
 }: {
   percentage: number;
@@ -42,6 +49,12 @@ export function CompatibilityMeter({
   seedB: string;
   sunA?: ZodiacSign;
   sunB?: ZodiacSign;
+  moonA?: ZodiacSign;
+  moonB?: ZodiacSign;
+  ascA?: ZodiacSign;
+  ascB?: ZodiacSign;
+  overridesA?: AvatarOverrides;
+  overridesB?: AvatarOverrides;
   label?: string;
 }) {
   const reduced = prefersReducedMotion();
@@ -82,7 +95,7 @@ export function CompatibilityMeter({
         <div
           className={`transition-all duration-700 ease-out ${mounted ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"}`}
         >
-          <PixelAvatar seed={seedA} sunSign={sunA} size={64} />
+          <PixelAvatar seed={seedA} sunSign={sunA} moonSign={moonA} ascSign={ascA} overrides={overridesA} size={64} />
         </div>
 
         <div className="relative flex h-28 w-28 items-center justify-center sm:h-32 sm:w-32">
@@ -101,13 +114,16 @@ export function CompatibilityMeter({
               style={{ transition: reduced ? undefined : "stroke-dashoffset 80ms linear, stroke 500ms ease" }}
             />
           </svg>
-          <span className="font-display text-3xl" style={{ color }}>
+          <span
+            className={`font-display text-3xl transition-transform duration-300 ${settled && !reduced ? "scale-110" : "scale-100"}`}
+            style={{ color }}
+          >
             {display}%
           </span>
           {settled && !reduced && (
             <span
               className="pointer-events-none absolute inset-0 rounded-full"
-              style={{ boxShadow: `0 0 24px 2px ${color}55`, animation: "compat-pulse 1.8s ease-out 1" }}
+              style={{ boxShadow: "0 0 28px 4px var(--pop-strong)", animation: "compat-pulse 1s ease-out 1" }}
             />
           )}
         </div>
@@ -115,7 +131,7 @@ export function CompatibilityMeter({
         <div
           className={`transition-all duration-700 ease-out ${mounted ? "translate-x-0 opacity-100" : "-translate-x-6 opacity-0"}`}
         >
-          <PixelAvatar seed={seedB} sunSign={sunB} size={64} />
+          <PixelAvatar seed={seedB} sunSign={sunB} moonSign={moonB} ascSign={ascB} overrides={overridesB} size={64} />
         </div>
       </div>
     </div>

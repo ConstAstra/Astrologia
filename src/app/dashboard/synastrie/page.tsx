@@ -5,6 +5,8 @@ import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
 import { computeCompatibilityScore } from "@/lib/astro/compatibility-score";
 import { quickSunSign } from "@/lib/astro/quick";
+import { signOf } from "@/lib/astro/signs";
+import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
@@ -192,6 +194,21 @@ export default async function SynastriePage({
   const majorAspects = synastry.aspects.filter((asp) => asp.major);
   const { percentage: compatibilityPercentage } = computeCompatibilityScore(synastry.aspects);
 
+  const moonA = signOf(chartA.points.moon.longitude);
+  const moonB = signOf(chartB.points.moon.longitude);
+  const ascA = chartA.hasReliableHouses ? signOf(chartA.points.asc.longitude) : undefined;
+  const ascB = chartB.hasReliableHouses ? signOf(chartB.points.asc.longitude) : undefined;
+  const parseOverrides = (raw: string | null): AvatarOverrides | undefined => {
+    if (!raw) return undefined;
+    try {
+      return JSON.parse(raw) as AvatarOverrides;
+    } catch {
+      return undefined;
+    }
+  };
+  const overridesA = parseOverrides(profileA.avatarOverrides);
+  const overridesB = parseOverrides(profileB.avatarOverrides);
+
   return (
     <div>
       {header}
@@ -203,6 +220,12 @@ export default async function SynastriePage({
           seedB={b}
           sunA={sunA}
           sunB={sunB}
+          moonA={moonA}
+          moonB={moonB}
+          ascA={ascA}
+          ascB={ascB}
+          overridesA={overridesA}
+          overridesB={overridesB}
           label={t.compatibilityLabel}
         />
       </Card>

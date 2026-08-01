@@ -99,6 +99,11 @@ model Profile {
   // de session du navigateur, donc l'accès en lecture seule au résumé du
   // jour passe par ce jeton plutôt que par l'authentification classique.
   widgetToken String @unique @default(cuid())
+
+  // Choix manuels de l'éditeur d'avatar (JSON sérialisé, voir AvatarOverrides
+  // dans avatarTraits.ts) — null tant que l'utilisateur n'a rien personnalisé
+  // à la main, auquel cas l'avatar reste généré automatiquement depuis le thème.
+  avatarOverrides String?
 }
 
 // Historique des achats de crédits (packs), quelle que soit la plateforme.
