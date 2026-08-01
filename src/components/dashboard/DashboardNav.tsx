@@ -14,7 +14,9 @@ const TEXT: Record<
   {
     profiles: string;
     synastry: string;
+    synastryHint: string;
     composite: string;
+    compositeHint: string;
     subscription: string;
     credit: string;
     credits: string;
@@ -26,7 +28,9 @@ const TEXT: Record<
   fr: {
     profiles: "Profils",
     synastry: "Synastrie",
+    synastryHint: "Superpose deux thèmes pour lire la dynamique d'une relation : aspects croisés, forces et frictions.",
     composite: "Composite",
+    compositeHint: "Le thème \"du couple\" lui-même, calculé par la méthode des points médians — une troisième entité, au-delà des deux personnes.",
     subscription: "Abonnement",
     credit: "crédit",
     credits: "crédits",
@@ -37,7 +41,9 @@ const TEXT: Record<
   en: {
     profiles: "Profiles",
     synastry: "Synastry",
+    synastryHint: "Overlay two charts to read a relationship's dynamics: cross-aspects, strengths and friction points.",
     composite: "Composite",
+    compositeHint: "The chart \"of the couple\" itself, calculated with the midpoint method — a third entity, beyond the two individuals.",
     subscription: "Subscription",
     credit: "credit",
     credits: "credits",
@@ -67,10 +73,10 @@ export function DashboardNav({
   const t = TEXT[locale];
 
   const links = [
-    { href: "/dashboard/profils", label: t.profiles },
-    { href: "/dashboard/synastrie", label: t.synastry },
-    { href: "/dashboard/composite", label: t.composite },
-    { href: "/dashboard/abonnement", label: t.subscription },
+    { href: "/dashboard/profils", label: t.profiles, hint: undefined },
+    { href: "/dashboard/synastrie", label: t.synastry, hint: t.synastryHint },
+    { href: "/dashboard/composite", label: t.composite, hint: t.compositeHint },
+    { href: "/dashboard/abonnement", label: t.subscription, hint: undefined },
   ];
 
   async function logout() {
@@ -90,6 +96,7 @@ export function DashboardNav({
             <Link
               key={link.href}
               href={link.href}
+              title={link.hint}
               className={pathname.startsWith(link.href) ? "text-gold-strong" : "hover:text-foreground"}
             >
               {link.label}
