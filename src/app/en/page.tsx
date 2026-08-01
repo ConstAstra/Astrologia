@@ -41,7 +41,7 @@ export default function HomeEn() {
         <section className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-28">
           <Eyebrow>Western astrology, calculated with rigor</Eyebrow>
           <h1 className="font-display mx-auto mt-5 max-w-3xl text-balance text-4xl font-semibold leading-tight sm:text-6xl">
-            Your birth sky, read with precision — and explained from start to finish.
+            Discover <em className="text-gold-strong italic">yourself and others</em> through astrology.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
             Natal chart, synastry, composite chart and astrocartography. Every calculation, every house

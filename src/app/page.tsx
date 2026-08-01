@@ -34,8 +34,8 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-28">
           <Eyebrow>Astrologie occidentale, calculée avec rigueur</Eyebrow>
           <h1 className="font-display mx-auto mt-5 max-w-3xl text-balance text-4xl font-semibold leading-tight sm:text-6xl">
-            Votre ciel de naissance, <em className="text-gold-strong italic">lu avec précision</em> — et expliqué du
-            début à la fin.
+            Partez à la découverte de <em className="text-gold-strong italic">vous-même et des autres</em>{" "}
+            grâce à l&apos;astrologie.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
             Thème astral, synastrie, thème composite et cartographie astrologique. Chaque calcul, chaque
