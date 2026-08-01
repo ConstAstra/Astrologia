@@ -45,8 +45,8 @@ export default function Home() {
             système de maisons, chaque orbe est documenté : vous savez toujours ce que vous lisez et pourquoi.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/inscription" size="lg" className="font-display text-lg italic">
-              Créer mon thème astral
+            <ButtonLink href="/inscription" size="lg">
+              Découvrir mon thème astral
             </ButtonLink>
             <ButtonLink href="/methode" variant="secondary" size="lg">
               Comprendre la méthode
