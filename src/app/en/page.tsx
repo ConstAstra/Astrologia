@@ -39,7 +39,7 @@ export default function HomeEn() {
       <SiteHeader locale="en" />
       <main className="flex-1">
         <section className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-28">
-          <Eyebrow>Western astrology, calculated with rigor</Eyebrow>
+          <Eyebrow>Western astrology</Eyebrow>
           <h1 className="font-display mx-auto mt-5 max-w-3xl text-balance text-4xl font-semibold leading-tight sm:text-6xl">
             Discover <em className="text-gold-strong italic">yourself and others</em> through astrology.
           </h1>

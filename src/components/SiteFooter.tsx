@@ -20,7 +20,7 @@ const TEXT: Record<
 > = {
   fr: {
     tagline:
-      "Thème astral, synastrie, thème composite et cartographie — calculés avec rigueur, expliqués clairement. Un outil de réflexion et d'introspection, pas une prédiction.",
+      "Thème astral, synastrie, thème composite et cartographie — expliqués clairement. Un outil de réflexion et d'introspection, pas une prédiction.",
     productHeading: "Produit",
     legalHeading: "Légal",
     method: "La méthode",
@@ -34,7 +34,7 @@ const TEXT: Record<
   },
   en: {
     tagline:
-      "Natal chart, synastry, composite chart and astrocartography — calculated with rigor, clearly explained. A tool for reflection and introspection, not a prediction.",
+      "Natal chart, synastry, composite chart and astrocartography — clearly explained. A tool for reflection and introspection, not a prediction.",
     productHeading: "Product",
     legalHeading: "Legal",
     method: "Our method",

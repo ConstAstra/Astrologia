@@ -41,10 +41,22 @@ export default function MentionsLegalesPage() {
             <div>
               <h2 className="font-display text-xl text-foreground">Nature du service</h2>
               <p className="mt-2">
-                Astrologium propose des calculs et interprétations astrologiques à visée de réflexion
-                personnelle et de divertissement. Ces contenus ne constituent ni un avis médical, ni un avis
-                juridique ou financier, ni une prédiction garantie d&apos;événements futurs. L&apos;éditeur ne
-                saurait être tenu responsable des décisions prises sur la base des lectures fournies.
+                Astrologium propose des calculs et interprétations astrologiques à visée de <strong>divertissement
+                et de réflexion personnelle</strong>, sans aucune visée scientifique. L&apos;astrologie n&apos;est
+                pas une science : ses interprétations ne reposent sur aucune validation scientifique établie, et
+                l&apos;éditeur ne prétend à aucun moment que les lectures fournies sont exactes, vérifiées ou
+                prédictives.
+              </p>
+              <p className="mt-3">
+                Ces contenus ne constituent en aucun cas un avis médical, psychologique, juridique ou financier,
+                et ne remplacent pas l&apos;accompagnement d&apos;un professionnel de santé (médecin, psychologue,
+                psychiatre, thérapeute) ni aucun autre professionnel qualifié. En cas de difficulté personnelle,
+                émotionnelle ou psychologique, consultez un professionnel compétent plutôt que de vous appuyer sur
+                les contenus de ce site.
+              </p>
+              <p className="mt-3">
+                L&apos;éditeur ne saurait être tenu responsable des décisions prises sur la base des lectures
+                fournies.
               </p>
             </div>
 
