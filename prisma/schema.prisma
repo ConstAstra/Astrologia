@@ -247,3 +247,15 @@ model Friendship {
   @@index([userAId])
   @@index([userBId])
 }
+
+// Une ligne par carte générée sur /duo (test de compatibilité sans compte,
+// voir /api/share/duo) — sert uniquement à afficher un compteur honnête
+// ("X cartes générées cette semaine") sur la page publique. Pas de lien vers
+// un User : le flux /duo est délibérément anonyme, aucune donnée
+// personnelle n'y transite.
+model DuoGeneration {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Eyebrow } from "@/components/ui/Card";
 import { DuoTeaserForm } from "@/components/duo/DuoTeaserForm";
+import { getDuoSocialProofCount } from "@/lib/duo-social-proof";
 
 export const metadata: Metadata = {
   title: "Test de compatibilité rapide — Astrologium",
@@ -10,7 +11,13 @@ export const metadata: Metadata = {
     "Deux prénoms, deux signes, une carte à partager en 10 secondes — sans compte. Pour une lecture complète basée sur vos vrais thèmes, la vraie synastrie est gratuite à l'inscription.",
 };
 
-export default function DuoPage() {
+// Sans ça, Next prérend la page une fois au build et fige le compteur de
+// preuve sociale à sa valeur du moment — jamais mis à jour en production.
+export const revalidate = 300;
+
+export default async function DuoPage() {
+  const socialProofCount = await getDuoSocialProofCount();
+
   return (
     <>
       <SiteHeader />
@@ -23,6 +30,11 @@ export default function DuoPage() {
             solaires uniquement ; pour une vraie synastrie (Lune, Vénus, Mars, Ascendant), l&apos;inscription
             reste gratuite.
           </p>
+          {socialProofCount !== null && (
+            <p className="mt-3 text-sm text-gold-strong">
+              🔥 {socialProofCount.toLocaleString("fr-FR")} cartes générées cette semaine
+            </p>
+          )}
         </section>
 
         <section className="mx-auto max-w-4xl px-6 py-10">

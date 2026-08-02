@@ -9,6 +9,7 @@ import { ZODIAC_SIGNS } from "@/lib/astro/types";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
+import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -63,6 +64,11 @@ export async function GET(request: Request) {
   }
   const signA = signAParam;
   const signB = signBParam;
+
+  // Compteur pour le "X cartes générées cette semaine" affiché sur /duo —
+  // jamais bloquant : un raté d'écriture ne doit jamais empêcher la
+  // génération de la carte elle-même, qui reste le seul but de la route.
+  prisma.duoGeneration.create({ data: {} }).catch(() => {});
 
   const locale: "fr" | "en" = url.searchParams.get("locale") === "en" ? "en" : "fr";
   const nameA = sanitizeName(url.searchParams.get("nameA"), locale === "en" ? "You" : "Toi");
