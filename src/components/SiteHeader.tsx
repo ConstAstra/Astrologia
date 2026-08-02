@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { ButtonLink } from "./ui/Button";
+import { ThemeToggle } from "./ThemeToggle";
 
 export type Locale = "fr" | "en";
 
@@ -80,6 +81,7 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
           </Link>
         </nav>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <ButtonLink href={hrefs.signup} size="sm">
             {t.cta}
           </ButtonLink>

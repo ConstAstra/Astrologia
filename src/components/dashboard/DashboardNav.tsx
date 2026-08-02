@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Badge } from "@/components/ui/Card";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { StreakBadge } from "./StreakBadge";
 import { LocaleToggle } from "./LocaleToggle";
 
@@ -107,6 +108,7 @@ export function DashboardNav({
           <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
           <span className="hidden text-muted sm:inline">{email}</span>
+          <ThemeToggle />
           <LocaleToggle locale={locale} />
           <button onClick={logout} className="text-muted hover:text-foreground">
             {t.logout}

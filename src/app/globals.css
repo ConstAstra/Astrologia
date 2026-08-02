@@ -28,6 +28,32 @@
   --pop-strong: #ff5c9a;
 }
 
+/*
+ * Mode jour : même famille de teintes (abricot/rose poussière/sauge/
+ * terracotta) que le mode nuit, recalibrée pour un fond clair — les tons
+ * pastel du mode nuit (pensés pour ressortir sur un fond sombre) seraient
+ * trop délavés sur du clair, donc chaque couleur est ici plus saturée/plus
+ * sombre pour garder un contraste correct. Le mode nuit (valeurs de :root
+ * ci-dessus) reste le thème par défaut — c'est l'identité visuelle
+ * d'origine de l'appli.
+ */
+:root[data-theme="light"] {
+  --background: #fbf3ea;
+  --background-elevated: #f4e6d4;
+  --surface: #ffffffb3;
+  --surface-solid: #fffaf3;
+  --border-soft: #2b1d2920;
+  --foreground: #2b1d29;
+  --muted: #8a6a72;
+  --gold: #c1632e;
+  --gold-strong: #a84f24;
+  --violet: #a8586a;
+  --sage: #4f7a58;
+  --terracotta: #a6482f;
+  --pop: #d41a6a;
+  --pop-strong: #b8135a;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-background-elevated: var(--background-elevated);
@@ -49,6 +75,22 @@
 
 html {
   color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Icônes du ThemeToggle : les deux sont dans le DOM, le CSS choisit —
+   évite tout mismatch d'hydratation (voir ThemeToggle.tsx). */
+.theme-icon-light {
+  display: none;
+}
+html[data-theme="light"] .theme-icon-dark {
+  display: none;
+}
+html[data-theme="light"] .theme-icon-light {
+  display: block;
 }
 
 body {
@@ -87,6 +129,13 @@ body {
   background-size: 100% 100%, 100% 100%, 200px 200px, 180px 180px, 220px 220px, 190px 190px, 210px 210px, 170px 170px, 230px 230px, 160px 160px, 240px 240px, 150px 150px;
 }
 
+/* Mode jour : pas d'étoiles — juste deux halos de lumière chauds, plus clairs. */
+:root[data-theme="light"] .starfield {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, #f7c99a99, transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, #f4b48d80, transparent);
+}
+
 /*
  * Ciel dégradé jour → nuit, piloté par le scroll (voir SkyScroll.tsx) :
  * l'image du dégradé fait 4x la hauteur de la fenêtre, et on en déplace la
@@ -120,6 +169,14 @@ body {
   .sky-scroll {
     background-position: 0% 0%;
   }
+}
+
+/* Mode jour : ciel clair fixe, sans l'animation jour→nuit liée au scroll
+   (celle-ci reste l'histoire propre au mode nuit). */
+:root[data-theme="light"] .sky-scroll {
+  background-image: linear-gradient(to bottom, #fde8cc 0%, #fbf3ea 60%);
+  background-size: 100% 100%;
+  background-position: 0% 0%;
 }
 
 /*

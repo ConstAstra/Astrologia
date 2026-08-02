@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from "react";
+import { playMagicChime } from "@/lib/sound";
 
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
@@ -33,10 +36,15 @@ export function Button({
   size = "md",
   className = "",
   children,
+  onClick,
   ...rest
 }: CommonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
+  function handleClick(e: MouseEvent<HTMLButtonElement>) {
+    if (variant === "primary") playMagicChime();
+    onClick?.(e);
+  }
   return (
-    <button className={`${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} {...rest}>
+    <button className={`${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} onClick={handleClick} {...rest}>
       {children}
     </button>
   );
@@ -49,8 +57,11 @@ export function ButtonLink({
   className = "",
   children,
 }: CommonProps & { href: string }) {
+  function handleClick() {
+    if (variant === "primary") playMagicChime();
+  }
   return (
-    <Link href={href} className={`${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
+    <Link href={href} onClick={handleClick} className={`${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
       {children}
     </Link>
   );
