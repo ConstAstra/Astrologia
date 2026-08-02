@@ -1,6 +1,8 @@
 // Schéma Prisma — Astrologia
-// SQLite en local (fichier unique, zéro config). Migrable vers PostgreSQL en
-// production (voir README) : il suffit de changer le provider + l'adapter.
+// PostgreSQL en local comme en production (voir README, section "Base de
+// données") : SQLite ne survit pas à un déploiement serverless (filesystem
+// éphémère sur Vercel notamment), donc même le développement local tourne
+// sur un vrai Postgres pour éviter toute divergence dev/prod.
 
 generator client {
   provider = "prisma-client"
@@ -8,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {

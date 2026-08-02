@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { createSessionCookie } from "@/lib/auth/session";
+import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 
 const MESSAGES = {
   fr: {
@@ -13,6 +14,7 @@ const MESSAGES = {
     invalidRequest: "Requête invalide",
     alreadyExists: "Un compte existe déjà avec cet e-mail.",
     genericError: "Une erreur est survenue, réessayez.",
+    tooManyAttempts: "Trop de tentatives, réessayez dans quelques minutes.",
   },
   en: {
     invalidEmail: "Invalid email address",
@@ -20,10 +22,15 @@ const MESSAGES = {
     invalidRequest: "Invalid request",
     alreadyExists: "An account already exists with this email.",
     genericError: "Something went wrong, please try again.",
+    tooManyAttempts: "Too many attempts, please try again in a few minutes.",
   },
 } as const;
 
 type Locale = keyof typeof MESSAGES;
+
+// Anti-spam de création de compte — assez large pour ne jamais gêner un
+// usage légitime (plusieurs comptes de test, un foyer derrière la même IP).
+const registerLimiter = createRateLimiter({ max: 20, windowMs: 60 * 60_000 });
 
 function buildSchema(locale: Locale) {
   const m = MESSAGES[locale];
@@ -43,6 +50,10 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const locale: Locale = body?.locale === "en" ? "en" : "fr";
   const m = MESSAGES[locale];
+
+  if (registerLimiter.isLimited(clientIp(request))) {
+    return NextResponse.json({ error: m.tooManyAttempts }, { status: 429 });
+  }
 
   const parsed = buildSchema(locale).safeParse(body);
   if (!parsed.success) {

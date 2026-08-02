@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import tzLookup from "tz-lookup";
+import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 
 export interface GeocodeResult {
   label: string;
@@ -7,10 +8,6 @@ export interface GeocodeResult {
   longitude: number;
   tzName: string;
 }
-
-// Limiteur en mémoire (process unique) : suffisant pour une seule instance
-// serveur, mais ne protège pas un déploiement multi-instance — dans ce cas,
-// remplacer par un store partagé (Redis, etc.).
 
 // 1) Débit global vers Nominatim : sa politique d'usage impose au plus 1
 // requête/seconde tous utilisateurs confondus, pas par utilisateur — on
@@ -32,22 +29,7 @@ function scheduleNominatimCall<T>(task: () => Promise<T>): Promise<T> {
 
 // 2) Débit par IP côté client : empêche un seul utilisateur (ou bot) de
 // monopoliser le quota global partagé ci-dessus.
-const RATE_LIMIT_MAX_REQUESTS = 10;
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const requestTimestampsByIp = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const timestamps = (requestTimestampsByIp.get(ip) ?? []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  timestamps.push(now);
-  requestTimestampsByIp.set(ip, timestamps);
-  return timestamps.length > RATE_LIMIT_MAX_REQUESTS;
-}
-
-function clientIp(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  return forwarded?.split(",")[0]?.trim() || "unknown";
-}
+const geocodeLimiter = createRateLimiter({ max: 10, windowMs: 60_000 });
 
 // 3) Petit cache en mémoire : les recherches de lieux de naissance se
 // répètent beaucoup (villes courantes) — évite un aller-retour Nominatim
@@ -118,7 +100,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ results: [] });
   }
 
-  if (isRateLimited(clientIp(request))) {
+  if (geocodeLimiter.isLimited(clientIp(request))) {
     return NextResponse.json(
       { error: "Trop de recherches, merci de patienter quelques secondes." },
       { status: 429, headers: { "Retry-After": "60" } }

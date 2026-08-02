@@ -8,8 +8,22 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: astrologium_ci
+          POSTGRES_DB: astrologium
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: "file:./dev.db"
+      DATABASE_URL: "postgresql://postgres:astrologium_ci@localhost:5432/astrologium"
+      TEST_DATABASE_URL: "postgresql://postgres:astrologium_ci@localhost:5432/astrologium"
       AUTH_SECRET: "ci-placeholder-secret"
       NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
     steps:
@@ -28,6 +42,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
 
       - name: Test
         run: npm test

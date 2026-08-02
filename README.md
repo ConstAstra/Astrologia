@@ -42,15 +42,31 @@ intégrés Apple côté iOS, système de crédits à l'unité).
 ## Stack technique
 
 Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind CSS v4 · Prisma 7
-(SQLite en local, adaptable PostgreSQL) · astronomy-engine · Stripe ·
+(PostgreSQL, en local comme en production) · astronomy-engine · Stripe ·
 `@apple/app-store-server-library` · Capacitor (coque iOS) · d3-geo/topojson.
 
 ## Démarrage
 
+Nécessite un serveur PostgreSQL local (même en développement — voir « Base
+de données » ci-dessous pour pourquoi). Le plus simple :
+
 ```bash
+# Via Docker (recommandé) :
+docker run -d --name astrologium-db -e POSTGRES_PASSWORD=astrologium_dev -p 5432:5432 postgres:16
+
+# Ou en installation native (Debian/Ubuntu) :
+sudo apt-get install postgresql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'astrologium_dev';"
+```
+
+Puis, dans les deux cas :
+
+```bash
+createdb -h localhost -U postgres astrologium       # (mot de passe : astrologium_dev)
+createdb -h localhost -U postgres astrologium_test  # base dédiée aux tests
+
 npm install
-cp .env.example .env      # puis complétez au moins AUTH_SECRET
-npx prisma migrate dev    # crée dev.db et applique le schéma
+cp .env.example .env      # DATABASE_URL par défaut pointe déjà vers astrologium en local
+npx prisma migrate dev    # applique le schéma
 npm run dev
 ```
 
@@ -201,11 +217,11 @@ fonctionnalité reste pleinement opérationnelle sur desktop et Android.
 
 ## Passer en production
 
-- **Base de données** : remplacez SQLite par PostgreSQL — changez
-  `provider` dans `prisma/schema.prisma`, installez `@prisma/adapter-pg` +
-  `pg`, adaptez `src/lib/db.ts` (voir la doc Prisma 7 sur les *driver
-  adapters*). SQLite convient au développement mais pas à un hébergement
-  serverless multi-instances.
+- **Base de données** : déjà PostgreSQL en local comme en production (voir
+  « Démarrage ») — dev/prod parity volontaire, SQLite ne survivrait pas à un
+  déploiement serverless (filesystem éphémère). Pour la prod, provisionnez
+  une base managée (Vercel Postgres, Neon, Supabase, Railway...) et pointez
+  `DATABASE_URL` dessus, puis `npx prisma migrate deploy`.
 - **Webhooks Stripe** : configurez l'URL de production dans le tableau de
   bord Stripe.
 - **Mentions légales** : `/mentions-legales`, `/confidentialite`,

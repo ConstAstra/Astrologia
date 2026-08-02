@@ -4,13 +4,22 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { consumePasswordResetToken } from "@/lib/auth/passwordReset";
 import { createSessionCookie } from "@/lib/auth/session";
+import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   token: z.string().min(1),
   password: z.string().min(8),
 });
 
+// Le jeton a déjà assez d'entropie pour être infaisable à deviner, mais on
+// limite quand même le débit de tentatives par IP par défense en profondeur.
+const resetPasswordLimiter = createRateLimiter({ max: 10, windowMs: 60 * 60_000 });
+
 export async function POST(request: Request) {
+  if (resetPasswordLimiter.isLimited(clientIp(request))) {
+    return NextResponse.json({ error: "Trop de tentatives, réessayez dans quelques minutes." }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

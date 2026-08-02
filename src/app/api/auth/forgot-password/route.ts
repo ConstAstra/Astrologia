@@ -3,11 +3,16 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { createPasswordResetToken } from "@/lib/auth/passwordReset";
 import { sendEmail } from "@/lib/email";
+import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email(),
   locale: z.enum(["fr", "en"]).optional().default("fr"),
 });
+
+// Limite basse et volontaire : chaque déclenchement envoie un e-mail réel
+// (coût, et risque de spam vers une boîte qui n'a rien demandé).
+const forgotPasswordLimiter = createRateLimiter({ max: 5, windowMs: 60 * 60_000 });
 
 const TEXT = {
   fr: {
@@ -42,6 +47,12 @@ export async function POST(request: Request) {
   }
 
   const t = TEXT[parsed.data.locale];
+
+  if (forgotPasswordLimiter.isLimited(clientIp(request))) {
+    // Même réponse "succès" que le cas nominal : ne jamais révéler qu'un
+    // seuil de débit existe, ni si l'adresse est inscrite ou non.
+    return NextResponse.json({ message: t.successMessage });
+  }
 
   // Réponse identique que le compte existe ou non : on ne révèle jamais
   // si une adresse e-mail est inscrite.

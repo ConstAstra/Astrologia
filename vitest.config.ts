@@ -13,7 +13,8 @@ export default defineConfig({
     globalSetup: ["./vitest.global-setup.ts"],
     setupFiles: ["./src/test/setup.ts"],
     env: {
-      DATABASE_URL: `file:${path.resolve(__dirname, "prisma/test.db")}`,
+      DATABASE_URL:
+        process.env.TEST_DATABASE_URL || "postgresql://postgres:astrologium_dev@localhost:5432/astrologium_test",
       AUTH_SECRET: "test-secret-not-for-production",
     },
   },
