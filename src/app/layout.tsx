@@ -31,12 +31,12 @@ export default function RootLayout({
     <html lang="fr" className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <script
-          // Posé avant l'hydratation pour éviter un flash sombre→clair au
-          // chargement : le mode nuit reste la valeur par défaut tant que
-          // rien n'est enregistré (identité visuelle d'origine de l'appli).
+          // Posé avant l'hydratation pour éviter un flash au chargement :
+          // le mode jour (Bloom) reste la valeur par défaut tant que rien
+          // n'est enregistré.
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('astrologium-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}",
+              "try{var t=localStorage.getItem('astrologium-theme');if(t==='night')document.documentElement.dataset.theme='night';}catch(e){}",
           }}
         />
         <SkyScroll />
