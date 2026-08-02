@@ -81,25 +81,31 @@ export function describePlanetInSign(
   const suppressRomantic =
     relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPlanetInSign(point, sign);
   const custom = suppressRomantic ? undefined : customMap[point]?.[sign];
-  if (custom) return custom;
   const signMeta = signMap[sign];
+
+  // Uranus/Neptune/Pluton restent des années (voire des décennies) dans le
+  // même signe : même avec un texte dédié par signe, ce placement marque
+  // surtout une génération — la nuance vraiment personnelle se lit dans la
+  // maison et les aspects. On le rappelle dans tous les cas, y compris
+  // quand un texte dédié existe (custom), pour ne jamais laisser croire
+  // qu'un signe seul dit tout de ce placement.
+  const generationalSuffix = !GENERATIONAL_POINTS.has(point)
+    ? ""
+    : locale === "en"
+      ? ` Since ${planet.name} stays for years (even decades) in the same sign, this placement marks an entire generation rather than a strictly personal trait: what's truly yours plays out mainly through its house and aspects, read below.`
+      : ` ${planet.name} restant des années (voire des décennies) dans le même signe, ce placement marque toute une génération plutôt qu'un trait strictement personnel : ce qui vous est propre se joue surtout dans sa maison et ses aspects, à lire ci-dessous.`;
+
+  if (custom) return `${custom}${generationalSuffix}`;
 
   if (locale === "en") {
     const base = `${planet.name} expresses here ${planet.keyword}, colored by the ${signMeta.name} tone (${signMeta.keyword}). ${signMeta.paragraph}`;
-    if (GENERATIONAL_POINTS.has(point)) {
-      return `${base} Since ${planet.name} stays for years (even decades) in the same sign, this placement marks an entire generation rather than a strictly personal trait: what's truly yours plays out mainly through its house and aspects, read below.`;
-    }
-    return base;
+    return `${base}${generationalSuffix}`;
   }
 
   const base = `${planet.name} exprime ici ${planet.keyword}, teinté${
     PLANET_GENDER_FR[point] === "f" ? "e" : ""
   } par la tonalité ${signMeta.name} (${signMeta.keyword}). ${signMeta.paragraph}`;
-
-  if (GENERATIONAL_POINTS.has(point)) {
-    return `${base} ${planet.name} restant des années (voire des décennies) dans le même signe, ce placement marque toute une génération plutôt qu'un trait strictement personnel : ce qui vous est propre se joue surtout dans sa maison et ses aspects, à lire ci-dessous.`;
-  }
-  return base;
+  return `${base}${generationalSuffix}`;
 }
 
 /** Lecture du degré exact (décan, phase précoce/médiane/tardive, degré anarétique ou critique). */
