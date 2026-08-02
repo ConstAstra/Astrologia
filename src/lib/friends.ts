@@ -1,5 +1,25 @@
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+
+const ACCEPT_EMAIL_TEXT = {
+  fr: {
+    subject: (name: string) => `${name} a accepté ton invitation sur Astrologium`,
+    body: (name: string, siteUrl: string) => `
+      <p>Bonne nouvelle : <strong>${name}</strong> a accepté ton invitation d'ami sur Astrologium.</p>
+      <p>Vous avez maintenant chacun accès à la carte d'identité astrale de l'autre, et vous pouvez voir votre compatibilité sans ressaisir de date de naissance.</p>
+      <p><a href="${siteUrl}/dashboard/amis">Voir mes amis</a></p>
+    `,
+  },
+  en: {
+    subject: (name: string) => `${name} accepted your invitation on Astrologium`,
+    body: (name: string, siteUrl: string) => `
+      <p>Good news: <strong>${name}</strong> accepted your friend invitation on Astrologium.</p>
+      <p>You now each have access to the other's astral ID card, and can see your compatibility without re-entering a birth date.</p>
+      <p><a href="${siteUrl}/dashboard/amis">See my friends</a></p>
+    `,
+  },
+} as const;
 
 const INVITE_TTL_MS = 90 * 24 * 60 * 60 * 1000; // 90 jours
 
@@ -37,9 +57,10 @@ export async function areFriends(userIdA: string, userIdB: string): Promise<bool
 
 /**
  * Accepte une invitation : crée l'amitié (idempotent — si elle existe déjà,
- * ne fait rien) entre l'utilisateur qui a généré le lien et celui qui
- * l'accepte. Refuse qu'on s'ajoute soi-même en ami (lien ouvert dans un
- * nouvel onglet par l'auteur de l'invitation, par exemple).
+ * ne fait rien, et n'envoie pas de second e-mail) entre l'utilisateur qui a
+ * généré le lien et celui qui l'accepte. Refuse qu'on s'ajoute soi-même en
+ * ami (lien ouvert dans un nouvel onglet par l'auteur de l'invitation, par
+ * exemple).
  */
 export async function acceptFriendInvite(token: string, acceptingUserId: string) {
   const invite = await prisma.friendInvite.findUnique({ where: { token } });
@@ -47,13 +68,39 @@ export async function acceptFriendInvite(token: string, acceptingUserId: string)
   if (invite.userId === acceptingUserId) return { ok: false as const, reason: "self" as const };
 
   const [userAId, userBId] = canonicalFriendPair(invite.userId, acceptingUserId);
+  const alreadyExisted = (await prisma.friendship.findUnique({ where: { userAId_userBId: { userAId, userBId } } })) !== null;
+
   await prisma.friendship.upsert({
     where: { userAId_userBId: { userAId, userBId } },
     create: { userAId, userBId },
     update: {},
   });
 
+  if (!alreadyExisted) {
+    const [inviter, accepter] = await Promise.all([
+      prisma.user.findUniqueOrThrow({ where: { id: invite.userId } }),
+      prisma.user.findUniqueOrThrow({ where: { id: acceptingUserId } }),
+    ]);
+    const locale = inviter.locale === "en" ? "en" : "fr";
+    const t = ACCEPT_EMAIL_TEXT[locale];
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const accepterName = accepter.name?.trim() || accepter.email;
+    // Ne bloque jamais l'acceptation elle-même si l'envoi échoue (fournisseur
+    // indisponible, etc.) — l'amitié est déjà actée à ce stade.
+    await sendEmail({
+      to: inviter.email,
+      subject: t.subject(accepterName),
+      html: t.body(accepterName, siteUrl),
+    }).catch(() => {});
+  }
+
   return { ok: true as const, inviterUserId: invite.userId };
+}
+
+/** Retire une amitié — dans un sens comme dans l'autre, aucune notion de "propriétaire" du lien une fois l'amitié actée. */
+export async function removeFriendship(userIdA: string, userIdB: string): Promise<void> {
+  const [userAId, userBId] = canonicalFriendPair(userIdA, userIdB);
+  await prisma.friendship.deleteMany({ where: { userAId, userBId } });
 }
 
 export interface FriendSelfProfile {
@@ -66,6 +113,23 @@ export interface FriendSelfProfile {
   longitude: number;
   tzName: string;
   avatarOverrides: string | null;
+  shareWithFriends: boolean;
+}
+
+/**
+ * Un ami accepté peut consulter le thème natal et les transits complets
+ * d'un profil s'il s'agit du profil "soi" de son ami ET que celui-ci a
+ * explicitement activé le partage (shareWithFriends) — jamais implicite,
+ * jamais pour un profil de tiers (mère, ex...) même si isSelf a été mal
+ * coché par erreur ailleurs dans l'app.
+ */
+export async function canViewProfile(
+  viewerId: string,
+  profile: { userId: string; isSelf: boolean; shareWithFriends: boolean }
+): Promise<boolean> {
+  if (profile.userId === viewerId) return true;
+  if (!profile.isSelf || !profile.shareWithFriends) return false;
+  return areFriends(viewerId, profile.userId);
 }
 
 export interface FriendSummary {
@@ -102,6 +166,7 @@ export async function listFriendSelfProfiles(userId: string): Promise<FriendSumm
           longitude: p.longitude,
           tzName: p.tzName,
           avatarOverrides: p.avatarOverrides,
+          shareWithFriends: p.shareWithFriends,
         },
       };
     })

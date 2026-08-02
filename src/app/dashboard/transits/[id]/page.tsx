@@ -17,6 +17,7 @@ import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeTransitAspect, type Locale } from "@/lib/astro/interpretations/compose";
 import { MOON_PHASE_TEXT } from "@/lib/astro/interpretations/moonphase-content";
 import { MOON_PHASE_TEXT_EN, MOON_PHASE_LABEL_EN } from "@/lib/astro/interpretations/moonphase-content.en";
+import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -35,6 +36,7 @@ const TEXT: Record<Locale, {
   lockedTitle: string;
   lockedBody: string;
   unlock: string;
+  viewingAsFriend: (name: string) => string;
 }> = {
   fr: {
     eyebrow: "Transits",
@@ -49,6 +51,7 @@ const TEXT: Record<Locale, {
     lockedTitle: "Voyez venir vos prochains jours",
     lockedBody: "Les transits à venir (demain et toute la semaine) sont réservés à Premium — le thème du jour reste gratuit.",
     unlock: "Débloquer avec Premium",
+    viewingAsFriend: (name) => `Vous voyez les transits de ${name} en tant qu'ami — lecture seule.`,
   },
   en: {
     eyebrow: "Transits",
@@ -63,6 +66,7 @@ const TEXT: Record<Locale, {
     lockedTitle: "See your upcoming days coming",
     lockedBody: "Upcoming transits (tomorrow and the rest of the week) are a Premium feature — today's chart stays free.",
     unlock: "Unlock with Premium",
+    viewingAsFriend: (name) => `You're viewing ${name}'s transits as a friend — read-only.`,
   },
 };
 
@@ -78,10 +82,16 @@ export default async function TransitsPage({
   const { day } = await searchParams;
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findFirst({ where: { id, userId } }),
+    prisma.profile.findUnique({ where: { id } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) notFound();
+
+  const isOwner = profile.userId === userId;
+  if (!isOwner && !(await canViewProfile(userId, profile))) notFound();
+
+  const ownerUser = isOwner ? user : await prisma.user.findUniqueOrThrow({ where: { id: profile.userId } });
+  const displayLabel = isOwner ? profile.label : ownerUser.name?.trim() || profile.label;
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
@@ -139,8 +149,13 @@ export default async function TransitsPage({
   return (
     <div>
       <Eyebrow>{t.eyebrow}</Eyebrow>
-      <h1 className="font-display mt-2 text-3xl">{profile.label}</h1>
+      <h1 className="font-display mt-2 text-3xl">{displayLabel}</h1>
       <p className="mt-1 text-sm capitalize text-muted">{dateLabel}</p>
+      {!isOwner && (
+        <p className="mt-2 inline-block rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs text-gold-strong">
+          {t.viewingAsFriend(displayLabel)}
+        </p>
+      )}
 
       <div className="mt-5 flex flex-wrap gap-2">
         {dayTabs.map((tab) => (

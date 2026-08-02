@@ -26,10 +26,12 @@ import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartSynthesis } from "@/lib/astro/interpretations/synthesis";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
+import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
 import { WidgetUrlCard } from "@/components/account/WidgetUrlCard";
+import { ShareChartToggle } from "@/components/account/ShareChartToggle";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
 
@@ -76,6 +78,7 @@ const TEXT: Record<
     synthesisStrengthsHeading: string;
     synthesisStrengthsIntro: string;
     noneDetected: string;
+    viewingAsFriend: (name: string) => string;
   }
 > = {
   fr: {
@@ -110,6 +113,7 @@ const TEXT: Record<
     synthesisStrengthsHeading: "Vos points d'appui",
     synthesisStrengthsIntro: "Là où plusieurs parties de votre thème travaillent naturellement dans le même sens.",
     noneDetected: "Aucun élément notable détecté ici.",
+    viewingAsFriend: (name) => `Vous voyez le thème de ${name} en tant qu'ami — lecture seule.`,
   },
   en: {
     eyebrow: "Natal chart",
@@ -143,6 +147,7 @@ const TEXT: Record<
     synthesisStrengthsHeading: "Your points of strength",
     synthesisStrengthsIntro: "Where several parts of your chart naturally work in the same direction.",
     noneDetected: "No notable element detected here.",
+    viewingAsFriend: (name) => `You're viewing ${name}'s chart as a friend — read-only.`,
   },
 };
 
@@ -158,10 +163,16 @@ export default async function ThemeNatalPage({
   const { maisons } = await searchParams;
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findFirst({ where: { id, userId } }),
+    prisma.profile.findUnique({ where: { id } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) notFound();
+
+  const isOwner = profile.userId === userId;
+  if (!isOwner && !(await canViewProfile(userId, profile))) notFound();
+
+  const ownerUser = isOwner ? user : await prisma.user.findUniqueOrThrow({ where: { id: profile.userId } });
+  const displayLabel = isOwner ? profile.label : ownerUser.name?.trim() || profile.label;
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
@@ -210,11 +221,16 @@ export default async function ThemeNatalPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Eyebrow>{t.eyebrow}</Eyebrow>
-          <h1 className="font-display mt-2 text-3xl">{profile.label}</h1>
+          <h1 className="font-display mt-2 text-3xl">{displayLabel}</h1>
           <p className="mt-1 text-sm text-muted">
             {profile.birthDate} {profile.timeUnknown ? t.unknownTime : `${t.at} ${profile.birthTime}`} ·{" "}
             {profile.locationName}
           </p>
+          {!isOwner && (
+            <p className="mt-2 inline-block rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs text-gold-strong">
+              {t.viewingAsFriend(displayLabel)}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href={`/dashboard/transits/${profile.id}`}
@@ -228,11 +244,13 @@ export default async function ThemeNatalPage({
             >
               {t.solarReturn}
             </Link>
-            <ShareCardButton
-              profileId={profile.id}
-              fileName={`${profile.label}-carte-astrale.png`}
-              locale={locale}
-            />
+            {isOwner && (
+              <ShareCardButton
+                profileId={profile.id}
+                fileName={`${profile.label}-carte-astrale.png`}
+                locale={locale}
+              />
+            )}
           </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
@@ -368,12 +386,20 @@ export default async function ThemeNatalPage({
         )}
       </div>
 
-      <Card className="mt-6 p-5">
-        <WidgetUrlCard
-          widgetUrl={`${process.env.NEXT_PUBLIC_SITE_URL || t.widgetUrlBase}/api/widget/theme-natal/${profile.id}?token=${profile.widgetToken}`}
-          locale={locale}
-        />
-      </Card>
+      {isOwner && (
+        <Card className="mt-6 p-5">
+          <WidgetUrlCard
+            widgetUrl={`${process.env.NEXT_PUBLIC_SITE_URL || t.widgetUrlBase}/api/widget/theme-natal/${profile.id}?token=${profile.widgetToken}`}
+            locale={locale}
+          />
+        </Card>
+      )}
+
+      {isOwner && profile.isSelf && (
+        <Card className="mt-6 p-5">
+          <ShareChartToggle profileId={profile.id} initialShared={profile.shareWithFriends} locale={locale} />
+        </Card>
+      )}
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[420px_1fr]">
         <Card className="p-4">

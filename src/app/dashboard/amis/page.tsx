@@ -11,11 +11,19 @@ import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { InviteFriendCard } from "@/components/account/InviteFriendCard";
+import { RemoveFriendButton } from "@/components/account/RemoveFriendButton";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 
 const TEXT: Record<
   Locale,
-  { title: string; empty: string; emptyBody: string; sunOf: (sign: string) => string; seeCompatibility: string }
+  {
+    title: string;
+    empty: string;
+    emptyBody: string;
+    sunOf: (sign: string) => string;
+    seeCompatibility: string;
+    seeFullChart: string;
+  }
 > = {
   fr: {
     title: "Mes amis",
@@ -23,6 +31,7 @@ const TEXT: Record<
     emptyBody: "Partage ton lien ci-dessus — dès qu'un ami l'accepte, sa carte apparaît ici.",
     sunOf: (sign) => `Soleil en ${sign}`,
     seeCompatibility: "Voir la compatibilité",
+    seeFullChart: "Voir son thème complet",
   },
   en: {
     title: "My friends",
@@ -30,6 +39,7 @@ const TEXT: Record<
     emptyBody: "Share your link above — as soon as a friend accepts, their card shows up here.",
     sunOf: (sign) => `Sun in ${sign}`,
     seeCompatibility: "See compatibility",
+    seeFullChart: "See their full chart",
   },
 };
 
@@ -74,6 +84,7 @@ export default async function AmisPage() {
       sunKeyword: keywordMap[big3.sun],
       moonSign: big3.moon,
       ascSign: big3.ascendant ?? undefined,
+      sharesFullChart: friend.profile.shareWithFriends,
       avatarProps: {
         seed: friend.profile.id,
         sunSign: big3.sun,
@@ -101,20 +112,30 @@ export default async function AmisPage() {
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {cards.map((f) => (
-            <Card key={f.userId} className="flex items-center gap-4 p-5">
+            <Card key={f.userId} className="flex items-start gap-4 p-5">
               <PixelAvatar {...f.avatarProps} size={72} />
               <div className="min-w-0 flex-1">
-                <p className="font-display truncate text-xl">{f.displayName}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-display truncate text-xl">{f.displayName}</p>
+                  <RemoveFriendButton friendUserId={f.userId} locale={locale} />
+                </div>
                 <p className="text-sm text-gold-strong">{t.sunOf(f.sunSign)}</p>
                 <p className="mt-0.5 text-xs text-muted">{f.sunKeyword}</p>
-                {myself && (
-                  <Link
-                    href={`/dashboard/synastrie?a=${myself.id}&b=${f.profileId}`}
-                    className="mt-2 inline-block text-xs text-gold-strong underline"
-                  >
-                    {t.seeCompatibility}
-                  </Link>
-                )}
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                  {myself && (
+                    <Link
+                      href={`/dashboard/synastrie?a=${myself.id}&b=${f.profileId}`}
+                      className="text-xs text-gold-strong underline"
+                    >
+                      {t.seeCompatibility}
+                    </Link>
+                  )}
+                  {f.sharesFullChart && (
+                    <Link href={`/dashboard/theme-natal/${f.profileId}`} className="text-xs text-sage underline">
+                      {t.seeFullChart}
+                    </Link>
+                  )}
+                </div>
               </div>
             </Card>
           ))}

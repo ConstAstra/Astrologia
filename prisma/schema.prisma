@@ -117,6 +117,13 @@ model Profile {
   // jour passe par ce jeton plutôt que par l'authentification classique.
   widgetToken String @unique @default(cuid())
 
+  // Autorise les amis acceptés (voir Friendship) à consulter en lecture
+  // seule le thème natal complet et les transits de ce profil, pas
+  // seulement l'aperçu carte d'identité déjà visible dans /dashboard/amis.
+  // Sans effet si isSelf=false : on ne partage jamais le profil d'un tiers
+  // (mère, ex...) enregistré par erreur avec ce réglage activé.
+  shareWithFriends Boolean @default(false)
+
   // Choix manuels de l'éditeur d'avatar (JSON sérialisé, voir AvatarOverrides
   // dans avatarTraits.ts) — null tant que l'utilisateur n'a rien personnalisé
   // à la main, auquel cas l'avatar reste généré automatiquement depuis le thème.
