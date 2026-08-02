@@ -1,8 +1,28 @@
 import type { MetadataRoute } from "next";
 import { ZODIAC_SIGNS } from "@/lib/astro/types";
 
-const STATIC_ROUTES_FR = ["", "/methode", "/tarifs", "/connexion", "/inscription", "/compatibilite"];
-const STATIC_ROUTES_EN = ["/en", "/en/method", "/en/pricing", "/en/login", "/en/signup", "/en/compatibility"];
+const STATIC_ROUTES_FR = [
+  "",
+  "/methode",
+  "/tarifs",
+  "/connexion",
+  "/inscription",
+  "/compatibilite",
+  "/mentions-legales",
+  "/confidentialite",
+  "/conditions-generales",
+];
+const STATIC_ROUTES_EN = [
+  "/en",
+  "/en/method",
+  "/en/pricing",
+  "/en/login",
+  "/en/signup",
+  "/en/compatibility",
+  "/en/legal-notice",
+  "/en/privacy",
+  "/en/terms",
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";

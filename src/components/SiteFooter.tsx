@@ -73,9 +73,9 @@ export function SiteFooter({ locale = "fr" }: { locale?: Locale }) {
             <div>
               <p className="mb-3 font-medium text-foreground">{t.legalHeading}</p>
               <ul className="space-y-2 text-muted">
-                <li><Link href="/mentions-legales" className="hover:text-foreground">{t.legalNotice}</Link></li>
-                <li><Link href="/confidentialite" className="hover:text-foreground">{t.privacy}</Link></li>
-                <li><Link href="/conditions-generales" className="hover:text-foreground">{t.terms}</Link></li>
+                <li><Link href={`${base}/${locale === "en" ? "legal-notice" : "mentions-legales"}`} className="hover:text-foreground">{t.legalNotice}</Link></li>
+                <li><Link href={`${base}/${locale === "en" ? "privacy" : "confidentialite"}`} className="hover:text-foreground">{t.privacy}</Link></li>
+                <li><Link href={`${base}/${locale === "en" ? "terms" : "conditions-generales"}`} className="hover:text-foreground">{t.terms}</Link></li>
               </ul>
             </div>
           </div>
