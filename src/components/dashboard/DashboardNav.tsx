@@ -14,6 +14,7 @@ const TEXT: Record<
   Locale,
   {
     profiles: string;
+    friends: string;
     synastry: string;
     synastryHint: string;
     composite: string;
@@ -28,6 +29,7 @@ const TEXT: Record<
 > = {
   fr: {
     profiles: "Profils",
+    friends: "Amis",
     synastry: "Synastrie",
     synastryHint: "Superpose deux thèmes pour lire la dynamique d'une relation : aspects croisés, forces et frictions.",
     composite: "Composite",
@@ -41,6 +43,7 @@ const TEXT: Record<
   },
   en: {
     profiles: "Profiles",
+    friends: "Friends",
     synastry: "Synastry",
     synastryHint: "Overlay two charts to read a relationship's dynamics: cross-aspects, strengths and friction points.",
     composite: "Composite",
@@ -75,6 +78,7 @@ export function DashboardNav({
 
   const links = [
     { href: "/dashboard/profils", label: t.profiles, hint: undefined },
+    { href: "/dashboard/amis", label: t.friends, hint: undefined },
     { href: "/dashboard/synastrie", label: t.synastry, hint: t.synastryHint },
     { href: "/dashboard/composite", label: t.composite, hint: t.compositeHint },
     { href: "/dashboard/abonnement", label: t.subscription, hint: undefined },

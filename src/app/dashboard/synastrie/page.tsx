@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { canonicalPair, hasFeatureAccess } from "@/lib/billing/entitlements";
@@ -21,6 +22,7 @@ import {
 } from "@/lib/astro/interpretations/relationship";
 import { RELATIONSHIP_META_EN, relationshipAspectNoteEn } from "@/lib/astro/interpretations/relationship.en";
 import type { RelationshipType } from "@/lib/astro/interpretations/relationship";
+import { listFriendSelfProfiles } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { AvatarPairPicker } from "@/components/dashboard/AvatarPairPicker";
 import { RelationshipTabs } from "@/components/dashboard/RelationshipTabs";
@@ -48,7 +50,8 @@ const TEXT: Record<
   fr: {
     synastry: "Synastrie",
     needTwoProfiles: "Il vous faut deux profils",
-    needTwoProfilesBody: "Ajoutez au moins un second profil (par exemple votre partenaire) pour comparer deux thèmes.",
+    needTwoProfilesBody:
+      "Ajoutez au moins un second profil (par exemple votre partenaire), ou invitez un ami — dès qu'il accepte, son profil apparaît ici automatiquement.",
     chooseTwo: "Choisissez deux profils",
     profileNotFound: "Profil introuvable.",
     majorAspects: "Aspects croisés majeurs",
@@ -60,7 +63,8 @@ const TEXT: Record<
   en: {
     synastry: "Synastry",
     needTwoProfiles: "You need two profiles",
-    needTwoProfilesBody: "Add at least a second profile (for example your partner) to compare two charts.",
+    needTwoProfilesBody:
+      "Add at least a second profile (for example your partner), or invite a friend — once they accept, their profile shows up here automatically.",
     chooseTwo: "Choose two profiles",
     profileNotFound: "Profile not found.",
     majorAspects: "Major cross-aspects",
@@ -82,10 +86,21 @@ export default async function SynastriePage({
   // cadrage le plus neutre tant que l'utilisateur n'a pas choisi un onglet.
   const relationshipType: RelationshipType = isRelationshipType(relation) ? relation : "amitie";
 
-  const [profiles, currentUser] = await Promise.all([
+  const [ownProfiles, currentUser, friends] = await Promise.all([
     prisma.profile.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+    listFriendSelfProfiles(userId),
   ]);
+  // Le profil "soi" d'un ami accepté peut être choisi comme second profil,
+  // au même titre que ses propres profils — sans jamais exposer les autres
+  // profils enregistrés de l'ami (voir listFriendSelfProfiles). Le label
+  // affiché devient le prénom du compte ami plutôt que l'intitulé "Moi" que
+  // l'ami a pu donner à son propre profil, sans quoi deux profils "Moi"
+  // (le vôtre et le sien) seraient indiscernables dans le sélecteur.
+  const profiles = [
+    ...ownProfiles,
+    ...friends.map((f) => ({ ...f.profile, label: f.name?.trim() || f.profile.label })),
+  ];
   const locale: Locale = currentUser.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
@@ -100,6 +115,9 @@ export default async function SynastriePage({
         <Eyebrow>{t.synastry}</Eyebrow>
         <h1 className="font-display mt-2 text-3xl">{t.needTwoProfiles}</h1>
         <p className="mt-3 text-sm text-muted">{t.needTwoProfilesBody}</p>
+        <Link href="/dashboard/amis" className="mt-4 inline-block text-sm text-gold-strong underline">
+          {locale === "en" ? "Invite a friend →" : "Inviter un ami →"}
+        </Link>
       </div>
     );
   }
