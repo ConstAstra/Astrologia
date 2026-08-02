@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
-import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
+import { FREE_PROFILE_LIMIT, isAvatarGlowing } from "@/lib/billing/entitlements";
 import { DeleteProfileButton } from "@/components/dashboard/DeleteProfileButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { quickSunSign, quickMoonSign } from "@/lib/astro/quick";
@@ -82,6 +82,7 @@ export default async function ProfilsPage() {
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const glowing = isAvatarGlowing(user);
 
   const withSigns = profiles.map((profile) => {
     const birthInput = {
@@ -131,7 +132,7 @@ export default async function ProfilsPage() {
           {withSigns.map(({ profile, sunSign, moonSign, overrides }) => (
             <Card key={profile.id} className="flex flex-col p-6">
               <div className="flex items-center gap-4">
-                <PixelAvatar seed={profile.id} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={64} />
+                <PixelAvatar seed={profile.id} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={64} glowing={glowing} />
                 <div>
                   <p className="font-display text-xl">{profile.label}</p>
                   <p className="text-xs text-gold-strong">{signMap[sunSign].name}</p>

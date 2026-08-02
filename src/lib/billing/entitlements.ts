@@ -42,6 +42,15 @@ export function isPremiumActive(user: { subscriptionStatus: string; currentPerio
   return true;
 }
 
+// Halo doré sur l'avatar : abonnement Premium actif OU série de connexions
+// d'au moins ce nombre de jours consécutifs — jamais un choix, toujours
+// gagné (voir /lib/streak.ts pour les paliers de série).
+export const STREAK_GLOW_THRESHOLD = 7;
+
+export function isAvatarGlowing(user: { subscriptionStatus: string; currentPeriodEnd: Date | null; currentStreak: number }) {
+  return isPremiumActive(user) || user.currentStreak >= STREAK_GLOW_THRESHOLD;
+}
+
 /** Ordre canonique pour qu'une paire (A,B) et (B,A) désignent le même déblocage. */
 export function canonicalPair(a: string, b?: string | null): [string, string | undefined] {
   if (!b) return [a, undefined];

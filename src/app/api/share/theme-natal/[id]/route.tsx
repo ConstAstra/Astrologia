@@ -13,6 +13,7 @@ import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
 import { renderQrDataUri } from "@/lib/qr";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { isAvatarGlowing } from "@/lib/billing/entitlements";
 
 export const runtime = "nodejs";
 
@@ -106,7 +107,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       overrides = undefined;
     }
   }
-  const avatarUri = renderAvatarDataUri(profile.id, big3.sun, 220, big3.moon, big3.ascendant ?? undefined, overrides);
+  const avatarUri = renderAvatarDataUri(
+    profile.id,
+    big3.sun,
+    220,
+    big3.moon,
+    big3.ascendant ?? undefined,
+    overrides,
+    isAvatarGlowing(user)
+  );
 
   // Les 3 "caractéristiques" de la carte : un mot par point du Big 3, sans
   // aucun terme technique (pas de planète ni d'aspect) — lisible par
