@@ -18,7 +18,7 @@ export const HOUSE_META: HouseMeta[] = [
     name: "Maison II — Ressources",
     keyword: "l'argent, les valeurs, la sécurité matérielle",
     paragraph:
-      "Ce que l'on possède et la manière de le gagner, de le garder ou de le dépenser ; plus largement, l'échelle de valeurs personnelle et le rapport à la sécurité matérielle. La maturité ici consiste à distinguer la sécurité réelle, construite avec le temps, de la sécurité illusoire qu'on croit atteindre en accumulant sans jamais se sentir vraiment à l'abri.",
+      "Ce que l'on possède et la manière de le gagner, de le garder ou de le dépenser ; plus largement, l'échelle de valeurs personnelle et le rapport à la sécurité matérielle. Ici, la vraie difficulté est de distinguer la sécurité réelle, construite avec le temps, de la sécurité illusoire qu'on croit atteindre en accumulant sans jamais se sentir vraiment à l'abri.",
   },
   {
     number: 3,
@@ -46,42 +46,42 @@ export const HOUSE_META: HouseMeta[] = [
     name: "Maison VI — Quotidien",
     keyword: "le travail, la santé, les routines",
     paragraph:
-      "L'organisation du quotidien : travail concret, service rendu, santé et habitudes corporelles, sens du détail utile. L'endroit où l'on \"met les mains dans le cambouis\". Le piège de cette maison est de se perdre dans le service rendu aux autres au point de négliger sa propre santé — la maturité consiste à prendre soin de soi avec la même rigueur que de son travail.",
+      "L'organisation du quotidien : travail concret, service rendu, santé et habitudes corporelles, sens du détail utile. L'endroit où l'on \"met les mains dans le cambouis\". Le piège de cette maison est de se perdre dans le service rendu aux autres au point de négliger sa propre santé — ce que ça demande, c'est de prendre soin de soi avec la même rigueur que de son travail.",
   },
   {
     number: 7,
     name: "Maison VII — Relations",
     keyword: "le couple, les partenariats, les autres en face",
     paragraph:
-      "Maison angulaire de la relation à l'autre en position d'égal : couple, association, mais aussi adversaires déclarés. Souvent ce que l'on recherche — ou fuit — chez un partenaire. Ce qu'on cherche ou fuit chez l'autre y révèle souvent une part de soi non intégrée — la maturité consiste à reconnaître dans le partenaire un miroir plutôt qu'un simple complément.",
+      "Maison angulaire de la relation à l'autre en position d'égal : couple, association, mais aussi adversaires déclarés. Souvent ce que l'on recherche — ou fuit — chez un partenaire. Ce qu'on cherche ou fuit chez l'autre y révèle souvent une part de soi non intégrée — il s'agit d'apprendre à reconnaître dans le partenaire un miroir plutôt qu'un simple complément.",
   },
   {
     number: 8,
     name: "Maison VIII — Transformation",
     keyword: "l'intimité, les ressources partagées, les crises",
     paragraph:
-      "Ce qui échappe au contrôle direct : sexualité, argent des autres (héritage, crédit, fiscalité), deuil et transformation profonde. Une maison exigeante mais souvent riche en évolution. La maturité de cette maison consiste à accepter de perdre le contrôle par moments, en confiance, plutôt que de chercher à tout maîtriser dans un domaine qui, par nature, échappe à la volonté.",
+      "Ce qui échappe au contrôle direct : sexualité, argent des autres (héritage, crédit, fiscalité), deuil et transformation profonde. Une maison exigeante mais souvent riche en évolution. Ce qui se travaille ici, c'est d'accepter de perdre le contrôle par moments, en confiance, plutôt que de chercher à tout maîtriser dans un domaine qui, par nature, échappe à la volonté.",
   },
   {
     number: 9,
     name: "Maison IX — Horizons",
     keyword: "les études supérieures, le voyage, la philosophie",
     paragraph:
-      "L'ouverture sur du plus grand : voyages lointains, études supérieures, croyances, quête de sens et de vérité. L'envie d'élargir sa carte du monde. Le risque ici est de confondre l'accumulation de savoirs ou de voyages avec une vraie transformation intérieure — la maturité consiste à laisser ce qu'on découvre réellement changer sa façon de voir, pas seulement l'élargir en surface.",
+      "L'ouverture sur du plus grand : voyages lointains, études supérieures, croyances, quête de sens et de vérité. L'envie d'élargir sa carte du monde. Le risque ici est de confondre l'accumulation de savoirs ou de voyages avec une vraie transformation intérieure — l'enjeu est de laisser ce qu'on découvre réellement changer sa façon de voir, pas seulement l'élargir en surface.",
   },
   {
     number: 10,
     name: "Maison X — Vocation",
     keyword: "la carrière, la réputation, le statut social",
     paragraph:
-      "Maison angulaire la plus \"publique\" : la vocation, la réussite visible, l'autorité, l'image sociale. Ce pour quoi on veut être reconnu dans le monde. Le piège de cette maison est de mesurer sa valeur uniquement à la réussite visible — la maturité consiste à séparer l'accomplissement réel de la reconnaissance sociale qui, elle, reste toujours changeante.",
+      "Maison angulaire la plus \"publique\" : la vocation, la réussite visible, l'autorité, l'image sociale. Ce pour quoi on veut être reconnu dans le monde. Le piège de cette maison est de mesurer sa valeur uniquement à la réussite visible — tout l'apprentissage consiste à séparer l'accomplissement réel de la reconnaissance sociale qui, elle, reste toujours changeante.",
   },
   {
     number: 11,
     name: "Maison XI — Réseau",
     keyword: "les amis, les projets collectifs, les idéaux",
     paragraph:
-      "Les cercles d'appartenance choisis : amitiés, groupes, réseaux, projets collectifs et idéaux d'avenir. Une maison tournée vers demain et vers la communauté. La maturité ici consiste à choisir ses cercles d'appartenance en fonction de ce qu'on est vraiment, plutôt que du besoin de faire partie d'un groupe à tout prix.",
+      "Les cercles d'appartenance choisis : amitiés, groupes, réseaux, projets collectifs et idéaux d'avenir. Une maison tournée vers demain et vers la communauté. Ici, grandir consiste à choisir ses cercles d'appartenance en fonction de ce qu'on est vraiment, plutôt que du besoin de faire partie d'un groupe à tout prix.",
   },
   {
     number: 12,

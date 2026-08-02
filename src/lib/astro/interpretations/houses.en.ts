@@ -13,7 +13,7 @@ export const HOUSE_META_EN: HouseMeta[] = [
     name: "House II — Resources",
     keyword: "money, values, material security",
     paragraph:
-      "What one owns and how one earns, keeps or spends it; more broadly, one's personal scale of values and relationship to material security. The growth edge here is telling apart real security, built over time, from the illusory kind chased through accumulation that never quite feels like enough.",
+      "What one owns and how one earns, keeps or spends it; more broadly, one's personal scale of values and relationship to material security. Here, the real challenge is telling apart real security, built over time, from the illusory kind chased through accumulation that never quite feels like enough.",
   },
   {
     number: 3,
@@ -41,42 +41,42 @@ export const HOUSE_META_EN: HouseMeta[] = [
     name: "House VI — Daily life",
     keyword: "work, health, routines",
     paragraph:
-      "The organization of daily life: concrete work, service rendered, health and bodily habits, a sense of useful detail. Where one \"gets their hands dirty.\" The trap of this house is getting lost in service to others to the point of neglecting one's own health — the growth edge is caring for oneself with the same rigor applied to work.",
+      "The organization of daily life: concrete work, service rendered, health and bodily habits, a sense of useful detail. Where one \"gets their hands dirty.\" The trap of this house is getting lost in service to others to the point of neglecting one's own health — what it actually takes is caring for oneself with the same rigor applied to work.",
   },
   {
     number: 7,
     name: "House VII — Relationships",
     keyword: "partnership, others faced as equals",
     paragraph:
-      "The angular house of relating to others as equals: partnership, marriage, but also declared opponents. Often what one seeks — or avoids — in a partner. What's sought or avoided in a partner here often reveals an unintegrated part of oneself — the growth edge is recognizing the partner as a mirror rather than just a complement.",
+      "The angular house of relating to others as equals: partnership, marriage, but also declared opponents. Often what one seeks — or avoids — in a partner. What's sought or avoided in a partner here often reveals an unintegrated part of oneself — it means learning to recognize the partner as a mirror rather than just a complement.",
   },
   {
     number: 8,
     name: "House VIII — Transformation",
     keyword: "intimacy, shared resources, crises",
     paragraph:
-      "What escapes direct control: sexuality, other people's money (inheritance, credit, taxes), grief and deep transformation. A demanding house, but often rich in growth. The growth edge here is accepting to lose control at times, in trust, rather than trying to master everything in a domain that, by nature, resists sheer will.",
+      "What escapes direct control: sexuality, other people's money (inheritance, credit, taxes), grief and deep transformation. A demanding house, but often rich in growth. What's being worked on here is accepting to lose control at times, in trust, rather than trying to master everything in a domain that, by nature, resists sheer will.",
   },
   {
     number: 9,
     name: "House IX — Horizons",
     keyword: "higher education, travel, philosophy",
     paragraph:
-      "Opening onto something bigger: long-distance travel, higher education, beliefs, the search for meaning and truth. The urge to expand one's map of the world. The risk here is mistaking the accumulation of knowledge or travel for real inner transformation — the growth edge is letting what's actually discovered change how one sees, not just widen the surface.",
+      "Opening onto something bigger: long-distance travel, higher education, beliefs, the search for meaning and truth. The urge to expand one's map of the world. The risk here is mistaking the accumulation of knowledge or travel for real inner transformation — what matters is letting what's actually discovered change how one sees, not just widen the surface.",
   },
   {
     number: 10,
     name: "House X — Vocation",
     keyword: "career, reputation, social status",
     paragraph:
-      "The most \"public\" angular house: vocation, visible success, authority, social image. What one wants to be recognized for in the world. The trap of this house is measuring one's worth only by visible success — the growth edge is separating real accomplishment from social recognition, which always stays subject to change.",
+      "The most \"public\" angular house: vocation, visible success, authority, social image. What one wants to be recognized for in the world. The trap of this house is measuring one's worth only by visible success — the whole lesson is separating real accomplishment from social recognition, which always stays subject to change.",
   },
   {
     number: 11,
     name: "House XI — Network",
     keyword: "friends, collective projects, ideals",
     paragraph:
-      "Chosen circles of belonging: friendships, groups, networks, collective projects and ideals for the future. A house turned toward tomorrow and toward community. The growth edge here is choosing one's circles based on who one really is, rather than the need to belong to a group at any cost.",
+      "Chosen circles of belonging: friendships, groups, networks, collective projects and ideals for the future. A house turned toward tomorrow and toward community. Growing here means choosing one's circles based on who one really is, rather than the need to belong to a group at any cost.",
   },
   {
     number: 12,
