@@ -11,6 +11,7 @@ import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { SIGN_KEYWORD, SIGN_KEYWORD_EN } from "@/lib/astro/interpretations/chart-highlights";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
+import { renderQrDataUri } from "@/lib/qr";
 import { createRateLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -78,6 +79,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // achat du filleul, voir /r/[code]) — sans lien court, un ?ref= complet
   // n'est de toute façon pas cliquable une fois republié en pixels.
   const shareUrl = `${siteUrl}/r/${user.referralCode}`;
+  // Un lien même court n'est pas cliquable une fois republié en pixels sur
+  // Instagram/TikTok — le QR code est le seul moyen de rendre le lien
+  // vraiment actionnable depuis une image ou une capture d'écran.
+  const qrDataUri = renderQrDataUri(`https://${shareUrl}`);
 
   const chart = computeNatalChart(
     {
@@ -285,9 +290,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             }}
           >
             <div style={{ display: "flex", fontSize: 15, color: "#71768e", letterSpacing: 1 }}>{legalLine}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ display: "flex", fontSize: 17, color: "#e6d9d1" }}>{ctaLine}</div>
-              <div style={{ display: "flex", fontSize: 17, color: "#f2b799", fontWeight: 700 }}>→ {shareUrl}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: s(14, 18) }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                <div style={{ display: "flex", fontSize: 17, color: "#e6d9d1" }}>{ctaLine}</div>
+                <div style={{ display: "flex", fontSize: 17, color: "#f2b799", fontWeight: 700 }}>→ {shareUrl}</div>
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={qrDataUri}
+                width={s(60, 76)}
+                height={s(60, 76)}
+                alt=""
+                style={{ borderRadius: 8, border: "3px solid #f7ece2" }}
+              />
             </div>
           </div>
         </div>

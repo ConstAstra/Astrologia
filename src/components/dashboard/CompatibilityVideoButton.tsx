@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ZodiacSign } from "@/lib/astro/types";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
+import { renderQrDataUri } from "@/lib/qr";
 import { playSoftChime } from "@/lib/sound";
 
 const WIDTH = 720;
@@ -50,19 +51,20 @@ function drawRoundedImage(ctx: CanvasRenderingContext2D, img: HTMLImageElement, 
 interface DrawState {
   imgA: HTMLImageElement;
   imgB: HTMLImageElement;
+  imgQr: HTMLImageElement;
   nameA: string;
   nameB: string;
   displayValue: (progress: number) => string;
   punchline: string;
   punchlineColor: string;
   cardTitle: string;
-  ctaLine: string;
   legalLine: string;
   shareUrl: string;
+  scanLine: string;
 }
 
 function draw(ctx: CanvasRenderingContext2D, t: number, state: DrawState) {
-  const { imgA, imgB, nameA, nameB, displayValue, punchline, punchlineColor, cardTitle, ctaLine, legalLine, shareUrl } = state;
+  const { imgA, imgB, imgQr, nameA, nameB, displayValue, punchline, punchlineColor, cardTitle, legalLine, shareUrl, scanLine } = state;
 
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   const bg = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
@@ -115,33 +117,54 @@ function draw(ctx: CanvasRenderingContext2D, t: number, state: DrawState) {
   ctx.fillText(`${nameA} & ${nameB}`, WIDTH / 2, 730);
   ctx.globalAlpha = 1;
 
-  // Footer, visible once the reveal is done
+  // QR code : seul moyen qu'un lien affiché sur une vidéo statique soit
+  // vraiment cliquable une fois republiée — apparaît avec le reste du footer.
   const footerAlpha = Math.max(0, Math.min(1, (t - countEnd - 0.05) / 0.1));
   ctx.globalAlpha = footerAlpha;
+  const qrSize = 150;
+  const qrX = WIDTH / 2 - qrSize / 2;
+  const qrY = 850;
+  ctx.fillStyle = "#f7ece2";
+  ctx.fillRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
+  ctx.drawImage(imgQr, qrX, qrY, qrSize, qrSize);
+  ctx.textAlign = "center";
+  ctx.font = "500 20px system-ui, sans-serif";
+  ctx.fillStyle = "#c9a8ad";
+  ctx.fillText(scanLine, WIDTH / 2, qrY + qrSize + 44);
+
+  // Footer : juste la mention légale + le lien en texte (repli pour qui ne
+  // peut pas scanner) — le QR au-dessus porte déjà l'appel à l'action, pas
+  // besoin de le répéter en toutes lettres sur cette largeur de canvas
+  // (720px, bien plus étroit que les cartes images à 1080px).
   ctx.strokeStyle = "#ffffff1a";
   ctx.beginPath();
   ctx.moveTo(32, HEIGHT - 70);
   ctx.lineTo(WIDTH - 32, HEIGHT - 70);
   ctx.stroke();
-  ctx.textAlign = "left";
+  ctx.textAlign = "center";
   ctx.font = "400 15px system-ui, sans-serif";
   ctx.fillStyle = "#71768e";
-  ctx.fillText(legalLine, 32, HEIGHT - 40);
-  ctx.textAlign = "right";
-  ctx.fillStyle = "#e6d9d1";
-  ctx.font = "500 17px system-ui, sans-serif";
-  ctx.fillText(`${ctaLine}  →  ${shareUrl}`, WIDTH - 32, HEIGHT - 40);
+  ctx.fillText(legalLine, WIDTH / 2, HEIGHT - 48);
+  ctx.font = "500 16px system-ui, sans-serif";
+  ctx.fillStyle = "#f2b799";
+  ctx.fillText(shareUrl, WIDTH / 2, HEIGHT - 24);
   ctx.globalAlpha = 1;
 }
 
-async function recordVideo(state: Omit<DrawState, "imgA" | "imgB"> & { avatarSrcA: string; avatarSrcB: string }): Promise<Blob> {
+async function recordVideo(
+  state: Omit<DrawState, "imgA" | "imgB" | "imgQr"> & { avatarSrcA: string; avatarSrcB: string; qrSrc: string }
+): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("2d context unavailable");
 
-  const [imgA, imgB] = await Promise.all([loadImage(state.avatarSrcA), loadImage(state.avatarSrcB)]);
+  const [imgA, imgB, imgQr] = await Promise.all([
+    loadImage(state.avatarSrcA),
+    loadImage(state.avatarSrcB),
+    loadImage(state.qrSrc),
+  ]);
 
   const stream = (canvas as HTMLCanvasElement & { captureStream: (fps?: number) => MediaStream }).captureStream(30);
   const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
@@ -162,7 +185,7 @@ async function recordVideo(state: Omit<DrawState, "imgA" | "imgB"> & { avatarSrc
     function tick(now: number) {
       const elapsed = now - start;
       const t = Math.min(1, elapsed / DURATION_MS);
-      draw(ctx!, t, { ...state, imgA, imgB });
+      draw(ctx!, t, { ...state, imgA, imgB, imgQr });
       if (elapsed < DURATION_MS) {
         requestAnimationFrame(tick);
       } else {
@@ -229,14 +252,15 @@ export function CompatibilityVideoButton({
       const blob = await recordVideo({
         avatarSrcA: renderAvatarDataUri(seedA, sunA, 300, moonA, ascA, overridesA),
         avatarSrcB: renderAvatarDataUri(seedB, sunB, 300, moonB, ascB, overridesB),
+        qrSrc: renderQrDataUri(`https://${shareUrl}`),
         nameA,
         nameB,
         displayValue: (progress) => `${Math.round(progress * percentage)}%`,
         punchline,
         punchlineColor,
         cardTitle: locale === "en" ? "COMPATIBILITY TEST" : "TEST DE COMPATIBILITÉ",
-        ctaLine: locale === "en" ? "Try it free" : "Fais le test, gratuit",
         legalLine: locale === "en" ? "For fun, not a prediction" : "Pour le fun, pas une prédiction",
+        scanLine: locale === "en" ? "Scan to try" : "Scanne pour essayer",
         shareUrl,
       });
 

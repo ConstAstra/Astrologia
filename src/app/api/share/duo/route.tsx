@@ -8,6 +8,7 @@ import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { ZODIAC_SIGNS } from "@/lib/astro/types";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
+import { renderQrDataUri } from "@/lib/qr";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 import { prisma } from "@/lib/db";
 
@@ -81,6 +82,10 @@ export async function GET(request: Request) {
 
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "astrologium.app").replace(/^https?:\/\//, "");
+  // Pas de compte ici (flux anonyme) donc pas de code de parrainage : le QR
+  // renvoie simplement vers /duo pour que quiconque scanne puisse faire le
+  // test à son tour.
+  const qrDataUri = renderQrDataUri(`https://${siteUrl}${locale === "en" ? "/en/duo" : "/duo"}`);
 
   const { score } = composeSignCompatibility(signA, signB);
   const tier = TEASER_TIERS.find((t) => t.score === score) ?? TEASER_TIERS[TEASER_TIERS.length - 1];
@@ -200,9 +205,19 @@ export async function GET(request: Request) {
             }}
           >
             <div style={{ display: "flex", fontSize: 15, color: "#71768e", letterSpacing: 1 }}>{legalLine}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ display: "flex", fontSize: 17, color: "#e6d9d1" }}>{ctaLine}</div>
-              <div style={{ display: "flex", fontSize: 17, color: "#f2b799", fontWeight: 700 }}>→ {siteUrl}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: s(14, 18) }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                <div style={{ display: "flex", fontSize: 17, color: "#e6d9d1" }}>{ctaLine}</div>
+                <div style={{ display: "flex", fontSize: 17, color: "#f2b799", fontWeight: 700 }}>→ {siteUrl}</div>
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={qrDataUri}
+                width={s(60, 76)}
+                height={s(60, 76)}
+                alt=""
+                style={{ borderRadius: 8, border: "3px solid #f7ece2" }}
+              />
             </div>
           </div>
         </div>
