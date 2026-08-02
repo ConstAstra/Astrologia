@@ -1,7 +1,13 @@
-import { computeAvatarTraits } from "./avatarTraits";
-import type { AvatarOverrides } from "./avatarTraits";
+import { computeAvatarTraits, COMPANION_SHAPES } from "./avatarTraits";
+import type { AvatarOverrides, CompanionShape } from "./avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
+
+function companionShapeSvg(shape: CompanionShape, color: string): string {
+  return shape.type === "circle"
+    ? `<circle cx="${shape.cx}" cy="${shape.cy}" r="${shape.r}" fill="${color}"/>`
+    : `<path d="${shape.d}" fill="${color}"/>`;
+}
 
 /**
  * Sérialise l'avatar pixel-art en data URI SVG via une chaîne de caractères
@@ -15,9 +21,11 @@ export function renderAvatarDataUri(
   size = 256,
   moonSign?: ZodiacSign,
   ascSign?: ZodiacSign,
-  overrides?: AvatarOverrides
+  overrides?: AvatarOverrides,
+  /** Halo doré : abonnement Premium actif ou série de connexions ≥ 7 jours — jamais un choix, toujours gagné. */
+  glowing = false
 ): string {
-  const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId } =
+  const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId, companion } =
     computeAvatarTraits(seed, sunSign, moonSign, ascSign, overrides);
   const grid = 12;
   const unit = size / grid;
@@ -53,9 +61,19 @@ export function renderAvatarDataUri(
     <text x="${size - unit * 1.6}" y="${size - unit * 1.6}" text-anchor="middle" dominant-baseline="central" font-size="${unit * 1.05}" fill="#f2b799">${badgeLabel}</text>
   </g>`;
 
+  const companionSvg = companion
+    ? `<g>
+    <circle cx="${unit * 1.6}" cy="${size - unit * 1.6}" r="${unit * 1.4}" fill="#1f1420" stroke="#e8935f" stroke-width="1"/>
+    <g transform="translate(${unit * 1.6} ${size - unit * 1.6}) scale(${unit * 0.9})">
+      ${COMPANION_SHAPES[companion.element].map((shape) => companionShapeSvg(shape, companion.color)).join("")}
+    </g>
+  </g>`
+    : "";
+
+  const glowStrokeWidth = glowing ? Math.max(2, size * 0.035) : 0;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
     <defs><clipPath id="${clipId}"><rect width="${size}" height="${size}" rx="${size * 0.18}"/></clipPath></defs>
-    <rect width="${size}" height="${size}" rx="${size * 0.18}" fill="${bg}"/>
+    <rect width="${size}" height="${size}" rx="${size * 0.18}" fill="${bg}" ${glowing ? `stroke="#f2b799" stroke-width="${glowStrokeWidth}"` : ""}/>
     <g clip-path="url(#${clipId})">
       <rect x="${unit * 0.5}" y="${unit * 9.6}" width="${unit * 11}" height="${unit * 3.5}" rx="${unit * 2.2}" fill="${clothing}"/>
       <rect x="${unit * 2.5}" y="${unit * 3}" width="${unit * 7}" height="${unit * 7}" rx="${unit * 1.8}" fill="${skin}"/>
@@ -69,6 +87,7 @@ export function renderAvatarDataUri(
       ${mouthSvg}
     </g>
     ${badgeSvg}
+    ${companionSvg}
   </svg>`;
 
   const base64 = Buffer.from(svg, "utf-8").toString("base64");

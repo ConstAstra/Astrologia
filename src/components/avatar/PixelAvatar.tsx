@@ -1,5 +1,5 @@
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
-import { computeAvatarTraits } from "./avatarTraits";
+import { computeAvatarTraits, COMPANION_SHAPES } from "./avatarTraits";
 import type { AvatarOverrides } from "./avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 
@@ -20,6 +20,7 @@ export function PixelAvatar({
   ascSign,
   overrides,
   size = 64,
+  glowing = false,
 }: {
   seed: string;
   sunSign?: ZodiacSign;
@@ -27,8 +28,10 @@ export function PixelAvatar({
   ascSign?: ZodiacSign;
   overrides?: AvatarOverrides;
   size?: number;
+  /** Halo doré : abonnement Premium actif ou série de connexions ≥ 7 jours — jamais un choix, toujours gagné. */
+  glowing?: boolean;
 }) {
-  const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId } =
+  const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId, companion } =
     computeAvatarTraits(seed, sunSign, moonSign, ascSign, overrides);
 
   const grid = 12;
@@ -41,7 +44,14 @@ export function PixelAvatar({
           <rect width={size} height={size} rx={size * 0.18} />
         </clipPath>
       </defs>
-      <rect width={size} height={size} rx={size * 0.18} fill={bg} />
+      <rect
+        width={size}
+        height={size}
+        rx={size * 0.18}
+        fill={bg}
+        stroke={glowing ? "#f2b799" : "none"}
+        strokeWidth={glowing ? Math.max(2, size * 0.035) : 0}
+      />
 
       <g clipPath={`url(#${clipId})`}>
         {/* Épaules / tenue */}
@@ -108,6 +118,22 @@ export function PixelAvatar({
           >
             {SIGN_META[sunSign].symbol}
           </text>
+        </g>
+      )}
+
+      {/* Compagnon (élément de la Lune) */}
+      {companion && (
+        <g>
+          <circle cx={unit * 1.6} cy={size - unit * 1.6} r={unit * 1.4} fill="#1f1420" stroke="#e8935f" strokeWidth={1} />
+          <g transform={`translate(${unit * 1.6} ${size - unit * 1.6}) scale(${unit * 0.9})`}>
+            {COMPANION_SHAPES[companion.element].map((shape, i) =>
+              shape.type === "circle" ? (
+                <circle key={i} cx={shape.cx} cy={shape.cy} r={shape.r} fill={companion.color} />
+              ) : (
+                <path key={i} d={shape.d} fill={companion.color} />
+              )
+            )}
+          </g>
         </g>
       )}
     </svg>

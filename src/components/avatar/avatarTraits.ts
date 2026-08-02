@@ -84,6 +84,7 @@ export interface AvatarTraits {
   glasses: boolean;
   bg: string;
   clipId: string;
+  companion: Companion | null;
 }
 
 /**
@@ -106,6 +107,57 @@ export interface AvatarOverrides {
 
 function pick<T>(rand: () => number, pool: T[]): T {
   return pool[Math.floor(rand() * pool.length)];
+}
+
+// Compagnon dérivé de l'élément de la Lune — jamais un choix manuel, jamais
+// aléatoire : deux profils avec la Lune dans le même élément ont toujours le
+// même compagnon. Représenté en formes normalisées dans un carré [-1,1]
+// centré sur son badge (appliqué via `transform="translate(cx,cy) scale(r)"`
+// côté appelant) pour que PixelAvatar (React, navigateur) et
+// renderAvatarDataUri (chaîne, serveur) partagent exactement la même
+// géométrie sans jamais diverger visuellement entre les deux.
+export type AstroElement = "Feu" | "Terre" | "Air" | "Eau";
+
+export type CompanionShape = { type: "circle"; cx: number; cy: number; r: number } | { type: "path"; d: string };
+
+export const COMPANION_COLOR: Record<AstroElement, string> = {
+  Feu: "#e8935f",
+  Terre: "#4a8f7a",
+  Air: "#c9a8ad",
+  Eau: "#5a6fa8",
+};
+
+export const COMPANION_SHAPES: Record<AstroElement, CompanionShape[]> = {
+  // Flamme
+  Feu: [{ type: "path", d: "M0,0.62 Q-0.55,0.05 0,-0.62 Q0.55,0.05 0,0.62 Z" }],
+  // Ourson : corps + deux oreilles
+  Terre: [
+    { type: "circle", cx: 0, cy: 0.12, r: 0.5 },
+    { type: "circle", cx: -0.35, cy: -0.32, r: 0.2 },
+    { type: "circle", cx: 0.35, cy: -0.32, r: 0.2 },
+  ],
+  // Oiseau : corps + deux ailes
+  Air: [
+    { type: "circle", cx: 0, cy: 0.1, r: 0.42 },
+    { type: "path", d: "M-0.42,0.1 L-0.1,-0.32 L-0.1,0.22 Z" },
+    { type: "path", d: "M0.42,0.1 L0.1,-0.32 L0.1,0.22 Z" },
+  ],
+  // Poisson : corps + queue
+  Eau: [
+    { type: "circle", cx: -0.12, cy: 0.12, r: 0.42 },
+    { type: "path", d: "M0.22,0.12 L0.62,-0.18 L0.62,0.42 Z" },
+  ],
+};
+
+export interface Companion {
+  element: AstroElement;
+  color: string;
+}
+
+export function companionForMoon(moonSign?: ZodiacSign): Companion | null {
+  if (!moonSign) return null;
+  const element = SIGN_META[moonSign].element as AstroElement;
+  return { element, color: COMPANION_COLOR[element] };
 }
 
 export function computeAvatarTraits(
@@ -153,5 +205,6 @@ export function computeAvatarTraits(
     glasses,
     bg,
     clipId: `avatar-clip-${hashString(seed)}`,
+    companion: companionForMoon(moonSign),
   };
 }
