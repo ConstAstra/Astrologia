@@ -4,7 +4,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { canonicalPair, hasFeatureAccess } from "@/lib/billing/entitlements";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
-import { computeCompatibilityScore } from "@/lib/astro/compatibility-score";
+import { computeCompatibilityScore, compatibilityPunchline } from "@/lib/astro/compatibility-score";
 import { quickSunSign } from "@/lib/astro/quick";
 import { signOf } from "@/lib/astro/signs";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
@@ -214,6 +214,11 @@ export default async function SynastriePage({
   const synastry = computeSynastry(chartA, chartB);
   const majorAspects = synastry.aspects.filter((asp) => asp.major);
   const { percentage: compatibilityPercentage } = computeCompatibilityScore(synastry.aspects);
+  const { text: compatibilityPunch, color: compatibilityPunchColor } = compatibilityPunchline(
+    compatibilityPercentage,
+    synastry.aspects,
+    locale
+  );
 
   const moonA = signOf(chartA.points.moon.longitude);
   const moonB = signOf(chartB.points.moon.longitude);
@@ -249,6 +254,9 @@ export default async function SynastriePage({
           overridesB={overridesB}
           label={t.compatibilityLabel}
         />
+        <p className="text-sm font-medium" style={{ color: compatibilityPunchColor }}>
+          {compatibilityPunch}
+        </p>
         <SynastryShareCardButton
           profileIdA={a}
           profileIdB={b}

@@ -83,20 +83,91 @@ export function computeCompatibilityScore(aspects: SynastryAspect[]): Compatibil
   return { percentage, raw };
 }
 
-const PUNCHLINE_TIERS: { min: number; fr: string; en: string; color: string }[] = [
-  { min: 85, fr: "Fusion rare", en: "Rare fusion", color: "#f2b799" },
-  { min: 70, fr: "Alchimie forte", en: "Strong chemistry", color: "#f2b799" },
-  { min: 55, fr: "Bon équilibre", en: "Solid balance", color: "#9fc0a3" },
-  { min: 40, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
-  { min: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+// Planètes "chaudes" : ce qui se ressent au quotidien dans une relation
+// (identité, affect, désir, façon de se présenter à l'autre), par
+// opposition aux planètes lentes (Uranus/Neptune/Pluton) ou secondaires
+// (Mercure, Jupiter, Saturn, MC) qui pèsent peu ici — voir POINT_WEIGHT.
+// Restreindre le signal d'intensité à ce sous-ensemble est nécessaire : sur
+// l'ensemble complet des points, deux thèmes quelconques génèrent toujours
+// 60 à 80 aspects mineurs et majeurs confondus, harmonieux et tendus à peu
+// près à parts égales (loi des grands nombres) — un signal "intensité" basé
+// sur tous les aspects ne discrimine donc presque rien entre deux paires
+// réelles. Restreint aux aspects majeurs entre points chauds, la variation
+// redevient significative (calibré empiriquement sur plusieurs paires
+// réelles : entre ~4 et ~10 pour l'amplitude, 0 à ~1 pour l'équilibre).
+const HOT_POINTS: ReadonlySet<PointKey> = new Set(["sun", "moon", "venus", "mars", "asc"]);
+const INTENSITY_CHARGED_THRESHOLD = 7;
+const INTENSITY_BALANCE_THRESHOLD = 0.5;
+
+interface SynastryIntensity {
+  /** Somme des contributions absolues des aspects majeurs entre points chauds. */
+  amplitude: number;
+  /** 0 = les aspects chauds tirent tous dans le même sens ; 1 = harmonie et tension s'équilibrent. */
+  balance: number;
+}
+
+function computeSynastryIntensity(aspects: SynastryAspect[]): SynastryIntensity {
+  let pos = 0;
+  let neg = 0;
+
+  for (const asp of aspects) {
+    if (!asp.major || !HOT_POINTS.has(asp.personA) || !HOT_POINTS.has(asp.personB)) continue;
+    const base = ASPECT_BASE_SCORE[asp.aspect] ?? 0;
+    if (base === 0) continue;
+    const tightness = Math.max(0.15, 1 - Math.abs(asp.exact) / asp.orb);
+    const contribution = base * tightness;
+    if (contribution > 0) pos += contribution;
+    else neg += Math.abs(contribution);
+  }
+
+  const amplitude = pos + neg;
+  const balance = amplitude === 0 ? 0 : Math.min(pos, neg) / Math.max(pos, neg);
+  return { amplitude, balance };
+}
+
+interface ArchetypeTier {
+  minPercentage: number;
+  fr: string;
+  en: string;
+  color: string;
+}
+
+// Deux jeux de libellés par tranche de pourcentage, selon que les points
+// chauds (voir ci-dessus) tirent dans des directions opposées à peu près à
+// force égale ("chaotic": beaucoup d'attirance ET de friction en même
+// temps) ou consistent ("calm": ce qui domine domine nettement, qu'il y ait
+// beaucoup ou peu en jeu). Le pourcentage affiché reste calculé sur
+// l'ensemble des aspects (computeCompatibilityScore) — ces libellés
+// n'en changent jamais le sens, ils qualifient la texture en plus du score.
+const ARCHETYPE_CALM: ArchetypeTier[] = [
+  { minPercentage: 70, fr: "Fusion rare", en: "Rare fusion", color: "#f2b799" },
+  { minPercentage: 45, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
+  { minPercentage: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+];
+
+const ARCHETYPE_CHAOTIC: ArchetypeTier[] = [
+  { minPercentage: 70, fr: "Grande passion, montagnes russes", en: "Big passion, rollercoaster", color: "#e6237a" },
+  { minPercentage: 45, fr: "Intense mais chaotique", en: "Intense but chaotic", color: "#c77b8a" },
+  { minPercentage: 0, fr: "Attraction électrique, friction garantie", en: "Electric pull, guaranteed friction", color: "#c96b4a" },
 ];
 
 /**
- * Punchline courte + couleur associée pour un pourcentage de compatibilité —
- * utilisée sur la carte de partage publique, où il n'y a la place que pour
- * un score et une phrase, sans le détail des aspects qui le justifie.
+ * Punchline courte + couleur associée à une synastrie — utilisée sur la
+ * carte de partage publique, où il n'y a la place que pour un score et une
+ * phrase, sans le détail des aspects qui le justifie. Croise le pourcentage
+ * global (computeCompatibilityScore) avec la texture "chaude" du duo
+ * (computeSynastryIntensity) : à score égal, une paire dont les planètes
+ * personnelles s'équilibrent entre harmonie et friction lit très
+ * différemment d'une paire qui penche nettement d'un seul côté.
  */
-export function compatibilityPunchline(percentage: number, locale: "fr" | "en" = "fr"): { text: string; color: string } {
-  const tier = PUNCHLINE_TIERS.find((t) => percentage >= t.min) ?? PUNCHLINE_TIERS[PUNCHLINE_TIERS.length - 1];
+export function compatibilityPunchline(
+  percentage: number,
+  aspects: SynastryAspect[],
+  locale: "fr" | "en" = "fr"
+): { text: string; color: string } {
+  const { amplitude, balance } = computeSynastryIntensity(aspects);
+  const isChaotic = amplitude >= INTENSITY_CHARGED_THRESHOLD && balance >= INTENSITY_BALANCE_THRESHOLD;
+  const tiers = isChaotic ? ARCHETYPE_CHAOTIC : ARCHETYPE_CALM;
+  const tier = tiers.find((t) => percentage >= t.minPercentage) ?? tiers[tiers.length - 1];
   return { text: locale === "en" ? tier.en : tier.fr, color: tier.color };
 }

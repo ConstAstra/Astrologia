@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
 import { computeCompatibilityScore, compatibilityPunchline } from "@/lib/astro/compatibility-score";
+import type { SynastryAspect } from "@/lib/astro/synastry";
 
 describe("computeCompatibilityScore", () => {
   const personA = { date: "2001-08-25", time: "01:50", tzName: "Europe/Paris", latitude: 45.764, longitude: 4.8357 };
@@ -52,26 +53,55 @@ describe("computeCompatibilityScore", () => {
 });
 
 describe("compatibilityPunchline", () => {
-  it("returns a higher tier for higher percentages", () => {
-    expect(compatibilityPunchline(90, "fr").text).toBe("Fusion rare");
-    expect(compatibilityPunchline(60, "fr").text).toBe("Bon équilibre");
-    expect(compatibilityPunchline(20, "fr").text).toBe("Mondes différents");
+  // Aspects majeurs entre points "chauds" (sun/moon/venus/mars/asc) dont les
+  // contributions harmonieuses et tendues s'équilibrent exactement — profil
+  // "chaotique" au sens de computeSynastryIntensity (beaucoup en jeu, aucun
+  // camp qui domine).
+  const chaoticHotAspects: SynastryAspect[] = [
+    { personA: "sun", personB: "venus", aspect: "trine", angle: 120, orb: 8, exact: 0.5, applying: true, major: true },
+    { personA: "moon", personB: "mars", aspect: "square", angle: 90, orb: 8, exact: 0.5, applying: true, major: true },
+    { personA: "venus", personB: "mars", aspect: "sextile", angle: 60, orb: 6, exact: 0.3, applying: true, major: true },
+    { personA: "sun", personB: "mars", aspect: "opposition", angle: 180, orb: 8, exact: 0.4, applying: true, major: true },
+    { personA: "moon", personB: "venus", aspect: "trine", angle: 120, orb: 8, exact: 0.5, applying: true, major: true },
+    { personA: "asc", personB: "mars", aspect: "square", angle: 90, orb: 8, exact: 0.5, applying: true, major: true },
+  ];
+
+  // Mêmes points chauds, mais tous harmonieux : beaucoup en jeu (amplitude
+  // élevée) sans aucune tension en face — "calme" malgré l'intensité.
+  const oneSidedHotAspects: SynastryAspect[] = [
+    { personA: "sun", personB: "venus", aspect: "trine", angle: 120, orb: 8, exact: 0.3, applying: true, major: true },
+    { personA: "moon", personB: "mars", aspect: "trine", angle: 120, orb: 8, exact: 0.3, applying: true, major: true },
+    { personA: "venus", personB: "mars", aspect: "sextile", angle: 60, orb: 6, exact: 0.2, applying: true, major: true },
+  ];
+
+  it("picks the chaotic tier when hot points balance harmony and tension", () => {
+    const { percentage } = computeCompatibilityScore(chaoticHotAspects);
+    expect(compatibilityPunchline(percentage, chaoticHotAspects, "fr").text).toBe("Intense mais chaotique");
+    expect(compatibilityPunchline(percentage, chaoticHotAspects, "en").text).toBe("Intense but chaotic");
   });
 
-  it("is locale-aware", () => {
-    expect(compatibilityPunchline(90, "en").text).toBe("Rare fusion");
-    expect(compatibilityPunchline(20, "en").text).toBe("Different worlds");
+  it("picks the calm tier when hot points lean entirely one way, even at high amplitude", () => {
+    const { percentage } = computeCompatibilityScore(oneSidedHotAspects);
+    expect(compatibilityPunchline(percentage, oneSidedHotAspects, "fr").text).toBe("Fusion rare");
+  });
+
+  it("picks the calm tier with no aspects at all", () => {
+    const { percentage } = computeCompatibilityScore([]);
+    expect(compatibilityPunchline(percentage, [], "fr").text).toBe("Ça se construit");
   });
 
   it("defaults to french when no locale is given", () => {
-    expect(compatibilityPunchline(90).text).toBe("Fusion rare");
+    const { percentage } = computeCompatibilityScore([]);
+    expect(compatibilityPunchline(percentage, []).text).toBe("Ça se construit");
   });
 
-  it("covers the full 0-100 range without gaps", () => {
+  it("covers the full 0-100 range without gaps, calm and chaotic alike", () => {
     for (let pct = 0; pct <= 100; pct++) {
-      const { text, color } = compatibilityPunchline(pct, "fr");
-      expect(text.length).toBeGreaterThan(0);
-      expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+      for (const aspects of [[], chaoticHotAspects]) {
+        const { text, color } = compatibilityPunchline(pct, aspects, "fr");
+        expect(text.length).toBeGreaterThan(0);
+        expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+      }
     }
   });
 });

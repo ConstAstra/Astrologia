@@ -109,7 +109,7 @@ export async function GET(request: Request) {
 
   const synastry = computeSynastry(chartA, chartB);
   const { percentage } = computeCompatibilityScore(synastry.aspects);
-  const { text: punchline, color: punchlineColor } = compatibilityPunchline(percentage, locale);
+  const { text: punchline, color: punchlineColor } = compatibilityPunchline(percentage, synastry.aspects, locale);
 
   const big3A = computeBigThree(chartA.points, chartA.hasReliableHouses);
   const big3B = computeBigThree(chartB.points, chartB.hasReliableHouses);
@@ -241,6 +241,9 @@ export async function GET(request: Request) {
                   fontSize: s(30, 48),
                   color: punchlineColor,
                   letterSpacing: 1,
+                  textAlign: "center",
+                  maxWidth: s(760, 820),
+                  justifyContent: "center",
                 }}
               >
                 {punchline}
