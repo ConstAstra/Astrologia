@@ -11,15 +11,28 @@ import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { SIGN_KEYWORD, SIGN_KEYWORD_EN } from "@/lib/astro/interpretations/chart-highlights";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
+import { createRateLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
-const WIDTH = 1080;
-const HEIGHT = 1350;
+// Format "post" (4:5, Instagram/X feed) par défaut ; "story" (9:16) via
+// ?format=story pour Instagram/TikTok/Snapchat Stories — le format de
+// partage le plus utilisé aujourd'hui pour ce type de contenu. Même mise
+// en page (le conteneur de contenu utilise déjà justifyContent:
+// space-around) : la hauteur supplémentaire aère la composition plutôt que
+// d'exiger une maquette séparée.
+const DIMENSIONS = {
+  post: { width: 1080, height: 1350 },
+  story: { width: 1080, height: 1920 },
+} as const;
 
 function serialFromId(id: string): string {
   return id.slice(-8).toUpperCase();
 }
+
+// Génération d'image coûteuse (calcul du thème + rendu Satori) sur une
+// route par ailleurs authentifiée : limite par compte plutôt que par IP.
+const shareCardLimiter = createRateLimiter({ max: 30, windowMs: 5 * 60_000 });
 
 // Satori (moteur de next/og) ne sait pas retomber sur les fontes système :
 // sans fonte fournie explicitement, les glyphes de signes (♈–♓, hors Latin
@@ -33,10 +46,22 @@ function loadFont(): Buffer {
   return fontData;
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const userId = await getCurrentUserId();
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+
+  if (shareCardLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: "Trop de requêtes, réessayez dans quelques minutes." }, { status: 429 });
+  }
+
   const { id } = await params;
+  const format = new URL(request.url).searchParams.get("format") === "story" ? "story" : "post";
+  const { width: WIDTH, height: HEIGHT } = DIMENSIONS[format];
+  const isStory = format === "story";
+  // Le format story est bien plus haut (9:16 vs 4:5) : plutôt que de laisser
+  // le flex "space-around" étirer un vide entre les deux blocs de contenu,
+  // chaque élément grossit pour occuper l'espace en plus.
+  const s = <T,>(post: T, story: T): T => (isStory ? story : post);
 
   const [profile, user] = await Promise.all([
     prisma.profile.findFirst({ where: { id, userId } }),
@@ -143,7 +168,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
               position: "absolute",
               right: -70,
               bottom: -60,
-              fontSize: 420,
+              fontSize: s(420, 520),
               color: "#ffffff0f",
               lineHeight: 1,
             }}
@@ -182,37 +207,40 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
               flexDirection: "column",
               flex: 1,
               padding: "48px 44px",
-              justifyContent: "space-around",
+              justifyContent: "flex-start",
+              gap: s(48, 100),
             }}
           >
             {/* Photo + champs, comme une vraie carte d'identité */}
-            <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: s(32, 40), alignItems: "center" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={avatarUri}
-                width={220}
-                height={220}
+                width={s(220, 300)}
+                height={s(220, 300)}
                 alt=""
                 style={{ borderRadius: 24, border: "2px solid #ffffff33" }}
               />
-              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: s(18, 24) }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ display: "flex", fontSize: 16, color: "#c9a8ad", letterSpacing: 2 }}>
+                  <div style={{ display: "flex", fontSize: s(16, 20), color: "#c9a8ad", letterSpacing: 2 }}>
                     {fieldLabel}
                   </div>
-                  <div style={{ display: "flex", fontSize: 44 }}>{profile.label}</div>
+                  <div style={{ display: "flex", fontSize: s(44, 58) }}>{profile.label}</div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ display: "flex", fontSize: 16, color: "#c9a8ad", letterSpacing: 2 }}>{dobLabel}</div>
-                  <div style={{ display: "flex", fontSize: 26, color: "#f2b799" }}>{profile.birthDate}</div>
+                  <div style={{ display: "flex", fontSize: s(16, 20), color: "#c9a8ad", letterSpacing: 2 }}>
+                    {dobLabel}
+                  </div>
+                  <div style={{ display: "flex", fontSize: s(26, 34), color: "#f2b799" }}>{profile.birthDate}</div>
                 </div>
-                <div style={{ display: "flex", fontSize: 18, color: "#71768e", letterSpacing: 1 }}>
+                <div style={{ display: "flex", fontSize: s(18, 22), color: "#71768e", letterSpacing: 1 }}>
                   N° {serialFromId(profile.id)}
                 </div>
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: s(18, 28), width: "100%" }}>
               {traits.map((trait) => (
                 <div
                   key={trait.label}
@@ -222,17 +250,17 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                     justifyContent: "space-between",
                     border: "1px solid #ffffff22",
                     borderRadius: 20,
-                    padding: "22px 32px",
+                    padding: s("22px 32px", "34px 40px"),
                     background: "#ffffff0a",
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ display: "flex", fontSize: 18, color: "#c9a8ad", letterSpacing: 1 }}>
+                    <div style={{ display: "flex", fontSize: s(18, 22), color: "#c9a8ad", letterSpacing: 1 }}>
                       {trait.label.toUpperCase()} · {trait.sign}
                     </div>
-                    <div style={{ display: "flex", fontSize: 40, color: "#f2b799" }}>{trait.keyword}</div>
+                    <div style={{ display: "flex", fontSize: s(40, 52), color: "#f2b799" }}>{trait.keyword}</div>
                   </div>
-                  <div style={{ display: "flex", fontSize: 44, color: "#f2b79988" }}>{trait.symbol}</div>
+                  <div style={{ display: "flex", fontSize: s(44, 58), color: "#f2b79988" }}>{trait.symbol}</div>
                 </div>
               ))}
             </div>

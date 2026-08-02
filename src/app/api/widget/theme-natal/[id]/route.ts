@@ -11,8 +11,15 @@ import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
+import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
+
+// Endpoint non authentifié, protégé par un jeton opaque dans l'URL : sans
+// limite de débit, une IP pourrait tenter d'énumérer des jetons valides
+// (brute force) pour lire les données astrologiques d'un profil qui n'est
+// pas le sien.
+const widgetLimiter = createRateLimiter({ max: 30, windowMs: 5 * 60_000 });
 
 /**
  * Résumé du jour au format JSON, pensé pour un widget iOS (WidgetKit) — voir
@@ -21,6 +28,10 @@ export const runtime = "nodejs";
  * (jeton opaque dédié) plutôt que par l'authentification classique.
  */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (widgetLimiter.isLimited(clientIp(request))) {
+    return NextResponse.json({ error: "Trop de requêtes." }, { status: 429 });
+  }
+
   const { id } = await params;
   const token = new URL(request.url).searchParams.get("token");
   if (!token) {

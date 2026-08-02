@@ -5,6 +5,7 @@ import { getCurrentUserId } from "@/lib/auth/session";
 import { getStripe } from "@/lib/billing/stripe";
 import { CREDIT_PACKS, CURRENCY, SUBSCRIPTION_PLANS } from "@/lib/billing/plans";
 import type { CreditPackId, SubscriptionPlanId } from "@/lib/billing/plans";
+import { createRateLimiter } from "@/lib/rate-limit";
 
 const schema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("subscription"), plan: z.enum(["monthly", "annual"]) }),
@@ -15,9 +16,17 @@ function siteUrl(request: Request) {
   return process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
 }
 
+// Chaque appel crée un client/une session Stripe réels (coût, quota d'API) —
+// un compte légitime n'a jamais besoin d'en créer autant en si peu de temps.
+const checkoutLimiter = createRateLimiter({ max: 20, windowMs: 5 * 60_000 });
+
 export async function POST(request: Request) {
   const userId = await getCurrentUserId();
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+
+  if (checkoutLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: "Trop de requêtes, réessayez dans quelques minutes." }, { status: 429 });
+  }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { createRateLimiter } from "@/lib/rate-limit";
 
 const MESSAGES = {
   fr: {
@@ -10,16 +11,22 @@ const MESSAGES = {
     invalidRequest: "Requête invalide.",
     passwordMin: "8 caractères minimum",
     wrongPassword: "Mot de passe actuel incorrect.",
+    tooManyAttempts: "Trop de tentatives, réessayez dans quelques minutes.",
   },
   en: {
     notAuthenticated: "Not authenticated.",
     invalidRequest: "Invalid request.",
     passwordMin: "8 characters minimum",
     wrongPassword: "Current password is incorrect.",
+    tooManyAttempts: "Too many attempts, please try again in a few minutes.",
   },
 } as const;
 
 type Locale = keyof typeof MESSAGES;
+
+// Empêche de deviner le mot de passe actuel par essais répétés — clé par
+// compte (userId) plutôt que par IP, puisque la route est authentifiée.
+const changePasswordLimiter = createRateLimiter({ max: 10, windowMs: 5 * 60_000 });
 
 function buildSchema(locale: Locale) {
   const m = MESSAGES[locale];
@@ -37,6 +44,10 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const locale: Locale = body?.locale === "en" ? "en" : "fr";
   const m = MESSAGES[locale];
+
+  if (changePasswordLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: m.tooManyAttempts }, { status: 429 });
+  }
 
   const parsed = buildSchema(locale).safeParse(body);
   if (!parsed.success) {
