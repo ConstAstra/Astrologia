@@ -136,11 +136,12 @@ export const COMPANION_SHAPES: Record<AstroElement, CompanionShape[]> = {
     { type: "circle", cx: -0.35, cy: -0.32, r: 0.2 },
     { type: "circle", cx: 0.35, cy: -0.32, r: 0.2 },
   ],
-  // Oiseau : corps + deux ailes
+  // Oiseau : corps + une seule aile relevée, en flèche — deux ailes
+  // symétriques de la même couleur que le corps se fondaient en un blob
+  // indistinct à la taille (minuscule) d'un badge d'avatar.
   Air: [
-    { type: "circle", cx: 0, cy: 0.1, r: 0.42 },
-    { type: "path", d: "M-0.42,0.1 L-0.1,-0.32 L-0.1,0.22 Z" },
-    { type: "path", d: "M0.42,0.1 L0.1,-0.32 L0.1,0.22 Z" },
+    { type: "circle", cx: -0.08, cy: 0.05, r: 0.42 },
+    { type: "path", d: "M0.25,-0.15 L0.78,-0.42 L0.5,0.28 Z" },
   ],
   // Poisson : corps + queue
   Eau: [

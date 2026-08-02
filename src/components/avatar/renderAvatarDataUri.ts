@@ -64,7 +64,7 @@ export function renderAvatarDataUri(
   const companionSvg = companion
     ? `<g>
     <circle cx="${unit * 1.6}" cy="${size - unit * 1.6}" r="${unit * 1.4}" fill="#1f1420" stroke="#e8935f" stroke-width="1"/>
-    <g transform="translate(${unit * 1.6} ${size - unit * 1.6}) scale(${unit * 0.9})">
+    <g transform="translate(${unit * 1.6} ${size - unit * 1.6}) scale(${unit * 1.2})">
       ${COMPANION_SHAPES[companion.element].map((shape) => companionShapeSvg(shape, companion.color)).join("")}
     </g>
   </g>`
