@@ -27,6 +27,7 @@ import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { AvatarPairPicker } from "@/components/dashboard/AvatarPairPicker";
 import { RelationshipTabs } from "@/components/dashboard/RelationshipTabs";
 import { CompatibilityMeter } from "@/components/dashboard/CompatibilityMeter";
+import { SynastryShareCardButton } from "@/components/dashboard/SynastryShareCardButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 
@@ -233,7 +234,7 @@ export default async function SynastriePage({
     <div>
       {header}
 
-      <Card className="mt-6 flex justify-center p-6">
+      <Card className="mt-6 flex flex-col items-center gap-4 p-6">
         <CompatibilityMeter
           percentage={compatibilityPercentage}
           seedA={a}
@@ -247,6 +248,12 @@ export default async function SynastriePage({
           overridesA={overridesA}
           overridesB={overridesB}
           label={t.compatibilityLabel}
+        />
+        <SynastryShareCardButton
+          profileIdA={a}
+          profileIdB={b}
+          fileName={`${profileA.label}-${profileB.label}-compatibilite.png`}
+          locale={locale}
         />
       </Card>
 

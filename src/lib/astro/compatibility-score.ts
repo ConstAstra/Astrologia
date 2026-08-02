@@ -82,3 +82,21 @@ export function computeCompatibilityScore(aspects: SynastryAspect[]): Compatibil
 
   return { percentage, raw };
 }
+
+const PUNCHLINE_TIERS: { min: number; fr: string; en: string; color: string }[] = [
+  { min: 85, fr: "Fusion rare", en: "Rare fusion", color: "#f2b799" },
+  { min: 70, fr: "Alchimie forte", en: "Strong chemistry", color: "#f2b799" },
+  { min: 55, fr: "Bon équilibre", en: "Solid balance", color: "#9fc0a3" },
+  { min: 40, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
+  { min: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+];
+
+/**
+ * Punchline courte + couleur associée pour un pourcentage de compatibilité —
+ * utilisée sur la carte de partage publique, où il n'y a la place que pour
+ * un score et une phrase, sans le détail des aspects qui le justifie.
+ */
+export function compatibilityPunchline(percentage: number, locale: "fr" | "en" = "fr"): { text: string; color: string } {
+  const tier = PUNCHLINE_TIERS.find((t) => percentage >= t.min) ?? PUNCHLINE_TIERS[PUNCHLINE_TIERS.length - 1];
+  return { text: locale === "en" ? tier.en : tier.fr, color: tier.color };
+}

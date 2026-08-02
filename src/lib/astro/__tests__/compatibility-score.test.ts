@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
-import { computeCompatibilityScore } from "@/lib/astro/compatibility-score";
+import { computeCompatibilityScore, compatibilityPunchline } from "@/lib/astro/compatibility-score";
 
 describe("computeCompatibilityScore", () => {
   const personA = { date: "2001-08-25", time: "01:50", tzName: "Europe/Paris", latitude: 45.764, longitude: 4.8357 };
@@ -48,5 +48,30 @@ describe("computeCompatibilityScore", () => {
       { personA: "venus", personB: "mars", aspect: "opposition", angle: 180, orb: 8, exact: 0.1, applying: true, major: true },
     ]);
     expect(harmonious.percentage).toBeGreaterThan(tense.percentage);
+  });
+});
+
+describe("compatibilityPunchline", () => {
+  it("returns a higher tier for higher percentages", () => {
+    expect(compatibilityPunchline(90, "fr").text).toBe("Fusion rare");
+    expect(compatibilityPunchline(60, "fr").text).toBe("Bon équilibre");
+    expect(compatibilityPunchline(20, "fr").text).toBe("Mondes différents");
+  });
+
+  it("is locale-aware", () => {
+    expect(compatibilityPunchline(90, "en").text).toBe("Rare fusion");
+    expect(compatibilityPunchline(20, "en").text).toBe("Different worlds");
+  });
+
+  it("defaults to french when no locale is given", () => {
+    expect(compatibilityPunchline(90).text).toBe("Fusion rare");
+  });
+
+  it("covers the full 0-100 range without gaps", () => {
+    for (let pct = 0; pct <= 100; pct++) {
+      const { text, color } = compatibilityPunchline(pct, "fr");
+      expect(text.length).toBeGreaterThan(0);
+      expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+    }
   });
 });
