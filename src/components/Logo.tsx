@@ -13,8 +13,10 @@ export function Logo({ className = "" }: { className?: string }) {
           </linearGradient>
         </defs>
       </svg>
-      <span className="text-foreground">Astrolog</span>
-      <span className="text-gold-strong">ium</span>
+      <span>
+        <span className="text-foreground">Astrolog</span>
+        <span className="text-gold-strong">ium</span>
+      </span>
     </span>
   );
 }

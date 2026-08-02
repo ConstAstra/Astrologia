@@ -43,6 +43,9 @@ model User {
   dailyHoroscopeOptIn Boolean @default(true)
   // Permet un désabonnement en un clic depuis l'e-mail, sans authentification.
   unsubscribeToken    String  @unique @default(cuid())
+  // Notification push "transit du jour" (web push) — opt-in explicite
+  // contrairement à l'e-mail, car elle nécessite la permission navigateur.
+  dailyTransitPushOptIn Boolean @default(false)
 
   // --- Série de connexions (streak) ---
   // Jours consécutifs avec au moins une visite du tableau de bord. Mis à
@@ -77,6 +80,7 @@ model User {
   creditGrants       CreditGrant[]
   unlocks            Unlock[]
   passwordResetTokens PasswordResetToken[]
+  pushSubscriptions   PushSubscription[]
 }
 
 model Profile {
@@ -168,6 +172,25 @@ model PasswordResetToken {
   tokenHash String   @unique
   expiresAt DateTime
   usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Un abonnement Web Push (API standard du navigateur, PushManager) pour
+// l'envoi de la notification "transit du jour". Un utilisateur peut avoir
+// plusieurs abonnements (un par appareil/navigateur où il a activé la
+// fonctionnalité) ; supprimé automatiquement si le navigateur renvoie une
+// erreur 404/410 (abonnement expiré côté navigateur) lors d'un envoi.
+model PushSubscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  endpoint String @unique
+  p256dh   String // clé publique de chiffrement du navigateur
+  auth     String // secret d'authentification du navigateur
 
   createdAt DateTime @default(now())
 

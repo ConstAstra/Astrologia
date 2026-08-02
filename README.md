@@ -32,6 +32,10 @@ intégrés Apple côté iOS, système de crédits à l'unité).
   déverrouillée (transits du jour sur le thème composite du couple).
   Opt-in par défaut, désabonnement en un clic. Voir « Horoscope quotidien »
   ci-dessous pour la configuration du scheduler.
+- **Transit du jour par notification** : variante Web Push (opt-in explicite,
+  indépendante de l'e-mail) du même rappel — une notification système sur
+  l'appareil de l'utilisateur, sans dépendance à un service tiers (Firebase,
+  APNs). Voir « Transit du jour par notification » ci-dessous.
 - **Carte de partage** : image PNG générée à la volée (`/api/share/theme-natal/[id]`)
   pour partager son thème (avatar + Big 3) sur les réseaux.
 
@@ -76,7 +80,8 @@ Toutes les variables sont documentées dans `.env.example`. Résumé :
 | `APPLE_*` | Achats intégrés iOS (voir section dédiée) |
 | `CAPACITOR_SERVER_URL` | URL chargée par l'app iOS |
 | `RESEND_API_KEY` / `EMAIL_FROM` | Envoi d'e-mails (mot de passe oublié, horoscope quotidien) — vide en dev, logge dans la console |
-| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope` (voir « Horoscope quotidien ») |
+| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope` et `/api/cron/daily-transit-push` (voir « Horoscope quotidien » et « Transit du jour par notification ») |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | Notification push "transit du jour" (voir « Transit du jour par notification ») — vide en dev, logge dans la console |
 
 ### Stripe (web)
 
@@ -156,6 +161,43 @@ Authentification : en-tête `Authorization: Bearer $CRON_SECRET`.
     -H "Authorization: Bearer $CRON_SECRET"
   ```
 - **En local** : `curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily-horoscope`.
+
+### Transit du jour par notification
+
+`/api/cron/daily-transit-push` (GET ou POST) parcourt les utilisateurs
+opt-in (`dailyTransitPushOptIn`) ayant au moins un abonnement Web Push
+enregistré, et envoie à chacun de leurs appareils une notification courte
+(même contenu de fond que l'horoscope quotidien : phase lunaire, transit du
+jour le plus signifiant). Préférence indépendante de l'e-mail — un
+utilisateur peut activer l'une, l'autre, les deux ou aucune.
+
+Contrairement à l'e-mail, ce n'est **pas** activé par défaut : l'opt-in
+nécessite la permission navigateur de l'utilisateur (bouton "Transit du jour
+par notification" dans `/dashboard/abonnement`), qui enregistre alors un
+abonnement `PushSubscription` via l'API standard `PushManager` du navigateur
+— aucun service tiers requis (pas de Firebase, pas d'APNs). Si un
+abonnement est expiré côté navigateur (l'utilisateur a désinstallé/révoqué
+la permission), l'envoi renvoie une 404/410 : la route le détecte et
+supprime automatiquement la ligne correspondante plutôt que de retenter.
+
+Prérequis : générez une paire de clés VAPID une seule fois par projet avec
+`npx web-push generate-vapid-keys`, et renseignez
+`NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` (voir
+`.env.example`). Sans ces clés, l'envoi se contente de logguer dans la
+console (comportement dev, comme `sendEmail()`).
+
+Authentification et configuration du scheduler : identiques à
+« Horoscope quotidien » ci-dessus (même `CRON_SECRET`), sur le chemin
+`/api/cron/daily-transit-push`. Les deux routes sont indépendantes et
+peuvent être planifiées séparément ou à la même heure.
+
+**Limite connue (iOS)** : Safari sur iOS ne délivre les notifications push
+que si le site a été ajouté à l'écran d'accueil (PWA installée) — un
+`manifest.json` et un service worker (`public/sw.js`) sont déjà en place
+pour ça, mais tant que l'app n'est pas encore publiée sur l'App Store, les
+utilisateurs iOS devront passer par "Ajouter à l'écran d'accueil" depuis
+Safari pour recevoir ces notifications. Sans ce prérequis Apple, la
+fonctionnalité reste pleinement opérationnelle sur desktop et Android.
 
 ## Passer en production
 

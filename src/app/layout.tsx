@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   title: "Astrologium — Thème astral, synastrie, composite & cartographie",
   description:
     "Créez votre thème astral, votre synastrie, votre thème composite et votre cartographie astrologique. Calculs précis, méthode expliquée, lecture en français.",
+  manifest: "/manifest.json",
+  icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({

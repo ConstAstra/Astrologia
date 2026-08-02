@@ -1,6 +1,6 @@
-import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { isAuthorizedCronRequest } from "@/lib/cron-auth";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeComposite } from "@/lib/astro/composite";
 import { composeDailyHoroscope } from "@/lib/astro/interpretations/daily-horoscope";
@@ -42,23 +42,12 @@ function chartInputFor(profile: {
 
 export const runtime = "nodejs";
 
-function isAuthorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-
-  const header = request.headers.get("authorization") ?? "";
-  const provided = header.replace(/^Bearer\s+/i, "");
-  const a = Buffer.from(provided);
-  const b = Buffer.from(secret);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
 // Déclenchée quotidiennement par un scheduler externe (Vercel Cron, cron OS,
 // GitHub Actions…) — voir README ("Horoscope quotidien"). Vercel Cron envoie
 // des requêtes GET avec l'en-tête `Authorization: Bearer $CRON_SECRET`, d'où
 // la prise en charge de GET et POST.
 async function runDailyHoroscope(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
   }
 

@@ -4,6 +4,7 @@ import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
 import { NotificationToggle } from "@/components/account/NotificationToggle";
+import { PushNotificationToggle } from "@/components/account/PushNotificationToggle";
 import { ReferralCard } from "@/components/account/ReferralCard";
 import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
@@ -185,10 +186,11 @@ export default async function AbonnementPage({
         </div>
       </Card>
 
-      <Card className="mt-6 p-6">
+      <Card className="mt-6 space-y-5 p-6">
         <p className="text-sm text-muted">{t.notifications}</p>
-        <div className="mt-3">
-          <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} locale={locale} />
+        <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} locale={locale} />
+        <div className="border-t border-border-soft pt-5">
+          <PushNotificationToggle initialOptIn={user.dailyTransitPushOptIn} locale={locale} />
         </div>
       </Card>
 

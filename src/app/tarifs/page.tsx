@@ -43,7 +43,7 @@ export default function TarifsPage() {
               </ul>
             </Card>
 
-            <Card className="flex flex-col border-gold/50 p-8 shadow-[0_0_0_1px_#e8935f33]">
+            <Card className="relative flex flex-col border-gold/70 p-8 shadow-[0_0_32px_-8px_#e8935f66,0_0_0_1px_#e8935f55] sm:-translate-y-2">
               <Badge tone="gold">Premium — le plus populaire</Badge>
               <p className="font-display mt-2 text-3xl">
                 {(SUBSCRIPTION_PLANS.monthly.amountCents / 100).toFixed(2)} € <span className="text-base text-muted">/ mois</span>
