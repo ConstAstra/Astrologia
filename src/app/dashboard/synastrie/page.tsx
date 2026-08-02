@@ -28,6 +28,7 @@ import { AvatarPairPicker } from "@/components/dashboard/AvatarPairPicker";
 import { RelationshipTabs } from "@/components/dashboard/RelationshipTabs";
 import { CompatibilityMeter } from "@/components/dashboard/CompatibilityMeter";
 import { SynastryShareCardButton } from "@/components/dashboard/SynastryShareCardButton";
+import { CompatibilityVideoButton } from "@/components/dashboard/CompatibilityVideoButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 
@@ -257,12 +258,32 @@ export default async function SynastriePage({
         <p className="text-sm font-medium" style={{ color: compatibilityPunchColor }}>
           {compatibilityPunch}
         </p>
-        <SynastryShareCardButton
-          profileIdA={a}
-          profileIdB={b}
-          fileName={`${profileA.label}-${profileB.label}-compatibilite.png`}
-          locale={locale}
-        />
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          <SynastryShareCardButton
+            profileIdA={a}
+            profileIdB={b}
+            fileName={`${profileA.label}-${profileB.label}-compatibilite.png`}
+            locale={locale}
+          />
+          <CompatibilityVideoButton
+            seedA={a}
+            sunA={sunA}
+            moonA={moonA}
+            ascA={ascA}
+            overridesA={overridesA}
+            nameA={profileA.label}
+            seedB={b}
+            sunB={sunB}
+            moonB={moonB}
+            ascB={ascB}
+            overridesB={overridesB}
+            nameB={profileB.label}
+            percentage={compatibilityPercentage}
+            punchline={compatibilityPunch}
+            punchlineColor={compatibilityPunchColor}
+            locale={locale}
+          />
+        </div>
       </Card>
 
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].synastryFraming}</Card>
