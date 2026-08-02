@@ -92,10 +92,9 @@ export function composeSignCompatibilityEn(signA: ZodiacSign, signB: ZodiacSign)
   const strengths = `${a.name} brings ${a.keyword}, ${b.name} brings ${b.keyword} — two strengths that, well combined, enrich each other more than they compete.`;
   const challenges =
     score >= 4
-      ? "Little structural friction between these two signs: what matters most plays out elsewhere (Moon, Venus, Mars, Ascendant of each person), not on this level."
-      : "The main friction between these two signs is a difference in pace or language, not a fundamental incompatibility — it's worked through with awareness and communication.";
-  const advice =
-    "This reading is based on sun signs alone: a real synastry (Moon, Venus, Mars, Ascendant, houses) gives a much finer, more personal picture of the bond between two specific people.";
+      ? `Little structural friction between ${a.name} and ${b.name}: what matters most plays out elsewhere (Moon, Venus, Mars, Ascendant of each person), not on this level.`
+      : `The main friction between ${a.name} and ${b.name} is a difference in pace or language, not a fundamental incompatibility — it's worked through with awareness and communication.`;
+  const advice = `This ${a.name}-${b.name} reading is based on sun signs alone: a real synastry (Moon, Venus, Mars, Ascendant, houses) gives a much finer, more personal picture of the bond between two specific people.`;
 
   return {
     score,

@@ -77,8 +77,9 @@ export default async function CompatibilityEnPage({ params }: { params: Promise<
             {a.symbol} {a.name} & {b.symbol} {b.name}
           </h1>
           <p className="mt-5 text-muted">
-            A reading based on sun signs: elements ({ELEMENT_LABEL_EN[a.element]} / {ELEMENT_LABEL_EN[b.element]}) and
-            modalities ({MODALITY_LABEL_EN[a.modality]} / {MODALITY_LABEL_EN[b.modality]}).
+            A reading based on sun signs: their elements — {ELEMENT_LABEL_EN[a.element]} and{" "}
+            {ELEMENT_LABEL_EN[b.element]}, the way energy gets expressed — and their modalities —{" "}
+            {MODALITY_LABEL_EN[a.modality]} and {MODALITY_LABEL_EN[b.modality]}, the way it engages over time.
           </p>
         </section>
 

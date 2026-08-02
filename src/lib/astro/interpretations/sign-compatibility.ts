@@ -99,10 +99,9 @@ export function composeSignCompatibility(signA: ZodiacSign, signB: ZodiacSign): 
   const strengths = `${a.name} apporte ${a.keyword}, ${b.name} apporte ${b.keyword} — deux forces qui, bien articulées, s'enrichissent plus qu'elles ne se concurrencent.`;
   const challenges =
     score >= 4
-      ? "Peu de friction structurelle entre ces deux signes : l'essentiel se joue ailleurs (Lune, Vénus, Mars, Ascendant de chacun), pas sur ce plan-là."
-      : "La friction principale entre ces deux signes est un rythme ou un langage différent, pas une incompatibilité de fond — elle se travaille avec de la conscience et de la communication.";
-  const advice =
-    "Cette lecture reste basée sur les seuls signes solaires : une vraie synastrie (Lune, Vénus, Mars, Ascendant, maisons) donne une image bien plus fine et personnelle du lien entre deux personnes précises.";
+      ? `Peu de friction structurelle entre ${a.name} et ${b.name} : l'essentiel se joue ailleurs (Lune, Vénus, Mars, Ascendant de chacun), pas sur ce plan-là.`
+      : `La friction principale entre ${a.name} et ${b.name} est un rythme ou un langage différent, pas une incompatibilité de fond — elle se travaille avec de la conscience et de la communication.`;
+  const advice = `Cette lecture ${a.name}-${b.name} reste basée sur les seuls signes solaires : une vraie synastrie (Lune, Vénus, Mars, Ascendant, maisons) donne une image bien plus fine et personnelle du lien entre deux personnes précises.`;
 
   return {
     score,

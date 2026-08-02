@@ -74,8 +74,9 @@ export default async function CompatibilitePage({ params }: { params: Promise<{ 
             {a.symbol} {a.name} & {b.symbol} {b.name}
           </h1>
           <p className="mt-5 text-muted">
-            Une lecture basée sur les signes solaires : éléments ({a.element} / {b.element}) et modalités (
-            {a.modality} / {b.modality}).
+            Une lecture basée sur les signes solaires : leurs éléments — {a.element} et {b.element}, la façon
+            d&apos;exprimer l&apos;énergie — et leurs modalités — {a.modality} et {b.modality}, la façon de s&apos;y
+            engager dans le temps.
           </p>
         </section>
 
