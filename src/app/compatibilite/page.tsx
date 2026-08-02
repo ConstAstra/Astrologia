@@ -25,6 +25,9 @@ export default function CompatibiliteIndexPage() {
             éléments et modalités. Pour une lecture complète et personnelle (Lune, Vénus, Mars, Ascendant),
             la vraie synastrie reste gratuite à l&apos;inscription.
           </p>
+          <Link href="/duo" className="mt-4 inline-block text-sm text-gold-strong underline">
+            Tester avec deux prénoms précis, sans compte →
+          </Link>
         </section>
 
         <section className="mx-auto max-w-4xl px-6 py-12">

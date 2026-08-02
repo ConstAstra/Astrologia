@@ -25,6 +25,9 @@ export default function CompatibilityIndexEnPage() {
             For a complete, personal reading (Moon, Venus, Mars, Ascendant), real synastry is free when you
             sign up.
           </p>
+          <Link href="/en/duo" className="mt-4 inline-block text-sm text-gold-strong underline">
+            Test with two specific names, no account needed →
+          </Link>
         </section>
 
         <section className="mx-auto max-w-4xl px-6 py-12">
