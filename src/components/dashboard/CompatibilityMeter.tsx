@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
+import { playMagicChime } from "@/lib/sound";
 
 const RADIUS = 42;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -84,6 +85,10 @@ export function CompatibilityMeter({
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [percentage]);
+
+  useEffect(() => {
+    if (settled && !reduced) playMagicChime();
+  }, [settled, reduced]);
 
   const color = tierColor(percentage);
   const offset = CIRCUMFERENCE - (display / 100) * CIRCUMFERENCE;

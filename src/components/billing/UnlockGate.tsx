@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { playMagicChime } from "@/lib/sound";
 
 type Locale = "fr" | "en";
 
@@ -121,6 +122,7 @@ export function UnlockGate({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? t.genericError);
+      playMagicChime();
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.genericError);

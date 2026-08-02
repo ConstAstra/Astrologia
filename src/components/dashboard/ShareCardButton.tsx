@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { playSoftChime } from "@/lib/sound";
 
 type Locale = "fr" | "en";
 
@@ -54,6 +55,7 @@ export function ShareCardButton({
         a.click();
         URL.revokeObjectURL(url);
       }
+      playSoftChime();
     } catch {
       // Annulation du partage natif (utilisateur) ou erreur réseau — silencieux, l'utilisateur peut réessayer.
     } finally {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/Card";
+import { playMagicChime } from "@/lib/sound";
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -26,9 +27,11 @@ export function StreakBadge({
 
   useEffect(() => {
     if (!pulse) return;
+    playMagicChime();
     const timeout = setTimeout(() => setPulse(false), 1400);
     return () => clearTimeout(timeout);
-  }, [pulse]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (streak < 1) return null;
 

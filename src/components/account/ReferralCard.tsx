@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { playSoftChime } from "@/lib/sound";
 
 const TEXT = {
   fr: {
@@ -43,6 +44,7 @@ export function ReferralCard({
     try {
       await navigator.clipboard.writeText(referralUrl);
       setCopied(true);
+      playSoftChime();
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Presse-papiers indisponible (contexte non sécurisé, permission refusée...) : rien de grave, l'utilisateur peut copier le lien à la main.
@@ -62,9 +64,13 @@ export function ReferralCard({
         <button
           type="button"
           onClick={copy}
-          className="shrink-0 rounded-full border border-gold/40 px-3 py-2 text-xs text-gold-strong hover:bg-gold/10"
+          className={`shrink-0 rounded-full border px-3 py-2 text-xs transition-all duration-300 ${
+            copied
+              ? "scale-105 border-sage/60 bg-sage/10 text-sage"
+              : "border-gold/40 text-gold-strong hover:bg-gold/10"
+          }`}
         >
-          {copied ? t.copied : t.copy}
+          {copied ? `✓ ${t.copied}` : t.copy}
         </button>
       </div>
       {successfulReferrals > 0 && <p className="mt-2 text-xs text-muted/70">{t.converted(successfulReferrals)}</p>}
