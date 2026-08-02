@@ -168,7 +168,7 @@ export default async function SynastriePage({
         <div>
           <Eyebrow>{t.synastry}</Eyebrow>
           <h1 className="font-display text-3xl">
-            {profileA.label} <em className="italic text-gold-strong">&amp;</em> {profileB.label}
+            {profileA.label} <em className="not-italic text-gold-strong">&amp;</em> {profileB.label}
           </h1>
         </div>
       </div>
