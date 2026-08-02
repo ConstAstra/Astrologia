@@ -281,6 +281,7 @@ export default async function SynastriePage({
             percentage={compatibilityPercentage}
             punchline={compatibilityPunch}
             punchlineColor={compatibilityPunchColor}
+            referralCode={currentUser.referralCode}
             locale={locale}
           />
         </div>

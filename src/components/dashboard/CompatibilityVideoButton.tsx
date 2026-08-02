@@ -58,11 +58,11 @@ interface DrawState {
   cardTitle: string;
   ctaLine: string;
   legalLine: string;
-  siteUrl: string;
+  shareUrl: string;
 }
 
 function draw(ctx: CanvasRenderingContext2D, t: number, state: DrawState) {
-  const { imgA, imgB, nameA, nameB, displayValue, punchline, punchlineColor, cardTitle, ctaLine, legalLine, siteUrl } = state;
+  const { imgA, imgB, nameA, nameB, displayValue, punchline, punchlineColor, cardTitle, ctaLine, legalLine, shareUrl } = state;
 
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   const bg = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
@@ -130,7 +130,7 @@ function draw(ctx: CanvasRenderingContext2D, t: number, state: DrawState) {
   ctx.textAlign = "right";
   ctx.fillStyle = "#e6d9d1";
   ctx.font = "500 17px system-ui, sans-serif";
-  ctx.fillText(`${ctaLine}  →  ${siteUrl}`, WIDTH - 32, HEIGHT - 40);
+  ctx.fillText(`${ctaLine}  →  ${shareUrl}`, WIDTH - 32, HEIGHT - 40);
   ctx.globalAlpha = 1;
 }
 
@@ -192,6 +192,7 @@ export function CompatibilityVideoButton({
   percentage,
   punchline,
   punchlineColor,
+  referralCode,
   locale = "fr",
 }: {
   seedA: string;
@@ -209,6 +210,7 @@ export function CompatibilityVideoButton({
   percentage: number;
   punchline: string;
   punchlineColor: string;
+  referralCode: string;
   locale?: "fr" | "en";
 }) {
   const t = TEXT[locale];
@@ -223,6 +225,7 @@ export function CompatibilityVideoButton({
     setBusy(true);
     try {
       const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "astrologium.app").replace(/^https?:\/\//, "");
+      const shareUrl = `${siteUrl}/r/${referralCode}`;
       const blob = await recordVideo({
         avatarSrcA: renderAvatarDataUri(seedA, sunA, 300, moonA, ascA, overridesA),
         avatarSrcB: renderAvatarDataUri(seedB, sunB, 300, moonB, ascB, overridesB),
@@ -234,7 +237,7 @@ export function CompatibilityVideoButton({
         cardTitle: locale === "en" ? "COMPATIBILITY TEST" : "TEST DE COMPATIBILITÉ",
         ctaLine: locale === "en" ? "Try it free" : "Fais le test, gratuit",
         legalLine: locale === "en" ? "For fun, not a prediction" : "Pour le fun, pas une prédiction",
-        siteUrl,
+        shareUrl,
       });
 
       const file = new File([blob], "compatibilite-astrale.webm", { type: "video/webm" });
