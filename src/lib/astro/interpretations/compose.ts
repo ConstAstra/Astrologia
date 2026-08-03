@@ -16,18 +16,6 @@ import { ASPECT_META_EN } from "./aspects.en";
 import { ASTROCARTO_TEXT, LINE_TYPE_META } from "./astrocartography-content";
 import type { LineTypeKey } from "./astrocartography-content";
 import { ASTROCARTO_TEXT_EN, LINE_TYPE_META_EN } from "./astrocartography-content.en";
-import {
-  NORTH_NODE_HOUSE_MISSION,
-  NORTH_NODE_SIGN_MISSION,
-  SOUTH_NODE_HOUSE_COMFORT,
-  SOUTH_NODE_SIGN_COMFORT,
-} from "./lunar-nodes";
-import {
-  NORTH_NODE_HOUSE_MISSION_EN,
-  NORTH_NODE_SIGN_MISSION_EN,
-  SOUTH_NODE_HOUSE_COMFORT_EN,
-  SOUTH_NODE_SIGN_COMFORT_EN,
-} from "./lunar-nodes.en";
 import { getPairTheme, isRomanticCodedPair } from "./pair-themes";
 import { getPairThemeEn } from "./pair-themes.en";
 import { computeDegreeReading } from "../degrees";
@@ -354,47 +342,11 @@ export function signOfPoint(longitude: number) {
   return signOf(longitude);
 }
 
-function oppositeSign(sign: ZodiacSign): ZodiacSign {
+export function oppositeSign(sign: ZodiacSign): ZodiacSign {
   const idx = ZODIAC_SIGNS.indexOf(sign);
   return ZODIAC_SIGNS[(idx + 6) % 12];
 }
 
-function oppositeHouse(house: number): number {
+export function oppositeHouse(house: number): number {
   return ((house + 5) % 12) + 1;
-}
-
-export interface LifeMission {
-  northSign: ZodiacSign;
-  southSign: ZodiacSign;
-  northHouse?: number;
-  southHouse?: number;
-  missionSignText: string;
-  comfortSignText: string;
-  missionHouseText?: string;
-  comfortHouseText?: string;
-}
-
-/**
- * "Mission de vie" lue sur l'axe des Nœuds lunaires : le Nœud Nord comme
- * direction d'évolution à apprivoiser, le Nœud Sud (toujours au signe et à
- * la maison opposés) comme terrain acquis à ne pas surinvestir. Voir
- * `lunar-nodes.ts` pour le détail de chaque texte.
- */
-export function describeLifeMission(northNodeSign: ZodiacSign, northNodeHouse?: number, locale: Locale = "fr"): LifeMission {
-  const southSign = oppositeSign(northNodeSign);
-  const southHouse = northNodeHouse ? oppositeHouse(northNodeHouse) : undefined;
-  const missionSign = locale === "en" ? NORTH_NODE_SIGN_MISSION_EN : NORTH_NODE_SIGN_MISSION;
-  const comfortSign = locale === "en" ? SOUTH_NODE_SIGN_COMFORT_EN : SOUTH_NODE_SIGN_COMFORT;
-  const missionHouse = locale === "en" ? NORTH_NODE_HOUSE_MISSION_EN : NORTH_NODE_HOUSE_MISSION;
-  const comfortHouse = locale === "en" ? SOUTH_NODE_HOUSE_COMFORT_EN : SOUTH_NODE_HOUSE_COMFORT;
-  return {
-    northSign: northNodeSign,
-    southSign,
-    northHouse: northNodeHouse,
-    southHouse,
-    missionSignText: missionSign[northNodeSign],
-    comfortSignText: comfortSign[southSign],
-    missionHouseText: northNodeHouse ? missionHouse[northNodeHouse] : undefined,
-    comfortHouseText: southHouse ? comfortHouse[southHouse] : undefined,
-  };
 }

@@ -31,6 +31,11 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
       description:
         "Une lecture d'ensemble qui relie Big 3, dominantes, maître de l'Ascendant, contradictions internes et aspects porteurs en un seul récit cohérent — plutôt que des placements isolés à interpréter soi-même.",
     },
+    lifeMission: {
+      title: "Débloquer le développement complet",
+      description:
+        "Au-delà du résumé : le Nœud Sud (ce qu'il faut lâcher), les maisons des deux nœuds, le maître de ton Nœud Nord (comment avancer concrètement) et les aspects qui soutiennent ou compliquent cette trajectoire.",
+    },
   },
   en: {
     synastry: {
@@ -50,6 +55,11 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
       title: "Unlock the synthesis reading",
       description:
         "A holistic reading that ties Big 3, dominances, Ascendant ruler, internal contradictions and standout aspects into one coherent narrative — instead of isolated placements you have to interpret yourself.",
+    },
+    lifeMission: {
+      title: "Unlock the full development",
+      description:
+        "Beyond the summary: the South Node (what to release), both nodes' houses, your North Node's ruler (how to actually move forward), and the aspects that support or complicate this path.",
     },
   },
 };
@@ -99,7 +109,7 @@ export function UnlockGate({
   credits,
   locale = "fr",
 }: {
-  feature: "synastry" | "composite" | "astrocartography" | "synthesis";
+  feature: "synastry" | "composite" | "astrocartography" | "synthesis" | "lifeMission";
   profileIdA: string;
   profileIdB?: string;
   credits: number;

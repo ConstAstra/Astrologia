@@ -28,7 +28,7 @@ export async function grantReferralRewardOnce(referredUserId: string): Promise<v
   ]);
 }
 
-export type UnlockFeature = "synastry" | "composite" | "astrocartography" | "synthesis";
+export type UnlockFeature = "synastry" | "composite" | "astrocartography" | "synthesis" | "lifeMission";
 
 export class PaywallError extends Error {
   constructor(public feature: UnlockFeature) {

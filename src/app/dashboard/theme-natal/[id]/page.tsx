@@ -17,10 +17,10 @@ import {
   describeAspect,
   describeDegree,
   describeHouseSystem,
-  describeLifeMission,
   describePlanetInHouse,
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
+import { describeLifeMission } from "@/lib/astro/interpretations/life-mission";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartSynthesis } from "@/lib/astro/interpretations/synthesis";
@@ -61,8 +61,13 @@ const TEXT: Record<
     degree: string;
     lifeMission: string;
     lifeMissionIntro: string;
+    lifeMissionPremium: string;
     northNode: string;
     southNode: string;
+    lifeMissionRulerHeading: string;
+    lifeMissionAspectsHeading: string;
+    lifeMissionAspectsIntro: string;
+    lifeMissionSynthesisHeading: string;
     aspects: string;
     noAspects: string;
     widgetUrlBase: string;
@@ -96,8 +101,13 @@ const TEXT: Record<
     lifeMission: "Mission de vie",
     lifeMissionIntro:
       "Lecture de l'axe des Nœuds lunaires : le Nœud Nord comme direction d'évolution à apprivoiser, le Nœud Sud comme terrain déjà acquis à ne pas surinvestir.",
+    lifeMissionPremium: "Premium",
     northNode: "☊ Nœud Nord",
     southNode: "☋ Nœud Sud",
+    lifeMissionRulerHeading: "Le maître de ton Nœud Nord",
+    lifeMissionAspectsHeading: "Ce qui soutient ou complique cette trajectoire",
+    lifeMissionAspectsIntro: "Les planètes qui font un aspect à ton Nœud Nord — un appui direct, ou une friction à travailler.",
+    lifeMissionSynthesisHeading: "En pratique",
     aspects: "Aspects",
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
     widgetUrlBase: "http://localhost:3000",
@@ -130,8 +140,13 @@ const TEXT: Record<
     lifeMission: "Life mission",
     lifeMissionIntro:
       "A reading of the lunar Nodes axis: the North Node as a direction of growth to embrace, the South Node as already-familiar ground not to over-invest in.",
+    lifeMissionPremium: "Premium",
     northNode: "☊ North Node",
     southNode: "☋ South Node",
+    lifeMissionRulerHeading: "Your North Node's ruler",
+    lifeMissionAspectsHeading: "What supports or complicates this path",
+    lifeMissionAspectsIntro: "The planets that form an aspect to your North Node — a direct boost, or a friction to work with.",
+    lifeMissionSynthesisHeading: "In practice",
     aspects: "Aspects",
     noAspects: "No aspect detected within the orbs used.",
     widgetUrlBase: "http://localhost:3000",
@@ -198,12 +213,8 @@ export default async function ThemeNatalPage({
   const aspects = computeAspects(chart.points, aspectKeys);
   const chartHighlights = composeChartHighlights(chart, locale);
 
-  const northNode = chart.points.northNode;
-  const mission = describeLifeMission(
-    signOf(northNode.longitude),
-    chart.hasReliableHouses ? northNode.house : undefined,
-    locale
-  );
+  const mission = describeLifeMission(chart, aspects, locale);
+  const lifeMissionAccess = await hasFeatureAccess(userId, { feature: "lifeMission", primaryProfileId: profile.id });
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude })
@@ -454,36 +465,91 @@ export default async function ThemeNatalPage({
           </section>
 
           <section>
-            <h2 className="font-display text-2xl">{t.lifeMission}</h2>
-            <p className="mt-1 text-xs text-muted">{t.lifeMissionIntro}</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{t.northNode}</p>
-                  <Badge tone="gold">
-                    {signMap[mission.northSign].name}
-                    {mission.northHouse ? ` · ${t.house} ${mission.northHouse}` : ""}
-                  </Badge>
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionSignText}</p>
-                {mission.missionHouseText && (
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionHouseText}</p>
-                )}
-              </Card>
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{t.southNode}</p>
-                  <Badge>
-                    {signMap[mission.southSign].name}
-                    {mission.southHouse ? ` · ${t.house} ${mission.southHouse}` : ""}
-                  </Badge>
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
-                {mission.comfortHouseText && (
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortHouseText}</p>
-                )}
-              </Card>
+            <div className="flex items-center gap-3">
+              <h2 className="font-display text-2xl">{t.lifeMission}</h2>
+              {!lifeMissionAccess && <Badge tone="gold">{t.lifeMissionPremium}</Badge>}
             </div>
+            <p className="mt-1 text-xs text-muted">{t.lifeMissionIntro}</p>
+            <Card className="mt-4 p-4">
+              <div className="flex items-center justify-between">
+                <p className="font-medium">{t.northNode}</p>
+                <Badge tone="gold">
+                  {signMap[mission.northSign].name}
+                  {mission.northHouse ? ` · ${t.house} ${mission.northHouse}` : ""}
+                </Badge>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionSignText}</p>
+            </Card>
+
+            {lifeMissionAccess ? (
+              <div className="mt-4 space-y-4">
+                <Card className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{t.southNode}</p>
+                    <Badge>
+                      {signMap[mission.southSign].name}
+                      {mission.southHouse ? ` · ${t.house} ${mission.southHouse}` : ""}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
+                  {mission.comfortHouseText && (
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortHouseText}</p>
+                  )}
+                </Card>
+
+                <Card className="p-4">
+                  <p className="font-medium">
+                    {t.lifeMissionRulerHeading} — {planetMap[mission.rulerPlanet].symbol} {planetMap[mission.rulerPlanet].name}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerIntro}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerSignText}</p>
+                  {mission.rulerHouseText && (
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerHouseText}</p>
+                  )}
+                </Card>
+
+                <Card className="p-4">
+                  <p className="font-medium">{t.lifeMissionAspectsHeading}</p>
+                  <p className="mt-1 text-xs text-muted/70">{t.lifeMissionAspectsIntro}</p>
+                  {mission.nodeAspects.length === 0 ? (
+                    <p className="mt-2 text-xs text-muted">{t.noAspects}</p>
+                  ) : (
+                    <div className="mt-3 space-y-3">
+                      {mission.nodeAspects.map((na, i) => (
+                        <div key={i} className="border-t border-border-soft pt-3 first:border-t-0 first:pt-0">
+                          <div className="flex items-center justify-between text-sm">
+                            <p className="font-medium">
+                              {planetMap[na.otherPoint].symbol} {planetMap[na.otherPoint].name} {aspectMap[na.aspect.aspect].symbol}
+                            </p>
+                            <Badge
+                              tone={
+                                aspectMap[na.aspect.aspect].tone === "harmonieux"
+                                  ? "sage"
+                                  : aspectMap[na.aspect.aspect].tone === "tendu"
+                                    ? "terracotta"
+                                    : "neutral"
+                              }
+                            >
+                              {aspectMap[na.aspect.aspect].name}
+                            </Badge>
+                          </div>
+                          <p className="mt-2 text-xs leading-relaxed text-muted">{na.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+
+                <Card className="p-4">
+                  <p className="font-medium">{t.lifeMissionSynthesisHeading}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.synthesis}</p>
+                </Card>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <UnlockGate feature="lifeMission" profileIdA={profile.id} credits={user.credits} locale={locale} />
+              </div>
+            )}
           </section>
 
           <section>
