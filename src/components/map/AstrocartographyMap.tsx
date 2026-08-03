@@ -80,6 +80,7 @@ export function AstrocartographyMap({
   countryMatches,
   countries,
   initialSelectedCountryId,
+  onCountrySelect,
 }: {
   data: WorldMapData;
   locale?: "fr" | "en";
@@ -88,6 +89,8 @@ export function AstrocartographyMap({
   /** Pays couverts (mêmes identifiants que `countryMatches`), pour le nom affiché et le sélecteur de repli. */
   countries: { id: string; name: string }[];
   initialSelectedCountryId?: string;
+  /** Notifie le parent à chaque changement de sélection (ex : afficher un bouton "partager ce pays"). */
+  onCountrySelect?: (countryId: string | null) => void;
 }) {
   const t = TEXT[locale];
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
@@ -127,6 +130,7 @@ export function AstrocartographyMap({
   function selectCountry(id: string | null) {
     setSelectedCountryId(id);
     syncCountryToUrl(id);
+    onCountrySelect?.(id);
   }
 
   const selectedMatches = selectedCountryId ? (countryMatches[selectedCountryId] ?? []) : null;

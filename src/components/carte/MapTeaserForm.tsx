@@ -45,6 +45,9 @@ const TEXT: Record<
     ctaBody: string;
     ctaLink: string;
     tryAnother: string;
+    shareCountry: (name: string) => string;
+    sharing: string;
+    shareStory: string;
   }
 > = {
   fr: {
@@ -70,6 +73,9 @@ const TEXT: Record<
       "Ceci reste une exploration libre de tes lignes. Avec un compte gratuit, retrouve cette carte sauvegardée, et débloque le classement des meilleurs pays pour toi par thème (amour, carrière, spiritualité, voyage).",
     ctaLink: "Créer mon compte gratuit →",
     tryAnother: "Recommencer avec un autre thème",
+    shareCountry: (name) => `⤓ Partager « ${name} »`,
+    sharing: "…",
+    shareStory: "⤓ Story",
   },
   en: {
     name: "Your first name (optional, display only)",
@@ -94,6 +100,9 @@ const TEXT: Record<
       "This stays a free exploration of your lines. With a free account, keep this map saved, and unlock the ranking of your best countries by theme (love, career, spirituality, travel).",
     ctaLink: "Create my free account →",
     tryAnother: "Start over with another chart",
+    shareCountry: (name) => `⤓ Share "${name}"`,
+    sharing: "…",
+    shareStory: "⤓ Story",
   },
 };
 
@@ -115,6 +124,8 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ApiResult | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
+  const [sharing, setSharing] = useState<"post" | "story" | null>(null);
 
   function handleQueryChange(value: string) {
     setQuery(value);
@@ -183,8 +194,45 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
     }
   }
 
+  async function handleShare(format: "post" | "story") {
+    if (!result || !selectedCountryId) return;
+    setSharing(format);
+    try {
+      const lines = (result.countryMatches[selectedCountryId] ?? []).map((m) => `${m.planet}-${m.type}`).join(",");
+      const params = new URLSearchParams({
+        name: name.trim() || t.namePlaceholder,
+        locale,
+        sun: result.big3.sun,
+        moon: result.big3.moon,
+        countryId: selectedCountryId,
+        lines,
+        format,
+      });
+      if (result.big3.ascendant) params.set("ascendant", result.big3.ascendant);
+      const res = await fetch(`/api/share/carte?${params.toString()}`);
+      if (!res.ok) throw new Error("failed");
+      const blob = await res.blob();
+      const file = new File([blob], `carte-astro${format === "story" ? "-story" : ""}.png`, { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      // Annulation du partage natif ou erreur réseau — silencieux, réessayable.
+    } finally {
+      setSharing(null);
+    }
+  }
+
   if (result) {
     const displayName = name.trim() || t.namePlaceholder;
+    const selectedCountryName = selectedCountryId ? countries.find((c) => c.id === selectedCountryId)?.name : undefined;
     return (
       <div>
         <div className="text-center">
@@ -199,8 +247,35 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
         </div>
 
         <div className="mt-6">
-          <AstrocartographyMap data={result.mapData} locale={locale} countryMatches={result.countryMatches} countries={countries} />
+          <AstrocartographyMap
+            data={result.mapData}
+            locale={locale}
+            countryMatches={result.countryMatches}
+            countries={countries}
+            onCountrySelect={setSelectedCountryId}
+          />
         </div>
+
+        {selectedCountryId && selectedCountryName && (
+          <div className="mt-4 flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleShare("post")}
+              disabled={sharing !== null}
+              className="rounded-full border border-gold/40 px-4 py-1.5 text-xs text-gold-strong hover:bg-gold/10 disabled:opacity-60"
+            >
+              {sharing === "post" ? t.sharing : t.shareCountry(selectedCountryName)}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleShare("story")}
+              disabled={sharing !== null}
+              className="rounded-full border border-gold/40 px-4 py-1.5 text-xs text-gold-strong hover:bg-gold/10 disabled:opacity-60"
+            >
+              {sharing === "story" ? t.sharing : t.shareStory}
+            </button>
+          </div>
+        )}
 
         <div className="mt-8 rounded-2xl border border-border-soft bg-background-elevated p-5 text-center">
           <p className="font-display text-lg">{t.ctaTitle}</p>
@@ -214,7 +289,14 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
         </div>
 
         <div className="mt-4 text-center">
-          <button type="button" onClick={() => setResult(null)} className="text-xs text-muted underline hover:text-foreground">
+          <button
+            type="button"
+            onClick={() => {
+              setResult(null);
+              setSelectedCountryId(null);
+            }}
+            className="text-xs text-muted underline hover:text-foreground"
+          >
             {t.tryAnother}
           </button>
         </div>
