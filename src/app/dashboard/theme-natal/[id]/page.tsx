@@ -464,7 +464,7 @@ export default async function ThemeNatalPage({
             </div>
           </section>
 
-          <section>
+          <section id="mission-de-vie" className="scroll-mt-24">
             <div className="flex items-center gap-3">
               <h2 className="font-display text-2xl">{t.lifeMission}</h2>
               {!lifeMissionAccess && <Badge tone="gold">{t.lifeMissionPremium}</Badge>}

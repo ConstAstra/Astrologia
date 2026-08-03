@@ -19,6 +19,10 @@ const TEXT: Record<
     synastryHint: string;
     composite: string;
     compositeHint: string;
+    lifeMission: string;
+    lifeMissionHint: string;
+    cartography: string;
+    cartographyHint: string;
     subscription: string;
     credit: string;
     credits: string;
@@ -34,6 +38,10 @@ const TEXT: Record<
     synastryHint: "Superpose deux thèmes pour lire la dynamique d'une relation : aspects croisés, forces et frictions.",
     composite: "Composite",
     compositeHint: "Le thème \"du couple\" lui-même, calculé par la méthode des points médians — une troisième entité, au-delà des deux personnes.",
+    lifeMission: "Mission de vie",
+    lifeMissionHint: "Lecture de l'axe des Nœuds lunaires : la direction d'évolution à apprivoiser et le terrain déjà acquis à ne pas surinvestir.",
+    cartography: "Cartographie",
+    cartographyHint: "Vos lignes planétaires projetées sur la carte du monde — cliquez un pays pour voir ce qui s'y passerait.",
     subscription: "Abonnement",
     credit: "crédit",
     credits: "crédits",
@@ -48,6 +56,10 @@ const TEXT: Record<
     synastryHint: "Overlay two charts to read a relationship's dynamics: cross-aspects, strengths and friction points.",
     composite: "Composite",
     compositeHint: "The chart \"of the couple\" itself, calculated with the midpoint method — a third entity, beyond the two individuals.",
+    lifeMission: "Life mission",
+    lifeMissionHint: "A reading of the lunar Nodes axis: the direction of growth to embrace, and the already-familiar ground not to over-invest in.",
+    cartography: "Cartography",
+    cartographyHint: "Your planetary lines projected on the world map — tap a country to see what would happen there.",
     subscription: "Subscription",
     credit: "credit",
     credits: "credits",
@@ -78,6 +90,8 @@ export function DashboardNav({
 
   const links = [
     { href: "/dashboard/profils", label: t.profiles, hint: undefined },
+    { href: "/dashboard/mission-de-vie", label: t.lifeMission, hint: t.lifeMissionHint },
+    { href: "/dashboard/cartographie", label: t.cartography, hint: t.cartographyHint },
     { href: "/dashboard/amis", label: t.friends, hint: undefined },
     { href: "/dashboard/synastrie", label: t.synastry, hint: t.synastryHint },
     { href: "/dashboard/composite", label: t.composite, hint: t.compositeHint },
