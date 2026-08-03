@@ -3,10 +3,16 @@ import { feature } from "topojson-client";
 import type { Topology, GeometryCollection } from "topojson-specification";
 import world from "world-atlas/countries-110m.json";
 
+export interface WorldCountryPath {
+  d: string;
+  /** Nom anglais du pays dans les données topojson `world-atlas` — sert à le relier à `MajorCountry.topoName`. */
+  topoName: string;
+}
+
 export interface WorldMapPaths {
   width: number;
   height: number;
-  countryPaths: string[];
+  countryPaths: WorldCountryPath[];
   graticulePath: string;
   projectLatLon: (lat: number, lon: number) => [number, number] | null;
   projectLongitudeLine: (lon: number) => { x: number; y1: number; y2: number };
@@ -20,7 +26,13 @@ export function buildWorldMap(width = 960, height = 500): WorldMapPaths {
 
   const topology = world as unknown as Topology;
   const countries = feature(topology, topology.objects.countries as GeometryCollection);
-  const countryPaths = countries.features.map((f) => path(f) ?? "").filter(Boolean);
+  const countryPaths: WorldCountryPath[] = countries.features
+    .map((f) => {
+      const d = path(f);
+      const topoName = (f.properties as { name?: string } | null)?.name;
+      return d && topoName ? { d, topoName } : null;
+    })
+    .filter((p): p is WorldCountryPath => p !== null);
 
   const graticule = geoGraticule().step([30, 30])();
   const graticulePath = path(graticule) ?? "";

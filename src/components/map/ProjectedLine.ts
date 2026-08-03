@@ -16,10 +16,16 @@ export interface CountryLabel {
   y: number;
 }
 
+export interface ClickableCountryPath {
+  d: string;
+  /** Identifiant stable (voir `MajorCountry.id`) si ce pays fait partie de la liste couverte — sinon non cliquable. */
+  countryId?: string;
+}
+
 export interface WorldMapData {
   width: number;
   height: number;
-  countryPaths: string[];
+  countryPaths: ClickableCountryPath[];
   graticulePath: string;
   lines: ProjectedLine[];
   countryLabels: CountryLabel[];
@@ -33,6 +39,7 @@ export function projectAstroCartoLines(
 ): WorldMapData {
   const map = buildWorldMap(width, height);
   const countries = locale === "en" ? MAJOR_COUNTRIES_EN : MAJOR_COUNTRIES;
+  const countryIdByTopoName = new Map(countries.map((c) => [c.topoName, c.id]));
 
   const projected: ProjectedLine[] = lines.map((line) => {
     if (line.longitude !== undefined) {
@@ -53,10 +60,15 @@ export function projectAstroCartoLines(
     return proj ? { name: c.name, x: proj[0] + (c.dx ?? 0), y: proj[1] + (c.dy ?? 0) } : null;
   }).filter((l): l is CountryLabel => l !== null);
 
+  const countryPaths: ClickableCountryPath[] = map.countryPaths.map((cp) => ({
+    d: cp.d,
+    countryId: countryIdByTopoName.get(cp.topoName),
+  }));
+
   return {
     width: map.width,
     height: map.height,
-    countryPaths: map.countryPaths,
+    countryPaths,
     graticulePath: map.graticulePath,
     lines: projected,
     countryLabels,

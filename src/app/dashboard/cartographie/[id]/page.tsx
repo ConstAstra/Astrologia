@@ -10,7 +10,6 @@ import { MAJOR_COUNTRIES } from "@/components/map/majorCountries";
 import { MAJOR_COUNTRIES_EN } from "@/components/map/majorCountries.en";
 import { projectAstroCartoLines } from "@/components/map/ProjectedLine";
 import { AstrocartographyMap } from "@/components/map/AstrocartographyMap";
-import { CountrySelect } from "@/components/map/CountrySelect";
 import { describeAstroCartoLine, explainCountryRanking, type Locale } from "@/lib/astro/interpretations/compose";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
@@ -30,10 +29,6 @@ const TEXT: Record<Locale, {
   bestPlacesHeading: string;
   bestPlacesIntro: string;
   noRanking: string;
-  countryPickerHeading: string;
-  countryPickerIntro: string;
-  countryPickerPlaceholder: string;
-  noLinesInCountry: string;
 }> = {
   fr: {
     eyebrow: "Cartographie astrologique",
@@ -47,10 +42,6 @@ const TEXT: Record<Locale, {
     bestPlacesIntro:
       "À partir des pays où vos lignes passent réellement (frontières exactes, pas une simple proximité) — classés selon vos lignes les plus favorables à chaque thème.",
     noRanking: "Aucun pays de la liste ne ressort particulièrement pour ce thème.",
-    countryPickerHeading: "Ce qui se passerait dans un pays précis",
-    countryPickerIntro: "Choisissez un pays pour voir le détail de vos lignes qui le traversent.",
-    countryPickerPlaceholder: "Choisir un pays…",
-    noLinesInCountry: "Aucune de vos lignes ne traverse directement ce pays.",
   },
   en: {
     eyebrow: "Astrocartography",
@@ -64,10 +55,6 @@ const TEXT: Record<Locale, {
     bestPlacesIntro:
       "Based on the countries your lines actually cross (real borders, not just nearby coordinates) — ranked by your most favorable lines for each theme.",
     noRanking: "No country in the list particularly stands out for this theme.",
-    countryPickerHeading: "What would happen in a specific country",
-    countryPickerIntro: "Choose a country to see the details of your lines crossing it.",
-    countryPickerPlaceholder: "Choose a country…",
-    noLinesInCountry: "None of your lines directly cross this country.",
   },
 };
 
@@ -145,8 +132,6 @@ export default async function CartographiePage({
     ranked: rankCountriesForCategory(category, countryMatches).slice(0, 3),
   }));
 
-  const selectedCountryMatches = selectedCountryId ? (countryMatches[selectedCountryId] ?? []) : null;
-
   return (
     <div>
       <Eyebrow>{t.eyebrow}</Eyebrow>
@@ -154,7 +139,13 @@ export default async function CartographiePage({
       <p className="mt-2 max-w-2xl text-sm text-muted">{t.instructions}</p>
 
       <div className="mt-6">
-        <AstrocartographyMap data={mapData} locale={locale} />
+        <AstrocartographyMap
+          data={mapData}
+          locale={locale}
+          countryMatches={countryMatches}
+          countries={sortedCountryOptions}
+          initialSelectedCountryId={selectedCountryId}
+        />
       </div>
 
       <section className="mt-10">
@@ -204,40 +195,6 @@ export default async function CartographiePage({
             </Card>
           ))}
         </div>
-      </section>
-
-      <section className="mt-10">
-        <div className="flex items-center gap-3">
-          <h2 className="font-display text-2xl">{t.countryPickerHeading}</h2>
-          <Badge tone="gold">{t.premium}</Badge>
-        </div>
-        <p className="mt-1 max-w-2xl text-sm text-muted">{t.countryPickerIntro}</p>
-        <div className="mt-4">
-          <CountrySelect
-            countries={sortedCountryOptions}
-            selected={selectedCountryId}
-            placeholder={t.countryPickerPlaceholder}
-          />
-        </div>
-        {selectedCountryMatches && (
-          <div className="mt-4">
-            <h3 className="font-display text-xl">{countryName(selectedCountryId!)}</h3>
-            {selectedCountryMatches.length === 0 ? (
-              <p className="mt-2 text-sm text-muted">{t.noLinesInCountry}</p>
-            ) : (
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {selectedCountryMatches.map((m) => (
-                  <Card key={`${m.planet}-${m.type}`} className="p-4 text-sm">
-                    <p className="font-medium">
-                      {planetMap[m.planet].symbol} {planetMap[m.planet].name} — {lineTypeMap[m.type].name}
-                    </p>
-                    <p className="mt-1 leading-relaxed text-muted">{describeAstroCartoLine(m.planet, m.type, locale)}</p>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </section>
     </div>
   );
