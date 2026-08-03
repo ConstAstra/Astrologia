@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
-import { FREE_PROFILE_LIMIT, isAvatarGlowing } from "@/lib/billing/entitlements";
+import { FREE_PROFILE_LIMIT, isAvatarGlowing, STREAK_GLOW_THRESHOLD } from "@/lib/billing/entitlements";
 import { DeleteProfileButton } from "@/components/dashboard/DeleteProfileButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { quickSunSign, quickMoonSign } from "@/lib/astro/quick";
@@ -31,6 +31,9 @@ const TEXT: Record<
     comparePrompt: string;
     synastry: string;
     composite: string;
+    avatarLegend: string;
+    glowActive: string;
+    glowProgress: (daysLeft: number) => string;
   }
 > = {
   fr: {
@@ -49,6 +52,12 @@ const TEXT: Record<
     comparePrompt: "Choisissez deux avatars pour lancer une synastrie ou un thème composite.",
     synastry: "Synastrie",
     composite: "Thème composite",
+    avatarLegend: "🌙 Le petit badge en bas à gauche de l'avatar est un compagnon lié à l'élément de sa Lune (survolez-le pour voir lequel).",
+    glowActive: "✨ Halo doré actif — Premium ou série de connexions ≥ 7 jours.",
+    glowProgress: (daysLeft) =>
+      daysLeft === 1
+        ? "✨ Encore 1 jour de connexion pour débloquer le halo doré de l'avatar (ou passez Premium)."
+        : `✨ Encore ${daysLeft} jours de connexion pour débloquer le halo doré de l'avatar (ou passez Premium).`,
   },
   en: {
     eyebrow: "Your profiles",
@@ -66,6 +75,12 @@ const TEXT: Record<
     comparePrompt: "Pick two avatars to run a synastry or a composite chart.",
     synastry: "Synastry",
     composite: "Composite chart",
+    avatarLegend: "🌙 The small badge on the avatar's bottom-left is a companion tied to its Moon's element (hover it to see which one).",
+    glowActive: "✨ Golden glow active — Premium or a 7-day-or-longer login streak.",
+    glowProgress: (daysLeft) =>
+      daysLeft === 1
+        ? "✨ 1 more day of logging in to unlock the avatar's golden glow (or go Premium)."
+        : `✨ ${daysLeft} more days of logging in to unlock the avatar's golden glow (or go Premium).`,
   },
 };
 
@@ -83,6 +98,7 @@ export default async function ProfilsPage() {
   const t = TEXT[locale];
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
   const glowing = isAvatarGlowing(user);
+  const daysUntilGlow = Math.max(0, STREAK_GLOW_THRESHOLD - user.currentStreak);
 
   const withSigns = profiles.map((profile) => {
     const birthInput = {
@@ -132,7 +148,15 @@ export default async function ProfilsPage() {
           {withSigns.map(({ profile, sunSign, moonSign, overrides }) => (
             <Card key={profile.id} className="flex flex-col p-6">
               <div className="flex items-center gap-4">
-                <PixelAvatar seed={profile.id} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={64} glowing={glowing} />
+                <PixelAvatar
+                  seed={profile.id}
+                  sunSign={sunSign}
+                  moonSign={moonSign}
+                  overrides={overrides}
+                  size={64}
+                  glowing={glowing}
+                  locale={locale}
+                />
                 <div>
                   <p className="font-display text-xl">{profile.label}</p>
                   <p className="text-xs text-gold-strong">{signMap[sunSign].name}</p>
@@ -173,6 +197,12 @@ export default async function ProfilsPage() {
             </Card>
           ))}
         </div>
+      )}
+
+      {profiles.length > 0 && (
+        <p className="mt-4 text-xs text-muted">
+          {t.avatarLegend} {glowing ? t.glowActive : t.glowProgress(daysUntilGlow)}
+        </p>
       )}
 
       {profiles.length >= 2 && (

@@ -3,6 +3,19 @@ import { computeAvatarTraits, COMPANION_SHAPES } from "./avatarTraits";
 import type { AvatarOverrides } from "./avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 
+const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
+
+const TOOLTIP = {
+  fr: {
+    companion: (element: string) => `Compagnon — élément de ta Lune (${element})`,
+    glow: "Halo doré — abonnement Premium actif ou série de connexions d'au moins 7 jours",
+  },
+  en: {
+    companion: (element: string) => `Companion — your Moon's element (${ELEMENT_LABEL_EN[element] ?? element})`,
+    glow: "Golden glow — active Premium subscription or a 7-day-or-longer login streak",
+  },
+};
+
 // Avatar pixel-art déterministe façon Habbo : chaque profil obtient un
 // portrait rétro chic (peau, cheveux, tenue, accessoires) tiré de son
 // identifiant, plus un badge du signe solaire — pratique pour repérer un
@@ -21,6 +34,7 @@ export function PixelAvatar({
   overrides,
   size = 64,
   glowing = false,
+  locale = "fr",
 }: {
   seed: string;
   sunSign?: ZodiacSign;
@@ -30,10 +44,13 @@ export function PixelAvatar({
   size?: number;
   /** Halo doré : abonnement Premium actif ou série de connexions ≥ 7 jours — jamais un choix, toujours gagné. */
   glowing?: boolean;
+  /** Langue des info-bulles (survol) du compagnon/halo. */
+  locale?: "fr" | "en";
 }) {
   const { skin, hairColor, hairCells, clothing, blush, smiling, raisedBrow, glasses, bg, clipId, companion } =
     computeAvatarTraits(seed, sunSign, moonSign, ascSign, overrides);
 
+  const tt = TOOLTIP[locale];
   const grid = 12;
   const unit = size / grid;
 
@@ -51,7 +68,9 @@ export function PixelAvatar({
         fill={bg}
         stroke={glowing ? "#f2b799" : "none"}
         strokeWidth={glowing ? Math.max(2, size * 0.035) : 0}
-      />
+      >
+        {glowing && <title>{tt.glow}</title>}
+      </rect>
 
       <g clipPath={`url(#${clipId})`}>
         {/* Épaules / tenue */}
@@ -124,6 +143,7 @@ export function PixelAvatar({
       {/* Compagnon (élément de la Lune) */}
       {companion && (
         <g>
+          <title>{tt.companion(companion.element)}</title>
           <circle cx={unit * 1.6} cy={size - unit * 1.6} r={unit * 1.4} fill="#1f1420" stroke="#e8935f" strokeWidth={1} />
           <g transform={`translate(${unit * 1.6} ${size - unit * 1.6}) scale(${unit * 1.2})`}>
             {COMPANION_SHAPES[companion.element].map((shape, i) =>

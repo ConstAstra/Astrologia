@@ -5,6 +5,9 @@ import { Eyebrow } from "@/components/ui/Card";
 import { quickSunSign, quickMoonSign } from "@/lib/astro/quick";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { AvatarEditor } from "@/components/avatar/AvatarEditor";
+import { isAvatarGlowing, STREAK_GLOW_THRESHOLD } from "@/lib/billing/entitlements";
+import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 
 type Locale = "fr" | "en";
 
@@ -25,6 +28,7 @@ export default async function AvatarEditorPage({ params }: { params: Promise<{ i
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
 
   const birthInput = {
     date: profile.birthDate,
@@ -36,6 +40,8 @@ export default async function AvatarEditorPage({ params }: { params: Promise<{ i
   };
   const sunSign = quickSunSign(birthInput);
   const moonSign = quickMoonSign(birthInput);
+  const glowing = isAvatarGlowing(user);
+  const daysUntilGlow = Math.max(0, STREAK_GLOW_THRESHOLD - user.currentStreak);
 
   let overrides: AvatarOverrides | undefined;
   if (profile.avatarOverrides) {
@@ -57,8 +63,11 @@ export default async function AvatarEditorPage({ params }: { params: Promise<{ i
           seed={profile.id}
           sunSign={sunSign}
           moonSign={moonSign}
+          moonSignName={moonSign ? signMap[moonSign].name : undefined}
           initialOverrides={overrides}
           locale={locale}
+          glowing={glowing}
+          daysUntilGlow={daysUntilGlow}
         />
       </div>
     </div>

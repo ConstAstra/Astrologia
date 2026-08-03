@@ -17,6 +17,8 @@ const HAIR_STYLE_NAMES: Record<Locale, string[]> = {
 
 const BG_SWATCHES = ["#4a2a1f", "#243a2c", "#3a2440", "#1f2c40", "#241a2c", "#1f1420"];
 
+const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
+
 const TEXT: Record<
   Locale,
   {
@@ -35,6 +37,9 @@ const TEXT: Record<
     saved: string;
     reset: string;
     resetting: string;
+    companionLabel: (moonSignName: string, element: string) => string;
+    glowActive: string;
+    glowProgress: (daysLeft: number) => string;
   }
 > = {
   fr: {
@@ -53,6 +58,12 @@ const TEXT: Record<
     saved: "Enregistré ✓",
     reset: "Revenir à l'auto (thème)",
     resetting: "…",
+    companionLabel: (moonSignName, element) => `Compagnon : élément ${element} — hérité de la Lune en ${moonSignName}.`,
+    glowActive: "✨ Halo doré actif — Premium ou série de connexions ≥ 7 jours.",
+    glowProgress: (daysLeft) =>
+      daysLeft === 1
+        ? "Encore 1 jour de connexion pour débloquer le halo doré (ou passez Premium)."
+        : `Encore ${daysLeft} jours de connexion pour débloquer le halo doré (ou passez Premium).`,
   },
   en: {
     skin: "Skin",
@@ -70,6 +81,13 @@ const TEXT: Record<
     saved: "Saved ✓",
     reset: "Back to auto (chart-based)",
     resetting: "…",
+    companionLabel: (moonSignName, element) =>
+      `Companion: ${ELEMENT_LABEL_EN[element] ?? element} element — inherited from your Moon in ${moonSignName}.`,
+    glowActive: "✨ Golden glow active — Premium or a 7-day-or-longer login streak.",
+    glowProgress: (daysLeft) =>
+      daysLeft === 1
+        ? "1 more day of logging in to unlock the golden glow (or go Premium)."
+        : `${daysLeft} more days of logging in to unlock the golden glow (or go Premium).`,
   },
 };
 
@@ -103,15 +121,23 @@ export function AvatarEditor({
   seed,
   sunSign,
   moonSign,
+  moonSignName,
   initialOverrides,
   locale,
+  glowing = false,
+  daysUntilGlow = 0,
 }: {
   profileId: string;
   seed: string;
   sunSign?: ZodiacSign;
   moonSign?: ZodiacSign;
+  moonSignName?: string;
   initialOverrides?: AvatarOverrides;
   locale: Locale;
+  /** Halo doré : abonnement Premium actif ou série de connexions ≥ 7 jours. */
+  glowing?: boolean;
+  /** Jours de connexion restants avant de débloquer le halo (0 si déjà acquis). */
+  daysUntilGlow?: number;
 }) {
   const t = TEXT[locale];
   const router = useRouter();
@@ -179,8 +205,20 @@ export function AvatarEditor({
 
   return (
     <div className="grid gap-8 sm:grid-cols-[auto_1fr] sm:items-start">
-      <div className="flex justify-center sm:sticky sm:top-6">
-        <PixelAvatar seed={seed} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={160} />
+      <div className="flex flex-col items-center gap-3 sm:sticky sm:top-6">
+        <PixelAvatar
+          seed={seed}
+          sunSign={sunSign}
+          moonSign={moonSign}
+          overrides={overrides}
+          size={160}
+          glowing={glowing}
+          locale={locale}
+        />
+        <div className="max-w-xs space-y-1 text-center text-xs text-muted">
+          {initial.companion && moonSignName && <p>{t.companionLabel(moonSignName, initial.companion.element)}</p>}
+          <p>{glowing ? t.glowActive : t.glowProgress(daysUntilGlow)}</p>
+        </div>
       </div>
 
       <div className="space-y-6">
