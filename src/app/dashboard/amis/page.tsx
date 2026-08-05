@@ -11,6 +11,7 @@ import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { InviteFriendCard } from "@/components/account/InviteFriendCard";
+import { CompatInviteCard } from "@/components/account/CompatInviteCard";
 import { RemoveFriendButton } from "@/components/account/RemoveFriendButton";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 
@@ -18,6 +19,8 @@ const TEXT: Record<
   Locale,
   {
     title: string;
+    inviteFriendTitle: string;
+    compatInviteTitle: string;
     empty: string;
     emptyBody: string;
     sunOf: (sign: string) => string;
@@ -27,6 +30,8 @@ const TEXT: Record<
 > = {
   fr: {
     title: "Mes amis",
+    inviteFriendTitle: "Devenir amis",
+    compatInviteTitle: "Partager un test rapide",
     empty: "Pas encore d'ami sur Astrologium.",
     emptyBody: "Partage ton lien ci-dessus — dès qu'un ami l'accepte, sa carte apparaît ici.",
     sunOf: (sign) => `Soleil en ${sign}`,
@@ -35,6 +40,8 @@ const TEXT: Record<
   },
   en: {
     title: "My friends",
+    inviteFriendTitle: "Become friends",
+    compatInviteTitle: "Share a quick test",
     empty: "No friends on Astrologium yet.",
     emptyBody: "Share your link above — as soon as a friend accepts, their card shows up here.",
     sunOf: (sign) => `Sun in ${sign}`,
@@ -58,6 +65,7 @@ export default async function AmisPage() {
   const keywordMap = locale === "en" ? SIGN_KEYWORD_EN : SIGN_KEYWORD;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const inviteUrl = `${siteUrl}/amis/${invite.token}`;
+  const compatInviteUrl = `${siteUrl}/c/${user.referralCode}`;
   const myself = myProfiles[0];
 
   const cards = friends.map((friend) => {
@@ -101,7 +109,13 @@ export default async function AmisPage() {
       <h1 className="font-display mt-2 text-3xl">{t.title}</h1>
 
       <Card className="mt-6 p-6">
+        <p className="mb-3 text-sm font-medium">{t.inviteFriendTitle}</p>
         <InviteFriendCard inviteUrl={inviteUrl} locale={locale} />
+      </Card>
+
+      <Card className="mt-4 p-6">
+        <p className="mb-3 text-sm font-medium">{t.compatInviteTitle}</p>
+        <CompatInviteCard inviteUrl={compatInviteUrl} locale={locale} />
       </Card>
 
       {cards.length === 0 ? (

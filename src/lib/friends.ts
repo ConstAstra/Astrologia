@@ -1,6 +1,12 @@
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { notifyFriendActivity } from "@/lib/notify";
+
+const ACCEPT_PUSH_TEXT = {
+  fr: { title: "🔮 Nouvelle amitié", body: (name: string) => `${name} a accepté ton invitation sur Astrologium.` },
+  en: { title: "🔮 New friend", body: (name: string) => `${name} accepted your invitation on Astrologium.` },
+} as const;
 
 const ACCEPT_EMAIL_TEXT = {
   fr: {
@@ -91,6 +97,13 @@ export async function acceptFriendInvite(token: string, acceptingUserId: string)
       to: inviter.email,
       subject: t.subject(accepterName),
       html: t.body(accepterName, siteUrl),
+    }).catch(() => {});
+
+    const pushT = ACCEPT_PUSH_TEXT[locale];
+    await notifyFriendActivity(invite.userId, {
+      title: pushT.title,
+      body: pushT.body(accepterName),
+      url: "/dashboard/amis",
     }).catch(() => {});
   }
 

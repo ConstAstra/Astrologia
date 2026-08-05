@@ -52,6 +52,10 @@ model User {
   // de dailyTransitPushOptIn : un utilisateur peut vouloir l'une sans l'autre,
   // ce sont deux contenus différents avec un consentement séparé.
   streakReminderOptIn   Boolean @default(false)
+  // Notification push "quelqu'un a testé sa compatibilité avec toi" ou "un
+  // ami a accepté ton invitation" — troisième préférence indépendante, même
+  // logique que les deux ci-dessus.
+  friendActivityPushOptIn Boolean @default(false)
 
   // --- Série de connexions (streak) ---
   // Jours consécutifs avec au moins une visite du tableau de bord. Mis à
