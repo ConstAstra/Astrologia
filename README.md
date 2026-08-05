@@ -96,7 +96,7 @@ Toutes les variables sont documentées dans `.env.example`. Résumé :
 | `APPLE_*` | Achats intégrés iOS (voir section dédiée) |
 | `CAPACITOR_SERVER_URL` | URL chargée par l'app iOS |
 | `RESEND_API_KEY` / `EMAIL_FROM` | Envoi d'e-mails (mot de passe oublié, horoscope quotidien) — vide en dev, logge dans la console |
-| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope` et `/api/cron/daily-transit-push` (voir « Horoscope quotidien » et « Transit du jour par notification ») |
+| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope`, `/api/cron/daily-transit-push` et `/api/cron/streak-reminder` (voir « Horoscope quotidien », « Transit du jour par notification » et « Rappel de série ») |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | Notification push "transit du jour" (voir « Transit du jour par notification ») — vide en dev, logge dans la console |
 
 ### Stripe (web)
@@ -214,6 +214,25 @@ pour ça, mais tant que l'app n'est pas encore publiée sur l'App Store, les
 utilisateurs iOS devront passer par "Ajouter à l'écran d'accueil" depuis
 Safari pour recevoir ces notifications. Sans ce prérequis Apple, la
 fonctionnalité reste pleinement opérationnelle sur desktop et Android.
+
+### Rappel de série (streak)
+
+`/api/cron/streak-reminder` (GET ou POST) cible les utilisateurs opt-in
+(`streakReminderOptIn`) dont la série de connexions (`currentStreak`,
+`src/lib/streak.ts`) est **encore en jeu aujourd'hui** :
+`currentStreak > 0` et `lastActiveDate` différent de la date UTC du jour
+(sinon ils ont déjà visité, rien à leur rappeler). Prévu pour tourner en fin
+de journée (ex: `0 20 * * *`), après la fenêtre normale de visite mais avant
+le changement de date UTC qui romprait la série. Même authentification et
+configuration de scheduler que les deux routes ci-dessus.
+
+Préférence indépendante de `dailyTransitPushOptIn`, activée via un second
+bouton dans `/dashboard/abonnement`. Les deux préférences partagent le même
+abonnement `PushSubscription` par appareil (un navigateur ne peut détenir
+qu'un seul abonnement Push actif par service worker) : désactiver l'une des
+deux ne supprime l'abonnement navigateur que si l'autre est elle aussi
+désactivée — sinon elle continuerait de recevoir des notifications sans
+abonnement en base. Voir `src/app/api/notifications/push-subscribe/route.ts`.
 
 ## Passer en production
 

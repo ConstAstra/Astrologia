@@ -48,6 +48,10 @@ model User {
   // Notification push "transit du jour" (web push) — opt-in explicite
   // contrairement à l'e-mail, car elle nécessite la permission navigateur.
   dailyTransitPushOptIn Boolean @default(false)
+  // Notification push "ta série va se rompre ce soir" — préférence distincte
+  // de dailyTransitPushOptIn : un utilisateur peut vouloir l'une sans l'autre,
+  // ce sont deux contenus différents avec un consentement séparé.
+  streakReminderOptIn   Boolean @default(false)
 
   // --- Série de connexions (streak) ---
   // Jours consécutifs avec au moins une visite du tableau de bord. Mis à

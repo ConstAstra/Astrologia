@@ -5,15 +5,15 @@ import { playMagicChime } from "@/lib/sound";
 
 const TEXT = {
   fr: {
-    title: "Transit du jour par notification",
-    subtitle: "Une notification courte sur cet appareil, dès qu'un transit marquant se présente.",
+    title: "Rappel avant de perdre ma série",
+    subtitle: "Une notification en fin de journée si votre série de connexions est sur le point de se rompre.",
     unsupported: "Non disponible sur ce navigateur.",
     denied: "Notifications bloquées — autorisez-les dans les réglages de votre navigateur pour cet appareil.",
     error: "Une erreur est survenue, réessayez.",
   },
   en: {
-    title: "Today's transit by notification",
-    subtitle: "A short notification on this device whenever a notable transit shows up.",
+    title: "Remind me before I lose my streak",
+    subtitle: "A late-day notification if your login streak is about to break.",
     unsupported: "Not available in this browser.",
     denied: "Notifications blocked — allow them in your browser settings for this device.",
     error: "Something went wrong, please try again.",
@@ -27,7 +27,7 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
-export function PushNotificationToggle({
+export function StreakReminderToggle({
   initialOptIn,
   locale = "fr",
 }: {
@@ -41,9 +41,6 @@ export function PushNotificationToggle({
   const [supported, setSupported] = useState(true);
 
   useEffect(() => {
-    // Détection de capacité navigateur pure (aucun système externe à
-    // observer en continu) — ne peut pas être dérivée du rendu serveur, où
-    // `navigator`/`window` n'existent pas.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupported(typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window);
   }, []);
@@ -72,7 +69,7 @@ export function PushNotificationToggle({
       const res = await fetch("/api/notifications/push-subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys, feature: "dailyTransit" }),
+        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys, feature: "streakReminder" }),
       });
       if (!res.ok) throw new Error("subscribe failed");
 
@@ -95,10 +92,10 @@ export function PushNotificationToggle({
         const res = await fetch("/api/notifications/push-subscribe", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ endpoint: subscription.endpoint, feature: "dailyTransit" }),
+          body: JSON.stringify({ endpoint: subscription.endpoint, feature: "streakReminder" }),
         });
-        // Un seul abonnement Push par appareil, partagé avec le rappel de
-        // série : ne le désabonner au niveau navigateur que si le serveur
+        // Un seul abonnement Push par appareil, partagé avec le transit du
+        // jour : ne le désabonner au niveau navigateur que si le serveur
         // confirme qu'aucune autre préférence n'en a plus besoin.
         const { subscriptionRemoved } = await res.json().catch(() => ({ subscriptionRemoved: false }));
         if (subscriptionRemoved) await subscription.unsubscribe();

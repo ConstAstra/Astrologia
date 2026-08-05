@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
 import { NotificationToggle } from "@/components/account/NotificationToggle";
 import { PushNotificationToggle } from "@/components/account/PushNotificationToggle";
+import { StreakReminderToggle } from "@/components/account/StreakReminderToggle";
 import { ReferralCard } from "@/components/account/ReferralCard";
 import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
@@ -191,6 +192,9 @@ export default async function AbonnementPage({
         <NotificationToggle initialOptIn={user.dailyHoroscopeOptIn} locale={locale} />
         <div className="border-t border-border-soft pt-5">
           <PushNotificationToggle initialOptIn={user.dailyTransitPushOptIn} locale={locale} />
+        </div>
+        <div className="border-t border-border-soft pt-5">
+          <StreakReminderToggle initialOptIn={user.streakReminderOptIn} locale={locale} />
         </div>
       </Card>
 
