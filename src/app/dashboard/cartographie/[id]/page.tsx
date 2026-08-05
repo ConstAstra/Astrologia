@@ -17,6 +17,7 @@ import { LINE_TYPE_META } from "@/lib/astro/interpretations/astrocartography-con
 import { LINE_TYPE_META_EN } from "@/lib/astro/interpretations/astrocartography-content.en";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { UnlockGate } from "@/components/billing/UnlockGate";
+import { HappyPlacesPostcardButton } from "@/components/dashboard/HappyPlacesPostcardButton";
 
 const HIGHLIGHT_PLANETS = ["sun", "moon", "venus", "jupiter"] as const;
 
@@ -29,6 +30,7 @@ const TEXT: Record<Locale, {
   bestPlacesHeading: string;
   bestPlacesIntro: string;
   noRanking: string;
+  postcardLabel: string;
 }> = {
   fr: {
     eyebrow: "Cartographie astrologique",
@@ -42,6 +44,7 @@ const TEXT: Record<Locale, {
     bestPlacesIntro:
       "À partir des pays où vos lignes passent réellement (frontières exactes, pas une simple proximité) — classés selon vos lignes les plus favorables à chaque thème.",
     noRanking: "Aucun pays de la liste ne ressort particulièrement pour ce thème.",
+    postcardLabel: "Vos 3 endroits les plus heureux, tous thèmes confondus, en carte à partager :",
   },
   en: {
     eyebrow: "Astrocartography",
@@ -55,6 +58,7 @@ const TEXT: Record<Locale, {
     bestPlacesIntro:
       "Based on the countries your lines actually cross (real borders, not just nearby coordinates) — ranked by your most favorable lines for each theme.",
     noRanking: "No country in the list particularly stands out for this theme.",
+    postcardLabel: "Your 3 happiest places overall, as a shareable card:",
   },
 };
 
@@ -167,6 +171,12 @@ export default async function CartographiePage({
           <Badge tone="gold">{t.premium}</Badge>
         </div>
         <p className="mt-1 max-w-2xl text-sm text-muted">{t.bestPlacesIntro}</p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <p className="text-xs text-muted">{t.postcardLabel}</p>
+          <HappyPlacesPostcardButton profileId={profile.id} locale={locale} />
+        </div>
+
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {rankingsByCategory.map(({ category, label, ranked }) => (
             <Card key={category} className="p-4">

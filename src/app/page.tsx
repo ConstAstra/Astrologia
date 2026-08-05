@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card, Eyebrow } from "@/components/ui/Card";
@@ -23,6 +24,8 @@ const TOOLS = [
     title: "Cartographie astrologique",
     description:
       "Vos lignes planétaires projetées sur une carte du monde : où votre Soleil brille-t-il, où votre Vénus adoucit-elle la vie, où Saturne structure-t-il ?",
+    teaserHref: "/carte",
+    teaserLabel: "Essayer la carte interactive, sans compte →",
   },
 ];
 
@@ -61,6 +64,11 @@ export default function Home() {
               <Card key={tool.title} className="p-7">
                 <h2 className="font-display text-2xl">{tool.title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{tool.description}</p>
+                {tool.teaserHref && (
+                  <Link href={tool.teaserHref} className="mt-3 inline-block text-sm text-gold-strong underline">
+                    {tool.teaserLabel}
+                  </Link>
+                )}
               </Card>
             ))}
           </div>

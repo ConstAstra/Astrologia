@@ -36,6 +36,7 @@ const TEXT: Record<Locale, {
   lockedTitle: string;
   lockedBody: string;
   unlock: string;
+  unlocksIn: (days: number) => string;
   viewingAsFriend: (name: string) => string;
 }> = {
   fr: {
@@ -49,8 +50,10 @@ const TEXT: Record<Locale, {
     today: "Aujourd'hui",
     tomorrow: "Demain",
     lockedTitle: "Voyez venir vos prochains jours",
-    lockedBody: "Les transits à venir (demain et toute la semaine) sont réservés à Premium — le thème du jour reste gratuit.",
+    lockedBody:
+      "Les transits à venir sont réservés à Premium — le thème du jour reste gratuit. Chaque jour se débloque automatiquement à sa date (revenez le voir), ou tout de suite avec Premium pour voir toute la semaine d'un coup.",
     unlock: "Débloquer avec Premium",
+    unlocksIn: (days) => (days === 1 ? "débloque demain" : `débloque dans ${days} j`),
     viewingAsFriend: (name) => `Vous voyez les transits de ${name} en tant qu'ami — lecture seule.`,
   },
   en: {
@@ -64,8 +67,10 @@ const TEXT: Record<Locale, {
     today: "Today",
     tomorrow: "Tomorrow",
     lockedTitle: "See your upcoming days coming",
-    lockedBody: "Upcoming transits (tomorrow and the rest of the week) are a Premium feature — today's chart stays free.",
+    lockedBody:
+      "Upcoming transits are a Premium feature — today's chart stays free. Each day unlocks on its own automatically (come back to see it), or unlock the whole week at once right now with Premium.",
     unlock: "Unlock with Premium",
+    unlocksIn: (days) => (days === 1 ? "unlocks tomorrow" : `unlocks in ${days}d`),
     viewingAsFriend: (name) => `You're viewing ${name}'s transits as a friend — read-only.`,
   },
 };
@@ -162,6 +167,7 @@ export default async function TransitsPage({
           <Link
             key={tab.offset}
             href={`?day=${tab.offset}`}
+            title={tab.offset > 0 && !isPremium ? t.unlocksIn(tab.offset) : undefined}
             className={`rounded-full border px-3 py-1.5 text-xs capitalize transition-colors ${
               tab.offset === offset
                 ? "border-gold-strong bg-gold/10 text-gold-strong"
@@ -170,16 +176,9 @@ export default async function TransitsPage({
           >
             {tab.label}
             {tab.offset > 0 && !isPremium && (
-              <svg
-                className="ml-1 inline-block opacity-60"
-                width="9"
-                height="9"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3Z" />
-              </svg>
+              <span className="ml-1 whitespace-nowrap text-[10px] normal-case opacity-70">
+                🔒{locale === "en" ? `${tab.offset}d` : `${tab.offset}j`}
+              </span>
             )}
           </Link>
         ))}
@@ -275,7 +274,10 @@ export default async function TransitsPage({
             <div className="absolute inset-0 flex items-center justify-center">
               <Card className="mx-4 max-w-sm p-6 text-center shadow-[0_20px_60px_-15px_#00000090]">
                 <p className="font-display text-xl">{t.lockedTitle}</p>
-                <p className="mt-2 text-sm text-muted">{t.lockedBody}</p>
+                <div className="mt-2">
+                  <Badge tone="gold">🔒 {t.unlocksIn(offset)}</Badge>
+                </div>
+                <p className="mt-3 text-sm text-muted">{t.lockedBody}</p>
                 <div className="mt-4">
                   <ButtonLink href="/dashboard/abonnement">{t.unlock}</ButtonLink>
                 </div>

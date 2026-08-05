@@ -100,3 +100,12 @@ const LINE_THEME_TAGS: Partial<Record<PlanetKey, Partial<Record<LineTypeKey, The
 export function getThemeTags(planet: PlanetKey, type: LineTypeKey): ThemeTag[] {
   return LINE_THEME_TAGS[planet]?.[type] ?? [];
 }
+
+/** Une ligne compte pour "heureux" si elle porte au moins un tag positif et aucun tag difficile, tous thèmes confondus. */
+export function isHappyLine(planet: PlanetKey, type: LineTypeKey): boolean {
+  const tags = getThemeTags(planet, type);
+  if (tags.length === 0) return false;
+  const hasPositive = tags.some((t) => t.valence === "positive");
+  const hasChallenging = tags.some((t) => t.valence === "challenging");
+  return hasPositive && !hasChallenging;
+}

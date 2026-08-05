@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { computeCountryLineMatches, rankCountriesForCategory } from "@/lib/astro/astrocartography-countries";
+import { computeCountryLineMatches, rankCountriesForCategory, rankHappiestCountries } from "@/lib/astro/astrocartography-countries";
+import { isHappyLine } from "@/lib/astro/interpretations/astrocartography-categories";
 import { MAJOR_COUNTRIES } from "@/components/map/majorCountries";
 import type { AstroCartoLine } from "@/lib/astro/astrocartography";
 
@@ -99,6 +100,63 @@ describe("rankCountriesForCategory", () => {
       ],
     };
     const ranked = rankCountriesForCategory("love", matches);
+    expect(ranked[0].countryId).toBe(b.id);
+    expect(ranked[0].score).toBeGreaterThan(ranked[1].score);
+  });
+});
+
+describe("isHappyLine", () => {
+  it("is true for a line whose only tags are positive", () => {
+    expect(isHappyLine("venus", "DC")).toBe(true);
+  });
+
+  it("is false for a line whose only tags are challenging", () => {
+    expect(isHappyLine("saturn", "DC")).toBe(false);
+  });
+
+  it("is false for a line with no theme tags at all", () => {
+    expect(isHappyLine("mercury", "IC")).toBe(false);
+  });
+});
+
+describe("rankHappiestCountries", () => {
+  it("counts a line once even when it carries positive tags in two categories", () => {
+    const usId = MAJOR_COUNTRIES.find((c) => c.name === "États-Unis")!.id;
+    // Neptune AC porte deux tags positifs (spirituel + voyage) sur la même ligne physique.
+    const matches = { [usId]: [{ planet: "neptune" as const, type: "AC" as const }] };
+    const ranked = rankHappiestCountries(matches);
+    expect(ranked[0].score).toBe(1);
+    expect(ranked[0].supportingLines).toHaveLength(1);
+  });
+
+  it("excludes a country whose only line is challenging", () => {
+    const usId = MAJOR_COUNTRIES.find((c) => c.name === "États-Unis")!.id;
+    const matches = { [usId]: [{ planet: "saturn" as const, type: "DC" as const }] };
+    expect(rankHappiestCountries(matches)).toHaveLength(0);
+  });
+
+  it("aggregates across categories rather than filtering to just one", () => {
+    const usId = MAJOR_COUNTRIES.find((c) => c.name === "États-Unis")!.id;
+    const matches = {
+      [usId]: [
+        { planet: "venus" as const, type: "DC" as const }, // love
+        { planet: "sun" as const, type: "MC" as const }, // career
+      ],
+    };
+    const ranked = rankHappiestCountries(matches);
+    expect(ranked[0].score).toBe(2);
+  });
+
+  it("sorts by descending score", () => {
+    const [a, b] = MAJOR_COUNTRIES;
+    const matches = {
+      [a.id]: [{ planet: "venus" as const, type: "DC" as const }],
+      [b.id]: [
+        { planet: "venus" as const, type: "DC" as const },
+        { planet: "jupiter" as const, type: "MC" as const },
+      ],
+    };
+    const ranked = rankHappiestCountries(matches);
     expect(ranked[0].countryId).toBe(b.id);
     expect(ranked[0].score).toBeGreaterThan(ranked[1].score);
   });

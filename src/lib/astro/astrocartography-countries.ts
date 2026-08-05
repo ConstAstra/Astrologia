@@ -6,7 +6,7 @@ import world from "world-atlas/countries-110m.json";
 import { MAJOR_COUNTRIES } from "@/components/map/majorCountries";
 import type { AstroCartoLine, AstroCartoLineType } from "./astrocartography";
 import type { PlanetKey } from "./types";
-import { getThemeTags, type ThemeCategory } from "./interpretations/astrocartography-categories";
+import { getThemeTags, isHappyLine, type ThemeCategory } from "./interpretations/astrocartography-categories";
 
 export interface CountryLineMatch {
   planet: PlanetKey;
@@ -116,6 +116,34 @@ export function rankCountriesForCategory(
         } else {
           score -= 1;
         }
+      }
+    }
+
+    if (score > 0) rankings.push({ countryId, score, supportingLines });
+  }
+
+  return rankings.sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Classe les pays selon un score de "bonheur" global : une ligne compte
+ * dès qu'elle porte au moins un thème positif (amour, carrière, spirituel,
+ * voyage) et aucun thème difficile — tous thèmes confondus plutôt qu'un
+ * seul, contrairement à `rankCountriesForCategory`. Sert de base à la carte
+ * postale "tes 3 endroits heureux" : une vue d'ensemble plutôt qu'un
+ * classement par intention précise.
+ */
+export function rankHappiestCountries(countryMatches: Record<string, CountryLineMatch[]>): CountryRanking[] {
+  const rankings: CountryRanking[] = [];
+
+  for (const [countryId, matches] of Object.entries(countryMatches)) {
+    let score = 0;
+    const supportingLines: CountryLineMatch[] = [];
+
+    for (const match of matches) {
+      if (isHappyLine(match.planet, match.type)) {
+        score += 1;
+        supportingLines.push(match);
       }
     }
 

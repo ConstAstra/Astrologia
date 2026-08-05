@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card, Eyebrow } from "@/components/ui/Card";
@@ -30,6 +31,8 @@ const TOOLS = [
     title: "Astrocartography",
     description:
       "Your planetary lines projected on a world map: where does your Sun shine, where does your Venus soften life, where does Saturn bring structure?",
+    teaserHref: "/en/map",
+    teaserLabel: "Try the interactive map, no account →",
   },
 ];
 
@@ -67,6 +70,11 @@ export default function HomeEn() {
               <Card key={tool.title} className="p-7">
                 <h2 className="font-display text-2xl">{tool.title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{tool.description}</p>
+                {tool.teaserHref && (
+                  <Link href={tool.teaserHref} className="mt-3 inline-block text-sm text-gold-strong underline">
+                    {tool.teaserLabel}
+                  </Link>
+                )}
               </Card>
             ))}
           </div>
