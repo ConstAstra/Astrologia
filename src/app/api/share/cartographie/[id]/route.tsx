@@ -4,11 +4,14 @@ import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
-import { hasFeatureAccess } from "@/lib/billing/entitlements";
+import { hasFeatureAccess, isAvatarGlowing } from "@/lib/billing/entitlements";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeAstrocartography } from "@/lib/astro/astrocartography";
 import { computeCountryLineMatches, rankHappiestCountries } from "@/lib/astro/astrocartography-countries";
 import { getThemeTags, CATEGORY_LABELS } from "@/lib/astro/interpretations/astrocartography-categories";
+import { computeBigThree } from "@/lib/astro/dominance";
+import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
+import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { MAJOR_COUNTRIES } from "@/components/map/majorCountries";
 import { MAJOR_COUNTRIES_EN } from "@/components/map/majorCountries.en";
 import { renderQrDataUri } from "@/lib/qr";
@@ -89,6 +92,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const lines = computeAstrocartography(chart);
   const countryMatches = computeCountryLineMatches(lines);
   const top3 = rankHappiestCountries(countryMatches).slice(0, 3);
+
+  const big3 = computeBigThree(chart.points, chart.hasReliableHouses);
+  const avatarOverrides = profile.avatarOverrides ? (JSON.parse(profile.avatarOverrides) as AvatarOverrides) : undefined;
+  const avatarDataUri = renderAvatarDataUri(
+    profile.id,
+    big3.sun,
+    112,
+    big3.moon,
+    big3.ascendant ?? undefined,
+    avatarOverrides,
+    isAvatarGlowing(user)
+  );
 
   const categoryLabels = CATEGORY_LABELS[locale];
   const categoriesFor = (countryId: string) => {
@@ -195,7 +210,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
               />
               <div style={{ display: "flex", fontFamily: "Unbounded", fontSize: 22, color: INK }}>Astrologium</div>
             </div>
-            <div style={{ display: "flex", fontSize: 15, color: INK_SOFT, letterSpacing: 4 }}>CARTE POSTALE</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ display: "flex", fontSize: 15, color: INK_SOFT, letterSpacing: 4 }}>CARTE POSTALE</div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={avatarDataUri}
+                width={56}
+                height={56}
+                alt=""
+                style={{ borderRadius: 14, border: `2px solid ${INK}` }}
+              />
+            </div>
           </div>
 
           {/* Corps façon dos de carte postale : message manuscrit à gauche, timbre + tampon + adresse à droite */}
