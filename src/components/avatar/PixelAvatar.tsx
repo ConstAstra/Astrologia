@@ -79,18 +79,30 @@ export function PixelAvatar({
         {/* Tête */}
         <rect x={unit * 2.5} y={unit * 3} width={unit * 7} height={unit * 7} rx={unit * 1.8} fill={skin} />
 
-        {/* Cheveux */}
+        {/* Cheveux — chaque cellule est volontairement surdimensionnée (elle
+            déborde sur ses voisines) avec un léger rx : les cellules
+            adjacentes fusionnent en un contour lisse, tandis que les coins
+            réellement exposés du masque deviennent arrondis plutôt que des
+            angles à 90° façon 8-bit. */}
         {hairCells.map((c, i) => (
-          <rect key={i} x={c.x * unit} y={c.y * unit} width={unit} height={unit} fill={hairColor} />
+          <rect
+            key={i}
+            x={c.x * unit - unit * 0.15}
+            y={c.y * unit - unit * 0.15}
+            width={unit * 1.3}
+            height={unit * 1.3}
+            rx={unit * 0.35}
+            fill={hairColor}
+          />
         ))}
 
         {/* Sourcils */}
-        <rect x={unit * 4.2} y={unit * (raisedBrow ? 5.6 : 5.85)} width={unit * 1.1} height={unit * 0.35} rx={unit * 0.15} fill={hairColor} />
-        <rect x={unit * 6.9} y={unit * 5.85} width={unit * 1.1} height={unit * 0.35} rx={unit * 0.15} fill={hairColor} />
+        <rect x={unit * 4.2} y={unit * (raisedBrow ? 5.6 : 5.85)} width={unit * 1.1} height={unit * 0.35} rx={unit * 0.17} fill={hairColor} />
+        <rect x={unit * 6.9} y={unit * 5.85} width={unit * 1.1} height={unit * 0.35} rx={unit * 0.17} fill={hairColor} />
 
         {/* Yeux */}
-        <rect x={unit * 4.3} y={unit * 6.4} width={unit * 0.9} height={unit * 0.9} fill="#241f1c" />
-        <rect x={unit * 7} y={unit * 6.4} width={unit * 0.9} height={unit * 0.9} fill="#241f1c" />
+        <rect x={unit * 4.3} y={unit * 6.4} width={unit * 0.9} height={unit * 0.9} rx={unit * 0.28} fill="#241f1c" />
+        <rect x={unit * 7} y={unit * 6.4} width={unit * 0.9} height={unit * 0.9} rx={unit * 0.28} fill="#241f1c" />
 
         {/* Lunettes (parfois) */}
         {glasses && (

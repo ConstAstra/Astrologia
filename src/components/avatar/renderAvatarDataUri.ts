@@ -30,8 +30,15 @@ export function renderAvatarDataUri(
   const grid = 12;
   const unit = size / grid;
 
+  // Cellules surdimensionnées + rx : même technique que PixelAvatar.tsx pour
+  // fusionner les cellules adjacentes en un contour lisse plutôt que des
+  // blocs à angles droits — les deux rendus (DOM et data URI serveur)
+  // doivent rester visuellement identiques.
   const hairRects = hairCells
-    .map((c) => `<rect x="${c.x * unit}" y="${c.y * unit}" width="${unit}" height="${unit}" fill="${hairColor}"/>`)
+    .map(
+      (c) =>
+        `<rect x="${c.x * unit - unit * 0.15}" y="${c.y * unit - unit * 0.15}" width="${unit * 1.3}" height="${unit * 1.3}" rx="${unit * 0.35}" fill="${hairColor}"/>`
+    )
     .join("");
 
   const glassesSvg = glasses
@@ -78,10 +85,10 @@ export function renderAvatarDataUri(
       <rect x="${unit * 0.5}" y="${unit * 9.6}" width="${unit * 11}" height="${unit * 3.5}" rx="${unit * 2.2}" fill="${clothing}"/>
       <rect x="${unit * 2.5}" y="${unit * 3}" width="${unit * 7}" height="${unit * 7}" rx="${unit * 1.8}" fill="${skin}"/>
       ${hairRects}
-      <rect x="${unit * 4.2}" y="${unit * (raisedBrow ? 5.6 : 5.85)}" width="${unit * 1.1}" height="${unit * 0.35}" rx="${unit * 0.15}" fill="${hairColor}"/>
-      <rect x="${unit * 6.9}" y="${unit * 5.85}" width="${unit * 1.1}" height="${unit * 0.35}" rx="${unit * 0.15}" fill="${hairColor}"/>
-      <rect x="${unit * 4.3}" y="${unit * 6.4}" width="${unit * 0.9}" height="${unit * 0.9}" fill="#241f1c"/>
-      <rect x="${unit * 7}" y="${unit * 6.4}" width="${unit * 0.9}" height="${unit * 0.9}" fill="#241f1c"/>
+      <rect x="${unit * 4.2}" y="${unit * (raisedBrow ? 5.6 : 5.85)}" width="${unit * 1.1}" height="${unit * 0.35}" rx="${unit * 0.17}" fill="${hairColor}"/>
+      <rect x="${unit * 6.9}" y="${unit * 5.85}" width="${unit * 1.1}" height="${unit * 0.35}" rx="${unit * 0.17}" fill="${hairColor}"/>
+      <rect x="${unit * 4.3}" y="${unit * 6.4}" width="${unit * 0.9}" height="${unit * 0.9}" rx="${unit * 0.28}" fill="#241f1c"/>
+      <rect x="${unit * 7}" y="${unit * 6.4}" width="${unit * 0.9}" height="${unit * 0.9}" rx="${unit * 0.28}" fill="#241f1c"/>
       ${glassesSvg}
       ${blushSvg}
       ${mouthSvg}
