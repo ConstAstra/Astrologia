@@ -17,9 +17,23 @@ import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeTransitAspect, type Locale } from "@/lib/astro/interpretations/compose";
 import { MOON_PHASE_TEXT } from "@/lib/astro/interpretations/moonphase-content";
 import { MOON_PHASE_TEXT_EN, MOON_PHASE_LABEL_EN } from "@/lib/astro/interpretations/moonphase-content.en";
+import { composeSocialWeather } from "@/lib/astro/interpretations/social-weather";
+import { EVENT_TYPES, composeEventBriefing, type EventType } from "@/lib/astro/interpretations/event-transits";
+import { narrateEventBriefing } from "@/lib/ai/event-reading";
+import { createRateLimiter } from "@/lib/rate-limit";
 import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+
+const EVENT_TYPE_SET = new Set<string>(EVENT_TYPES);
+function isEventType(value: string | undefined): value is EventType {
+  return !!value && EVENT_TYPE_SET.has(value);
+}
+
+// Limite les appels IA (payants) par utilisateur, indépendamment du reste de
+// la page — jamais bloquant : au-delà du seuil, on retombe silencieusement
+// sur la synthèse gabarit plutôt que d'afficher une erreur.
+const eventAiLimiter = createRateLimiter({ max: 20, windowMs: 60 * 60_000 });
 
 const FORECAST_DAYS = 7;
 
@@ -38,6 +52,18 @@ const TEXT: Record<Locale, {
   unlock: string;
   unlocksIn: (days: number) => string;
   viewingAsFriend: (name: string) => string;
+  datePickerLabel: string;
+  datePickerSubmit: string;
+  socialHeading: string;
+  socialIntro: string;
+  socialHighlights: string;
+  socialCautions: string;
+  socialNoHouses: string;
+  eventSelectLabel: string;
+  eventSelectNone: string;
+  eventHeading: (label: string) => string;
+  eventPertinent: string;
+  eventTypeLabels: Record<EventType, string>;
 }> = {
   fr: {
     eyebrow: "Transits",
@@ -55,6 +81,19 @@ const TEXT: Record<Locale, {
     unlock: "Débloquer avec Premium",
     unlocksIn: (days) => (days === 1 ? "débloque demain" : `débloque dans ${days} j`),
     viewingAsFriend: (name) => `Vous voyez les transits de ${name} en tant qu'ami — lecture seule.`,
+    datePickerLabel: "Vérifier une autre date (pour préparer un événement)",
+    datePickerSubmit: "Voir",
+    socialHeading: "Angle social",
+    socialIntro:
+      "Dans quelles maisons tombent vos planètes personnelles ce jour-là — utile pour juger si c'est plutôt le bon moment pour recevoir du monde ou pour un cercle plus restreint.",
+    socialHighlights: "Ce qui joue pour vous",
+    socialCautions: "À surveiller",
+    socialNoHouses: "Heure de naissance inconnue : cet angle a besoin de vos maisons, donc de l'heure exacte.",
+    eventSelectLabel: "Pour quel événement ?",
+    eventSelectNone: "— optionnel —",
+    eventHeading: (label) => `Lecture pour : ${label}`,
+    eventPertinent: "pertinent",
+    eventTypeLabels: { voyage: "Voyage", anniversaire: "Anniversaire", mariage: "Mariage", soutenance: "Soutenance / examen" },
   },
   en: {
     eyebrow: "Transits",
@@ -72,19 +111,61 @@ const TEXT: Record<Locale, {
     unlock: "Unlock with Premium",
     unlocksIn: (days) => (days === 1 ? "unlocks tomorrow" : `unlocks in ${days}d`),
     viewingAsFriend: (name) => `You're viewing ${name}'s transits as a friend — read-only.`,
+    datePickerLabel: "Check another date (to plan an event)",
+    datePickerSubmit: "View",
+    socialHeading: "Social angle",
+    socialIntro:
+      "Which houses your personal planets fall into that day — useful for judging whether it's more a good moment to host people, or better suited to a smaller circle.",
+    socialHighlights: "What's working for you",
+    socialCautions: "Worth watching",
+    socialNoHouses: "Unknown birth time: this angle needs your houses, so the exact time.",
+    eventSelectLabel: "For which event?",
+    eventSelectNone: "— optional —",
+    eventHeading: (label) => `Reading for: ${label}`,
+    eventPertinent: "relevant",
+    eventTypeLabels: { voyage: "Trip", anniversaire: "Birthday", mariage: "Wedding", soutenance: "Thesis defense / exam" },
   },
 };
+
+// Un jour tapé au format "YYYY-MM-DD" au-delà de la fenêtre des 7 onglets,
+// pour préparer un événement à une date arbitraire (ex : un anniversaire
+// dans plusieurs semaines) — plutôt qu'un simple raccourci vers l'un des
+// 7 onglets. Bornée à ±5 ans pour rester dans la plage fiable du moteur
+// éphéméride ; au-delà, on retombe silencieusement sur le paramètre `day`.
+function parseDateParam(value: string | undefined, today: Date): Date | null {
+  if (!value) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+  const [, y, m, d] = match;
+  const parsed = new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const diffDays = Math.abs(parsed.getTime() - today.getTime()) / 86_400_000;
+  return diffDays > 5 * 365 ? null : parsed;
+}
+
+function toDateInputValue(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const ASPECT_TONE_LABEL: Record<Locale, Record<"harmonieux" | "tendu" | "neutre", string>> = {
+  fr: { harmonieux: "porteur", tendu: "tendu", neutre: "neutre" },
+  en: { harmonieux: "supportive", tendu: "tense", neutre: "neutral" },
+};
+function aspectToneLabel(tone: "harmonieux" | "tendu" | "neutre", locale: Locale): string {
+  return ASPECT_TONE_LABEL[locale][tone];
+}
 
 export default async function TransitsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ day?: string }>;
+  searchParams: Promise<{ day?: string; date?: string; event?: string }>;
 }) {
   const userId = await requireUserId();
   const { id } = await params;
-  const { day } = await searchParams;
+  const { day, date: dateParam, event: eventParam } = await searchParams;
+  const eventType = isEventType(eventParam) ? eventParam : null;
 
   const [profile, user] = await Promise.all([
     prisma.profile.findUnique({ where: { id } }),
@@ -105,13 +186,24 @@ export default async function TransitsPage({
   const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
   const moonTextMap = locale === "en" ? MOON_PHASE_TEXT_EN : MOON_PHASE_TEXT;
 
-  const offset = Math.min(FORECAST_DAYS, Math.max(0, Number.parseInt(day ?? "0", 10) || 0));
+  const today = new Date();
+  const customDate = parseDateParam(dateParam, today);
+
+  let offset: number;
+  let target: Date;
+  if (customDate) {
+    target = customDate;
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfTarget = new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
+    offset = Math.round((startOfTarget.getTime() - startOfToday.getTime()) / 86_400_000);
+  } else {
+    offset = Math.min(FORECAST_DAYS, Math.max(0, Number.parseInt(day ?? "0", 10) || 0));
+    target = new Date(today);
+    target.setDate(today.getDate() + offset);
+  }
+
   const isPremium = isPremiumActive(user);
   const locked = offset > 0 && !isPremium;
-
-  const today = new Date();
-  const target = new Date(today);
-  target.setDate(today.getDate() + offset);
 
   const chart = computeNatalChart(
     {
@@ -130,6 +222,18 @@ export default async function TransitsPage({
   const minorAspects = transitAspects.filter((a) => !a.major);
   const transiting = computeTransitingPositions(target);
   const moon = computeMoonPhase(target);
+  const socialWeather = composeSocialWeather(chart, target, transitAspects, locale);
+
+  const eventBriefing = eventType ? composeEventBriefing(chart, target, transitAspects, moon, eventType, locale) : null;
+  // L'appel IA coûte réellement de l'argent : jamais déclenché pour du
+  // contenu verrouillé (de toute façon masqué par le flou visuel) ni
+  // au-delà du débit autorisé — dans les deux cas, la synthèse gabarit
+  // déterministe suffit et ne coûte rien.
+  const eventNarration = eventBriefing
+    ? locked || eventAiLimiter.isLimited(userId)
+      ? eventBriefing.templateSynthesis
+      : await narrateEventBriefing(eventBriefing, locale)
+    : null;
 
   const dateLabel = target.toLocaleDateString(locale === "en" ? "en-US" : "fr-FR", {
     weekday: "long",
@@ -184,6 +288,41 @@ export default async function TransitsPage({
         ))}
       </div>
 
+      <form className="mt-3 flex flex-wrap items-center gap-2" action="">
+        <label htmlFor="transit-date" className="text-xs text-muted">
+          {t.datePickerLabel}
+        </label>
+        <input
+          id="transit-date"
+          type="date"
+          name="date"
+          defaultValue={toDateInputValue(target)}
+          className="rounded-full border border-border-soft bg-background-elevated px-3 py-1.5 text-xs outline-none focus:border-gold/60"
+        />
+        <label htmlFor="transit-event" className="text-xs text-muted">
+          {t.eventSelectLabel}
+        </label>
+        <select
+          id="transit-event"
+          name="event"
+          defaultValue={eventType ?? ""}
+          className="rounded-full border border-border-soft bg-background-elevated px-3 py-1.5 text-xs outline-none focus:border-gold/60"
+        >
+          <option value="">{t.eventSelectNone}</option>
+          {EVENT_TYPES.map((et) => (
+            <option key={et} value={et}>
+              {t.eventTypeLabels[et]}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="rounded-full border border-gold/40 px-3 py-1.5 text-xs text-gold-strong hover:bg-gold/10"
+        >
+          {t.datePickerSubmit}
+        </button>
+      </form>
+
       <div className={`relative mt-6 ${locked ? "max-h-[640px] overflow-hidden" : ""}`}>
         <div className={locked ? "pointer-events-none select-none blur-sm" : undefined} aria-hidden={locked}>
           <Card className="p-6">
@@ -216,6 +355,96 @@ export default async function TransitsPage({
               })}
             </div>
           </section>
+
+          <section className="mt-10">
+            <h2 className="font-display text-2xl">{t.socialHeading}</h2>
+            {socialWeather ? (
+              <>
+                <p className="mt-1 max-w-2xl text-sm text-muted">{t.socialIntro}</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {socialWeather.placements.map((p) => (
+                    <Card key={p.planet} className="p-4 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {planetMap[p.planet].symbol} {planetMap[p.planet].name}
+                        </span>
+                        <Badge tone={p.flavor === "social" ? "sage" : p.flavor === "intime" ? "terracotta" : "neutral"}>
+                          {p.houseName.split("—")[0].trim()}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 text-xs text-muted">{p.houseKeyword}</p>
+                    </Card>
+                  ))}
+                </div>
+                <p className="mt-4 text-sm leading-relaxed">{socialWeather.synthesis}</p>
+                {socialWeather.highlights.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-sage">{t.socialHighlights}</p>
+                    <ul className="mt-2 space-y-1.5 text-sm text-muted">
+                      {socialWeather.highlights.map((h, i) => (
+                        <li key={i} className="leading-relaxed">
+                          {h}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {socialWeather.cautions.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-terracotta">{t.socialCautions}</p>
+                    <ul className="mt-2 space-y-1.5 text-sm text-muted">
+                      {socialWeather.cautions.map((c, i) => (
+                        <li key={i} className="leading-relaxed">
+                          {c}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="mt-2 text-sm text-muted">{t.socialNoHouses}</p>
+            )}
+          </section>
+
+          {eventBriefing && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl">{t.eventHeading(eventBriefing.eventLabel)}</h2>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed">{eventNarration}</p>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {eventBriefing.housePlacements.map((p) => (
+                  <Card key={p.planet} className="p-4 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">
+                        {planetMap[p.planet].symbol} {planetMap[p.planet].name}
+                      </span>
+                      {p.isFocus && <Badge tone="gold">{t.eventPertinent}</Badge>}
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      {p.houseName} — {p.houseKeyword}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {eventBriefing.aspects.map((a, i) => (
+                  <Card key={i} className="p-3">
+                    <div className="flex items-start justify-between gap-3 text-xs leading-relaxed text-muted">
+                      <span>{a.text}</span>
+                      <div className="flex shrink-0 gap-1">
+                        {a.isFocus && <Badge tone="gold">{t.eventPertinent}</Badge>}
+                        <Badge tone={a.tone === "harmonieux" ? "sage" : a.tone === "tendu" ? "terracotta" : "neutral"}>
+                          {aspectToneLabel(a.tone, locale)}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="mt-10">
             <h2 className="font-display text-2xl">{t.majorAspects}</h2>
