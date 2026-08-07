@@ -9,6 +9,8 @@ const TOOLS = [
     title: "Thème astral",
     description:
       "Positions précises des planètes, des maisons et des aspects au moment exact de votre naissance, avec une lecture détaillée signe par signe, maison par maison.",
+    teaserHref: "/decouvrir",
+    teaserLabel: "Voir mon Big 3 en 10 secondes, sans compte →",
   },
   {
     title: "Synastrie",
@@ -48,14 +50,14 @@ export default function Home() {
             système de maisons, chaque orbe est documenté : vous savez toujours ce que vous lisez et pourquoi.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/inscription" size="lg">
+            <ButtonLink href="/decouvrir" size="lg">
               Découvrir mon thème astral
             </ButtonLink>
             <ButtonLink href="/methode" variant="secondary" size="lg">
               Comprendre la méthode
             </ButtonLink>
           </div>
-          <p className="mt-4 text-xs text-muted/70">Thème natal complet gratuit. Sans carte bancaire.</p>
+          <p className="mt-4 text-xs text-muted/70">Ton Big 3 en 10 secondes, sans compte. Thème complet gratuit ensuite.</p>
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">

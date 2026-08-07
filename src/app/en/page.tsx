@@ -16,6 +16,8 @@ const TOOLS = [
     title: "Natal chart",
     description:
       "Precise positions of the planets, houses and aspects at the exact moment of your birth, with a detailed reading sign by sign, house by house.",
+    teaserHref: "/en/discover",
+    teaserLabel: "See my Big 3 in 10 seconds, no account →",
   },
   {
     title: "Synastry",
@@ -54,14 +56,14 @@ export default function HomeEn() {
             system, every orb is documented: you always know what you&apos;re reading and why.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/en/signup" size="lg">
+            <ButtonLink href="/en/discover" size="lg">
               Create my natal chart
             </ButtonLink>
             <ButtonLink href="/en/method" variant="secondary" size="lg">
               Understand the method
             </ButtonLink>
           </div>
-          <p className="mt-4 text-xs text-muted/70">Full natal chart free. No credit card required.</p>
+          <p className="mt-4 text-xs text-muted/70">Your Big 3 in 10 seconds, no account. Full chart free afterwards.</p>
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">
