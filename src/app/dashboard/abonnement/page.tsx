@@ -7,6 +7,7 @@ import { NotificationToggle } from "@/components/account/NotificationToggle";
 import { PushNotificationToggle } from "@/components/account/PushNotificationToggle";
 import { StreakReminderToggle } from "@/components/account/StreakReminderToggle";
 import { FriendActivityPushToggle } from "@/components/account/FriendActivityPushToggle";
+import { UpcomingTransitAlertToggle } from "@/components/account/UpcomingTransitAlertToggle";
 import { ReferralCard } from "@/components/account/ReferralCard";
 import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
@@ -199,6 +200,9 @@ export default async function AbonnementPage({
         </div>
         <div className="border-t border-border-soft pt-5">
           <FriendActivityPushToggle initialOptIn={user.friendActivityPushOptIn} locale={locale} />
+        </div>
+        <div className="border-t border-border-soft pt-5">
+          <UpcomingTransitAlertToggle initialOptIn={user.upcomingTransitAlertOptIn} locale={locale} />
         </div>
       </Card>
 

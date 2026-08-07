@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 
-const FEATURES = ["dailyTransit", "streakReminder", "friendActivity"] as const;
+const FEATURES = ["dailyTransit", "streakReminder", "friendActivity", "upcomingTransitAlert"] as const;
 type Feature = (typeof FEATURES)[number];
 
 const subscribeSchema = z.object({
@@ -13,7 +13,7 @@ const subscribeSchema = z.object({
     auth: z.string().min(1),
   }),
   // Quelle préférence ce clic d'activation concerne — le même endpoint sert
-  // les trois types de notification une fois créé, mais chaque toggle
+  // les quatre types de notification une fois créé, mais chaque toggle
   // n'active que sa propre préférence (consentement séparé par contenu).
   feature: z.enum(FEATURES).default("dailyTransit"),
 });
@@ -27,11 +27,19 @@ const OPT_IN_FIELD = {
   dailyTransit: "dailyTransitPushOptIn",
   streakReminder: "streakReminderOptIn",
   friendActivity: "friendActivityPushOptIn",
+  upcomingTransitAlert: "upcomingTransitAlertOptIn",
 } as const satisfies Record<Feature, string>;
+
+const ALL_OPT_IN_FALSE = {
+  dailyTransitPushOptIn: false,
+  streakReminderOptIn: false,
+  friendActivityPushOptIn: false,
+  upcomingTransitAlertOptIn: false,
+} as const;
 
 // Enregistre un abonnement Web Push et active la préférence correspondante.
 // Un même endpoint peut se réabonner (ex: permission redonnée après un
-// refus), ou être partagé par les trois préférences : upsert plutôt qu'un
+// refus), ou être partagé par les quatre préférences : upsert plutôt qu'un
 // create qui échouerait sur la contrainte unique.
 export async function POST(request: Request) {
   const userId = await getCurrentUserId();
@@ -59,7 +67,7 @@ export async function POST(request: Request) {
 
 // Désactive toujours la préférence appelante. Un même appareil ne peut
 // détenir qu'un seul abonnement Push par service worker (contrainte du
-// Push API), donc l'abonnement lui-même est partagé par les trois
+// Push API), donc l'abonnement lui-même est partagé par les quatre
 // préférences : on ne le supprime que si TOUTES les autres préférences sont
 // déjà désactivées — sinon ce serait couper silencieusement une
 // notification encore active. Le client se base sur `subscriptionRemoved`
@@ -77,7 +85,12 @@ export async function DELETE(request: Request) {
   const { endpoint, feature } = parsed.data;
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { dailyTransitPushOptIn: true, streakReminderOptIn: true, friendActivityPushOptIn: true },
+    select: {
+      dailyTransitPushOptIn: true,
+      streakReminderOptIn: true,
+      friendActivityPushOptIn: true,
+      upcomingTransitAlertOptIn: true,
+    },
   });
   if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
 
@@ -87,10 +100,7 @@ export async function DELETE(request: Request) {
   if (subscriptionRemoved) {
     await prisma.$transaction([
       prisma.pushSubscription.deleteMany({ where: { userId, endpoint } }),
-      prisma.user.update({
-        where: { id: userId },
-        data: { dailyTransitPushOptIn: false, streakReminderOptIn: false, friendActivityPushOptIn: false },
-      }),
+      prisma.user.update({ where: { id: userId }, data: ALL_OPT_IN_FALSE }),
     ]);
   } else {
     await prisma.user.update({ where: { id: userId }, data: { [OPT_IN_FIELD[feature]]: false } });

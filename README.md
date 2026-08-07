@@ -96,7 +96,7 @@ Toutes les variables sont documentées dans `.env.example`. Résumé :
 | `APPLE_*` | Achats intégrés iOS (voir section dédiée) |
 | `CAPACITOR_SERVER_URL` | URL chargée par l'app iOS |
 | `RESEND_API_KEY` / `EMAIL_FROM` | Envoi d'e-mails (mot de passe oublié, horoscope quotidien) — vide en dev, logge dans la console |
-| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope`, `/api/cron/daily-transit-push` et `/api/cron/streak-reminder` (voir « Horoscope quotidien », « Transit du jour par notification » et « Rappel de série ») |
+| `CRON_SECRET` | Autorise les appels à `/api/cron/daily-horoscope`, `/api/cron/daily-transit-push`, `/api/cron/streak-reminder` et `/api/cron/upcoming-transit-alert` (voir « Horoscope quotidien », « Transit du jour par notification », « Rappel de série » et « Transit fort à venir ») |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | Notification push "transit du jour" (voir « Transit du jour par notification ») — vide en dev, logge dans la console |
 
 ### Stripe (web)
@@ -233,6 +233,21 @@ qu'un seul abonnement Push actif par service worker) : désactiver l'une des
 deux ne supprime l'abonnement navigateur que si l'autre est elle aussi
 désactivée — sinon elle continuerait de recevoir des notifications sans
 abonnement en base. Voir `src/app/api/notifications/push-subscribe/route.ts`.
+
+### Transit fort à venir
+
+`/api/cron/upcoming-transit-alert` (GET ou POST) cible les utilisateurs
+opt-in (`upcomingTransitAlertOptIn`) et calcule, pour chacun, les transits
+dans **3 jours** (`src/lib/astro/interpretations/upcoming-transit-alert.ts`) :
+s'il existe un aspect majeur touchant une planète personnelle natale (Soleil,
+Lune, Vénus, Mars ou Ascendant) dont l'écart à l'exact sera inférieur à 0,5°
+à cette date-là, une notification est envoyée avec une description réelle de
+l'aspect (même moteur de texte que les autres lectures — jamais inventé).
+Prévu pour tourner une fois par jour ; sans état "déjà notifié" en base, le
+seuil serré évite les doublons puisqu'un aspect ne repasse sous 0,5° qu'une
+fois par cycle de transit. Même authentification, même scheduler et même
+abonnement `PushSubscription` partagé que les routes ci-dessus — quatrième
+préférence indépendante, activable séparément dans `/dashboard/abonnement`.
 
 ## Passer en production
 

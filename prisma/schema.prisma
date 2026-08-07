@@ -56,6 +56,12 @@ model User {
   // ami a accepté ton invitation" — troisième préférence indépendante, même
   // logique que les deux ci-dessus.
   friendActivityPushOptIn Boolean @default(false)
+  // Notification push "un transit fort approche" — prévient 3 jours à
+  // l'avance qu'un aspect majeur touchant une planète personnelle va
+  // devenir exact, plutôt que d'attendre que la personne revienne d'elle-
+  // même consulter. Quatrième préférence indépendante, même logique que
+  // les trois ci-dessus.
+  upcomingTransitAlertOptIn Boolean @default(false)
 
   // --- Série de connexions (streak) ---
   // Jours consécutifs avec au moins une visite du tableau de bord. Mis à
