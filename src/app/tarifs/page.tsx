@@ -10,6 +10,7 @@ import {
   appleProductIdForPlan,
 } from "@/lib/billing/plans";
 import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
+import { EyeIcon, SunIcon, OrbitIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
   title: "Tarifs — Astrologium",
@@ -21,18 +22,25 @@ export default function TarifsPage() {
     <>
       <SiteHeader />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-6 pb-10 pt-16 text-center">
-          <Eyebrow>Tarifs</Eyebrow>
-          <h1 className="font-display mt-4 text-4xl sm:text-5xl">Simple, honnête, sans surprise</h1>
-          <p className="mt-5 text-muted">
-            Votre thème natal complet est et restera gratuit. Vous ne payez que pour aller plus loin :
-            synastrie, thème composite, cartographie astrologique.
-          </p>
+        <section className="relative overflow-hidden px-6 pb-10 pt-16 text-center">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-0 h-56 w-56 -translate-x-1/2 rounded-full bg-gold opacity-20 blur-3xl"
+          />
+          <div className="relative mx-auto max-w-3xl">
+            <Eyebrow>Tarifs</Eyebrow>
+            <h1 className="font-display mt-4 text-4xl sm:text-5xl">Simple, honnête, sans surprise</h1>
+            <p className="mt-5 text-muted">
+              Votre thème natal complet est et restera gratuit. Vous ne payez que pour aller plus loin :
+              synastrie, thème composite, cartographie astrologique.
+            </p>
+          </div>
         </section>
 
         <section className="mx-auto max-w-5xl px-6 py-8">
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="flex flex-col p-8">
+              <EyeIcon className="h-6 w-6 text-gold-strong" />
               <Eyebrow>Gratuit</Eyebrow>
               <p className="font-display mt-2 text-3xl">0 €</p>
               <ul className="mt-6 flex-1 space-y-3 text-sm text-muted">
@@ -44,7 +52,10 @@ export default function TarifsPage() {
             </Card>
 
             <Card className="relative flex flex-col border-gold/70 p-8 shadow-[0_0_32px_-8px_#e8935f66,0_0_0_1px_#e8935f55] sm:-translate-y-2">
-              <Badge tone="gold">Premium — le plus populaire</Badge>
+              <SunIcon className="h-6 w-6 text-gold-strong" />
+              <div className="mt-2">
+                <Badge tone="gold">Premium — le plus populaire</Badge>
+              </div>
               <p className="font-display mt-2 text-3xl">
                 {(SUBSCRIPTION_PLANS.monthly.amountCents / 100).toFixed(2)} € <span className="text-base text-muted">/ mois</span>
               </p>
@@ -66,6 +77,7 @@ export default function TarifsPage() {
             </Card>
 
             <Card className="flex flex-col p-8">
+              <OrbitIcon className="h-6 w-6 text-gold-strong" />
               <Eyebrow>Premium annuel</Eyebrow>
               <p className="font-display mt-2 text-3xl">
                 {(SUBSCRIPTION_PLANS.annual.amountCents / 100).toFixed(0)} € <span className="text-base text-muted">/ an</span>

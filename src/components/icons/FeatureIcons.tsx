@@ -65,18 +65,23 @@ export function OrbitIcon({ className = "" }: IconProps) {
 }
 
 export function WheelIcon({ className = "" }: IconProps) {
+  // Rayons partant du centre plutôt que des diamètres traversants : à cette
+  // taille, 4 diamètres se lisent comme un X (signe d'interdiction) plutôt
+  // que comme une roue. Des rayons non traversants + un moyeu central lèvent
+  // l'ambiguïté.
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-      {Array.from({ length: 4 }, (_, i) => {
-        const angle = (i * 360) / 4 + 45;
+      {Array.from({ length: 8 }, (_, i) => {
+        const angle = (i * 360) / 8;
         const rad = (angle * Math.PI) / 180;
-        const x1 = 12 + 9 * Math.cos(rad);
-        const y1 = 12 + 9 * Math.sin(rad);
-        const x2 = 12 - 9 * Math.cos(rad);
-        const y2 = 12 - 9 * Math.sin(rad);
+        const x1 = 12 + 3.5 * Math.cos(rad);
+        const y1 = 12 + 3.5 * Math.sin(rad);
+        const x2 = 12 + 9 * Math.cos(rad);
+        const y2 = 12 + 9 * Math.sin(rad);
         return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="1" opacity="0.6" />;
       })}
+      <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }

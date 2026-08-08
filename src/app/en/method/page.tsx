@@ -3,11 +3,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { METHODOLOGY_EN } from "@/lib/astro/interpretations/methodology.en";
+import { SunIcon, OverlapIcon, MergeIcon, MapPinIcon, OrbitIcon, WheelIcon, EyeIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
   title: "Our method — Astrologium",
   description: "How Astrologium calculates your charts: zodiac, ephemerides, houses, aspects, synastry, composite, astrocartography.",
 };
+
+const SECTION_ICONS = [WheelIcon, OrbitIcon, WheelIcon, EyeIcon, OverlapIcon, OverlapIcon, MergeIcon, MapPinIcon, EyeIcon, SunIcon];
 
 export default function MethodEnPage() {
   return (
@@ -25,16 +28,24 @@ export default function MethodEnPage() {
 
         <section className="mx-auto max-w-3xl px-6 py-12">
           <div className="space-y-6">
-            {METHODOLOGY_EN.map((section) => (
-              <Card key={section.title} className="p-7">
-                <h2 className="font-display text-2xl text-gold-strong">{section.title}</h2>
-                <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
-                  {section.body.map((paragraph, i) => (
-                    <p key={i}>{paragraph}</p>
-                  ))}
-                </div>
-              </Card>
-            ))}
+            {METHODOLOGY_EN.map((section, i) => {
+              const Icon = SECTION_ICONS[i % SECTION_ICONS.length];
+              return (
+                <Card key={section.title} className="p-7">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/5">
+                      <Icon className="h-5 w-5 text-gold-strong" />
+                    </span>
+                    <h2 className="font-display text-2xl text-gold-strong">{section.title}</h2>
+                  </div>
+                  <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
+                    {section.body.map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
+                    ))}
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         </section>
       </main>
