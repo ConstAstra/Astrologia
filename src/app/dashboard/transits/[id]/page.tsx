@@ -24,6 +24,7 @@ import { createRateLimiter } from "@/lib/rate-limit";
 import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { TransitCheckIn } from "@/components/dashboard/TransitCheckIn";
 
 const EVENT_TYPE_SET = new Set<string>(EVENT_TYPES);
 function isEventType(value: string | undefined): value is EventType {
@@ -64,6 +65,7 @@ const TEXT: Record<Locale, {
   eventHeading: (label: string) => string;
   eventPertinent: string;
   eventTypeLabels: Record<EventType, string>;
+  checkInStatsLine: (confirmed: number, total: number, pct: number) => string;
 }> = {
   fr: {
     eyebrow: "Transits",
@@ -94,6 +96,7 @@ const TEXT: Record<Locale, {
     eventHeading: (label) => `Lecture pour : ${label}`,
     eventPertinent: "pertinent",
     eventTypeLabels: { voyage: "Voyage", anniversaire: "Anniversaire", mariage: "Mariage", soutenance: "Soutenance / examen" },
+    checkInStatsLine: (confirmed, total, pct) => `Sur ${total} avis donnés, ${confirmed} lecture${confirmed > 1 ? "s" : ""} jugée${confirmed > 1 ? "s" : ""} confirmée${confirmed > 1 ? "s" : ""} (${pct}%).`,
   },
   en: {
     eyebrow: "Transits",
@@ -124,6 +127,7 @@ const TEXT: Record<Locale, {
     eventHeading: (label) => `Reading for: ${label}`,
     eventPertinent: "relevant",
     eventTypeLabels: { voyage: "Trip", anniversaire: "Birthday", mariage: "Wedding", soutenance: "Thesis defense / exam" },
+    checkInStatsLine: (confirmed, total, pct) => `Out of ${total} reading${total > 1 ? "s" : ""} rated, ${confirmed} felt accurate (${pct}%).`,
   },
 };
 
@@ -243,6 +247,22 @@ export default async function TransitsPage({
   });
   const moonLabel = locale === "en" ? MOON_PHASE_LABEL_EN[moon.name] : moon.name;
 
+  // Une lecture ne peut être jugée qu'une fois vécue : le widget de retour
+  // n'apparaît que pour aujourd'hui ou un jour passé, jamais pour un jour
+  // encore à venir (offset > 0), et seulement pour le propriétaire du
+  // profil (l'avis reflète son vécu, pas celui d'un ami en lecture seule).
+  const targetDateStr = toDateInputValue(target);
+  const [existingCheckIn, checkInStats] = isOwner
+    ? await Promise.all([
+        offset <= 0
+          ? prisma.transitCheckIn.findUnique({ where: { profileId_date: { profileId: profile.id, date: targetDateStr } } })
+          : Promise.resolve(null),
+        prisma.transitCheckIn.groupBy({ by: ["reaction"], where: { profileId: profile.id }, _count: true }),
+      ])
+    : [null, []];
+  const checkInTotal = checkInStats.reduce((sum, s) => sum + s._count, 0);
+  const checkInConfirmed = checkInStats.find((s) => s.reaction === "vrai")?._count ?? 0;
+
   const dayTabs = Array.from({ length: FORECAST_DAYS + 1 }, (_, i) => {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
@@ -331,6 +351,19 @@ export default async function TransitsPage({
               <Badge tone="gold">{t.illuminated(Math.round(moon.illuminatedFraction * 100))}</Badge>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-muted">{moonTextMap[moon.name]}</p>
+            {isOwner && offset <= 0 && (
+              <TransitCheckIn
+                profileId={profile.id}
+                date={targetDateStr}
+                initialReaction={existingCheckIn?.reaction as "vrai" | "partiellement" | "pas_du_tout" | null ?? null}
+                locale={locale}
+              />
+            )}
+            {checkInTotal >= 3 && (
+              <p className="mt-3 text-xs text-muted">
+                {t.checkInStatsLine(checkInConfirmed, checkInTotal, Math.round((checkInConfirmed / checkInTotal) * 100))}
+              </p>
+            )}
           </Card>
 
           <section className="mt-10">

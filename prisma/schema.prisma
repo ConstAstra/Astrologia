@@ -142,6 +142,32 @@ model Profile {
   // dans avatarTraits.ts) — null tant que l'utilisateur n'a rien personnalisé
   // à la main, auquel cas l'avatar reste généré automatiquement depuis le thème.
   avatarOverrides String?
+
+  checkIns TransitCheckIn[]
+}
+
+// Retour subjectif du propriétaire du profil sur une lecture de transits
+// passée ("cette journée-là, la lecture vous a semblé... confirmée /
+// partielle / pas vraiment") — ferme la boucle contenu à sens unique
+// (astro → utilisateur) en gardant une trace consultable dans le temps.
+// Un seul avis par jour et par profil (on corrige en réécrivant, pas en
+// empilant) ; jamais pour un jour futur (voir la validation de la route),
+// une lecture ne peut être jugée qu'une fois vécue.
+model TransitCheckIn {
+  id String @id @default(cuid())
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  date String // "YYYY-MM-DD", jour concerné (pas forcément aujourd'hui)
+  // "vrai" | "partiellement" | "pas_du_tout"
+  reaction String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([profileId, date])
+  @@index([profileId])
 }
 
 // Historique des achats de crédits (packs), quelle que soit la plateforme.

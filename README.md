@@ -249,6 +249,17 @@ fois par cycle de transit. Même authentification, même scheduler et même
 abonnement `PushSubscription` partagé que les routes ci-dessus — quatrième
 préférence indépendante, activable séparément dans `/dashboard/abonnement`.
 
+### Retour sur une lecture passée
+
+Sur `/dashboard/transits/[id]`, pour aujourd'hui ou tout jour déjà passé (pas
+un jour futur — la route `/api/transit-checkin` refuse toute date au-delà
+d'aujourd'hui), le propriétaire du profil peut noter avec le recul si la
+lecture de ce jour-là s'est révélée confirmée, partielle ou pas vraiment
+(`TransitCheckIn`, un avis par jour et par profil, upsert plutôt qu'empilé).
+Objectif : sortir la lecture d'un rapport à sens unique (astro → personne) en
+gardant une trace consultable — dès 3 avis donnés sur un profil, un petit
+récapitulatif ("X lectures confirmées sur Y") s'affiche au-dessus des avis.
+
 ## Passer en production
 
 - **Base de données** : déjà PostgreSQL en local comme en production (voir
