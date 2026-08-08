@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
@@ -13,6 +14,8 @@ type Locale = "fr" | "en";
 const TEXT: Record<
   Locale,
   {
+    natalChart: string;
+    compatibility: string;
     profiles: string;
     friends: string;
     synastry: string;
@@ -23,6 +26,7 @@ const TEXT: Record<
     lifeMissionHint: string;
     cartography: string;
     cartographyHint: string;
+    horoscope: string;
     subscription: string;
     credit: string;
     credits: string;
@@ -32,16 +36,19 @@ const TEXT: Record<
   }
 > = {
   fr: {
+    natalChart: "Thème astral",
+    compatibility: "Compatibilité astrale",
     profiles: "Profils",
     friends: "Amis",
     synastry: "Synastrie",
     synastryHint: "Superpose deux thèmes pour lire la dynamique d'une relation : aspects croisés, forces et frictions.",
-    composite: "Composite",
+    composite: "Thème composite",
     compositeHint: "Le thème \"du couple\" lui-même, calculé par la méthode des points médians — une troisième entité, au-delà des deux personnes.",
     lifeMission: "Mission de vie",
     lifeMissionHint: "Lecture de l'axe des Nœuds lunaires : la direction d'évolution à apprivoiser et le terrain déjà acquis à ne pas surinvestir.",
     cartography: "Cartographie",
     cartographyHint: "Vos lignes planétaires projetées sur la carte du monde — cliquez un pays pour voir ce qui s'y passerait.",
+    horoscope: "Horoscope",
     subscription: "Abonnement",
     credit: "crédit",
     credits: "crédits",
@@ -50,16 +57,19 @@ const TEXT: Record<
     streakDays: "jours",
   },
   en: {
+    natalChart: "Natal chart",
+    compatibility: "Astral compatibility",
     profiles: "Profiles",
     friends: "Friends",
     synastry: "Synastry",
     synastryHint: "Overlay two charts to read a relationship's dynamics: cross-aspects, strengths and friction points.",
-    composite: "Composite",
+    composite: "Composite chart",
     compositeHint: "The chart \"of the couple\" itself, calculated with the midpoint method — a third entity, beyond the two individuals.",
     lifeMission: "Life mission",
     lifeMissionHint: "A reading of the lunar Nodes axis: the direction of growth to embrace, and the already-familiar ground not to over-invest in.",
     cartography: "Cartography",
     cartographyHint: "Your planetary lines projected on the world map — tap a country to see what would happen there.",
+    horoscope: "Horoscope",
     subscription: "Subscription",
     credit: "credit",
     credits: "credits",
@@ -87,16 +97,36 @@ export function DashboardNav({
   const pathname = usePathname();
   const router = useRouter();
   const t = TEXT[locale];
+  const [compatOpen, setCompatOpen] = useState(false);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const links = [
-    { href: "/dashboard/profils", label: t.profiles, hint: undefined },
-    { href: "/dashboard/mission-de-vie", label: t.lifeMission, hint: t.lifeMissionHint },
-    { href: "/dashboard/cartographie", label: t.cartography, hint: t.cartographyHint },
-    { href: "/dashboard/amis", label: t.friends, hint: undefined },
+  const horoscopeHref = locale === "en" ? "/en/horoscope" : "/horoscope";
+
+  const compatItems = [
     { href: "/dashboard/synastrie", label: t.synastry, hint: t.synastryHint },
     { href: "/dashboard/composite", label: t.composite, hint: t.compositeHint },
-    { href: "/dashboard/abonnement", label: t.subscription, hint: undefined },
   ];
+  const compatActive = compatItems.some((item) => pathname.startsWith(item.href));
+
+  const mainLinks = [
+    { href: "/dashboard/theme-natal", label: t.natalChart, hint: undefined },
+    { href: "/dashboard/mission-de-vie", label: t.lifeMission, hint: t.lifeMissionHint },
+    { href: "/dashboard/cartographie", label: t.cartography, hint: t.cartographyHint },
+    { href: horoscopeHref, label: t.horoscope, hint: undefined },
+  ];
+
+  const secondaryLinks = [
+    { href: "/dashboard/amis", label: t.friends },
+    { href: "/dashboard/abonnement", label: t.subscription },
+  ];
+
+  function openCompat() {
+    if (closeTimeout.current) clearTimeout(closeTimeout.current);
+    setCompatOpen(true);
+  }
+  function scheduleCloseCompat() {
+    closeTimeout.current = setTimeout(() => setCompatOpen(false), 150);
+  }
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -111,11 +141,58 @@ export function DashboardNav({
           <Logo />
         </Link>
         <nav className="hidden items-center gap-5 text-sm text-muted xl:flex">
-          {links.map((link) => (
+          <Link
+            href={mainLinks[0].href}
+            className={pathname.startsWith(mainLinks[0].href) ? "text-gold-strong" : "hover:text-foreground"}
+          >
+            {mainLinks[0].label}
+          </Link>
+
+          <div className="relative" onMouseEnter={openCompat} onMouseLeave={scheduleCloseCompat}>
+            <button
+              type="button"
+              onClick={() => setCompatOpen((v) => !v)}
+              className={`inline-flex items-center gap-1 ${compatActive ? "text-gold-strong" : "hover:text-foreground"}`}
+              aria-expanded={compatOpen}
+            >
+              {t.compatibility}
+              <svg viewBox="0 0 12 12" className={`h-3 w-3 transition-transform ${compatOpen ? "rotate-180" : ""}`} aria-hidden="true">
+                <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {compatOpen && (
+              <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border-soft bg-surface shadow-[0_12px_32px_-12px_#00000080]">
+                {compatItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    title={item.hint}
+                    className={`block px-4 py-2.5 text-sm ${pathname.startsWith(item.href) ? "text-gold-strong" : "text-muted hover:bg-gold/5 hover:text-foreground"}`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {mainLinks.slice(1).map((link) => (
             <Link
               key={link.href}
               href={link.href}
               title={link.hint}
+              className={pathname.startsWith(link.href) ? "text-gold-strong" : "hover:text-foreground"}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          <span className="h-4 w-px bg-border-soft" aria-hidden="true" />
+
+          {secondaryLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
               className={pathname.startsWith(link.href) ? "text-gold-strong" : "hover:text-foreground"}
             >
               {link.label}
