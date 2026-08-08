@@ -106,7 +106,7 @@ export function DashboardNav({
 
   return (
     <header className="sticky top-0 z-40 border-b border-border-soft bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6">
         <Link href="/dashboard/profils">
           <Logo />
         </Link>
@@ -122,7 +122,7 @@ export function DashboardNav({
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2.5 text-sm sm:gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-2 text-sm sm:gap-3">
           <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
           <span className="hidden max-w-[14ch] truncate text-muted 2xl:inline">{email}</span>

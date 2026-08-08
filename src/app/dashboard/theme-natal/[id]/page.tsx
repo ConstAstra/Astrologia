@@ -469,18 +469,43 @@ export default async function ThemeNatalPage({
             </div>
             <p className="mt-1 text-xs text-muted">{t.lifeMissionIntro}</p>
             <Card className="mt-4 p-4">
-              <div className="flex items-center justify-between">
-                <p className="font-medium">{t.northNode}</p>
-                <Badge tone="gold">
-                  {signMap[mission.northSign].name}
-                  {mission.northHouse ? ` · ${t.house} ${mission.northHouse}` : ""}
-                </Badge>
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-gold/50 bg-gold/10 text-lg text-gold-strong">
+                  ☊
+                </span>
+                <div className="flex flex-1 items-center justify-between gap-2">
+                  <p className="font-medium">{t.northNode}</p>
+                  <Badge tone="gold">
+                    {signMap[mission.northSign].name}
+                    {mission.northHouse ? ` · ${t.house} ${mission.northHouse}` : ""}
+                  </Badge>
+                </div>
               </div>
               <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionSignText}</p>
             </Card>
 
             {lifeMissionAccess ? (
               <div className="mt-4 space-y-4">
+                <Card className="overflow-hidden p-6">
+                  <div className="flex items-center justify-center gap-4 sm:gap-8">
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gold/50 bg-gold/10 text-2xl text-gold-strong">
+                        ☊
+                      </span>
+                      <p className="text-sm font-medium">{signMap[mission.northSign].name}</p>
+                      <p className="text-[11px] text-muted">{t.northNode}</p>
+                    </div>
+                    <div className="h-px max-w-16 flex-1 bg-gradient-to-r from-gold/50 via-border-soft to-border-soft sm:max-w-24" />
+                    <div className="flex flex-col items-center gap-2 text-center opacity-75">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border-soft text-2xl text-muted">
+                        ☋
+                      </span>
+                      <p className="text-sm font-medium">{signMap[mission.southSign].name}</p>
+                      <p className="text-[11px] text-muted">{t.southNode}</p>
+                    </div>
+                  </div>
+                </Card>
+
                 <Card className="p-4">
                   <div className="flex items-center justify-between">
                     <p className="font-medium">{t.southNode}</p>

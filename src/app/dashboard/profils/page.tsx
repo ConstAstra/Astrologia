@@ -11,6 +11,7 @@ import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { OverlapIcon, MergeIcon } from "@/components/icons/FeatureIcons";
+import { HeroChartWheel } from "@/components/HeroChartWheel";
 
 type Locale = "fr" | "en";
 
@@ -21,7 +22,9 @@ const TEXT: Record<
     heading: string;
     quota: (count: number, limit: number) => string;
     addProfile: string;
+    emptyHeading: string;
     empty: string;
+    emptyReassure: string;
     createFirst: string;
     unknownTime: string;
     editAvatar: string;
@@ -42,7 +45,9 @@ const TEXT: Record<
     heading: "Thèmes enregistrés",
     quota: (count, limit) => `${count} / ${limit} profils sur l'offre gratuite.`,
     addProfile: "+ Ajouter un profil",
-    empty: "Aucun profil pour le moment. Ajoutez votre date, heure et lieu de naissance pour révéler votre thème astral.",
+    emptyHeading: "Votre ciel vous attend",
+    empty: "Ajoutez votre date, heure et lieu de naissance : positions planétaires, maisons et aspects se calculent en quelques secondes.",
+    emptyReassure: "Gratuit, complet, sans carte bancaire.",
     createFirst: "Créer mon premier thème",
     unknownTime: "· heure inconnue",
     editAvatar: "Personnaliser l'avatar",
@@ -65,7 +70,9 @@ const TEXT: Record<
     heading: "Saved charts",
     quota: (count, limit) => `${count} / ${limit} profiles on the free plan.`,
     addProfile: "+ Add a profile",
-    empty: "No profile yet. Add your birth date, time and place to reveal your natal chart.",
+    emptyHeading: "Your sky is waiting",
+    empty: "Add your birth date, time and place: planetary positions, houses and aspects compute in seconds.",
+    emptyReassure: "Free, complete, no card required.",
     createFirst: "Create my first chart",
     unknownTime: "· unknown time",
     editAvatar: "Customize avatar",
@@ -138,12 +145,21 @@ export default async function ProfilsPage() {
       </div>
 
       {profiles.length === 0 ? (
-        <Card className="mt-8 p-10 text-center">
-          <p className="text-muted">{t.empty}</p>
-          <div className="mt-5">
-            <ButtonLink href="/dashboard/profils/nouveau">{t.createFirst}</ButtonLink>
+        <div className="mt-10 grid items-center gap-10 lg:grid-cols-[1fr_300px]">
+          <div>
+            <p className="font-display text-2xl sm:text-3xl">{t.emptyHeading}</p>
+            <p className="mt-3 max-w-md text-muted">{t.empty}</p>
+            <div className="mt-6">
+              <ButtonLink href="/dashboard/profils/nouveau" size="lg">
+                {t.createFirst}
+              </ButtonLink>
+            </div>
+            <p className="mt-3 text-xs text-muted/70">{t.emptyReassure}</p>
           </div>
-        </Card>
+          <div className="hidden lg:block">
+            <HeroChartWheel className="mx-auto max-w-[260px] opacity-80" />
+          </div>
+        </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {withSigns.map(({ profile, sunSign, moonSign, overrides }) => (

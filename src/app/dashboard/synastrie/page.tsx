@@ -31,6 +31,9 @@ import { SynastryShareCardButton } from "@/components/dashboard/SynastryShareCar
 import { CompatibilityVideoButton } from "@/components/dashboard/CompatibilityVideoButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
+import { SynastryWheel } from "@/components/chart/SynastryWheel";
+import { PLANET_KEYS } from "@/lib/astro/types";
+import type { PointKey } from "@/lib/astro/types";
 
 type Locale = "fr" | "en";
 
@@ -236,56 +239,78 @@ export default async function SynastriePage({
   const overridesA = parseOverrides(profileA.avatarOverrides);
   const overridesB = parseOverrides(profileB.avatarOverrides);
 
+  const wheelPointsA = PLANET_KEYS.filter((k) => chartA.points[k]).map((k) => ({
+    key: k as PointKey,
+    longitude: chartA.points[k].longitude,
+  }));
+  const wheelPointsB = PLANET_KEYS.filter((k) => chartB.points[k]).map((k) => ({
+    key: k as PointKey,
+    longitude: chartB.points[k].longitude,
+  }));
+
   return (
     <div>
       {header}
 
-      <Card className="mt-6 flex flex-col items-center gap-4 p-6">
-        <CompatibilityMeter
-          percentage={compatibilityPercentage}
-          seedA={a}
-          seedB={b}
-          sunA={sunA}
-          sunB={sunB}
-          moonA={moonA}
-          moonB={moonB}
-          ascA={ascA}
-          ascB={ascB}
-          overridesA={overridesA}
-          overridesB={overridesB}
-          label={t.compatibilityLabel}
-        />
-        <p className="text-sm font-medium" style={{ color: compatibilityPunchColor }}>
-          {compatibilityPunch}
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          <SynastryShareCardButton
-            profileIdA={a}
-            profileIdB={b}
-            fileName={`${profileA.label}-${profileB.label}-compatibilite.png`}
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[380px_1fr]">
+        <Card className="flex flex-col items-center p-6">
+          <SynastryWheel
+            pointsA={wheelPointsA}
+            pointsB={wheelPointsB}
+            crossAspects={majorAspects}
+            labelA={profileA.label}
+            labelB={profileB.label}
             locale={locale}
           />
-          <CompatibilityVideoButton
-            seedA={a}
-            sunA={sunA}
-            moonA={moonA}
-            ascA={ascA}
-            overridesA={overridesA}
-            nameA={profileA.label}
-            seedB={b}
-            sunB={sunB}
-            moonB={moonB}
-            ascB={ascB}
-            overridesB={overridesB}
-            nameB={profileB.label}
+        </Card>
+
+        <Card className="flex flex-col items-center gap-4 p-6">
+          <CompatibilityMeter
             percentage={compatibilityPercentage}
-            punchline={compatibilityPunch}
-            punchlineColor={compatibilityPunchColor}
-            referralCode={currentUser.referralCode}
-            locale={locale}
+            seedA={a}
+            seedB={b}
+            sunA={sunA}
+            sunB={sunB}
+            moonA={moonA}
+            moonB={moonB}
+            ascA={ascA}
+            ascB={ascB}
+            overridesA={overridesA}
+            overridesB={overridesB}
+            label={t.compatibilityLabel}
           />
-        </div>
-      </Card>
+          <p className="text-sm font-medium" style={{ color: compatibilityPunchColor }}>
+            {compatibilityPunch}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            <SynastryShareCardButton
+              profileIdA={a}
+              profileIdB={b}
+              fileName={`${profileA.label}-${profileB.label}-compatibilite.png`}
+              locale={locale}
+            />
+            <CompatibilityVideoButton
+              seedA={a}
+              sunA={sunA}
+              moonA={moonA}
+              ascA={ascA}
+              overridesA={overridesA}
+              nameA={profileA.label}
+              seedB={b}
+              sunB={sunB}
+              moonB={moonB}
+              ascB={ascB}
+              overridesB={overridesB}
+              nameB={profileB.label}
+              percentage={compatibilityPercentage}
+              punchline={compatibilityPunch}
+              punchlineColor={compatibilityPunchColor}
+              referralCode={currentUser.referralCode}
+              locale={locale}
+            />
+          </div>
+        </Card>
+      </div>
 
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].synastryFraming}</Card>
 
