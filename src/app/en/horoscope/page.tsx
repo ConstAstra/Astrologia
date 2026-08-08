@@ -37,8 +37,8 @@ export default function HoroscopeIndexPageEn() {
             {dateLabel} — area of life activated using the sun sign technique (whole-sign houses from the sign),
             the same sky for everyone, read through each sign. For a personal reading based on your real natal
             chart,{" "}
-            <Link href="/en/discover" className="text-gold-strong underline">
-              your Big 3 computes with no account in 10 seconds
+            <Link href="/en/signup" className="text-gold-strong underline">
+              create your full chart for free
             </Link>
             .
           </p>

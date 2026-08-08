@@ -66,23 +66,6 @@ const TEXT: Record<Locale, {
   },
 };
 
-// Même clé que BigThreeTeaserForm (/decouvrir, /en/discover) : si quelqu'un
-// arrive ici juste après avoir vu son Big 3 sans compte, on retrouve sa
-// date/heure/lieu de naissance déjà saisis plutôt que de les lui faire
-// retaper — le point de friction n°1 d'un premier passage sur l'app.
-const PENDING_PROFILE_KEY = "astrologium_pending_profile";
-
-interface PendingProfile {
-  label: string;
-  birthDate: string;
-  birthTime: string;
-  timeUnknown: boolean;
-  locationLabel: string;
-  latitude: number;
-  longitude: number;
-  tzName: string;
-}
-
 export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
   const t = TEXT[locale];
   const router = useRouter();
@@ -100,39 +83,6 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let raw: string | null = null;
-    try {
-      raw = sessionStorage.getItem(PENDING_PROFILE_KEY);
-      sessionStorage.removeItem(PENDING_PROFILE_KEY);
-    } catch {
-      return;
-    }
-    if (!raw) return;
-    try {
-      const pending = JSON.parse(raw) as PendingProfile;
-      // Préremplissage depuis un aperçu sans compte (/decouvrir) — ne peut
-      // pas être dérivé du rendu serveur, où sessionStorage n'existe pas.
-      /* eslint-disable react-hooks/set-state-in-effect */
-      setLabel(pending.label);
-      setIsSelf(true);
-      setBirthDate(pending.birthDate);
-      setBirthTime(pending.birthTime);
-      setTimeUnknown(pending.timeUnknown);
-      setQuery(pending.locationLabel);
-      setSelected({
-        label: pending.locationLabel,
-        latitude: pending.latitude,
-        longitude: pending.longitude,
-        tzName: pending.tzName,
-      });
-      /* eslint-enable react-hooks/set-state-in-effect */
-    } catch {
-      // JSON invalide (donnée corrompue/manipulée) — on ignore simplement,
-      // l'utilisateur retape ses infos comme si de rien n'était.
-    }
-  }, []);
 
   function handleQueryChange(value: string) {
     setQuery(value);

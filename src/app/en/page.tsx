@@ -18,8 +18,8 @@ const TOOLS = [
     title: "Natal chart",
     description:
       "Precise positions of the planets, houses and aspects at the exact moment of your birth, with a detailed reading sign by sign, house by house.",
-    teaserHref: "/en/discover",
-    teaserLabel: "See my Big 3 in 10 seconds, no account →",
+    teaserHref: "/en/signup",
+    teaserLabel: "Create my full chart, free →",
     icon: SunIcon,
   },
   {
@@ -81,14 +81,14 @@ export default function HomeEn() {
               reading and why.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
-              <ButtonLink href="/en/discover" size="lg">
+              <ButtonLink href="/en/signup" size="lg">
                 Create my natal chart
               </ButtonLink>
               <ButtonLink href="/en/method" variant="secondary" size="lg">
                 Understand the method
               </ButtonLink>
             </div>
-            <p className="mt-4 text-xs text-muted/70">Your Big 3 in 10 seconds, no account. Full chart free afterwards.</p>
+            <p className="mt-4 text-xs text-muted/70">Full natal chart, free and unlimited — no card required.</p>
           </div>
           <div className="hidden lg:block">
             <HeroChartWheel className="mx-auto max-w-md" />

@@ -10,7 +10,7 @@ import type { ZodiacSign } from "@/lib/astro/types";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { composeSignHoroscope } from "@/lib/astro/interpretations/sign-horoscope";
-import { SharePunchlineButton } from "@/components/discover/SharePunchlineButton";
+import { SharePunchlineButton } from "@/components/horoscope/SharePunchlineButton";
 
 const ELEMENT_COLORS: Record<string, string> = {
   Feu: "#c96b4a",
@@ -135,8 +135,8 @@ export default async function SignHoroscopePage({ params }: { params: Promise<{ 
 
           <Card className="mt-8 border-gold/30 bg-gold/5 p-6 text-center">
             <p className="text-sm text-muted">{horoscope.precisionNote}</p>
-            <ButtonLink href="/decouvrir" className="mt-4 inline-block">
-              Voir mon thème personnel, sans compte →
+            <ButtonLink href="/inscription" className="mt-4 inline-block">
+              Créer mon thème personnel, gratuit →
             </ButtonLink>
           </Card>
 

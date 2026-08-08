@@ -11,8 +11,8 @@ const TOOLS = [
     title: "Thème astral",
     description:
       "Positions précises des planètes, des maisons et des aspects au moment exact de votre naissance, avec une lecture détaillée signe par signe, maison par maison.",
-    teaserHref: "/decouvrir",
-    teaserLabel: "Voir mon Big 3 en 10 secondes, sans compte →",
+    teaserHref: "/inscription",
+    teaserLabel: "Créer mon thème complet, gratuit →",
     icon: SunIcon,
   },
   {
@@ -75,14 +75,14 @@ export default function Home() {
               vous lisez et pourquoi.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
-              <ButtonLink href="/decouvrir" size="lg">
-                Découvrir mon thème astral
+              <ButtonLink href="/inscription" size="lg">
+                Créer mon thème astral
               </ButtonLink>
               <ButtonLink href="/methode" variant="secondary" size="lg">
                 Comprendre la méthode
               </ButtonLink>
             </div>
-            <p className="mt-4 text-xs text-muted/70">Ton Big 3 en 10 secondes, sans compte. Thème complet gratuit ensuite.</p>
+            <p className="mt-4 text-xs text-muted/70">Thème natal complet, gratuit et illimité — sans carte bancaire.</p>
           </div>
           <div className="hidden lg:block">
             <HeroChartWheel className="mx-auto max-w-md" />

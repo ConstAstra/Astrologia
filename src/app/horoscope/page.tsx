@@ -37,8 +37,8 @@ export default function HoroscopeIndexPage() {
             {dateLabel} — foyer d&apos;énergie activé par la méthode du thème solaire (maisons entières depuis le
             signe), même ciel pour tout le monde, lu à travers chaque signe. Pour une lecture personnelle basée
             sur votre thème natal réel,{" "}
-            <Link href="/decouvrir" className="text-gold-strong underline">
-              votre Big 3 se calcule sans compte en 10 secondes
+            <Link href="/inscription" className="text-gold-strong underline">
+              créez votre thème complet gratuitement
             </Link>
             .
           </p>
