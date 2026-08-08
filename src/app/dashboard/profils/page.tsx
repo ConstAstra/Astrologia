@@ -10,6 +10,7 @@ import { quickSunSign, quickMoonSign } from "@/lib/astro/quick";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
+import { OverlapIcon, MergeIcon } from "@/components/icons/FeatureIcons";
 
 type Locale = "fr" | "en";
 
@@ -206,14 +207,23 @@ export default async function ProfilsPage() {
       )}
 
       {profiles.length >= 2 && (
-        <Card className="mt-8 p-6">
-          <p className="font-display text-xl">{t.compareTwo}</p>
-          <p className="mt-1 text-sm text-muted">{t.comparePrompt}</p>
-          <div className="mt-4 flex flex-wrap gap-3">
+        <Card className="mt-8 overflow-hidden p-6">
+          <div className="flex items-start gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/5">
+              <OverlapIcon className="h-5 w-5 text-gold-strong" />
+            </span>
+            <div>
+              <p className="font-display text-xl">{t.compareTwo}</p>
+              <p className="mt-1 text-sm text-muted">{t.comparePrompt}</p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
             <ButtonLink href="/dashboard/synastrie" variant="secondary">
+              <OverlapIcon className="h-4 w-4" />
               {t.synastry}
             </ButtonLink>
             <ButtonLink href="/dashboard/composite" variant="secondary">
+              <MergeIcon className="h-4 w-4" />
               {t.composite}
             </ButtonLink>
           </div>

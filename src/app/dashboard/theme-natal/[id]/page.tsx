@@ -304,7 +304,19 @@ export default async function ThemeNatalPage({
         </Card>
       )}
 
-      <div className="mt-6">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[380px_1fr]">
+        <Card className="p-4">
+          <ChartWheel
+            points={wheelPoints}
+            ascendant={chart.hasReliableHouses ? chart.houses.ascendant : 0}
+            houseCusps={chart.hasReliableHouses ? chart.houses.cusps : Array.from({ length: 12 }, (_, i) => i * 30)}
+            aspects={aspects}
+            locale={locale}
+          />
+          {chart.hasReliableHouses && (
+            <p className="mt-3 text-center text-xs text-muted">{describeHouseSystem(chart.houses, locale)}</p>
+          )}
+        </Card>
         <OverviewCard points={chart.points} hasReliableHouses={chart.hasReliableHouses} locale={locale} />
       </div>
 
@@ -412,21 +424,7 @@ export default async function ThemeNatalPage({
         </Card>
       )}
 
-      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[420px_1fr]">
-        <Card className="p-4">
-          <ChartWheel
-            points={wheelPoints}
-            ascendant={chart.hasReliableHouses ? chart.houses.ascendant : 0}
-            houseCusps={chart.hasReliableHouses ? chart.houses.cusps : Array.from({ length: 12 }, (_, i) => i * 30)}
-            aspects={aspects}
-            locale={locale}
-          />
-          {chart.hasReliableHouses && (
-            <p className="mt-3 text-center text-xs text-muted">{describeHouseSystem(chart.houses, locale)}</p>
-          )}
-        </Card>
-
-        <div className="space-y-8">
+      <div className="mt-8 space-y-8">
           <section>
             <h2 className="font-display text-2xl">{t.positions}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -572,7 +570,6 @@ export default async function ThemeNatalPage({
               ))}
             </div>
           </section>
-        </div>
       </div>
     </div>
   );

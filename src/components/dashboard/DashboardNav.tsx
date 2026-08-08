@@ -110,7 +110,7 @@ export function DashboardNav({
         <Link href="/dashboard/profils">
           <Logo />
         </Link>
-        <nav className="hidden items-center gap-6 text-sm text-muted md:flex">
+        <nav className="hidden items-center gap-5 text-sm text-muted xl:flex">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -122,13 +122,13 @@ export function DashboardNav({
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-2.5 text-sm sm:gap-3">
           <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
-          <span className="hidden text-muted sm:inline">{email}</span>
+          <span className="hidden max-w-[14ch] truncate text-muted 2xl:inline">{email}</span>
           <ThemeToggle />
           <LocaleToggle locale={locale} />
-          <button onClick={logout} className="text-muted hover:text-foreground">
+          <button onClick={logout} className="whitespace-nowrap text-muted hover:text-foreground">
             {t.logout}
           </button>
         </div>
