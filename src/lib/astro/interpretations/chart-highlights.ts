@@ -95,8 +95,8 @@ function composeSunMoonLine(sunSign: ZodiacSign, moonSign: ZodiacSign, locale: L
   }
 
   return locale === "en"
-    ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what drives you and what reassures you aren't the same thing — different enough to complement each other, close enough not to fight.`
-    : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce qui vous anime et ce qui vous rassure ne sont pas la même chose — assez différents pour se compléter, assez proches pour ne pas se combattre.`;
+    ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what drives you needs ${need[sunElement]}, what reassures you needs ${need[moonElement]} — two different logics, but neither has to give way for the other to work.`
+    : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce qui vous anime a besoin ${need[sunElement]}, ce qui vous rassure a besoin ${need[moonElement]} — deux logiques différentes, mais qui n'ont pas besoin de s'effacer l'une l'autre pour fonctionner.`;
 }
 
 /**
