@@ -74,7 +74,7 @@ export default async function CartographieIndexPage() {
           }
           return (
             <Link key={profile.id} href={`/dashboard/cartographie/${profile.id}`}>
-              <Card className="flex items-center gap-4 p-6 transition-colors hover:border-gold/40">
+              <Card interactive className="flex items-center gap-4 p-6 transition-colors hover:border-gold/40">
                 <PixelAvatar seed={profile.id} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={56} />
                 <div>
                   <p className="font-display text-lg">{profile.label}</p>

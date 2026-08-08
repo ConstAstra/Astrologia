@@ -33,7 +33,7 @@ export default function GuidesIndexPage() {
           <div className="flex flex-col gap-4">
             {GUIDES.map((guide, i) => (
               <Link key={guide.slug} href={`/guides/${guide.slug}`}>
-                <Card className="group flex items-start gap-5 p-6 transition-colors hover:border-gold/40">
+                <Card interactive className="group flex items-start gap-5 p-6 transition-colors hover:border-gold/40">
                   <span className="font-display shrink-0 text-2xl text-gold-strong/60">{String(i + 1).padStart(2, "0")}</span>
                   <div>
                     <p className="font-display text-xl group-hover:text-gold-strong">{guide.title}</p>

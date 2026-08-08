@@ -222,6 +222,28 @@ body {
   text-wrap: balance;
 }
 
+/* Retour visuel au clic/survol pour les cartes et tuiles cliquables (grilles
+   de guides, signes, profils...) — un léger soulèvement au survol, un
+   tassement à l'appui, pour que l'interface réagisse partout de la même
+   façon plutôt que de rester statique. */
+.tile-interactive {
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+.tile-interactive:hover {
+  transform: translateY(-2px);
+}
+.tile-interactive:active {
+  transform: scale(0.98) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile-interactive,
+  .tile-interactive:hover,
+  .tile-interactive:active {
+    transition: none;
+    transform: none;
+  }
+}
+
 /* Illustration décorative du hero (HeroChartWheel.tsx) : halo doux derrière
    le cercle + rotation très lente pour suggérer un ciel vivant, sans jamais
    distraire de la lecture du texte à côté. */

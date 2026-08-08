@@ -1,9 +1,14 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
-export function Card({ className = "", children, ...rest }: HTMLAttributes<HTMLDivElement> & { children: ReactNode }) {
+export function Card({
+  className = "",
+  interactive = false,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { children: ReactNode; interactive?: boolean }) {
   return (
     <div
-      className={`rounded-2xl border border-border-soft bg-surface shadow-[inset_0_1px_0_0_#ffffff14,0_12px_32px_-20px_#00000080] backdrop-blur-sm ${className}`}
+      className={`rounded-2xl border border-border-soft bg-surface shadow-[inset_0_1px_0_0_#ffffff14,0_12px_32px_-20px_#00000080] backdrop-blur-sm ${interactive ? "tile-interactive cursor-pointer" : ""} ${className}`}
       {...rest}
     >
       {children}
