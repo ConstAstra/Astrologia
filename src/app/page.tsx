@@ -64,8 +64,8 @@ export default function Home() {
           <div className="text-center lg:text-left">
             <Eyebrow>Astrologie occidentale</Eyebrow>
             <h1 className="font-display mx-auto mt-5 max-w-xl text-balance text-4xl font-semibold leading-[1.1] sm:text-5xl lg:mx-0">
-              Partez à la découverte de <em className="text-gold-strong not-italic">vous-même et des autres</em> grâce à
-              l&apos;astrologie.
+              Partez à la découverte de <em className="text-gold-strong not-italic">vous-même et des autres</em>
+              {" "}grâce à l&apos;astrologie.
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-balance text-xl text-foreground/90 lg:mx-0">
               Votre thème, vos relations, votre couple, vos lieux de vie : à chacun sa lecture.
@@ -108,7 +108,7 @@ export default function Home() {
 
         <section className="mx-auto max-w-4xl px-6 py-20 text-center">
           <Eyebrow>Notre engagement</Eyebrow>
-          <h2 className="font-display mt-4 text-3xl sm:text-4xl">La rigueur avant l&apos;effet de manche</h2>
+          <h2 className="font-display mt-4 text-3xl sm:text-4xl">La rigueur plutôt que le spectacle</h2>
           <div className="mt-10 grid gap-6 text-left sm:grid-cols-3">
             {ENGAGEMENTS.map((item) => (
               <div key={item.title}>

@@ -8,7 +8,7 @@ import { GUIDES_EN } from "@/lib/content/guides.en";
 export const metadata: Metadata = {
   title: "Astrology guides — understanding the basics — Astrologium",
   description:
-    "Mercury retrograde, the 12 houses, the Ascendant, reading a natal chart, synastry vs composite, reading an aspect: clear guides to understand Western astrology without unnecessary jargon.",
+    "Mercury retrograde, the 12 houses, the Ascendant, reading a natal chart, synastry vs composite, reading an aspect: clear guides to understand Western astrology.",
 };
 
 export default function GuidesIndexPageEn() {
@@ -18,7 +18,7 @@ export default function GuidesIndexPageEn() {
       <main className="flex-1">
         <section className="mx-auto max-w-3xl px-6 pb-10 pt-16 text-center">
           <Eyebrow>Guides</Eyebrow>
-          <h1 className="font-display mt-4 text-4xl sm:text-5xl">Understanding astrology, without the jargon</h1>
+          <h1 className="font-display mt-4 text-4xl sm:text-5xl">Understanding astrology, step by step</h1>
           <p className="mt-5 text-muted">
             The core concepts of Western astrology, clearly explained — the same rigor and the same honest
             limits as the rest of the site. For the calculation method itself, see{" "}
