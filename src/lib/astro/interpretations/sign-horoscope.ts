@@ -5,6 +5,7 @@ import { computeTransitingPositions } from "../transits";
 import { computeAspects } from "../aspects";
 import { computeMoonPhase } from "../moonphase";
 import { describeAspect, type Locale } from "./compose";
+import { ASPECT_META } from "./aspects";
 import { HOUSE_META } from "./houses";
 import { HOUSE_META_EN } from "./houses.en";
 import { SIGN_META } from "./signs";
@@ -34,11 +35,60 @@ export interface SignHoroscope {
   sign: ZodiacSign;
   date: Date;
   headline: string;
+  /** Phrase courte et citable (pensée pour être partagée telle quelle), dérivée de la même donnée réelle que `headline` — jamais un texte séparé inventé. */
+  punchline: string;
   moonPhaseLine: string;
   housePlacements: SignHousePlacement[];
   skyAspectText: string | null;
   precisionNote: string;
 }
+
+// Une phrase courte par maison (indexée maison I = 0), pensée pour être
+// citable telle quelle plutôt que descriptive — la version "screenshot" du
+// thème de la maison, complémentaire des textes plus longs de houses.ts.
+const PUNCHLINE_PHRASE: Record<Locale, string[]> = {
+  fr: [
+    "un jour pour s'affirmer",
+    "un jour pour compter ce qui compte vraiment",
+    "un jour pour dire les choses clairement",
+    "un jour pour rentrer à la maison, au sens propre ou figuré",
+    "un jour pour créer plutôt qu'attendre",
+    "un jour pour mettre de l'ordre",
+    "un jour pour se tourner vers l'autre",
+    "un jour pour lâcher ce qui doit l'être",
+    "un jour pour voir plus loin que d'habitude",
+    "un jour pour viser haut",
+    "un jour pour compter sur les autres",
+    "un jour pour se retirer un peu",
+  ],
+  en: [
+    "a day to show up as yourself",
+    "a day to take stock of what actually matters",
+    "a day to say what needs saying",
+    "a day to go home, literally or not",
+    "a day to create rather than wait",
+    "a day to get things in order",
+    "a day to turn toward someone else",
+    "a day to let go of what needs letting go",
+    "a day to see further than usual",
+    "a day to aim high",
+    "a day to lean on others",
+    "a day to pull back a little",
+  ],
+};
+
+const PUNCHLINE_TONE_SUFFIX: Record<Locale, Record<"harmonieux" | "tendu" | "neutre", string>> = {
+  fr: {
+    harmonieux: " — le terrain est porteur.",
+    tendu: " — pas sans un peu de friction.",
+    neutre: ".",
+  },
+  en: {
+    harmonieux: " — the ground is favorable.",
+    tendu: " — not without a little friction.",
+    neutre: ".",
+  },
+};
 
 function wholeSignHouse(anchorSignIndex: number, longitude: number): number {
   const planetSignIndex = Math.floor(normalizeDegrees(longitude) / 30);
@@ -87,10 +137,14 @@ export function composeSignHoroscope(sign: ZodiacSign, date: Date = new Date(), 
       ? `${signMeta.name} ${signMeta.symbol}: today's focus falls on ${featuredHouse.houseName.replace(/^House [IVX]+ — /, "")}`
       : `${signMeta.name} ${signMeta.symbol} : le foyer du jour tombe en ${featuredHouse.houseName.replace(/^Maison [IVX]+ — /, "")}`;
 
+  const toneKey = featuredAspect ? ASPECT_META[featuredAspect.aspect].tone : "neutre";
+  const punchline = `${signMeta.symbol} ${signMeta.name} : ${PUNCHLINE_PHRASE[locale][featuredHouse.house - 1]}${PUNCHLINE_TONE_SUFFIX[locale][toneKey]}`;
+
   return {
     sign,
     date,
     headline,
+    punchline,
     moonPhaseLine,
     housePlacements,
     skyAspectText,

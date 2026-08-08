@@ -244,4 +244,218 @@ export const GUIDES: Guide[] = [
     relatedHref: "/decouvrir",
     relatedLabel: "Voir les aspects de votre propre thème, sans compte →",
   },
+  {
+    slug: "retour-de-saturne",
+    title: "Le retour de Saturne : pourquoi 29 ans est un cap",
+    description:
+      "Vers 29 ans, Saturne revient exactement là où il était à votre naissance. Un jalon classique de bilan et de restructuration — ce qu'il signifie réellement, sans catastrophisme.",
+    readingMinutes: 6,
+    publishedAt: "2026-08-08",
+    intro:
+      "\"J'ai eu mon retour de Saturne et tout s'est écroulé\" revient souvent en ligne. La réalité est plus nuancée : un jalon réel, prévisible au calcul, mais pas une fatalité.",
+    sections: [
+      {
+        heading: "Un calcul, pas une légende",
+        paragraphs: [
+          "Saturne met environ 29 ans à parcourir le zodiaque entier et revenir exactement sur sa position de naissance — un \"retour planétaire\" au sens strict : la planète en transit forme une conjonction quasi exacte avec elle-même au thème natal. Ce site le détecte directement (voir l'horoscope quotidien, qui signale ce type de retour quand il se produit). Contrairement à Jupiter (retour tous les 12 ans, plus léger), le cycle de Saturne coïncide avec des étapes de vie déjà chargées en Occident — fin des études, premiers vrais engagements professionnels ou personnels — ce qui alimente sa réputation.",
+        ],
+      },
+      {
+        heading: "Ce que Saturne représente dans le thème",
+        paragraphs: [
+          "Saturne est la planète de la structure, du temps long, des responsabilités et des limites réalistes — par opposition à l'expansion sans limite de Jupiter. Son retour marque traditionnellement la fin d'une première structure de vie construite plus ou moins sous influence extérieure (attentes familiales, hasard des circonstances) et le début d'une structure choisie plus consciemment.",
+          "Ce n'est pas un signal négatif en soi : c'est un moment où ce qui reposait sur des bases fragiles a tendance à se révéler, précisément pour permettre de reconstruire plus solide. Ce qui était déjà bâti sur des fondations sincères traverse généralement cette période sans drame.",
+        ],
+      },
+      {
+        heading: "Le deuxième et le troisième retour",
+        paragraphs: [
+          "Saturne revient une deuxième fois vers 58-59 ans, puis (plus rarement vécu) une troisième fois vers 88 ans — chacun marquant un bilan de structure adapté à l'étape de vie correspondante. Le premier retour reste le plus commenté parce qu'il coïncide avec l'entrée dans l'âge adulte pleinement assumé, mais le mécanisme est identique à chaque fois : un point de passage, pas un couperet.",
+        ],
+      },
+    ],
+    relatedHref: "/decouvrir",
+    relatedLabel: "Voir si votre retour de Saturne approche →",
+  },
+  {
+    slug: "noeuds-lunaires",
+    title: "Les nœuds lunaires : nœud nord et nœud sud",
+    description:
+      "Un axe qui ne représente aucun corps céleste réel, mais une intersection géométrique — et pourtant l'un des repères les plus utilisés pour parler de \"mission de vie\" en astrologie.",
+    readingMinutes: 5,
+    publishedAt: "2026-08-08",
+    intro:
+      "Contrairement aux planètes, les nœuds lunaires ne sont pas des objets physiques : ce sont les deux points où l'orbite de la Lune croise le plan de l'orbite terrestre autour du Soleil. Un axe purement géométrique, mais chargé de sens en astrologie.",
+    sections: [
+      {
+        heading: "Un axe, deux points toujours opposés",
+        paragraphs: [
+          "Le Nœud Nord et le Nœud Sud sont toujours à 180° l'un de l'autre — exactement au signe et à la maison opposés dans le thème. Ils se déplacent lentement et à rebours du sens habituel des planètes (rétrogrades quasi en permanence), parcourant tout le zodiaque en environ 18 ans et demi.",
+        ],
+      },
+      {
+        heading: "Nœud Sud : le terrain acquis",
+        paragraphs: [
+          "Le Nœud Sud décrit un territoire familier, des réflexes qui ne demandent aucun effort — parfois lus comme un bagage déjà là au départ. Le risque n'est pas d'y puiser (c'est une vraie ressource), mais de s'y réfugier indéfiniment par facilité, au point de ne jamais explorer autre chose.",
+        ],
+      },
+      {
+        heading: "Nœud Nord : la direction à apprivoiser",
+        paragraphs: [
+          "Le Nœud Nord, à l'opposé, pointe vers un apprentissage moins naturel, souvent inconfortable au début parce que peu familier — une direction de croissance plutôt qu'un trait déjà acquis. La lecture traditionnelle en parle comme d'une \"mission\" : non pas ce qu'on est déjà, mais ce vers quoi on gagne à tendre consciemment, à son rythme.",
+          "Ce site applique cette lecture dans le thème natal complet (voir votre page thème) : le signe du Nœud Nord y est présenté comme une direction, jamais comme une case à cocher — le nœud Sud n'est ni un défaut ni un point faible, juste un point de départ.",
+        ],
+      },
+    ],
+    relatedHref: "/decouvrir",
+    relatedLabel: "Voir l'axe de vos nœuds lunaires, sans compte →",
+  },
+  {
+    slug: "retrogrades-au-dela-de-mercure",
+    title: "Rétrogrades : pas que Mercure",
+    description:
+      "Vénus, Mars, Jupiter, Saturne et les planètes lentes rétrogradent aussi — avec des durées et des enjeux très différents de la rétrogradation de Mercure, la plus médiatisée.",
+    readingMinutes: 6,
+    publishedAt: "2026-08-08",
+    intro:
+      "Mercure rétrograde capte toute l'attention (voir le guide dédié), mais ce n'est pas la seule planète concernée. Chaque planète a son propre rythme de rétrogradation apparente, avec une fréquence et une signification différentes.",
+    sections: [
+      {
+        heading: "Même mécanisme, rythmes différents",
+        paragraphs: [
+          "Le principe reste le même pour toutes les planètes (voir le guide sur Mercure rétrograde pour le détail géométrique) : un effet de perspective depuis la Terre en mouvement, jamais un vrai recul sur l'orbite. Mais la fréquence varie énormément selon la distance de la planète : Mercure rétrograde environ 3 à 4 fois par an sur quelques semaines, Vénus environ tous les 18 mois sur environ 6 semaines, Mars environ tous les 2 ans sur 2 à 3 mois, et les planètes lentes (Jupiter, Saturne, Uranus, Neptune, Pluton) rétrogradent chacune environ une fois par an, sur plusieurs mois d'affilée.",
+        ],
+      },
+      {
+        heading: "Vénus rétrograde : relations et valeurs",
+        paragraphs: [
+          "Vénus gouvernant l'amour, l'esthétique et les valeurs personnelles, sa rétrogradation est traditionnellement associée à un temps de révision plutôt que de lancement dans ce domaine : redéfinir ce qu'on trouve beau, ce qu'on désire vraiment, parfois le retour inattendu d'une personne ou d'un sujet du passé qui demande à être tranché plutôt qu'ignoré.",
+        ],
+      },
+      {
+        heading: "Mars rétrograde : l'action ralentie",
+        paragraphs: [
+          "Mars gouvernant l'action directe et l'affirmation, sa rétrogradation (plus rare, environ tous les deux ans) est associée à une frustration de l'élan : l'énergie a du mal à se déployer normalement vers l'extérieur, ce qui pousse traditionnellement à revoir sa stratégie plutôt qu'à foncer tête baissée.",
+        ],
+      },
+      {
+        heading: "Les planètes lentes : une pause plus qu'un événement",
+        paragraphs: [
+          "Jupiter, Saturne, Uranus, Neptune et Pluton passent une bonne partie de chaque année en rétrogradation (plusieurs mois consécutifs) — au point que ce n'est presque jamais un événement isolé mais un état normal et récurrent du thème du moment. Leur rétrogradation se lit surtout au niveau collectif ou générationnel, rarement comme un signal personnel fort.",
+        ],
+      },
+    ],
+    relatedHref: "/decouvrir",
+    relatedLabel: "Voir votre thème et ses transits, sans compte →",
+  },
+  {
+    slug: "astrologie-humaniste-vs-predictive",
+    title: "Astrologie humaniste ou prédictive : deux écoles, pas une vérité unique",
+    description:
+      "\"L'astrologie dit que...\" cache en réalité des écoles très différentes, parfois en désaccord frontal. Comprendre la distinction évite bien des malentendus.",
+    readingMinutes: 5,
+    publishedAt: "2026-08-08",
+    intro:
+      "Deux personnes peuvent consulter un thème natal avec des attentes opposées : l'une cherche à se comprendre, l'autre à savoir ce qui va se passer. Ce ne sont pas deux nuances de la même pratique — ce sont deux écoles distinctes, avec des origines et des méthodes différentes.",
+    sections: [
+      {
+        heading: "L'astrologie prédictive : annoncer des événements",
+        paragraphs: [
+          "L'approche la plus ancienne, dominante jusqu'au XXe siècle : le thème et ses transits sont lus comme des indicateurs d'événements à venir (mariage, argent, santé...), dans une logique proche de la divination. C'est cette tradition qui alimente l'astrologie de tabloïd (\"cette semaine, gare aux arnaques financières\").",
+        ],
+      },
+      {
+        heading: "L'astrologie humaniste : comprendre plutôt que prédire",
+        paragraphs: [
+          "Popularisée notamment par l'astrologue Dane Rudhyar au XXe siècle, cette école s'inspire de la psychologie (Jung en particulier) et déplace l'objectif : le thème ne prédit rien, il décrit des dynamiques psychologiques, des tensions à intégrer, des potentiels à développer consciemment. Un aspect \"difficile\" n'annonce pas un événement négatif — il pointe un travail intérieur possible.",
+          "C'est explicitement la philosophie de ce site (voir la page méthode) : un outil de réflexion et d'introspection, pas une prédiction. Les textes de ce site — sur les planètes, les maisons, les aspects — sont écrits dans cette tradition humaniste, même quand ils s'appuient sur des techniques de calcul héritées de la tradition prédictive (les maisons, les orbes, les transits eux-mêmes sont bien plus anciens que Rudhyar).",
+        ],
+      },
+      {
+        heading: "Pourquoi la distinction compte",
+        paragraphs: [
+          "Beaucoup de scepticisme envers l'astrologie vise en réalité sa branche prédictive (\"comment un alignement planétaire pourrait-il annoncer un événement précis ?\") — une critique légitime que l'école humaniste ne prétend d'ailleurs pas réfuter, puisqu'elle ne fait pas ce genre de promesse. Savoir à quelle école on s'adresse évite de juger l'ensemble de la pratique sur la base d'une seule de ses branches.",
+        ],
+      },
+    ],
+    relatedHref: "/methode",
+    relatedLabel: "Voir la philosophie de ce site en détail →",
+  },
+  {
+    slug: "composite-vs-davison",
+    title: "Thème composite ou thème de Davison : deux façons de calculer \"le thème du couple\"",
+    description:
+      "Le thème composite (proposé sur ce site) et le thème de Davison répondent à la même intuition — un thème \"de la relation\" — avec deux méthodes de calcul différentes.",
+    readingMinutes: 5,
+    publishedAt: "2026-08-08",
+    intro:
+      "Après la synastrie (voir le guide dédié), le thème \"de la relation\" existe sous deux variantes qu'on confond souvent : le composite, calculé par points médians, et le thème de Davison, calculé autrement. Voici la différence.",
+    sections: [
+      {
+        heading: "Le thème composite : une moyenne géométrique",
+        paragraphs: [
+          "Le composite (voir le guide \"Synastrie ou thème composite\") calcule le point médian entre chaque planète des deux thèmes natals — la moyenne géométrique des positions, sans lien avec un instant ou un lieu réels. C'est une construction mathématique pure, qui n'existe dans aucun lieu ni aucune date du calendrier : ni l'un ni l'autre thème natal, mais un troisième thème abstrait représentant la relation.",
+        ],
+      },
+      {
+        heading: "Le thème de Davison : un instant et un lieu moyens réels",
+        paragraphs: [
+          "Le thème de Davison, du nom de l'astrologue britannique Ronald Davison qui l'a formalisé dans les années 1970, prend une autre voie : il calcule la date et le lieu moyens entre les deux naissances (littéralement le point médian dans le temps et l'espace), puis établit un vrai thème natal pour cet instant et ce lieu précis, comme s'il s'agissait d'une naissance réelle.",
+          "La différence n'est pas anodine : le composite n'a pas de maisons \"réelles\" au sens propre (voir la page méthode sur la convention utilisée), alors que le thème de Davison en a, puisqu'il correspond à un vrai lieu géographique et un vrai instant du calendrier — avec de vrais levers et couchers de planètes à cet endroit précis.",
+        ],
+      },
+      {
+        heading: "Ce que propose ce site",
+        paragraphs: [
+          "Ce site calcule aujourd'hui le thème composite (méthode des points médians) mais pas encore le thème de Davison, qui figure sur la feuille de route. Si vous croisez le terme \"Davison\" ailleurs en cherchant de la compatibilité astrologique, vous savez maintenant à quoi il correspond et en quoi il diffère du composite déjà disponible ici.",
+        ],
+      },
+    ],
+    relatedHref: "/decouvrir",
+    relatedLabel: "Commencer par votre thème, sans compte →",
+  },
+  {
+    slug: "choisir-systeme-maisons",
+    title: "Placidus, signes entiers, maisons égales, Porphyre : lequel choisir ?",
+    description:
+      "Il n'existe pas un seul système de calcul des maisons universellement \"vrai\" — juste des conventions différentes, chacune avec sa logique et ses cas limites.",
+    readingMinutes: 6,
+    publishedAt: "2026-08-08",
+    intro:
+      "Changer de système de maisons peut déplacer certaines planètes d'une maison à l'autre sans toucher ni aux signes ni aux aspects. Beaucoup de débutants l'ignorent, alors que ce choix influence directement la lecture des domaines de vie.",
+    sections: [
+      {
+        heading: "Signes entiers : le plus ancien",
+        paragraphs: [
+          "Le système le plus vieux (utilisé dans l'astrologie hellénistique) : chaque maison correspond exactement à un signe entier, la Maison I commençant au tout début du signe où se trouve l'Ascendant. Simple, robuste, fonctionne à n'importe quelle latitude sans exception — c'est aussi le système utilisé par ce site pour les horoscopes par signe (voir le guide dédié), précisément pour sa simplicité et sa fiabilité universelle.",
+        ],
+      },
+      {
+        heading: "Maisons égales : simple et prévisible",
+        paragraphs: [
+          "Douze secteurs de 30° pile, à partir du degré exact de l'Ascendant (qui n'est pas forcément à 0° d'un signe, contrairement aux signes entiers). Une maison peut donc chevaucher deux signes. Système intermédiaire en complexité, également fiable à toutes les latitudes.",
+        ],
+      },
+      {
+        heading: "Porphyre : diviser chaque quadrant en trois",
+        paragraphs: [
+          "Un système ancien lui aussi (IIIe siècle), qui découpe chaque quadrant (entre deux angles : Ascendant, Fond du Ciel, Descendant, Milieu du Ciel) en trois parts égales en degrés. Un compromis entre la simplicité des maisons égales et la sensibilité géographique de Placidus.",
+        ],
+      },
+      {
+        heading: "Placidus : le plus répandu, mais avec une limite",
+        paragraphs: [
+          "Le système le plus utilisé aujourd'hui en Europe francophone : il ne divise pas l'espace mais le temps que met chaque degré de l'écliptique à se lever au-dessus de l'horizon du lieu de naissance. Cette sensibilité au temps et au lieu le rend mathématiquement indéfini très près des cercles polaires — ce site bascule alors automatiquement sur les signes entiers plutôt que d'afficher un résultat faux (voir la page méthode pour le détail).",
+        ],
+      },
+      {
+        heading: "Lequel choisir, en pratique",
+        paragraphs: [
+          "Il n'y a pas de consensus universel parmi les astrologues eux-mêmes — c'est une vraie question de tradition et de préférence, pas une question à réponse unique. Placidus reste le choix par défaut le plus répandu en astrologie occidentale francophone contemporaine ; les signes entiers séduisent un courant qui revient aux méthodes hellénistiques historiques. Ce site vous laisse choisir librement sur chaque thème plutôt que d'imposer un système comme \"le bon\".",
+        ],
+      },
+    ],
+    relatedHref: "/methode",
+    relatedLabel: "Voir le détail de chaque système de maisons →",
+  },
 ];

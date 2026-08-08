@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { composeSignHoroscope } from "@/lib/astro/interpretations/sign-horoscope";
 import { ZODIAC_SIGNS } from "@/lib/astro/types";
+import { SIGN_META } from "@/lib/astro/interpretations/signs";
 
 describe("composeSignHoroscope", () => {
   const date = new Date("2026-08-07T17:00:00Z");
@@ -10,6 +11,8 @@ describe("composeSignHoroscope", () => {
       const h = composeSignHoroscope(sign, date, "fr");
       expect(h.sign).toBe(sign);
       expect(h.headline.length).toBeGreaterThan(0);
+      expect(h.punchline.length).toBeGreaterThan(0);
+      expect(h.punchline).toContain(SIGN_META[sign].name);
       expect(h.moonPhaseLine.length).toBeGreaterThan(0);
       expect(h.housePlacements).toHaveLength(6);
       expect(h.precisionNote.length).toBeGreaterThan(0);
@@ -49,10 +52,16 @@ describe("composeSignHoroscope", () => {
     expect(belier.skyAspectText).toBe(poissons.skyAspectText);
   });
 
+  it("reflects the tense tone of the featured mundane aspect (Vénus carré Mars) in the punchline suffix", () => {
+    const h = composeSignHoroscope("balance", date, "fr");
+    expect(h.punchline).toContain("pas sans un peu de friction");
+  });
+
   it("produces bilingual output without leaking the other language", () => {
     const fr = composeSignHoroscope("lion", date, "fr");
     const en = composeSignHoroscope("lion", date, "en");
     expect(fr.headline).not.toBe(en.headline);
+    expect(fr.punchline).not.toBe(en.punchline);
     expect(fr.housePlacements[0].houseName).toMatch(/Maison/);
     expect(en.housePlacements[0].houseName).toMatch(/House/);
     expect(fr.precisionNote).not.toBe(en.precisionNote);

@@ -228,4 +228,218 @@ export const GUIDES_EN: Guide[] = [
     relatedHref: "/en/discover",
     relatedLabel: "See the aspects of your own chart, no account →",
   },
+  {
+    slug: "retour-de-saturne",
+    title: "The Saturn Return: Why 29 Is a Turning Point",
+    description:
+      "Around age 29, Saturn returns to exactly where it was at your birth. A classic milestone for stock-taking and restructuring — what it actually means, without the doom and gloom.",
+    readingMinutes: 6,
+    publishedAt: "2026-08-08",
+    intro:
+      "\"I had my Saturn return and everything fell apart\" comes up a lot online. The reality is more nuanced: a real milestone, predictable by calculation, but not a fatality.",
+    sections: [
+      {
+        heading: "A calculation, not a legend",
+        paragraphs: [
+          "Saturn takes about 29 years to travel the entire zodiac and return exactly to its birth position — a \"planetary return\" in the strict sense: the transiting planet forms a near-exact conjunction with itself in the natal chart. This site detects it directly (see the daily horoscope, which flags this kind of return when it happens). Unlike Jupiter (a return every 12 years, lighter in tone), Saturn's cycle coincides with life stages already loaded with meaning in Western culture — end of studies, first real professional or personal commitments — which feeds its reputation.",
+        ],
+      },
+      {
+        heading: "What Saturn represents in the chart",
+        paragraphs: [
+          "Saturn is the planet of structure, long time frames, responsibility and realistic limits — as opposed to Jupiter's boundless expansion. Its return traditionally marks the end of a first life structure built more or less under outside influence (family expectations, circumstance) and the start of a more consciously chosen one.",
+          "That's not a negative signal in itself: it's a moment when whatever rested on fragile foundations tends to surface, precisely so it can be rebuilt sturdier. What was already built on sincere foundations generally goes through this period without drama.",
+        ],
+      },
+      {
+        heading: "The second and third return",
+        paragraphs: [
+          "Saturn returns a second time around age 58-59, then (more rarely lived through) a third time around 88 — each marking a structural stock-taking suited to that life stage. The first return stays the most talked-about because it coincides with fully stepping into adulthood, but the mechanism is identical every time: a passage point, not a guillotine.",
+        ],
+      },
+    ],
+    relatedHref: "/en/discover",
+    relatedLabel: "See if your Saturn return is approaching →",
+  },
+  {
+    slug: "noeuds-lunaires",
+    title: "The Lunar Nodes: North Node and South Node",
+    description:
+      "An axis that isn't a real celestial body at all, but a geometric intersection — and yet one of the most used reference points for talking about \"life mission\" in astrology.",
+    readingMinutes: 5,
+    publishedAt: "2026-08-08",
+    intro:
+      "Unlike planets, the lunar nodes aren't physical objects: they're the two points where the Moon's orbit crosses the plane of Earth's orbit around the Sun. A purely geometric axis, yet loaded with meaning in astrology.",
+    sections: [
+      {
+        heading: "One axis, two points always opposite",
+        paragraphs: [
+          "The North Node and South Node are always 180° apart — exactly in the opposite sign and house in the chart. They move slowly and backward relative to the usual direction of planetary motion (almost permanently retrograde), traveling the whole zodiac in about 18 and a half years.",
+        ],
+      },
+      {
+        heading: "South Node: the terrain already earned",
+        paragraphs: [
+          "The South Node describes familiar territory, reflexes that take no effort — sometimes read as baggage already there from the start. The risk isn't drawing on it (that's a real resource), but hiding there indefinitely out of ease, to the point of never exploring anything else.",
+        ],
+      },
+      {
+        heading: "North Node: the direction to grow into",
+        paragraphs: [
+          "The North Node, opposite, points to a less natural learning curve, often uncomfortable at first because it's unfamiliar — a direction of growth rather than an already-acquired trait. The traditional reading calls it a \"mission\": not what you already are, but what you gain by consciously leaning into, at your own pace.",
+          "This site applies that reading in the full natal chart (see your chart page): the North Node's sign is presented as a direction, never as a box to check — the South Node isn't a flaw or a weakness, just a starting point.",
+        ],
+      },
+    ],
+    relatedHref: "/en/discover",
+    relatedLabel: "See your lunar node axis, no account →",
+  },
+  {
+    slug: "retrogrades-au-dela-de-mercure",
+    title: "Retrogrades: Not Just Mercury",
+    description:
+      "Venus, Mars, Jupiter, Saturn and the outer planets go retrograde too — with very different durations and stakes than Mercury's much more publicized retrograde.",
+    readingMinutes: 6,
+    publishedAt: "2026-08-08",
+    intro:
+      "Mercury retrograde grabs all the attention (see the dedicated guide), but it isn't the only planet involved. Every planet has its own rhythm of apparent retrograde motion, with a different frequency and meaning.",
+    sections: [
+      {
+        heading: "Same mechanism, different rhythms",
+        paragraphs: [
+          "The principle stays the same for every planet (see the Mercury retrograde guide for the geometric detail): a perspective effect from a moving Earth, never a true reversal along the orbit. But the frequency varies a lot depending on the planet's distance: Mercury goes retrograde about 3 to 4 times a year over a few weeks, Venus about every 18 months over roughly 6 weeks, Mars about every 2 years over 2 to 3 months, and the outer planets (Jupiter, Saturn, Uranus, Neptune, Pluto) each go retrograde roughly once a year, for several months at a stretch.",
+        ],
+      },
+      {
+        heading: "Venus retrograde: relationships and values",
+        paragraphs: [
+          "Since Venus governs love, aesthetics and personal values, its retrograde is traditionally associated with a time of review rather than launch in those areas: redefining what you find beautiful, what you truly desire, sometimes the unexpected return of a person or a topic from the past asking to be resolved rather than ignored.",
+        ],
+      },
+      {
+        heading: "Mars retrograde: action slowed down",
+        paragraphs: [
+          "Since Mars governs direct action and assertiveness, its retrograde (rarer, roughly every two years) is associated with a frustrated drive: energy struggles to deploy normally outward, which traditionally pushes toward rethinking strategy rather than charging ahead.",
+        ],
+      },
+      {
+        heading: "The outer planets: more a pause than an event",
+        paragraphs: [
+          "Jupiter, Saturn, Uranus, Neptune and Pluto spend a good chunk of every year in retrograde (several consecutive months) — to the point that it's almost never an isolated event but a normal, recurring state of the current chart of the moment. Their retrograde reads mostly at the collective or generational level, rarely as a strong personal signal.",
+        ],
+      },
+    ],
+    relatedHref: "/en/discover",
+    relatedLabel: "See the current retrogrades on your chart →",
+  },
+  {
+    slug: "astrologie-humaniste-vs-predictive",
+    title: "Humanistic vs. Predictive Astrology: Two Schools, Not One Truth",
+    description:
+      "\"Astrology says...\" actually hides very different schools of thought, sometimes flatly disagreeing with each other. Understanding the split avoids a lot of misunderstandings.",
+    readingMinutes: 5,
+    publishedAt: "2026-08-08",
+    intro:
+      "Two people can look at the same natal chart with opposite expectations: one wants to understand themselves, the other wants to know what's going to happen. These aren't two shades of the same practice — they're two distinct schools, with different origins and methods.",
+    sections: [
+      {
+        heading: "Predictive astrology: announcing events",
+        paragraphs: [
+          "The oldest approach, dominant until the 20th century: the chart and its transits are read as indicators of upcoming events (marriage, money, health...), in a logic close to divination. This tradition is what fuels tabloid astrology (\"watch out for financial scams this week\").",
+        ],
+      },
+      {
+        heading: "Humanistic astrology: understanding rather than predicting",
+        paragraphs: [
+          "Popularized notably by astrologer Dane Rudhyar in the 20th century, this school draws on psychology (Jung in particular) and shifts the goal: the chart predicts nothing, it describes psychological dynamics, tensions to integrate, potentials to consciously develop. A \"difficult\" aspect doesn't announce a negative event — it points to a possible piece of inner work.",
+          "This is explicitly the philosophy behind this site (see the method page): a tool for reflection and introspection, not a prediction. This site's texts — on planets, houses, aspects — are written in that humanistic tradition, even when they lean on calculation techniques inherited from the predictive tradition (houses, orbs, and transits themselves are much older than Rudhyar).",
+        ],
+      },
+      {
+        heading: "Why the distinction matters",
+        paragraphs: [
+          "Much of the skepticism toward astrology actually targets its predictive branch (\"how could a planetary alignment announce a specific event?\") — a legitimate critique the humanistic school doesn't even try to refute, since it doesn't make that kind of promise. Knowing which school you're dealing with avoids judging the whole practice based on just one of its branches.",
+        ],
+      },
+    ],
+    relatedHref: "/en/method",
+    relatedLabel: "See this site's philosophy in detail →",
+  },
+  {
+    slug: "composite-vs-davison",
+    title: "Composite Chart or Davison Chart: Two Ways to Calculate \"the Relationship Chart\"",
+    description:
+      "The composite chart (offered on this site) and the Davison chart answer the same intuition — a chart \"of the relationship\" — with two different calculation methods.",
+    readingMinutes: 5,
+    publishedAt: "2026-08-08",
+    intro:
+      "Beyond synastry (see the dedicated guide), the chart \"of the relationship\" itself exists in two variants that often get confused: the composite, calculated via midpoints, and the Davison chart, calculated differently. Here's the difference.",
+    sections: [
+      {
+        heading: "The composite chart: a geometric average",
+        paragraphs: [
+          "The composite (see the \"Synastry or composite chart\" guide) calculates the midpoint between each planet in both natal charts — the geometric average of the positions, with no link to a real moment or place. It's a pure mathematical construction that doesn't exist on any calendar date or real location: neither natal chart, but a third, abstract chart representing the relationship.",
+        ],
+      },
+      {
+        heading: "The Davison chart: a real average moment and place",
+        paragraphs: [
+          "The Davison chart, named after British astrologer Ronald Davison who formalized it in the 1970s, takes a different route: it calculates the average date and location between the two births (literally the midpoint in time and space), then builds a real natal chart for that exact moment and place, as if it were an actual birth.",
+          "The difference isn't trivial: the composite has no \"real\" houses in the strict sense (see the method page on the convention used), while the Davison chart does, since it corresponds to an actual geographic location and an actual calendar moment — with real planetary risings and settings at that exact spot.",
+        ],
+      },
+      {
+        heading: "What this site offers",
+        paragraphs: [
+          "This site currently calculates the composite chart (midpoint method) but not yet the Davison chart, which is on the roadmap. If you come across the term \"Davison\" elsewhere while researching astrological compatibility, you now know what it refers to and how it differs from the composite already available here.",
+        ],
+      },
+    ],
+    relatedHref: "/en/discover",
+    relatedLabel: "Start with your chart, no account →",
+  },
+  {
+    slug: "choisir-systeme-maisons",
+    title: "Placidus, Whole Sign, Equal Houses, Porphyry: Which One to Choose?",
+    description:
+      "There's no single universally \"true\" way to calculate houses — just different conventions, each with its own logic and edge cases.",
+    readingMinutes: 6,
+    publishedAt: "2026-08-08",
+    intro:
+      "Switching house systems can move some planets from one house to another without touching either the signs or the aspects. Many beginners don't realize this, even though the choice directly shapes how life areas get read.",
+    sections: [
+      {
+        heading: "Whole sign: the oldest",
+        paragraphs: [
+          "The oldest system (used in Hellenistic astrology): each house corresponds exactly to one whole sign, House I starting right at the beginning of the sign where the Ascendant sits. Simple, robust, works at any latitude with no exceptions — it's also the system this site uses for horoscopes by sign (see the dedicated guide), precisely for its simplicity and universal reliability.",
+        ],
+      },
+      {
+        heading: "Equal houses: simple and predictable",
+        paragraphs: [
+          "Twelve sectors of exactly 30°, starting from the Ascendant's exact degree (which isn't necessarily at 0° of a sign, unlike whole sign). A house can therefore straddle two signs. A system of intermediate complexity, also reliable at every latitude.",
+        ],
+      },
+      {
+        heading: "Porphyry: splitting each quadrant into three",
+        paragraphs: [
+          "An ancient system too (3rd century), which divides each quadrant (between two angles: Ascendant, IC, Descendant, Midheaven) into three equal parts by degree. A compromise between the simplicity of equal houses and the geographic sensitivity of Placidus.",
+        ],
+      },
+      {
+        heading: "Placidus: the most widespread, but with a limit",
+        paragraphs: [
+          "The most-used system today in French-speaking Europe: it doesn't divide space but the time each degree of the ecliptic takes to rise above the birthplace's horizon. That sensitivity to time and place makes it mathematically undefined very close to the polar circles — this site automatically falls back to whole sign there instead of showing a wrong result (see the method page for details).",
+        ],
+      },
+      {
+        heading: "Which one to pick, in practice",
+        paragraphs: [
+          "There's no universal consensus even among astrologers themselves — it's a genuine matter of tradition and preference, not a question with one right answer. Placidus remains the most common default in contemporary Western astrology; whole sign appeals to a movement returning to historical Hellenistic methods. This site lets you choose freely on each chart rather than imposing one system as \"the correct one\".",
+        ],
+      },
+    ],
+    relatedHref: "/en/method",
+    relatedLabel: "See the detail of each house system →",
+  },
 ];

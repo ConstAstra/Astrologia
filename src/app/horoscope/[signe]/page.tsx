@@ -10,6 +10,7 @@ import type { ZodiacSign } from "@/lib/astro/types";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { composeSignHoroscope } from "@/lib/astro/interpretations/sign-horoscope";
+import { SharePunchlineButton } from "@/components/discover/SharePunchlineButton";
 
 const ELEMENT_COLORS: Record<string, string> = {
   Feu: "#c96b4a",
@@ -53,6 +54,9 @@ export default async function SignHoroscopePage({ params }: { params: Promise<{ 
   const prevSign = ZODIAC_SIGNS[(index - 1 + ZODIAC_SIGNS.length) % ZODIAC_SIGNS.length];
   const nextSign = ZODIAC_SIGNS[(index + 1) % ZODIAC_SIGNS.length];
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://astrologium.app";
+  const pageUrl = `${siteUrl}/horoscope/${signe}`;
+
   return (
     <>
       <SiteHeader />
@@ -78,12 +82,22 @@ export default async function SignHoroscopePage({ params }: { params: Promise<{ 
             </div>
             <h1 className="font-display mt-3 text-4xl sm:text-5xl">{meta.name}</h1>
             <p className="mt-2 text-sm text-muted">{meta.dates}</p>
-            <p className="mt-5 text-lg text-foreground/90">{horoscope.headline}</p>
           </div>
         </section>
 
+        <section className="mx-auto max-w-2xl px-6">
+          <Card className="border-gold/30 bg-gold/5 p-7 text-center">
+            <p className="font-display text-2xl leading-snug sm:text-3xl">{horoscope.punchline}</p>
+            <div className="mt-5 flex justify-center">
+              <SharePunchlineButton text={horoscope.punchline} url={pageUrl} locale="fr" />
+            </div>
+          </Card>
+        </section>
+
         <section className="mx-auto max-w-3xl px-6 py-8">
-          <Card className="p-6">
+          <p className="text-center text-sm text-muted">{horoscope.headline}</p>
+
+          <Card className="mt-6 p-6">
             <p className="text-sm text-muted">☾ Phase lunaire</p>
             <p className="mt-2 text-sm leading-relaxed">{horoscope.moonPhaseLine}</p>
           </Card>
