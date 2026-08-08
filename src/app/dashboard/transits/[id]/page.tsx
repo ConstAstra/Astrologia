@@ -25,6 +25,7 @@ import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { TransitCheckIn } from "@/components/dashboard/TransitCheckIn";
+import { TransitWheel } from "@/components/chart/TransitWheel";
 
 const EVENT_TYPE_SET = new Set<string>(EVENT_TYPES);
 function isEventType(value: string | undefined): value is EventType {
@@ -226,6 +227,12 @@ export default async function TransitsPage({
   const minorAspects = transitAspects.filter((a) => !a.major);
   const transiting = computeTransitingPositions(target);
   const moon = computeMoonPhase(target);
+  const wheelAscendant = chart.hasReliableHouses ? chart.houses.ascendant : 0;
+  const wheelNatalPoints = PLANET_KEYS.filter((k) => chart.points[k]).map((k) => ({
+    key: k,
+    longitude: chart.points[k].longitude,
+  }));
+  const wheelTransitingPoints = PLANET_KEYS.map((k) => ({ key: k, longitude: transiting[k].longitude }));
   const socialWeather = composeSocialWeather(chart, target, transitAspects, locale);
 
   const eventBriefing = eventType ? composeEventBriefing(chart, target, transitAspects, moon, eventType, locale) : null;
@@ -345,26 +352,38 @@ export default async function TransitsPage({
 
       <div className={`relative mt-6 ${locked ? "max-h-[640px] overflow-hidden" : ""}`}>
         <div className={locked ? "pointer-events-none select-none blur-sm" : undefined} aria-hidden={locked}>
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <p className="font-display text-2xl">☾ {moonLabel}</p>
-              <Badge tone="gold">{t.illuminated(Math.round(moon.illuminatedFraction * 100))}</Badge>
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{moonTextMap[moon.name]}</p>
-            {isOwner && offset <= 0 && (
-              <TransitCheckIn
-                profileId={profile.id}
-                date={targetDateStr}
-                initialReaction={existingCheckIn?.reaction as "vrai" | "partiellement" | "pas_du_tout" | null ?? null}
+          <div className="grid items-start gap-6 lg:grid-cols-[380px_1fr]">
+            <Card className="flex flex-col items-center p-6">
+              <TransitWheel
+                natalPoints={wheelNatalPoints}
+                transitingPoints={wheelTransitingPoints}
+                ascendant={wheelAscendant}
+                crossAspects={majorAspects}
                 locale={locale}
               />
-            )}
-            {checkInTotal >= 3 && (
-              <p className="mt-3 text-xs text-muted">
-                {t.checkInStatsLine(checkInConfirmed, checkInTotal, Math.round((checkInConfirmed / checkInTotal) * 100))}
-              </p>
-            )}
-          </Card>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center justify-between">
+                <p className="font-display text-2xl">☾ {moonLabel}</p>
+                <Badge tone="gold">{t.illuminated(Math.round(moon.illuminatedFraction * 100))}</Badge>
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{moonTextMap[moon.name]}</p>
+              {isOwner && offset <= 0 && (
+                <TransitCheckIn
+                  profileId={profile.id}
+                  date={targetDateStr}
+                  initialReaction={existingCheckIn?.reaction as "vrai" | "partiellement" | "pas_du_tout" | null ?? null}
+                  locale={locale}
+                />
+              )}
+              {checkInTotal >= 3 && (
+                <p className="mt-3 text-xs text-muted">
+                  {t.checkInStatsLine(checkInConfirmed, checkInTotal, Math.round((checkInConfirmed / checkInTotal) * 100))}
+                </p>
+              )}
+            </Card>
+          </div>
 
           <section className="mt-10">
             <h2 className="font-display text-2xl">{t.planetsToday}</h2>

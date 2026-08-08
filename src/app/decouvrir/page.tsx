@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Eyebrow } from "@/components/ui/Card";
 import { BigThreeTeaserForm } from "@/components/discover/BigThreeTeaserForm";
+import { HeroChartWheel } from "@/components/HeroChartWheel";
 
 export const metadata: Metadata = {
   title: "Découvre ton thème en 10 secondes — Astrologium",
@@ -16,6 +17,7 @@ export default function DecouvrirPage() {
       <SiteHeader />
       <main className="flex-1">
         <section className="mx-auto max-w-3xl px-6 pb-6 pt-16 text-center">
+          <HeroChartWheel className="mx-auto mb-2 max-w-[130px] opacity-50 sm:max-w-[150px]" />
           <Eyebrow>Découverte rapide</Eyebrow>
           <h1 className="font-display mt-4 text-4xl sm:text-5xl">Ton Big 3, en 10 secondes</h1>
           <p className="mt-5 text-muted">

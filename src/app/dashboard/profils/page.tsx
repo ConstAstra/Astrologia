@@ -35,6 +35,9 @@ const TEXT: Record<
     comparePrompt: string;
     synastry: string;
     composite: string;
+    addAnotherHeading: string;
+    addAnotherBody: (remaining: number) => string;
+    addAnotherCta: string;
     avatarLegend: string;
     glowActive: string;
     glowProgress: (daysLeft: number) => string;
@@ -58,6 +61,12 @@ const TEXT: Record<
     comparePrompt: "Choisissez deux avatars pour lancer une synastrie ou un thème composite.",
     synastry: "Synastrie",
     composite: "Thème composite",
+    addAnotherHeading: "Un profil de plus ?",
+    addAnotherBody: (remaining) =>
+      remaining === 1
+        ? "Ajoutez le thème d'un proche pour tester une synastrie ou un thème composite — il vous reste 1 profil gratuit."
+        : `Ajoutez le thème d'un proche pour tester une synastrie ou un thème composite — il vous reste ${remaining} profils gratuits.`,
+    addAnotherCta: "Ajouter un profil",
     avatarLegend: "🌙 Le petit badge en bas à gauche de l'avatar est un compagnon lié à l'élément de sa Lune (survolez-le pour voir lequel).",
     glowActive: "✨ Halo doré actif — Premium ou série de connexions ≥ 7 jours.",
     glowProgress: (daysLeft) =>
@@ -83,6 +92,12 @@ const TEXT: Record<
     comparePrompt: "Pick two avatars to run a synastry or a composite chart.",
     synastry: "Synastry",
     composite: "Composite chart",
+    addAnotherHeading: "Room for one more?",
+    addAnotherBody: (remaining) =>
+      remaining === 1
+        ? "Add a friend or family member's chart to try a synastry or composite chart — you have 1 free profile left."
+        : `Add a friend or family member's chart to try a synastry or composite chart — you have ${remaining} free profiles left.`,
+    addAnotherCta: "Add a profile",
     avatarLegend: "🌙 The small badge on the avatar's bottom-left is a companion tied to its Moon's element (hover it to see which one).",
     glowActive: "✨ Golden glow active — Premium or a 7-day-or-longer login streak.",
     glowProgress: (daysLeft) =>
@@ -241,6 +256,25 @@ export default async function ProfilsPage() {
             <ButtonLink href="/dashboard/composite" variant="secondary">
               <MergeIcon className="h-4 w-4" />
               {t.composite}
+            </ButtonLink>
+          </div>
+        </Card>
+      )}
+
+      {profiles.length > 0 && profiles.length < FREE_PROFILE_LIMIT && (
+        <Card className="mt-8 overflow-hidden p-6">
+          <div className="flex items-start gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/5 text-lg text-gold-strong">
+              +
+            </span>
+            <div>
+              <p className="font-display text-xl">{t.addAnotherHeading}</p>
+              <p className="mt-1 text-sm text-muted">{t.addAnotherBody(FREE_PROFILE_LIMIT - profiles.length)}</p>
+            </div>
+          </div>
+          <div className="mt-5">
+            <ButtonLink href="/dashboard/profils/nouveau" variant="secondary">
+              {t.addAnotherCta}
             </ButtonLink>
           </div>
         </Card>
