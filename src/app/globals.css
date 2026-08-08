@@ -102,6 +102,11 @@ body {
 }
 
 /* --- Fond ciel étoilé, fixe, discret — halos réchauffés pour Bloom --- */
+/* Le dégradé de jour Bloom (.sky-scroll) est assez clair en haut de page :
+   un point noté à l'audit visuel — les étoiles blanches y perdaient tout
+   contraste. Un voile sombre supplémentaire en haut (premier stop) et des
+   points légèrement plus opaques compensent, sans changer la position des
+   étoiles ni retoucher le mode nuit (déjà lisible sur fond froid sombre). */
 .starfield {
   position: fixed;
   inset: 0;
@@ -109,20 +114,21 @@ body {
   pointer-events: none;
   /* pas de background-color opaque ici : .sky-scroll (z-index -2) doit se voir en dessous */
   background-image:
+    radial-gradient(ellipse 100% 60% at 50% -10%, #1f142033, transparent),
     radial-gradient(ellipse 80% 50% at 20% -10%, #6b2f4455, transparent),
     radial-gradient(ellipse 60% 40% at 90% 10%, #7a3a3a4d, transparent),
-    radial-gradient(1.5px 1.5px at 10% 20%, #ffffffcc, transparent),
-    radial-gradient(1px 1px at 25% 65%, #ffffffaa, transparent),
-    radial-gradient(1.5px 1.5px at 40% 15%, #ffffffdd, transparent),
-    radial-gradient(1px 1px at 55% 80%, #ffffff99, transparent),
-    radial-gradient(1.5px 1.5px at 70% 35%, #ffffffcc, transparent),
-    radial-gradient(1px 1px at 85% 60%, #ffffffaa, transparent),
-    radial-gradient(1.5px 1.5px at 95% 20%, #ffffffcc, transparent),
-    radial-gradient(1px 1px at 15% 85%, #ffffff88, transparent),
-    radial-gradient(1.5px 1.5px at 60% 50%, #e8935f99, transparent),
-    radial-gradient(1px 1px at 33% 40%, #ffffff77, transparent);
+    radial-gradient(1.5px 1.5px at 10% 20%, #ffffffdd, transparent),
+    radial-gradient(1px 1px at 25% 65%, #ffffffbb, transparent),
+    radial-gradient(1.5px 1.5px at 40% 15%, #ffffffee, transparent),
+    radial-gradient(1px 1px at 55% 80%, #ffffffaa, transparent),
+    radial-gradient(1.5px 1.5px at 70% 35%, #ffffffdd, transparent),
+    radial-gradient(1px 1px at 85% 60%, #ffffffbb, transparent),
+    radial-gradient(1.5px 1.5px at 95% 20%, #ffffffdd, transparent),
+    radial-gradient(1px 1px at 15% 85%, #ffffff99, transparent),
+    radial-gradient(1.5px 1.5px at 60% 50%, #e8935fbb, transparent),
+    radial-gradient(1px 1px at 33% 40%, #ffffff88, transparent);
   background-repeat: repeat;
-  background-size: 100% 100%, 100% 100%, 200px 200px, 180px 180px, 220px 220px, 190px 190px, 210px 210px, 170px 170px, 230px 230px, 160px 160px, 240px 240px, 150px 150px;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 200px 200px, 180px 180px, 220px 220px, 190px 190px, 210px 210px, 170px 170px, 230px 230px, 160px 160px, 240px 240px, 150px 150px;
 }
 
 /* Mode nuit : mêmes étoiles, mais halos de nébuleuse froids (bleu/indigo)
@@ -214,6 +220,31 @@ body {
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* Illustration décorative du hero (HeroChartWheel.tsx) : halo doux derrière
+   le cercle + rotation très lente pour suggérer un ciel vivant, sans jamais
+   distraire de la lecture du texte à côté. */
+.hero-chart-wheel {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 60px #e8935f33);
+  animation: hero-wheel-spin 140s linear infinite;
+}
+
+@keyframes hero-wheel-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-chart-wheel {
+    animation: none;
+  }
 }
 
 @keyframes compat-pulse {

@@ -4,6 +4,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { HeroChartWheel } from "@/components/HeroChartWheel";
+import { SunIcon, OverlapIcon, MergeIcon, MapPinIcon, OrbitIcon, WheelIcon, EyeIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
   title: "Astrologium — Natal Chart, Synastry, Composite & Astrocartography",
@@ -18,16 +20,19 @@ const TOOLS = [
       "Precise positions of the planets, houses and aspects at the exact moment of your birth, with a detailed reading sign by sign, house by house.",
     teaserHref: "/en/discover",
     teaserLabel: "See my Big 3 in 10 seconds, no account →",
+    icon: SunIcon,
   },
   {
     title: "Synastry",
     description:
       "Overlay two charts to understand the dynamics of a couple or a relationship: cross-aspects, overlapping houses, strengths and friction points.",
+    icon: OverlapIcon,
   },
   {
     title: "Composite chart",
     description:
       "The chart \"of the couple\" itself, calculated with the midpoint method — a third entity, beyond the two individuals.",
+    icon: MergeIcon,
   },
   {
     title: "Astrocartography",
@@ -35,6 +40,25 @@ const TOOLS = [
       "Your planetary lines projected on a world map: where does your Sun shine, where does your Venus soften life, where does Saturn bring structure?",
     teaserHref: "/en/map",
     teaserLabel: "Try the interactive map, no account →",
+    icon: MapPinIcon,
+  },
+];
+
+const ENGAGEMENTS = [
+  {
+    title: "Precise ephemerides",
+    description: "Apparent geocentric planetary positions, accurate to within an arcsecond.",
+    icon: OrbitIcon,
+  },
+  {
+    title: "Transparent houses",
+    description: "Placidus, whole sign, equal houses or Porphyry — you choose, we explain the difference.",
+    icon: WheelIcon,
+  },
+  {
+    title: "Honest limits",
+    description: "Unknown birth time? We tell you, instead of inventing an Ascendant. See our method page.",
+    icon: EyeIcon,
   },
 ];
 
@@ -43,34 +67,40 @@ export default function HomeEn() {
     <>
       <SiteHeader locale="en" />
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-28">
-          <Eyebrow>Western astrology</Eyebrow>
-          <h1 className="font-display mx-auto mt-5 max-w-3xl text-balance text-4xl font-semibold leading-tight sm:text-6xl">
-            Discover <em className="text-gold-strong not-italic">yourself and others</em> through astrology.
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-balance text-xl text-foreground/90">
-            Your chart, your relationships, your partnership, your places to live: each with its own reading.
-          </p>
-          <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted">
-            Natal chart, synastry, composite chart and astrocartography. Every calculation, every house
-            system, every orb is documented: you always know what you&apos;re reading and why.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/en/discover" size="lg">
-              Create my natal chart
-            </ButtonLink>
-            <ButtonLink href="/en/method" variant="secondary" size="lg">
-              Understand the method
-            </ButtonLink>
+        <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 pb-16 pt-16 sm:pt-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6">
+          <div className="text-center lg:text-left">
+            <Eyebrow>Western astrology</Eyebrow>
+            <h1 className="font-display mx-auto mt-5 max-w-xl text-balance text-4xl font-semibold leading-[1.1] sm:text-5xl lg:mx-0">
+              Discover <em className="text-gold-strong not-italic">yourself and others</em> through astrology.
+            </h1>
+            <p className="mx-auto mt-5 max-w-lg text-balance text-xl text-foreground/90 lg:mx-0">
+              Your chart, your relationships, your partnership, your places to live: each with its own reading.
+            </p>
+            <p className="mx-auto mt-4 max-w-lg text-balance text-base text-muted lg:mx-0">
+              Every calculation, every house system, every orb is documented: you always know what you&apos;re
+              reading and why.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+              <ButtonLink href="/en/discover" size="lg">
+                Create my natal chart
+              </ButtonLink>
+              <ButtonLink href="/en/method" variant="secondary" size="lg">
+                Understand the method
+              </ButtonLink>
+            </div>
+            <p className="mt-4 text-xs text-muted/70">Your Big 3 in 10 seconds, no account. Full chart free afterwards.</p>
           </div>
-          <p className="mt-4 text-xs text-muted/70">Your Big 3 in 10 seconds, no account. Full chart free afterwards.</p>
+          <div className="hidden lg:block">
+            <HeroChartWheel className="mx-auto max-w-md" />
+          </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">
           <div className="grid gap-5 sm:grid-cols-2">
             {TOOLS.map((tool) => (
               <Card key={tool.title} className="p-7">
-                <h2 className="font-display text-2xl">{tool.title}</h2>
+                <tool.icon className="h-7 w-7 text-gold-strong" />
+                <h2 className="font-display mt-4 text-2xl">{tool.title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{tool.description}</p>
                 {tool.teaserHref && (
                   <Link href={tool.teaserHref} className="mt-3 inline-block text-sm text-gold-strong underline">
@@ -86,24 +116,13 @@ export default function HomeEn() {
           <Eyebrow>Our commitment</Eyebrow>
           <h2 className="font-display mt-4 text-3xl sm:text-4xl">Rigor over showmanship</h2>
           <div className="mt-10 grid gap-6 text-left sm:grid-cols-3">
-            <div>
-              <p className="font-display text-xl text-gold-strong">Precise ephemerides</p>
-              <p className="mt-2 text-sm text-muted">
-                Apparent geocentric planetary positions, accurate to within an arcsecond.
-              </p>
-            </div>
-            <div>
-              <p className="font-display text-xl text-gold-strong">Transparent houses</p>
-              <p className="mt-2 text-sm text-muted">
-                Placidus, whole sign, equal houses or Porphyry — you choose, we explain the difference.
-              </p>
-            </div>
-            <div>
-              <p className="font-display text-xl text-gold-strong">Honest limits</p>
-              <p className="mt-2 text-sm text-muted">
-                Unknown birth time? We tell you, instead of inventing an Ascendant. See our method page.
-              </p>
-            </div>
+            {ENGAGEMENTS.map((item) => (
+              <div key={item.title}>
+                <item.icon className="h-6 w-6 text-gold-strong" />
+                <p className="font-display mt-3 text-xl text-gold-strong">{item.title}</p>
+                <p className="mt-2 text-sm text-muted">{item.description}</p>
+              </div>
+            ))}
           </div>
         </section>
 
