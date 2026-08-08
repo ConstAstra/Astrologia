@@ -52,6 +52,7 @@ const TEXT: Record<
     ctaBody: string;
     ctaLink: string;
     tryAnother: string;
+    horoscopeLink: string;
   }
 > = {
   fr: {
@@ -78,6 +79,7 @@ const TEXT: Record<
       "Le thème complet (maisons, aspects, synastrie, transits du jour) reste gratuit à l'inscription — et ta date de naissance est déjà enregistrée, pas besoin de la retaper.",
     ctaLink: "Créer mon compte gratuit, sans retaper mes infos →",
     tryAnother: "Essayer un autre thème",
+    horoscopeLink: "Voir l'horoscope du jour de mon signe solaire →",
   },
   en: {
     name: "Your first name (optional)",
@@ -103,6 +105,7 @@ const TEXT: Record<
       "The full chart (houses, aspects, synastry, today's transits) stays free when you sign up — and your birth data is already saved, no need to type it again.",
     ctaLink: "Create my free account, no retyping →",
     tryAnother: "Try another chart",
+    horoscopeLink: "See today's horoscope for my sun sign →",
   },
 };
 
@@ -253,6 +256,13 @@ export function BigThreeTeaserForm({ locale = "fr" }: { locale?: Locale }) {
             {t.ctaLink}
           </Link>
         </div>
+
+        <Link
+          href={`${locale === "en" ? "/en/horoscope" : "/horoscope"}/${result.big3.sun}`}
+          className="mt-4 block text-sm text-gold-strong underline"
+        >
+          {t.horoscopeLink}
+        </Link>
 
         <button
           type="button"

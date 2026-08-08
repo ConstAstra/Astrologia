@@ -7,6 +7,8 @@ export type Locale = "fr" | "en";
 
 interface NavHrefs {
   home: string;
+  horoscope: string;
+  guides: string;
   method: string;
   compatibility: string;
   pricing: string;
@@ -17,6 +19,8 @@ interface NavHrefs {
 const HREFS: Record<Locale, NavHrefs> = {
   fr: {
     home: "/",
+    horoscope: "/horoscope",
+    guides: "/guides",
     method: "/methode",
     compatibility: "/compatibilite",
     pricing: "/tarifs",
@@ -25,6 +29,8 @@ const HREFS: Record<Locale, NavHrefs> = {
   },
   en: {
     home: "/en",
+    horoscope: "/en/horoscope",
+    guides: "/en/guides",
     method: "/en/method",
     compatibility: "/en/compatibility",
     pricing: "/en/pricing",
@@ -33,8 +39,13 @@ const HREFS: Record<Locale, NavHrefs> = {
   },
 };
 
-const NAV_TEXT: Record<Locale, { method: string; compatibility: string; pricing: string; login: string; cta: string; switchTo: string }> = {
+const NAV_TEXT: Record<
+  Locale,
+  { horoscope: string; guides: string; method: string; compatibility: string; pricing: string; login: string; cta: string; switchTo: string }
+> = {
   fr: {
+    horoscope: "Horoscope",
+    guides: "Guides",
     method: "La méthode",
     compatibility: "Compatibilité",
     pricing: "Tarifs",
@@ -43,6 +54,8 @@ const NAV_TEXT: Record<Locale, { method: string; compatibility: string; pricing:
     switchTo: "EN",
   },
   en: {
+    horoscope: "Horoscope",
+    guides: "Guides",
     method: "Our method",
     compatibility: "Compatibility",
     pricing: "Pricing",
@@ -63,7 +76,13 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
         <Link href={hrefs.home}>
           <Logo />
         </Link>
-        <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
+        <nav className="hidden items-center gap-7 text-sm text-muted lg:flex">
+          <Link href={hrefs.horoscope} className="hover:text-foreground">
+            {t.horoscope}
+          </Link>
+          <Link href={hrefs.guides} className="hover:text-foreground">
+            {t.guides}
+          </Link>
           <Link href={hrefs.method} className="hover:text-foreground">
             {t.method}
           </Link>

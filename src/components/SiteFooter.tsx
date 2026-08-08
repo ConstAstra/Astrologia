@@ -8,6 +8,8 @@ const TEXT: Record<
     tagline: string;
     productHeading: string;
     legalHeading: string;
+    horoscope: string;
+    guides: string;
     method: string;
     compatibility: string;
     pricing: string;
@@ -23,6 +25,8 @@ const TEXT: Record<
       "Thème astral, synastrie, thème composite et cartographie — expliqués clairement. Un outil de réflexion et d'introspection, pas une prédiction.",
     productHeading: "Produit",
     legalHeading: "Légal",
+    horoscope: "Horoscope du jour",
+    guides: "Guides",
     method: "La méthode",
     compatibility: "Compatibilité",
     pricing: "Tarifs",
@@ -37,6 +41,8 @@ const TEXT: Record<
       "Natal chart, synastry, composite chart and astrocartography — clearly explained. A tool for reflection and introspection, not a prediction.",
     productHeading: "Product",
     legalHeading: "Legal",
+    horoscope: "Daily horoscope",
+    guides: "Guides",
     method: "Our method",
     compatibility: "Compatibility",
     pricing: "Pricing",
@@ -64,6 +70,8 @@ export function SiteFooter({ locale = "fr" }: { locale?: Locale }) {
             <div>
               <p className="mb-3 font-medium text-foreground">{t.productHeading}</p>
               <ul className="space-y-2 text-muted">
+                <li><Link href={`${base}/horoscope`} className="hover:text-foreground">{t.horoscope}</Link></li>
+                <li><Link href={`${base}/guides`} className="hover:text-foreground">{t.guides}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "method" : "methode"}`} className="hover:text-foreground">{t.method}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "compatibility" : "compatibilite"}`} className="hover:text-foreground">{t.compatibility}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "pricing" : "tarifs"}`} className="hover:text-foreground">{t.pricing}</Link></li>

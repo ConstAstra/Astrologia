@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ZODIAC_SIGNS } from "@/lib/astro/types";
+import { GUIDES } from "@/lib/content/guides";
 
 const STATIC_ROUTES_FR = [
   "",
@@ -11,6 +12,8 @@ const STATIC_ROUTES_FR = [
   "/duo",
   "/carte",
   "/decouvrir",
+  "/horoscope",
+  "/guides",
   "/mentions-legales",
   "/confidentialite",
   "/conditions-generales",
@@ -25,6 +28,8 @@ const STATIC_ROUTES_EN = [
   "/en/duo",
   "/en/map",
   "/en/discover",
+  "/en/horoscope",
+  "/en/guides",
   "/en/legal-notice",
   "/en/privacy",
   "/en/terms",
@@ -55,5 +60,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  return [...staticEntries, ...compatibilityEntries];
+  const horoscopeEntries: MetadataRoute.Sitemap = [];
+  for (const sign of ZODIAC_SIGNS) {
+    horoscopeEntries.push({ url: `${siteUrl}/horoscope/${sign}`, changeFrequency: "daily", priority: 0.6 });
+    horoscopeEntries.push({ url: `${siteUrl}/en/horoscope/${sign}`, changeFrequency: "daily", priority: 0.6 });
+  }
+
+  const guideEntries: MetadataRoute.Sitemap = [];
+  for (const guide of GUIDES) {
+    guideEntries.push({ url: `${siteUrl}/guides/${guide.slug}`, changeFrequency: "yearly", priority: 0.6 });
+    guideEntries.push({ url: `${siteUrl}/en/guides/${guide.slug}`, changeFrequency: "yearly", priority: 0.6 });
+  }
+
+  return [...staticEntries, ...compatibilityEntries, ...horoscopeEntries, ...guideEntries];
 }
