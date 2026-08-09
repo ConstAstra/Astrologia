@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
+import { safeJson } from "@/lib/safe-json";
 
 type Locale = "fr" | "en";
 
@@ -40,9 +41,9 @@ export function ForgotPasswordForm({ locale = "fr" }: { locale?: Locale }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.get("email"), locale }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t.genericError);
-      setMessage(data.message);
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data?.error ?? t.genericError);
+      setMessage(data?.message);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.genericError);
     } finally {

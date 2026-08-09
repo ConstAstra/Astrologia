@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { isNativeApp, purchaseAppleProduct } from "@/lib/native/storekit";
 import type { CreditPackId, SubscriptionPlanId } from "@/lib/billing/plans";
+import { safeJson } from "@/lib/safe-json";
 
 type Target =
   | { kind: "subscription"; plan: SubscriptionPlanId; appleProductId: string }
@@ -50,8 +51,8 @@ export function CheckoutButton({
             : { kind: "credits", pack: target.pack }
         ),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t.unknownError);
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data?.error ?? t.unknownError);
       window.location.href = data.url;
     } catch (e) {
       setError(e instanceof Error ? e.message : t.genericError);

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
+import { safeJson } from "@/lib/safe-json";
 
 type Locale = "fr" | "en";
 
@@ -56,8 +57,8 @@ export function ChangeEmailForm({ currentEmail, locale = "fr" }: { currentEmail:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newEmail: form.get("newEmail"), password: form.get("password"), locale }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t.genericError);
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data?.error ?? t.genericError);
       setSuccess(true);
       (e.target as HTMLFormElement).reset();
       router.refresh();

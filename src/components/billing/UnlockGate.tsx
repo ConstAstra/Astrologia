@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { playMagicChime } from "@/lib/sound";
+import { safeJson } from "@/lib/safe-json";
 
 type Locale = "fr" | "en";
 
@@ -130,8 +131,8 @@ export function UnlockGate({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ feature, profileIdA, profileIdB }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t.genericError);
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data?.error ?? t.genericError);
       playMagicChime();
       router.refresh();
     } catch (e) {

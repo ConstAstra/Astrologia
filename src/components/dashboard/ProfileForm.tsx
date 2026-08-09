@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import type { GeocodeResult } from "@/app/api/geocode/route";
+import { safeJson } from "@/lib/safe-json";
 
 type Locale = "fr" | "en";
 
@@ -100,8 +101,8 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
       setSearching(true);
       try {
         const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        setResults(data.results ?? []);
+        const data = await safeJson(res);
+        setResults(data?.results ?? []);
       } finally {
         setSearching(false);
       }
@@ -145,8 +146,8 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
           tzName: selected.tzName,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t.errorCreate);
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data?.error ?? t.errorCreate);
       router.push(`/dashboard/theme-natal/${data.profile.id}`);
       router.refresh();
     } catch (err) {

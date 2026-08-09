@@ -13,6 +13,7 @@ import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { Button } from "@/components/ui/Button";
 import { playSoftChime } from "@/lib/sound";
+import { safeJson } from "@/lib/safe-json";
 
 type Locale = "fr" | "en";
 
@@ -143,8 +144,8 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
       setSearching(true);
       try {
         const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        setResults(data.results ?? []);
+        const data = await safeJson(res);
+        setResults(data?.results ?? []);
       } finally {
         setSearching(false);
       }
@@ -183,8 +184,8 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
           locale,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t.errorNoDate);
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data?.error ?? t.errorNoDate);
       setResult(data as ApiResult);
       playSoftChime();
     } catch (err) {
