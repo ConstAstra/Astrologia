@@ -33,12 +33,14 @@ const TEXT: Record<
     logout: string;
     streakDay: string;
     streakDays: string;
+    addProfile: string;
   }
 > = {
   fr: {
     natalChart: "Thème astral",
     compatibility: "Compatibilité astrale",
     profiles: "Profils",
+    addProfile: "Ajouter un profil",
     friends: "Amis",
     synastry: "Synastrie",
     synastryHint: "Superpose deux thèmes pour lire la dynamique d'une relation : aspects croisés, forces et frictions.",
@@ -76,6 +78,7 @@ const TEXT: Record<
     logout: "Log out",
     streakDay: "day",
     streakDays: "days",
+    addProfile: "Add a profile",
   },
 };
 
@@ -200,6 +203,14 @@ export function DashboardNav({
           ))}
         </nav>
         <div className="flex flex-wrap items-center justify-end gap-2 text-sm sm:gap-3">
+          <Link
+            href="/dashboard/profils/nouveau"
+            title={t.addProfile}
+            aria-label={t.addProfile}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gold/40 text-gold-strong hover:bg-gold/10"
+          >
+            <span aria-hidden="true" className="text-lg leading-none">+</span>
+          </Link>
           <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
           <span className="hidden max-w-[14ch] truncate text-muted 2xl:inline">{email}</span>

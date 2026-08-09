@@ -131,6 +131,54 @@ body {
   background-size: 100% 100%, 100% 100%, 100% 100%, 200px 200px, 180px 180px, 220px 220px, 190px 190px, 210px 210px, 170px 170px, 230px 230px, 160px 160px, 240px 240px, 150px 150px;
 }
 
+/* Deux calques d'étoiles supplémentaires, en respiration d'opacité
+   déphasée l'une de l'autre — plutôt que de faire clignoter le fond
+   entier d'un coup (plat, façon néon), seule une poignée d'étoiles
+   scintille à la fois, comme un vrai ciel. */
+.starfield::before,
+.starfield::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  pointer-events: none;
+}
+.starfield::before {
+  background-image:
+    radial-gradient(1.5px 1.5px at 8% 45%, #ffffffee, transparent),
+    radial-gradient(1px 1px at 48% 28%, #ffffffcc, transparent),
+    radial-gradient(1.5px 1.5px at 78% 72%, #ffffffdd, transparent),
+    radial-gradient(1px 1px at 92% 42%, #ffffffbb, transparent);
+  background-size: 210px 210px, 175px 175px, 245px 245px, 195px 195px;
+  animation: twinkle-field 3.4s ease-in-out infinite;
+}
+.starfield::after {
+  background-image:
+    radial-gradient(1px 1px at 22% 12%, #ffffffcc, transparent),
+    radial-gradient(1.5px 1.5px at 63% 55%, #ffffffdd, transparent),
+    radial-gradient(1px 1px at 35% 88%, #ffffffbb, transparent),
+    radial-gradient(1.5px 1.5px at 88% 18%, #e8935fcc, transparent);
+  background-size: 190px 190px, 225px 225px, 165px 165px, 205px 205px;
+  animation: twinkle-field 4.2s ease-in-out infinite;
+  animation-delay: 1.4s;
+}
+@keyframes twinkle-field {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .starfield::before,
+  .starfield::after {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
 /* Mode nuit : mêmes étoiles, mais halos de nébuleuse froids (bleu/indigo)
    et point d'accent doré d'origine plutôt que les tons abricot de Bloom. */
 :root[data-theme="night"] .starfield {
