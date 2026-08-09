@@ -70,7 +70,7 @@ export default async function SignHoroscopePage({ params }: { params: Promise<{ 
           />
           <ZodiacGlyphBg
             sign={signe}
-            className="absolute left-1/2 top-0 w-[80vw] max-w-[760px] -translate-x-1/2"
+            className="absolute left-1/2 top-0 w-[68vw] max-w-[660px] -translate-x-1/2"
           />
           <section className="relative px-6 pt-16 text-center">
             <div className="relative mx-auto max-w-2xl">

@@ -380,6 +380,11 @@ body {
 }
 .zodiac-glyph-bg {
   animation: zodiac-shimmer 4.5s ease-in-out infinite;
+  /* Le conteneur clippe la hauteur exacte varie selon le texte du jour ;
+     ce fondu évite que le bas de l'illustration soit tranché net quand
+     elle dépasse. */
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
+  mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 85%);
 }
 @media (prefers-reduced-motion: reduce) {
   .zodiac-glyph-bg {
