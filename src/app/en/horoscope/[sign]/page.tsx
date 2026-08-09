@@ -62,7 +62,7 @@ export default async function SignHoroscopePageEn({ params }: { params: Promise<
     <>
       <SiteHeader locale="en" />
       <main className="flex-1">
-        <section className="relative overflow-hidden px-6 pb-10 pt-16 text-center">
+        <div className="relative overflow-hidden pb-10">
           <span
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-8 h-64 w-64 -translate-x-1/2 rounded-full opacity-25 blur-3xl"
@@ -70,34 +70,36 @@ export default async function SignHoroscopePageEn({ params }: { params: Promise<
           />
           <ZodiacGlyphBg
             sign={sign}
-            className="absolute left-1/2 top-0 w-[95vw] max-w-[1100px] -translate-x-1/2"
+            className="absolute left-1/2 top-0 w-[80vw] max-w-[760px] -translate-x-1/2"
           />
-          <div className="relative mx-auto max-w-2xl">
-            <Link href="/en/horoscope" className="text-xs text-muted hover:text-foreground">
-              ← All signs
-            </Link>
-            <div
-              className="font-display mx-auto mt-6 flex h-28 w-28 items-center justify-center rounded-full border text-6xl"
-              style={{ borderColor: `${color}55`, color, boxShadow: `0 0 60px -10px ${color}88` }}
-            >
-              {meta.symbol}
+          <section className="relative px-6 pt-16 text-center">
+            <div className="relative mx-auto max-w-2xl">
+              <Link href="/en/horoscope" className="text-xs text-muted hover:text-foreground">
+                ← All signs
+              </Link>
+              <div
+                className="font-display mx-auto mt-6 flex h-28 w-28 items-center justify-center rounded-full border text-6xl"
+                style={{ borderColor: `${color}55`, color, boxShadow: `0 0 60px -10px ${color}88` }}
+              >
+                {meta.symbol}
+              </div>
+              <div className="mt-4">
+                <Eyebrow>{dateLabel}</Eyebrow>
+              </div>
+              <h1 className="font-display mt-3 text-4xl sm:text-5xl">{meta.name}</h1>
+              <p className="mt-2 text-sm text-muted">{meta.dates}</p>
             </div>
-            <div className="mt-4">
-              <Eyebrow>{dateLabel}</Eyebrow>
-            </div>
-            <h1 className="font-display mt-3 text-4xl sm:text-5xl">{meta.name}</h1>
-            <p className="mt-2 text-sm text-muted">{meta.dates}</p>
-          </div>
-        </section>
+          </section>
 
-        <section className="mx-auto max-w-2xl px-6">
-          <Card className="border-gold/30 bg-gold/5 p-7 text-center">
-            <p className="font-display text-2xl leading-snug sm:text-3xl">{horoscope.punchline}</p>
-            <div className="mt-5 flex justify-center">
-              <SharePunchlineButton text={horoscope.punchline} url={pageUrl} locale="en" />
-            </div>
-          </Card>
-        </section>
+          <section className="relative mx-auto max-w-2xl px-6 pt-10">
+            <Card className="border-gold/30 bg-gold/5 p-7 text-center">
+              <p className="font-display text-2xl leading-snug sm:text-3xl">{horoscope.punchline}</p>
+              <div className="mt-5 flex justify-center">
+                <SharePunchlineButton text={horoscope.punchline} url={pageUrl} locale="en" />
+              </div>
+            </Card>
+          </section>
+        </div>
 
         <section className="mx-auto max-w-3xl px-6 py-8">
           <p className="text-center text-sm text-muted">{horoscope.headline}</p>

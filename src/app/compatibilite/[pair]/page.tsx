@@ -69,35 +69,39 @@ export default async function CompatibilitePage({ params }: { params: Promise<{ 
     <>
       <SiteHeader />
       <main className="flex-1">
-        <section className="relative overflow-hidden px-6 pb-6 pt-16 text-center">
+        <div className="relative overflow-hidden pb-8">
           <ZodiacGlyphBg
             sign={signA}
-            className="absolute left-0 top-0 hidden w-[50vw] max-w-[560px] sm:block"
+            className="absolute left-0 top-0 hidden w-[45vw] max-w-[440px] sm:block"
           />
           <ZodiacGlyphBg
             sign={signB}
-            className="absolute right-0 top-0 hidden w-[50vw] max-w-[560px] scale-x-[-1] sm:block"
+            className="absolute right-0 top-0 hidden w-[45vw] max-w-[440px] scale-x-[-1] sm:block"
           />
-          <div className="relative mx-auto max-w-3xl">
-            <Eyebrow>Compatibilité astrologique</Eyebrow>
-            <h1 className="font-display mt-4 text-4xl sm:text-5xl">
-              {a.symbol} {a.name} & {b.symbol} {b.name}
-            </h1>
-            <p className="mt-5 text-muted">
-              Une lecture basée sur les signes solaires : leurs éléments — {a.element} et {b.element}, la façon
-              d&apos;exprimer l&apos;énergie — et leurs modalités — {a.modality} et {b.modality}, la façon de s&apos;y
-              engager dans le temps.
-            </p>
-          </div>
-        </section>
+          <section className="relative px-6 pt-16 text-center">
+            <div className="relative mx-auto max-w-3xl">
+              <Eyebrow>Compatibilité astrologique</Eyebrow>
+              <h1 className="font-display mt-4 text-4xl sm:text-5xl">
+                {a.symbol} {a.name} & {b.symbol} {b.name}
+              </h1>
+              <p className="mt-5 text-muted">
+                Une lecture basée sur les signes solaires : leurs éléments — {a.element} et {b.element}, la façon
+                d&apos;exprimer l&apos;énergie — et leurs modalités — {a.modality} et {b.modality}, la façon de
+                s&apos;y engager dans le temps.
+              </p>
+            </div>
+          </section>
 
-        <section className="mx-auto max-w-3xl px-6 py-8">
-          <Card className="p-7 text-center">
-            <p className="text-sm text-muted">Affinité indicative</p>
-            <p className="font-display mt-2 text-3xl text-gold-strong">{"★".repeat(compat.score)}{"☆".repeat(5 - compat.score)}</p>
-          </Card>
+          <section className="relative mx-auto max-w-3xl px-6 pt-8">
+            <Card className="p-7 text-center">
+              <p className="text-sm text-muted">Affinité indicative</p>
+              <p className="font-display mt-2 text-3xl text-gold-strong">{"★".repeat(compat.score)}{"☆".repeat(5 - compat.score)}</p>
+            </Card>
+          </section>
+        </div>
 
-          <div className="mt-6 space-y-6">
+        <section className="mx-auto max-w-3xl px-6 pb-8">
+          <div className="space-y-6">
             <Card className="p-7">
               <Badge tone="gold">Éléments</Badge>
               <p className="mt-4 text-sm leading-relaxed text-muted">{compat.elementText}</p>

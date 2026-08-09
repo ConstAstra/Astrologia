@@ -72,35 +72,39 @@ export default async function CompatibilityEnPage({ params }: { params: Promise<
     <>
       <SiteHeader locale="en" />
       <main className="flex-1">
-        <section className="relative overflow-hidden px-6 pb-6 pt-16 text-center">
+        <div className="relative overflow-hidden pb-8">
           <ZodiacGlyphBg
             sign={signA}
-            className="absolute left-0 top-0 hidden w-[50vw] max-w-[560px] sm:block"
+            className="absolute left-0 top-0 hidden w-[45vw] max-w-[440px] sm:block"
           />
           <ZodiacGlyphBg
             sign={signB}
-            className="absolute right-0 top-0 hidden w-[50vw] max-w-[560px] scale-x-[-1] sm:block"
+            className="absolute right-0 top-0 hidden w-[45vw] max-w-[440px] scale-x-[-1] sm:block"
           />
-          <div className="relative mx-auto max-w-3xl">
-            <Eyebrow>Astrological compatibility</Eyebrow>
-            <h1 className="font-display mt-4 text-4xl sm:text-5xl">
-              {a.symbol} {a.name} & {b.symbol} {b.name}
-            </h1>
-            <p className="mt-5 text-muted">
-              A reading based on sun signs: their elements — {ELEMENT_LABEL_EN[a.element]} and{" "}
-              {ELEMENT_LABEL_EN[b.element]}, the way energy gets expressed — and their modalities —{" "}
-              {MODALITY_LABEL_EN[a.modality]} and {MODALITY_LABEL_EN[b.modality]}, the way it engages over time.
-            </p>
-          </div>
-        </section>
+          <section className="relative px-6 pt-16 text-center">
+            <div className="relative mx-auto max-w-3xl">
+              <Eyebrow>Astrological compatibility</Eyebrow>
+              <h1 className="font-display mt-4 text-4xl sm:text-5xl">
+                {a.symbol} {a.name} & {b.symbol} {b.name}
+              </h1>
+              <p className="mt-5 text-muted">
+                A reading based on sun signs: their elements — {ELEMENT_LABEL_EN[a.element]} and{" "}
+                {ELEMENT_LABEL_EN[b.element]}, the way energy gets expressed — and their modalities —{" "}
+                {MODALITY_LABEL_EN[a.modality]} and {MODALITY_LABEL_EN[b.modality]}, the way it engages over time.
+              </p>
+            </div>
+          </section>
 
-        <section className="mx-auto max-w-3xl px-6 py-8">
-          <Card className="p-7 text-center">
-            <p className="text-sm text-muted">Indicative affinity</p>
-            <p className="font-display mt-2 text-3xl text-gold-strong">{"★".repeat(compat.score)}{"☆".repeat(5 - compat.score)}</p>
-          </Card>
+          <section className="relative mx-auto max-w-3xl px-6 pt-8">
+            <Card className="p-7 text-center">
+              <p className="text-sm text-muted">Indicative affinity</p>
+              <p className="font-display mt-2 text-3xl text-gold-strong">{"★".repeat(compat.score)}{"☆".repeat(5 - compat.score)}</p>
+            </Card>
+          </section>
+        </div>
 
-          <div className="mt-6 space-y-6">
+        <section className="mx-auto max-w-3xl px-6 pb-8">
+          <div className="space-y-6">
             <Card className="p-7">
               <Badge tone="gold">Elements</Badge>
               <p className="mt-4 text-sm leading-relaxed text-muted">{compat.elementText}</p>
