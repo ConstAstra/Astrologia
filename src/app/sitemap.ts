@@ -5,6 +5,7 @@ import { GUIDES } from "@/lib/content/guides";
 const STATIC_ROUTES_FR = [
   "",
   "/methode",
+  "/actualites",
   "/tarifs",
   "/connexion",
   "/inscription",
@@ -20,6 +21,7 @@ const STATIC_ROUTES_FR = [
 const STATIC_ROUTES_EN = [
   "/en",
   "/en/method",
+  "/en/news",
   "/en/pricing",
   "/en/login",
   "/en/signup",

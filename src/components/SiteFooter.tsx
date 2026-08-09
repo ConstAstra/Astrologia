@@ -11,6 +11,7 @@ const TEXT: Record<
     horoscope: string;
     guides: string;
     method: string;
+    news: string;
     compatibility: string;
     pricing: string;
     signup: string;
@@ -28,6 +29,7 @@ const TEXT: Record<
     horoscope: "Horoscope du jour",
     guides: "Guides",
     method: "La méthode",
+    news: "Actualités",
     compatibility: "Compatibilité",
     pricing: "Tarifs",
     signup: "Créer un compte",
@@ -44,6 +46,7 @@ const TEXT: Record<
     horoscope: "Daily horoscope",
     guides: "Guides",
     method: "Our method",
+    news: "News",
     compatibility: "Compatibility",
     pricing: "Pricing",
     signup: "Create an account",
@@ -73,6 +76,7 @@ export function SiteFooter({ locale = "fr" }: { locale?: Locale }) {
                 <li><Link href={`${base}/horoscope`} className="hover:text-foreground">{t.horoscope}</Link></li>
                 <li><Link href={`${base}/guides`} className="hover:text-foreground">{t.guides}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "method" : "methode"}`} className="hover:text-foreground">{t.method}</Link></li>
+                <li><Link href={`${base}/${locale === "en" ? "news" : "actualites"}`} className="hover:text-foreground">{t.news}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "compatibility" : "compatibilite"}`} className="hover:text-foreground">{t.compatibility}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "pricing" : "tarifs"}`} className="hover:text-foreground">{t.pricing}</Link></li>
                 <li><Link href={`${base}/${locale === "en" ? "signup" : "inscription"}`} className="hover:text-foreground">{t.signup}</Link></li>
