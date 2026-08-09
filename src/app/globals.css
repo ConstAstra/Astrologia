@@ -289,6 +289,17 @@ body {
   color: #14121a;
 }
 
+/* Focus clavier visible et cohérent avec l'identité (anneau doré), affiché
+   uniquement à la navigation clavier — jusqu'ici seul le style par défaut du
+   navigateur s'appliquait, incohérent et parfois peu visible sur les
+   éléments arrondis/dans un conteneur overflow-hidden (menus, cartes). Le
+   box-shadow épouse naturellement le border-radius de l'élément, contrairement
+   à outline qui le rendrait rectangulaire sur un bouton "pill". */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--gold);
+}
+
 /* --- Animations étendues : transition de page, apparition en cascade,
    spinner céleste, badges qui apparaissent — toutes désactivées sous
    prefers-reduced-motion. --- */
