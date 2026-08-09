@@ -75,11 +75,11 @@ export default async function CompatibilityEnPage({ params }: { params: Promise<
         <section className="relative overflow-hidden px-6 pb-6 pt-16 text-center">
           <ZodiacGlyphBg
             sign={signA}
-            className="absolute right-1/2 top-4 hidden w-64 max-w-none sm:block"
+            className="absolute left-0 top-0 hidden w-[50vw] max-w-[560px] sm:block"
           />
           <ZodiacGlyphBg
             sign={signB}
-            className="absolute left-1/2 top-4 hidden w-64 max-w-none scale-x-[-1] sm:block"
+            className="absolute right-0 top-0 hidden w-[50vw] max-w-[560px] scale-x-[-1] sm:block"
           />
           <div className="relative mx-auto max-w-3xl">
             <Eyebrow>Astrological compatibility</Eyebrow>

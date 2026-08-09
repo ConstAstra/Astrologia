@@ -372,10 +372,10 @@ body {
 @keyframes zodiac-shimmer {
   0%,
   100% {
-    opacity: 0.16;
+    opacity: 0.1;
   }
   50% {
-    opacity: 0.32;
+    opacity: 0.2;
   }
 }
 .zodiac-glyph-bg {
@@ -384,7 +384,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .zodiac-glyph-bg {
     animation: none;
-    opacity: 0.2;
+    opacity: 0.14;
   }
 }
 

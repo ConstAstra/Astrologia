@@ -70,7 +70,7 @@ export default async function SignHoroscopePageEn({ params }: { params: Promise<
           />
           <ZodiacGlyphBg
             sign={sign}
-            className="absolute left-1/2 top-2 w-[420px] max-w-none -translate-x-1/2"
+            className="absolute left-1/2 top-0 w-[95vw] max-w-[1100px] -translate-x-1/2"
           />
           <div className="relative mx-auto max-w-2xl">
             <Link href="/en/horoscope" className="text-xs text-muted hover:text-foreground">
