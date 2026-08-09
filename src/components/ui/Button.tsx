@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from "react";
 import { playMagicChime } from "@/lib/sound";
+import { CelestialSpinner } from "./CelestialSpinner";
 
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
@@ -37,14 +38,22 @@ export function Button({
   className = "",
   children,
   onClick,
+  loading = false,
+  disabled,
   ...rest
-}: CommonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
+}: CommonProps & ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) {
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
     if (variant === "primary") playMagicChime();
     onClick?.(e);
   }
   return (
-    <button className={`${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} onClick={handleClick} {...rest}>
+    <button
+      className={`${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      onClick={handleClick}
+      disabled={disabled || loading}
+      {...rest}
+    >
+      {loading && <CelestialSpinner className="h-4 w-4" variant={variant === "primary" ? "sun" : "moon"} />}
       {children}
     </button>
   );

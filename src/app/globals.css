@@ -288,3 +288,116 @@ body {
   background: var(--gold);
   color: #14121a;
 }
+
+/* --- Animations étendues : transition de page, apparition en cascade,
+   spinner céleste, badges qui apparaissent — toutes désactivées sous
+   prefers-reduced-motion. --- */
+
+/* Fondu doux à chaque changement de page (voir PageTransition.tsx, qui
+   remonte ce wrapper via key={pathname}). */
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-fade-in {
+  animation: page-fade-in 420ms ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-in {
+    animation: none;
+  }
+}
+
+/* Apparition en cascade pour les grilles/listes (guides, profils, paires de
+   compatibilité...) : chaque élément porte --stagger-i (son index) en style
+   inline, le délai en découle. */
+@keyframes stagger-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.stagger-item {
+  animation: stagger-fade-up 450ms ease both;
+  animation-delay: calc(var(--stagger-i, 0) * 70ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stagger-item {
+    animation: none;
+  }
+}
+
+/* Rotation lente pour le spinner céleste (CelestialSpinner.tsx) — soleil ou
+   croissant de lune tournant doucement pendant un calcul/chargement. */
+@keyframes celestial-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.celestial-spin {
+  animation: celestial-spin 2.4s linear infinite;
+  transform-origin: 50% 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .celestial-spin {
+    animation: none;
+  }
+}
+
+/* Petit clignotement d'étoile, pour parsemer quelques accents vivants
+   derrière certains titres (voir Twinkle.tsx). */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+.twinkle {
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .twinkle {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Apparition "pop" pour un badge qui vient d'apparaître (nouveau statut,
+   déblocage...). */
+@keyframes badge-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.badge-pop-in {
+  animation: badge-pop-in 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .badge-pop-in {
+    animation: none;
+  }
+}

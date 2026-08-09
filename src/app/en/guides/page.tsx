@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -32,7 +33,12 @@ export default function GuidesIndexPageEn() {
         <section className="mx-auto max-w-3xl px-6 py-8">
           <div className="flex flex-col gap-4">
             {GUIDES_EN.map((guide, i) => (
-              <Link key={guide.slug} href={`/en/guides/${guide.slug}`}>
+              <Link
+                key={guide.slug}
+                href={`/en/guides/${guide.slug}`}
+                className="stagger-item"
+                style={{ "--stagger-i": i } as CSSProperties}
+              >
                 <Card interactive className="group flex items-start gap-5 p-6 transition-colors hover:border-gold/40">
                   <span className="font-display shrink-0 text-2xl text-gold-strong/60">{String(i + 1).padStart(2, "0")}</span>
                   <div>

@@ -246,7 +246,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
 
       {error && <p className="text-sm text-terracotta">{error}</p>}
 
-      <Button type="submit" disabled={submitting} className="w-full">
+      <Button type="submit" loading={submitting} className="w-full">
         {submitting ? t.submitting : t.submit}
       </Button>
     </form>

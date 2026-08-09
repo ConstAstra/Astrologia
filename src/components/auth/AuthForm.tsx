@@ -128,7 +128,7 @@ export function AuthForm({ mode, locale = "fr" }: { mode: "login" | "register"; 
 
       {error && <p className="text-sm text-terracotta">{error}</p>}
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="w-full" loading={loading}>
         {loading ? t.loading : mode === "login" ? t.submitLogin : t.submitRegister}
       </Button>
     </form>

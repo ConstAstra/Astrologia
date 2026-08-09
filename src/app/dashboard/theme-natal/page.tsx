@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -53,7 +54,7 @@ export default async function ThemeNatalIndexPage() {
       <h1 className="font-display mt-2 text-3xl">{t.heading}</h1>
       <p className="mt-2 text-sm text-muted">{t.intro}</p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {profiles.map((profile) => {
+        {profiles.map((profile, i) => {
           const birthInput = {
             date: profile.birthDate,
             time: profile.birthTime,
@@ -73,7 +74,12 @@ export default async function ThemeNatalIndexPage() {
             }
           }
           return (
-            <Link key={profile.id} href={`/dashboard/theme-natal/${profile.id}`}>
+            <Link
+              key={profile.id}
+              href={`/dashboard/theme-natal/${profile.id}`}
+              className="stagger-item"
+              style={{ "--stagger-i": i } as CSSProperties}
+            >
               <Card interactive className="flex items-center gap-4 p-6 transition-colors hover:border-gold/40">
                 <PixelAvatar seed={profile.id} sunSign={sunSign} moonSign={moonSign} overrides={overrides} size={56} />
                 <div>
