@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
 import { ZODIAC_SIGNS } from "@/lib/astro/types";
 import { GUIDES } from "@/lib/content/guides";
+import { PLANET_PAGE_KEYS, PLANET_SLUG_FR, PLANET_SLUG_EN } from "@/lib/content/planet-pages";
 
 const STATIC_ROUTES_FR = [
   "",
   "/methode",
   "/actualites",
+  "/planetes",
+  "/faq",
   "/tarifs",
   "/connexion",
   "/inscription",
@@ -22,6 +25,8 @@ const STATIC_ROUTES_EN = [
   "/en",
   "/en/method",
   "/en/news",
+  "/en/planets",
+  "/en/faq",
   "/en/pricing",
   "/en/login",
   "/en/signup",
@@ -72,5 +77,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     guideEntries.push({ url: `${siteUrl}/en/guides/${guide.slug}`, changeFrequency: "yearly", priority: 0.6 });
   }
 
-  return [...staticEntries, ...compatibilityEntries, ...horoscopeEntries, ...guideEntries];
+  const planetEntries: MetadataRoute.Sitemap = [];
+  for (const point of PLANET_PAGE_KEYS) {
+    for (const sign of ZODIAC_SIGNS) {
+      planetEntries.push({ url: `${siteUrl}/planetes/${PLANET_SLUG_FR[point]}-en-${sign}`, changeFrequency: "yearly", priority: 0.5 });
+      planetEntries.push({ url: `${siteUrl}/en/planets/${PLANET_SLUG_EN[point]}-in-${sign}`, changeFrequency: "yearly", priority: 0.5 });
+    }
+  }
+
+  return [...staticEntries, ...compatibilityEntries, ...horoscopeEntries, ...guideEntries, ...planetEntries];
 }

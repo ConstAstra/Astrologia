@@ -15,6 +15,8 @@ interface NavHrefs {
   guides: string;
   method: string;
   news: string;
+  planets: string;
+  faq: string;
   compatibility: string;
   pricing: string;
   login: string;
@@ -28,6 +30,8 @@ const HREFS: Record<Locale, NavHrefs> = {
     guides: "/guides",
     method: "/methode",
     news: "/actualites",
+    planets: "/planetes",
+    faq: "/faq",
     compatibility: "/compatibilite",
     pricing: "/tarifs",
     login: "/connexion",
@@ -39,6 +43,8 @@ const HREFS: Record<Locale, NavHrefs> = {
     guides: "/en/guides",
     method: "/en/method",
     news: "/en/news",
+    planets: "/en/planets",
+    faq: "/en/faq",
     compatibility: "/en/compatibility",
     pricing: "/en/pricing",
     login: "/en/login",
@@ -54,6 +60,8 @@ const NAV_TEXT: Record<
     general: string;
     method: string;
     news: string;
+    planets: string;
+    faq: string;
     compatibility: string;
     pricing: string;
     login: string;
@@ -67,6 +75,8 @@ const NAV_TEXT: Record<
     general: "Général",
     method: "La méthode",
     news: "Actualités",
+    planets: "Planètes en signe",
+    faq: "FAQ",
     compatibility: "Compatibilité",
     pricing: "Tarifs",
     login: "Connexion",
@@ -79,6 +89,8 @@ const NAV_TEXT: Record<
     general: "General",
     method: "Our method",
     news: "News",
+    planets: "Planets in sign",
+    faq: "FAQ",
     compatibility: "Compatibility",
     pricing: "Pricing",
     login: "Log in",
@@ -97,7 +109,9 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
 
   const generalItems = [
     { href: hrefs.guides, label: t.guides },
+    { href: hrefs.planets, label: t.planets },
     { href: hrefs.method, label: t.method },
+    { href: hrefs.faq, label: t.faq },
     { href: hrefs.news, label: t.news },
   ];
   const generalActive = generalItems.some((item) => pathname?.startsWith(item.href));
@@ -137,7 +151,7 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
               </svg>
             </button>
             {generalOpen && (
-              <div className="absolute left-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-border-soft bg-surface shadow-[0_12px_32px_-12px_#00000080]">
+              <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border-soft bg-surface shadow-[0_12px_32px_-12px_#00000080]">
                 {generalItems.map((item) => (
                   <Link
                     key={item.href}
