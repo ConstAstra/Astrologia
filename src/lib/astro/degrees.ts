@@ -3,7 +3,7 @@ import { ZODIAC_SIGNS } from "./types";
 
 /**
  * Interprétation du degré exact occupé par un point, indépendamment du
- * signe. Trois couches classiques, toutes structurelles (calculées, pas
+ * signe. Quatre couches classiques, toutes structurelles (calculées, pas
  * recopiées d'un texte tiers), et toutes chiffrées au degré-minute près —
  * pas de simple "précoce/médian/tardif" sans le nombre derrière :
  *
@@ -12,9 +12,16 @@ import { ZODIAC_SIGNS } from "./types";
  *    Mercure, Lune, Saturne, Jupiter), qui se répète en boucle sur les 36
  *    décans du zodiaque. C'est le système de décans le plus classique en
  *    astrologie occidentale.
- * 2. Phase dans le signe — précoce / médiane / tardive, avec la position
+ * 2. Tempérament du décan — la planète du décan a, dans la tradition
+ *    classique, une nature chaude/froide et sèche/humide propre ; on la
+ *    compare à celle de l'élément du signe pour dire si ce décan amplifie
+ *    l'élément (mêmes qualités), le nuance (une qualité commune) ou lui
+ *    fait vraiment contrepoint (aucune qualité commune) — plutôt que de
+ *    répéter la même phrase de "coloration" pour un décan de Mars qu'on
+ *    tombe en Bélier (Feu, la même nature) ou en Cancer (Eau, l'opposé).
+ * 3. Phase dans le signe — précoce / médiane / tardive, avec la position
  *    exacte dans cette phase et ce qu'il reste avant la suivante.
- * 3. Degrés particuliers — le 29e degré ("anarétique", point de tension
+ * 4. Degrés particuliers — le 29e degré ("anarétique", point de tension
  *    avant le changement de signe, avec le nombre de degrés-minutes
  *    restants) et les degrés dits "critiques" de la tradition classique,
  *    approchés avec un orbe d'1° plutôt qu'une correspondance au degré
@@ -45,6 +52,78 @@ const DECAN_RULER_FLAVOR_EN: Record<DecanRuler, string> = {
   Jupiter: "a Jupiter coloring: broader, more optimistic, more focused on expansion and confidence.",
 };
 
+// Tempérament classique (chaud/froid, sec/humide) de la planète-maîtresse du
+// décan et de l'élément du signe — comparés pour dire si le décan amplifie,
+// nuance ou contredit la nature de base du signe, plutôt qu'une coloration
+// identique qu'on tombe dans un signe qui la partage ou son opposé exact.
+// Mercure est traditionnellement "variable" (prend la nature de ce qui
+// l'entoure) ; retenu ici froid/sec par défaut, valeur la plus citée en
+// l'absence d'autre configuration.
+type Temperament = { heat: "hot" | "cold"; moisture: "dry" | "moist" };
+
+const DECAN_RULER_TEMPERAMENT: Record<DecanRuler, Temperament> = {
+  Mars: { heat: "hot", moisture: "dry" },
+  Soleil: { heat: "hot", moisture: "dry" },
+  Vénus: { heat: "hot", moisture: "moist" },
+  Mercure: { heat: "cold", moisture: "dry" },
+  Lune: { heat: "cold", moisture: "moist" },
+  Saturne: { heat: "cold", moisture: "dry" },
+  Jupiter: { heat: "hot", moisture: "moist" },
+};
+
+const ELEMENT_TEMPERAMENT: Record<"Feu" | "Terre" | "Air" | "Eau", Temperament> = {
+  Feu: { heat: "hot", moisture: "dry" },
+  Terre: { heat: "cold", moisture: "dry" },
+  Air: { heat: "hot", moisture: "moist" },
+  Eau: { heat: "cold", moisture: "moist" },
+};
+
+const SIGN_ELEMENT: Record<string, "Feu" | "Terre" | "Air" | "Eau"> = {
+  belier: "Feu",
+  lion: "Feu",
+  sagittaire: "Feu",
+  taureau: "Terre",
+  vierge: "Terre",
+  capricorne: "Terre",
+  gemeaux: "Air",
+  balance: "Air",
+  verseau: "Air",
+  cancer: "Eau",
+  scorpion: "Eau",
+  poissons: "Eau",
+};
+
+const ELEMENT_LABEL_EN: Record<"Feu" | "Terre" | "Air" | "Eau", string> = {
+  Feu: "Fire",
+  Terre: "Earth",
+  Air: "Air",
+  Eau: "Water",
+};
+
+function elementInteractionText(decanRuler: DecanRuler, sign: string, locale: "fr" | "en"): string {
+  const rulerTemp = DECAN_RULER_TEMPERAMENT[decanRuler];
+  const element = SIGN_ELEMENT[sign];
+  const elementTemp = ELEMENT_TEMPERAMENT[element];
+  const matches = (rulerTemp.heat === elementTemp.heat ? 1 : 0) + (rulerTemp.moisture === elementTemp.moisture ? 1 : 0);
+  const elementLabel = locale === "en" ? ELEMENT_LABEL_EN[element] : element;
+
+  if (locale === "en") {
+    if (matches === 2) {
+      return ` This planet shares the very nature of the sign's element (${elementLabel}): rather than an outside note, it's a concentrated, almost amplified version of what the sign already does naturally.`;
+    }
+    if (matches === 1) {
+      return ` This planet is only half in tune with the sign's element (${elementLabel}): part of this energy flows naturally, the other part asks for some adjustment.`;
+    }
+    return ` This planet has a nature opposite to the sign's element (${elementLabel}): it brings a real counterpoint here — a nuance that wouldn't have shown up on its own elsewhere in the sign.`;
+  }
+  if (matches === 2) {
+    return ` Cette planète partage la nature même de l'élément du signe (${elementLabel}) : plutôt qu'une note étrangère, c'est une version concentrée, presque amplifiée, de ce que le signe fait déjà naturellement.`;
+  }
+  if (matches === 1) {
+    return ` Cette planète n'est qu'à moitié en phase avec l'élément du signe (${elementLabel}) : une partie de cette énergie coule naturellement, l'autre demande un ajustement.`;
+  }
+  return ` Cette planète a une nature opposée à celle de l'élément du signe (${elementLabel}) : elle introduit ici un vrai contrepoint — une nuance qui ne serait pas venue spontanément ailleurs dans le signe.`;
+}
 
 // Degrés critiques classiques (tradition occidentale), par modalité.
 const CRITICAL_DEGREES_BY_MODALITY: Record<"Cardinal" | "Fixe" | "Mutable", number[]> = {
@@ -140,13 +219,13 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   // donné juste avant, pour ne pas noyer quelqu'un qui découvre le sujet
   // sous deux blocs de chiffres qui disent la même position.
   const decanText =
-    locale === "en"
+    (locale === "en"
       ? `Every 30° sign splits into three 10° slices called decans, each carrying a touch of a different planet. You're in the ${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°) — ${formatDegMin(
           posInDecan
         )} past its start, ${formatDegMin(remainingInDecan)} left before the next one. That adds ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
       : `Chaque signe de 30° se découpe en trois tranches de 10° appelées décans, chacune teintée par l'influence d'une autre planète. Vous êtes dans le ${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°) — à ${formatDegMin(
           posInDecan
-        )} de son début, encore ${formatDegMin(remainingInDecan)} avant le suivant. Cela ajoute ${DECAN_RULER_FLAVOR[decanRuler]}`;
+        )} de son début, encore ${formatDegMin(remainingInDecan)} avant le suivant. Cela ajoute ${DECAN_RULER_FLAVOR[decanRuler]}`) + elementInteractionText(decanRuler, sign, locale);
 
   const phaseText =
     locale === "en"
