@@ -3,6 +3,7 @@ import { Unbounded, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SkyScroll } from "@/components/SkyScroll";
 import { PageTransition } from "@/components/PageTransition";
+import { PageViewBeacon } from "@/components/PageViewBeacon";
 
 const display = Unbounded({
   variable: "--font-display",
@@ -44,6 +45,7 @@ export default function RootLayout({
         <SkyScroll />
         <div className="starfield" aria-hidden="true" />
         <div className="grain" aria-hidden="true" />
+        <PageViewBeacon />
         <PageTransition>{children}</PageTransition>
       </body>
     </html>

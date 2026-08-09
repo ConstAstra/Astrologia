@@ -56,6 +56,7 @@ const TEXT: Record<Locale, {
   changeEmail: string;
   changePassword: string;
   dangerZone: string;
+  giftCode: string;
 }> = {
   fr: {
     eyebrow: "Abonnement",
@@ -82,6 +83,7 @@ const TEXT: Record<Locale, {
     changeEmail: "Adresse e-mail",
     changePassword: "Mot de passe",
     dangerZone: "Zone dangereuse",
+    giftCode: "Un code cadeau ?",
   },
   en: {
     eyebrow: "Subscription",
@@ -108,6 +110,7 @@ const TEXT: Record<Locale, {
     changeEmail: "Email address",
     changePassword: "Password",
     dangerZone: "Danger zone",
+    giftCode: "Got a gift code?",
   },
 };
 
@@ -180,6 +183,11 @@ export default async function AbonnementPage({
           </ButtonLink>
           {user.entitlementSource === "stripe" && <ManageBillingButton locale={locale} />}
         </div>
+        <p className="mt-4 text-xs text-muted">
+          <ButtonLink href="/dashboard/cadeau" variant="ghost" size="sm">
+            {t.giftCode}
+          </ButtonLink>
+        </p>
       </Card>
 
       <Card className="mt-6 p-6">

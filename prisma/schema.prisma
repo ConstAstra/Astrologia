@@ -100,6 +100,7 @@ model User {
   friendInvites       FriendInvite[]
   friendshipsAsA      Friendship[] @relation("FriendshipA")
   friendshipsAsB      Friendship[] @relation("FriendshipB")
+  giftCodeRedemptions GiftCodeRedemption[]
 }
 
 model Profile {
@@ -298,4 +299,72 @@ model DuoGeneration {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Code cadeau créé manuellement depuis /dashboard/admin (accès Premium ou
+// crédits offerts, ex: cadeau à un proche) — indépendant de Stripe/Apple,
+// donc utilisable même sans moyen de paiement de la part du bénéficiaire.
+model GiftCode {
+  id String @id @default(cuid())
+
+  // Normalisé en majuscules à la création pour une saisie insensible à la casse.
+  code String @unique
+
+  // Note interne (jamais affichée à l'utilisateur qui rédime le code).
+  label String?
+
+  // "subscription" | "credits"
+  grantType String
+
+  // --- grantType = "subscription" ---
+  subscriptionPlan String? // "monthly" | "annual", purement informatif (label affiché)
+  // Nombre de jours d'accès Premium offerts à la rédemption. null = à vie
+  // (jamais de currentPeriodEnd posé, comme un abonnement sans date de fin).
+  durationDays Int?
+
+  // --- grantType = "credits" ---
+  creditsAmount Int?
+
+  maxRedemptions  Int     @default(1)
+  redemptionCount Int     @default(0)
+  active          Boolean @default(true)
+  expiresAt       DateTime?
+
+  createdAt DateTime @default(now())
+
+  redemptions GiftCodeRedemption[]
+}
+
+// Une rédemption = un utilisateur a saisi un GiftCode et en a reçu le gain.
+// Unique par (giftCode, user) : un même compte ne peut pas rédimer deux fois
+// le même code, même si maxRedemptions autorise plusieurs bénéficiaires
+// différents (ex: un code "cadeau anniversaire" partagé à plusieurs amis).
+model GiftCodeRedemption {
+  id String @id @default(cuid())
+
+  giftCodeId String
+  giftCode   GiftCode @relation(fields: [giftCodeId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([giftCodeId, userId])
+  @@index([userId])
+}
+
+// Compteur de pages vues agrégé par jour — volontairement sans identifiant
+// de visiteur (pas de cookie, pas d'IP stockée) : juste "combien de fois
+// ce chemin a été chargé ce jour-là", pour un tableau de bord de trafic
+// sans données personnelles à protéger ni bandeau de consentement requis.
+model PageView {
+  id String @id @default(cuid())
+
+  path  String
+  date  String // "YYYY-MM-DD" UTC
+  count Int    @default(1)
+
+  @@unique([path, date])
+  @@index([date])
 }

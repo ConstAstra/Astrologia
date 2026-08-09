@@ -89,6 +89,7 @@ export function DashboardNav({
   locale = "fr",
   streak = 0,
   streakMilestone = false,
+  isAdmin = false,
 }: {
   email: string;
   credits: number;
@@ -96,6 +97,7 @@ export function DashboardNav({
   locale?: Locale;
   streak?: number;
   streakMilestone?: boolean;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -213,6 +215,11 @@ export function DashboardNav({
           </Link>
           <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
+          {isAdmin && (
+            <Link href="/dashboard/admin" className="text-xs text-muted/70 hover:text-gold-strong">
+              Admin
+            </Link>
+          )}
           <span className="hidden max-w-[14ch] truncate text-muted 2xl:inline">{email}</span>
           <ThemeToggle />
           <LocaleToggle locale={locale} />
