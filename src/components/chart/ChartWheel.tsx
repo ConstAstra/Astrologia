@@ -1,15 +1,31 @@
+"use client";
+
+import { useState } from "react";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
+import { describePlanetInSign, describePlanetInHouse } from "@/lib/astro/interpretations/compose";
 import { signOf } from "@/lib/astro/signs";
 import { ZODIAC_SIGNS } from "@/lib/astro/types";
 import type { Aspect, PointKey } from "@/lib/astro/types";
 import { describeArcPath, longitudeToSvgAngleDeg, polarToXY } from "./geometry";
+import { Card } from "@/components/ui/Card";
 
 export interface WheelPoint {
   key: PointKey;
   longitude: number;
+  house?: number;
 }
+
+const CLOSE_LABEL = { fr: "Fermer", en: "Close" };
+const SIGN_LABEL = { fr: "En signe", en: "In sign" };
+const HOUSE_LABEL = { fr: "En maison", en: "In house" };
+const HINT_LABEL = {
+  fr: "Touchez une planète pour découvrir sa signification.",
+  en: "Tap a planet to see what it means.",
+};
 
 const DISPLAY_ORDER: PointKey[] = [
   "sun",
@@ -91,6 +107,7 @@ export function ChartWheel({
   aspects,
   size = 560,
   locale = "fr",
+  interactive = false,
 }: {
   points: WheelPoint[];
   ascendant: number;
@@ -98,7 +115,13 @@ export function ChartWheel({
   aspects: Aspect[];
   size?: number;
   locale?: "fr" | "en";
+  // Rend chaque planète cliquable, avec un panneau d'explication en
+  // dessous de la roue — désactivé par défaut pour ne pas changer le
+  // comportement des roues purement décoratives (composite, révolution
+  // solaire, page d'accueil).
+  interactive?: boolean;
 }) {
+  const [selected, setSelected] = useState<PointKey | null>(null);
   const cx = size / 2;
   const cy = size / 2;
   const rOuter = size * 0.48;
@@ -118,7 +141,7 @@ export function ChartWheel({
   const sunPoint = points.find((p) => p.key === "sun");
   const sunSymbol = sunPoint ? SIGN_META[signOf(sunPoint.longitude)].symbol : null;
 
-  return (
+  const wheel = (
     <svg
       viewBox={`0 0 ${size} ${size}`}
       width={size}
@@ -263,23 +286,95 @@ export function ChartWheel({
         // "quelle planète" à "dans quel registre" d'un coup d'œil.
         const pointSign = SIGN_META[signOf(p.longitude)];
         const tint = ELEMENT_WEDGE_COLOR[pointSign.element];
+        const isSelected = interactive && selected === p.key;
         return (
-          <g key={p.key}>
-            <circle cx={pos.x} cy={pos.y} r={size * 0.024} fill="#1f1420" stroke={tint} strokeWidth={1} />
+          <g
+            key={p.key}
+            onClick={interactive ? () => setSelected((cur) => (cur === p.key ? null : p.key)) : undefined}
+            style={interactive ? { cursor: "pointer" } : undefined}
+            tabIndex={interactive ? 0 : undefined}
+            role={interactive ? "button" : undefined}
+            aria-pressed={interactive ? isSelected : undefined}
+            aria-label={interactive ? `${meta.name} — ${pointSign.name}` : undefined}
+            onKeyDown={
+              interactive
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelected((cur) => (cur === p.key ? null : p.key));
+                    }
+                  }
+                : undefined
+            }
+          >
+            <circle
+              cx={pos.x}
+              cy={pos.y}
+              r={isSelected ? size * 0.032 : size * 0.024}
+              fill={isSelected ? tint : "#1f1420"}
+              stroke={tint}
+              strokeWidth={isSelected ? 1.5 : 1}
+            />
             <text
               x={pos.x}
               y={pos.y}
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={size * 0.03}
-              fill={tint}
+              fill={isSelected ? "#1f1420" : tint}
             >
-              <title>{`${meta.name} — ${pointSign.name}`}</title>
+              {!interactive && <title>{`${meta.name} — ${pointSign.name}`}</title>}
               {meta.symbol}
             </text>
           </g>
         );
       })}
     </svg>
+  );
+
+  if (!interactive) return wheel;
+
+  const selectedPoint = selected ? displayPoints.find((p) => p.key === selected) : undefined;
+  const t = { close: CLOSE_LABEL[locale], sign: SIGN_LABEL[locale], house: HOUSE_LABEL[locale], hint: HINT_LABEL[locale] };
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+
+  return (
+    <div>
+      {wheel}
+      {selectedPoint ? (
+        <Card className="mt-4 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <p className="flex items-center gap-2 font-display text-lg">
+              <span className="text-2xl">{planetMap[selectedPoint.key].symbol}</span>
+              <span>
+                {planetMap[selectedPoint.key].name} — {signMap[signOf(selectedPoint.longitude)].name}
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className="shrink-0 text-xs text-muted hover:text-foreground"
+            >
+              {t.close}
+            </button>
+          </div>
+          <div className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
+            <p>
+              <span className="text-xs uppercase tracking-wide text-muted/70">{t.sign} </span>
+              {describePlanetInSign(selectedPoint.key, signOf(selectedPoint.longitude), undefined, locale)}
+            </p>
+            {selectedPoint.house && (
+              <p>
+                <span className="text-xs uppercase tracking-wide text-muted/70">{t.house} </span>
+                {describePlanetInHouse(selectedPoint.key, selectedPoint.house, locale)}
+              </p>
+            )}
+          </div>
+        </Card>
+      ) : (
+        <p className="mt-3 text-center text-xs text-muted/70">{t.hint}</p>
+      )}
+    </div>
   );
 }

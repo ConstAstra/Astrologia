@@ -11,6 +11,8 @@ import { HOUSE_META } from "./houses";
 import { HOUSE_META_EN } from "./houses.en";
 import { PLANET_IN_SIGN } from "./planet-in-sign";
 import { PLANET_IN_SIGN_EN } from "./planet-in-sign.en";
+import { PLANET_IN_HOUSE } from "./planet-in-house";
+import { PLANET_IN_HOUSE_EN } from "./planet-in-house.en";
 import { ASPECT_META } from "./aspects";
 import { ASPECT_META_EN } from "./aspects.en";
 import { ASTROCARTO_TEXT, LINE_TYPE_META } from "./astrocartography-content";
@@ -99,8 +101,7 @@ export function describePlanetInSign(
 /** Lecture du degré exact (décan, phase précoce/médiane/tardive, degré anarétique ou critique). */
 export function describeDegree(longitude: number, locale: Locale = "fr"): string {
   const r = computeDegreeReading(longitude, locale);
-  const parts =
-    locale === "en" ? [`${r.degreeLabel} into the sign.`, r.decanText, r.phaseText] : [`À ${r.degreeLabel} du signe.`, r.decanText, r.phaseText];
+  const parts = [r.decanText, r.phaseText];
   if (r.isAnaretic) parts.push(r.anareticText!);
   if (r.isCritical) parts.push(r.criticalText!);
   return parts.join(" ");
@@ -109,13 +110,18 @@ export function describeDegree(longitude: number, locale: Locale = "fr"): string
 export function describePlanetInHouse(point: PointKey, houseNumber: number, locale: Locale = "fr"): string {
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
   const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
+  const customMap = locale === "en" ? PLANET_IN_HOUSE_EN : PLANET_IN_HOUSE;
   const planet = planetMap[point];
   const house = houseList[houseNumber - 1];
   if (!house) return "";
+
+  const custom = customMap[point]?.[houseNumber];
+  if (custom) return custom;
+
   if (locale === "en") {
-    return `${planet.name} in ${house.name}: this energy (${planet.keyword}) expresses itself above all through ${house.keyword}. ${house.paragraph}`;
+    return `${planet.name} in ${house.name}: this energy (${planet.essence}) expresses itself above all through ${house.keyword}. ${house.paragraph}`;
   }
-  return `${planet.name} en ${house.name} : cette énergie (${planet.keyword}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
+  return `${planet.name} en ${house.name} : cette énergie (${planet.essence}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
 }
 
 export function describeAspect(

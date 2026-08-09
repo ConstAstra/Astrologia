@@ -10,9 +10,17 @@ export function longitudeToSvgAngleDeg(longitude: number, ascendant: number): nu
   return normalizeDegrees(180 - (longitude - ascendant));
 }
 
+// Arrondi à 3 décimales : largement assez précis pour un rendu SVG, et ça
+// évite un mismatch d'hydratation React quand Math.cos/sin diffère d'un
+// chouïa entre le moteur JS du serveur et celui du navigateur sur les tout
+// derniers chiffres après la virgule.
+function round3(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
+
 export function polarToXY(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
   const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  return { x: round3(cx + r * Math.cos(rad)), y: round3(cy + r * Math.sin(rad)) };
 }
 
 export function describeArcPath(

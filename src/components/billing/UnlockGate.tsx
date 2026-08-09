@@ -109,12 +109,17 @@ export function UnlockGate({
   profileIdB,
   credits,
   locale = "fr",
+  compact = false,
 }: {
   feature: "synastry" | "composite" | "astrocartography" | "synthesis" | "lifeMission";
   profileIdA: string;
   profileIdB?: string;
   credits: number;
   locale?: Locale;
+  // Utilisé quand la carte s'insère au milieu d'une lecture déjà riche
+  // (thème natal) plutôt que d'être seule sur la page : moins de padding,
+  // boutons côte à côte, pour ne pas faire mur et casser l'élan du scroll.
+  compact?: boolean;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -142,27 +147,27 @@ export function UnlockGate({
   }
 
   return (
-    <Card className="mx-auto max-w-lg p-8 text-center">
+    <Card className={compact ? "p-6" : "mx-auto max-w-lg p-8 text-center"}>
       <Eyebrow>{t.premiumContent}</Eyebrow>
-      <h2 className="font-display mt-3 text-2xl">{meta.title}</h2>
+      <h2 className={compact ? "font-display mt-2 text-xl" : "font-display mt-3 text-2xl"}>{meta.title}</h2>
       <p className="mt-3 text-sm text-muted">{meta.description}</p>
 
-      <div className="mt-6 space-y-3">
+      <div className={compact ? "mt-5 flex flex-wrap gap-3" : "mt-6 space-y-3"}>
         {credits > 0 ? (
-          <Button className="w-full" loading={loading} onClick={handleUnlock}>
+          <Button className={compact ? "" : "w-full"} loading={loading} onClick={handleUnlock}>
             {loading ? t.loading : t.unlockWithCredit(credits)}
           </Button>
         ) : (
-          <ButtonLink href={t.pricingHref} className="w-full">
+          <ButtonLink href={t.pricingHref} className={compact ? "" : "w-full"}>
             {t.buyCredits}
           </ButtonLink>
         )}
-        <ButtonLink href={t.pricingHref} variant="secondary" className="w-full">
+        <ButtonLink href={t.pricingHref} variant="secondary" className={compact ? "" : "w-full"}>
           {t.goPremium}
         </ButtonLink>
       </div>
       {error && <p className="mt-3 text-xs text-terracotta">{error}</p>}
-      <p className="mt-4 text-xs text-muted/70">
+      <p className={compact ? "mt-3 text-xs text-muted/70" : "mt-4 text-xs text-muted/70"}>
         {t.alreadySubscribed}{" "}
         <Link href="/dashboard/abonnement" className="underline">
           {t.checkSubscription}

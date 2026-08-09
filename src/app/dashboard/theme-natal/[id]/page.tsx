@@ -30,7 +30,6 @@ import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
-import { WidgetUrlCard } from "@/components/account/WidgetUrlCard";
 import { ShareChartToggle } from "@/components/account/ShareChartToggle";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
@@ -44,7 +43,14 @@ const HOUSE_SYSTEMS: { id: HouseSystem; labelFr: string; labelEn: string }[] = [
   { id: "porphyry", labelFr: "Porphyre", labelEn: "Porphyry" },
 ];
 
-const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc"];
+// L'Ascendant est placé juste après le Soleil (avant la Lune) plutôt qu'en
+// toute fin de liste : c'est l'un des "Big 3", pas un point secondaire.
+const DISPLAY_POINTS: PointKey[] = [
+  "sun",
+  "asc",
+  ...PLANET_KEYS.filter((k) => k !== "sun"),
+  "mc",
+];
 
 const TEXT: Record<
   Locale,
@@ -70,7 +76,6 @@ const TEXT: Record<
     lifeMissionSynthesisHeading: string;
     aspects: string;
     noAspects: string;
-    widgetUrlBase: string;
     ascendantRulerTitle: string;
     signHeading: string;
     houseHeading: string;
@@ -110,7 +115,6 @@ const TEXT: Record<
     lifeMissionSynthesisHeading: "En pratique",
     aspects: "Aspects",
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
-    widgetUrlBase: "http://localhost:3000",
     ascendantRulerTitle: "Maître de l'Ascendant",
     signHeading: "En signe",
     houseHeading: "En maison",
@@ -149,7 +153,6 @@ const TEXT: Record<
     lifeMissionSynthesisHeading: "In practice",
     aspects: "Aspects",
     noAspects: "No aspect detected within the orbs used.",
-    widgetUrlBase: "http://localhost:3000",
     ascendantRulerTitle: "Ascendant ruler",
     signHeading: "In sign",
     houseHeading: "In house",
@@ -217,7 +220,7 @@ export default async function ThemeNatalPage({
   const lifeMissionAccess = await hasFeatureAccess(userId, { feature: "lifeMission", primaryProfileId: profile.id });
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
-    (k) => ({ key: k, longitude: chart.points[k].longitude })
+    (k) => ({ key: k, longitude: chart.points[k].longitude, house: chart.points[k].house })
   );
 
   const dominance = computeDominance(chart.points, chart.hasReliableHouses);
@@ -312,6 +315,7 @@ export default async function ThemeNatalPage({
             houseCusps={chart.hasReliableHouses ? chart.houses.cusps : Array.from({ length: 12 }, (_, i) => i * 30)}
             aspects={aspects}
             locale={locale}
+            interactive
           />
           {chart.hasReliableHouses && (
             <p className="mt-3 text-center text-xs text-muted">{describeHouseSystem(chart.houses, locale)}</p>
@@ -405,18 +409,10 @@ export default async function ThemeNatalPage({
             </div>
           </Card>
         ) : (
-          <UnlockGate feature="synthesis" profileIdA={profile.id} credits={user.credits} locale={locale} />
+          <UnlockGate feature="synthesis" profileIdA={profile.id} credits={user.credits} locale={locale} compact />
         )}
       </div>
 
-      {isOwner && (
-        <Card className="mt-6 p-5">
-          <WidgetUrlCard
-            widgetUrl={`${process.env.NEXT_PUBLIC_SITE_URL || t.widgetUrlBase}/api/widget/theme-natal/${profile.id}?token=${profile.widgetToken}`}
-            locale={locale}
-          />
-        </Card>
-      )}
 
       {isOwner && profile.isSelf && (
         <Card className="mt-6 p-5">
@@ -570,7 +566,7 @@ export default async function ThemeNatalPage({
               </div>
             ) : (
               <div className="mt-4">
-                <UnlockGate feature="lifeMission" profileIdA={profile.id} credits={user.credits} locale={locale} />
+                <UnlockGate feature="lifeMission" profileIdA={profile.id} credits={user.credits} locale={locale} compact />
               </div>
             )}
           </section>

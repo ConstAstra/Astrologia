@@ -115,9 +115,6 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   const remainingInDecan = 10 - posInDecan;
 
   const phase: DegreeReading["phase"] = exact < 10 ? "précoce" : exact < 20 ? "médiane" : "tardive";
-  const phaseStart = phase === "précoce" ? 0 : phase === "médiane" ? 10 : 20;
-  const posInPhase = exact - phaseStart;
-  const remainingInPhase = phaseStart + 10 - exact;
 
   const remainingInSign = 30 - exact;
   const isAnaretic = exact >= 29;
@@ -135,34 +132,37 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   }
   const isCritical = criticalOrb <= CRITICAL_ORB;
 
+  // Décan et phase découpent le signe selon les 3 mêmes tranches de 10° —
+  // deux angles de lecture sur le même tiers plutôt que deux systèmes
+  // indépendants. Le décan explique pourquoi ce tiers a un chose en plus
+  // (l'influence d'une autre planète) ; la phase explique juste où on en
+  // est dans la maturité du signe, sans reformuler le calcul en degrés déjà
+  // donné juste avant, pour ne pas noyer quelqu'un qui découvre le sujet
+  // sous deux blocs de chiffres qui disent la même position.
   const decanText =
     locale === "en"
-      ? `${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°), ${formatDegMin(
+      ? `Every 30° sign splits into three 10° slices called decans, each carrying a touch of a different planet. You're in the ${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°) — ${formatDegMin(
           posInDecan
-        )} into it (${formatDegMin(remainingInDecan)} left before the next decan): ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
-      : `${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°), à ${formatDegMin(
+        )} past its start, ${formatDegMin(remainingInDecan)} left before the next one. That adds ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
+      : `Chaque signe de 30° se découpe en trois tranches de 10° appelées décans, chacune teintée par l'influence d'une autre planète. Vous êtes dans le ${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°) — à ${formatDegMin(
           posInDecan
-        )} de son entrée (encore ${formatDegMin(remainingInDecan)} avant le décan suivant) : ${DECAN_RULER_FLAVOR[decanRuler]}`;
+        )} de son début, encore ${formatDegMin(remainingInDecan)} avant le suivant. Cela ajoute ${DECAN_RULER_FLAVOR[decanRuler]}`;
 
   const phaseText =
     locale === "en"
-      ? `${phaseLabelEn(phase)} phase of the sign (${formatDegMin(posInPhase)} since entering this phase, ${formatDegMin(
-          remainingInPhase
-        )} left before the next phase): ${
+      ? `That same third of the sign is also its ${phaseLabelEn(phase).toLowerCase()} phase: ${
           phase === "précoce"
-            ? "the energy expresses itself here in a still-raw, spontaneous way — the most \"pure,\" and sometimes least controlled, version of the sign."
+            ? "the energy shows up here still raw and spontaneous — the most instinctive, least filtered version of the sign."
             : phase === "tardive"
-              ? "the energy here is matured, sometimes already transitioning toward the theme of the next sign — a more conscious, sometimes more weary, form of this energy."
-              : "the energy here is fully settled, in its most stable and characteristic version of the sign."
+              ? "the energy here has matured, sometimes already leaning toward the next sign's theme — a more conscious, occasionally more world-weary, version of it."
+              : "the energy here is fully settled into its most stable, most typical version of the sign."
         }`
-      : `Phase ${phase} du signe (${formatDegMin(posInPhase)} depuis son entrée dans cette phase, encore ${formatDegMin(
-          remainingInPhase
-        )} avant la phase suivante) : ${
+      : `Ce même tiers du signe correspond aussi à sa phase ${phase} : ${
           phase === "précoce"
-            ? "l'énergie s'exprime ici de façon encore brute et spontanée — la version la plus \"pure\", et parfois la moins maîtrisée, du signe."
+            ? "l'énergie s'exprime ici de façon encore brute et spontanée — la version la plus instinctive, la moins filtrée du signe."
             : phase === "tardive"
-              ? "l'énergie est ici mûrie, parfois déjà en transition vers la thématique du signe suivant — une forme plus consciente, parfois plus lasse, de cette énergie."
-              : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus caractéristique du signe."
+              ? "l'énergie est ici mûrie, parfois déjà tournée vers la thématique du signe suivant — une forme plus consciente, parfois plus lasse, de cette même énergie."
+              : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus typique du signe."
         }`;
 
   return {
@@ -176,20 +176,20 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
     isAnaretic,
     anareticText: isAnaretic
       ? locale === "en"
-        ? `Anaretic degree (29th degree, ${formatDegMin(remainingInSign)} from the end of the sign): a point of maximum tension before the sign changes, often felt as an urgency to "wrap up" what this sign had to teach before moving on — a raw, sometimes rushed, energy.`
-        : `Degré anarétique (29e degré, à ${formatDegMin(remainingInSign)} de la fin du signe) : point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose — une énergie à vif, parfois précipitée.`
+        ? `You're at the very last degree of the sign (29°, ${formatDegMin(remainingInSign)} from the switch to the next one) — what tradition calls the "anaretic" degree: a point of maximum tension before the sign changes, often felt as an urgency to "wrap up" what this sign had to teach before moving on — a raw, sometimes rushed, energy.`
+        : `Vous êtes au tout dernier degré du signe (29e, à ${formatDegMin(remainingInSign)} du passage au signe suivant) — ce que la tradition appelle le degré "anarétique" : point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose — une énergie à vif, parfois précipitée.`
       : undefined,
     nearestCriticalDegree,
     criticalOrb,
     isCritical,
     criticalText: isCritical
       ? locale === "en"
-        ? `"Critical" degree per classical tradition: ${formatDegMin(criticalOrb)} ${
-            criticalOrb <= EXACT_THRESHOLD ? "almost exactly" : "from the traditional marker"
-          } of ${nearestCriticalDegree}°, a point astrologers have long considered charged, where the sign's theme shows up with particular intensity or sharpness.`
-        : `Degré "critique" selon la tradition classique : à ${formatDegMin(criticalOrb)} ${
-            criticalOrb <= EXACT_THRESHOLD ? "quasi exactement" : "du repère traditionnel"
-          } de ${nearestCriticalDegree}°, un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
+        ? `You're ${
+            criticalOrb <= EXACT_THRESHOLD ? "almost exactly on" : `${formatDegMin(criticalOrb)} from`
+          } ${nearestCriticalDegree}° — a marker classical tradition calls a "critical" degree: a point astrologers have long considered charged, where the sign's theme shows up with particular intensity or sharpness.`
+        : `Vous êtes ${
+            criticalOrb <= EXACT_THRESHOLD ? "quasi exactement sur" : `à ${formatDegMin(criticalOrb)} de`
+          } ${nearestCriticalDegree}° — un repère que la tradition classique appelle degré "critique" : un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
       : undefined,
   };
 }
