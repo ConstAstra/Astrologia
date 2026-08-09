@@ -96,18 +96,6 @@ export default async function CartographiePage({
 
   const access = await hasFeatureAccess(userId, { feature: "astrocartography", primaryProfileId: profile.id });
 
-  if (!access) {
-    return (
-      <div>
-        <Eyebrow>{t.eyebrow}</Eyebrow>
-        <h1 className="font-display mt-2 text-3xl">{profile.label}</h1>
-        <div className="mt-8">
-          <UnlockGate feature="astrocartography" profileIdA={profile.id} credits={user.credits} locale={locale} />
-        </div>
-      </div>
-    );
-  }
-
   const chart = computeNatalChart(
     {
       date: profile.birthDate,
@@ -130,6 +118,32 @@ export default async function CartographiePage({
   const sortedCountryOptions = [...countryList].sort((a, b) => a.name.localeCompare(b.name, locale));
 
   const countryMatches = computeCountryLineMatches(lines);
+
+  if (!access) {
+    return (
+      <div>
+        <Eyebrow>{t.eyebrow}</Eyebrow>
+        <h1 className="font-display mt-2 text-3xl">{profile.label}</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted">{t.instructions}</p>
+
+        <div className="mt-6">
+          <AstrocartographyMap
+            data={mapData}
+            locale={locale}
+            countryMatches={countryMatches}
+            countries={sortedCountryOptions}
+            initialSelectedCountryId={selectedCountryId}
+            locked
+          />
+        </div>
+
+        <div className="mt-8">
+          <UnlockGate feature="astrocartography" profileIdA={profile.id} credits={user.credits} locale={locale} />
+        </div>
+      </div>
+    );
+  }
+
   const rankingsByCategory = THEME_CATEGORIES.map((category) => ({
     category,
     label: CATEGORY_LABELS[locale][category],

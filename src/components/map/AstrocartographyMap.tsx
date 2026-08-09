@@ -39,6 +39,7 @@ const TEXT = {
     placeholder: "Choisir un pays…",
     noLines: "Aucune de vos lignes ne traverse directement ce pays.",
     close: "Fermer",
+    lockedPrompt: "Débloquez votre thème pour lire ce que cette ligne raconte vraiment.",
   },
   en: {
     tapHint: "👉 Tap a country on the map (highlighted on hover) to see what your lines say about it.",
@@ -47,6 +48,7 @@ const TEXT = {
     placeholder: "Choose a country…",
     noLines: "None of your lines directly cross this country.",
     close: "Close",
+    lockedPrompt: "Unlock your chart to read what this line actually means.",
   },
 };
 
@@ -81,6 +83,7 @@ export function AstrocartographyMap({
   countries,
   initialSelectedCountryId,
   onCountrySelect,
+  locked = false,
 }: {
   data: WorldMapData;
   locale?: "fr" | "en";
@@ -91,6 +94,11 @@ export function AstrocartographyMap({
   initialSelectedCountryId?: string;
   /** Notifie le parent à chaque changement de sélection (ex : afficher un bouton "partager ce pays"). */
   onCountrySelect?: (countryId: string | null) => void;
+  // Aperçu gratuit : la carte et ses lignes restent visibles et cliquables,
+  // mais le texte d'interprétation par pays est remplacé par une invite à
+  // débloquer, plutôt que de tout cacher derrière un mur — la carte donne
+  // déjà envie, le texte est ce qui se vend.
+  locked?: boolean;
 }) {
   const t = TEXT[locale];
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
@@ -262,7 +270,11 @@ export function AstrocartographyMap({
                   <p className="font-medium">
                     {planetMap[m.planet].symbol} {planetMap[m.planet].name} — {lineTypeMap[m.type].name}
                   </p>
-                  <p className="mt-1 leading-relaxed text-muted">{describeAstroCartoLine(m.planet, m.type, locale)}</p>
+                  {locked ? (
+                    <p className="mt-1 leading-relaxed text-muted/70">🔒 {t.lockedPrompt}</p>
+                  ) : (
+                    <p className="mt-1 leading-relaxed text-muted">{describeAstroCartoLine(m.planet, m.type, locale)}</p>
+                  )}
                 </div>
               ))}
             </div>
