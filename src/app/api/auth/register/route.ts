@@ -61,40 +61,48 @@ export async function POST(request: Request) {
   }
   const { email, password, name, ref } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return NextResponse.json({ error: m.alreadyExists }, { status: 409 });
-  }
-
-  const passwordHash = await hashPassword(password);
-  const referrer = ref ? await prisma.user.findUnique({ where: { referralCode: ref } }) : null;
-
-  // Collision de referralCode astronomiquement improbable (5 octets
-  // aléatoires) mais on retente une fois proprement plutôt que de planter
-  // l'inscription si ça arrivait.
-  let user;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      user = await prisma.user.create({
-        data: {
-          email,
-          passwordHash,
-          name,
-          referralCode: generateReferralCode(),
-          referredByUserId: referrer?.id,
-        },
-      });
-      break;
-    } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002" && attempt === 0) continue;
-      throw err;
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json({ error: m.alreadyExists }, { status: 409 });
     }
-  }
-  if (!user) {
+
+    const passwordHash = await hashPassword(password);
+    const referrer = ref ? await prisma.user.findUnique({ where: { referralCode: ref } }) : null;
+
+    // Collision de referralCode astronomiquement improbable (5 octets
+    // aléatoires) mais on retente une fois proprement plutôt que de planter
+    // l'inscription si ça arrivait.
+    let user;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        user = await prisma.user.create({
+          data: {
+            email,
+            passwordHash,
+            name,
+            referralCode: generateReferralCode(),
+            referredByUserId: referrer?.id,
+          },
+        });
+        break;
+      } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002" && attempt === 0) continue;
+        throw err;
+      }
+    }
+    if (!user) {
+      return NextResponse.json({ error: m.genericError }, { status: 500 });
+    }
+
+    await createSessionCookie(user.id);
+
+    return NextResponse.json({ id: user.id, email: user.email, name: user.name });
+  } catch (err) {
+    // Une base injoignable ou un secret manquant en prod plantait ici sans
+    // filet : Next.js renvoyait alors une page d'erreur HTML au lieu de
+    // JSON, que le client ne pouvait pas parser (voir safe-json.ts).
+    console.error("[auth:register]", err instanceof Error ? err.message : err);
     return NextResponse.json({ error: m.genericError }, { status: 500 });
   }
-
-  await createSessionCookie(user.id);
-
-  return NextResponse.json({ id: user.id, email: user.email, name: user.name });
 }

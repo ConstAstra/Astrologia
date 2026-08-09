@@ -10,11 +10,13 @@ const MESSAGES = {
     invalidCredentials: "Identifiants invalides.",
     wrongLogin: "E-mail ou mot de passe incorrect.",
     tooManyAttempts: "Trop de tentatives, réessayez dans quelques minutes.",
+    genericError: "Une erreur est survenue, réessayez.",
   },
   en: {
     invalidCredentials: "Invalid credentials.",
     wrongLogin: "Incorrect email or password.",
     tooManyAttempts: "Too many attempts, please try again in a few minutes.",
+    genericError: "Something went wrong, please try again.",
   },
 } as const;
 
@@ -45,12 +47,20 @@ export async function POST(request: Request) {
   }
   const { email, password } = parsed.data;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    return NextResponse.json({ error: m.wrongLogin }, { status: 401 });
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      return NextResponse.json({ error: m.wrongLogin }, { status: 401 });
+    }
+
+    await createSessionCookie(user.id);
+
+    return NextResponse.json({ id: user.id, email: user.email, name: user.name });
+  } catch (err) {
+    // Une base injoignable ou un secret manquant en prod plantait ici sans
+    // filet : Next.js renvoyait alors une page d'erreur HTML au lieu de
+    // JSON, que le client ne pouvait pas parser (voir safe-json.ts).
+    console.error("[auth:login]", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: m.genericError }, { status: 500 });
   }
-
-  await createSessionCookie(user.id);
-
-  return NextResponse.json({ id: user.id, email: user.email, name: user.name });
 }
