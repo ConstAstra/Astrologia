@@ -365,6 +365,29 @@ body {
   }
 }
 
+/* Illustration décorative du signe (fine ligne blanche, voir public/zodiac/)
+   posée en arrière-plan des héros horoscope/compatibilité — scintillement
+   doux en respiration plutôt qu'un clignotement franc, pour rester un fond
+   discret et ne jamais concurrencer le texte au premier plan. */
+@keyframes zodiac-shimmer {
+  0%,
+  100% {
+    opacity: 0.16;
+  }
+  50% {
+    opacity: 0.32;
+  }
+}
+.zodiac-glyph-bg {
+  animation: zodiac-shimmer 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .zodiac-glyph-bg {
+    animation: none;
+    opacity: 0.2;
+  }
+}
+
 /* Petit clignotement d'étoile, pour parsemer quelques accents vivants
    derrière certains titres (voir Twinkle.tsx). */
 @keyframes twinkle {

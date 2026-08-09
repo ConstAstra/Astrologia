@@ -11,6 +11,7 @@ import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { composeSignHoroscope } from "@/lib/astro/interpretations/sign-horoscope";
 import { SharePunchlineButton } from "@/components/horoscope/SharePunchlineButton";
+import { ZodiacGlyphBg } from "@/components/ui/ZodiacGlyphBg";
 
 const ELEMENT_COLORS: Record<string, string> = {
   Feu: "#c96b4a",
@@ -66,6 +67,10 @@ export default async function SignHoroscopePage({ params }: { params: Promise<{ 
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-8 h-64 w-64 -translate-x-1/2 rounded-full opacity-25 blur-3xl"
             style={{ background: color }}
+          />
+          <ZodiacGlyphBg
+            sign={signe}
+            className="absolute left-1/2 top-2 w-[420px] max-w-none -translate-x-1/2"
           />
           <div className="relative mx-auto max-w-2xl">
             <Link href="/horoscope" className="text-xs text-muted hover:text-foreground">
