@@ -72,11 +72,11 @@ export default async function CompatibilitePage({ params }: { params: Promise<{ 
         <div className="relative overflow-hidden pb-8">
           <ZodiacGlyphBg
             sign={signA}
-            className="absolute left-0 top-0 hidden w-[45vw] max-w-[440px] sm:block"
+            className="absolute left-0 top-0 hidden w-[52vw] max-w-[520px] sm:block"
           />
           <ZodiacGlyphBg
             sign={signB}
-            className="absolute right-0 top-0 hidden w-[45vw] max-w-[440px] scale-x-[-1] sm:block"
+            className="absolute right-0 top-0 hidden w-[52vw] max-w-[520px] scale-x-[-1] sm:block"
           />
           <section className="relative px-6 pt-16 text-center">
             <div className="relative mx-auto max-w-3xl">
