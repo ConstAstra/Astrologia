@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 type Locale = "fr" | "en";
 
@@ -77,14 +78,13 @@ export function ResetPasswordForm({ token, locale = "fr" }: { token: string; loc
         <label className="mb-1 block text-sm text-muted" htmlFor="password">
           {t.newPassword}
         </label>
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
         <p className="mt-1 text-xs text-muted/70">{t.passwordHint}</p>
       </div>
@@ -92,14 +92,13 @@ export function ResetPasswordForm({ token, locale = "fr" }: { token: string; loc
         <label className="mb-1 block text-sm text-muted" htmlFor="confirm">
           {t.confirmPassword}
         </label>
-        <input
+        <PasswordInput
           id="confirm"
           name="confirm"
-          type="password"
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
       </div>
 

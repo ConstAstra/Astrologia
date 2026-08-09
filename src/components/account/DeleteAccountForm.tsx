@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 type Locale = "fr" | "en";
 
@@ -80,13 +81,13 @@ export function DeleteAccountForm({ locale = "fr" }: { locale?: Locale }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <p className="text-sm text-terracotta">{t.warning}</p>
-      <input
+      <PasswordInput
         name="password"
-        type="password"
         required
         placeholder={t.password}
         autoComplete="current-password"
-        className="w-full max-w-xs rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+        locale={locale}
+        className="max-w-xs"
       />
       {error && <p className="text-sm text-terracotta">{error}</p>}
       <div className="flex gap-2">

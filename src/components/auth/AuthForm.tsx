@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 type Locale = "fr" | "en";
 
@@ -114,14 +115,13 @@ export function AuthForm({ mode, locale = "fr" }: { mode: "login" | "register"; 
         <label className="mb-1 block text-sm text-muted" htmlFor="password">
           {t.password}
         </label>
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           required
           minLength={mode === "register" ? 8 : undefined}
           autoComplete={mode === "login" ? "current-password" : "new-password"}
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
         {mode === "register" && <p className="mt-1 text-xs text-muted/70">{t.passwordHint}</p>}
       </div>

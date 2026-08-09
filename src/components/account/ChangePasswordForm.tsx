@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 type Locale = "fr" | "en";
 
@@ -84,27 +85,25 @@ export function ChangePasswordForm({ locale = "fr" }: { locale?: Locale }) {
         <label className="mb-1 block text-sm text-muted" htmlFor="currentPassword">
           {t.currentPassword}
         </label>
-        <input
+        <PasswordInput
           id="currentPassword"
           name="currentPassword"
-          type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
       </div>
       <div>
         <label className="mb-1 block text-sm text-muted" htmlFor="newPassword">
           {t.newPassword}
         </label>
-        <input
+        <PasswordInput
           id="newPassword"
           name="newPassword"
-          type="password"
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
         <p className="mt-1 text-xs text-muted/70">{t.passwordHint}</p>
       </div>
@@ -112,14 +111,13 @@ export function ChangePasswordForm({ locale = "fr" }: { locale?: Locale }) {
         <label className="mb-1 block text-sm text-muted" htmlFor="confirm">
           {t.confirmPassword}
         </label>
-        <input
+        <PasswordInput
           id="confirm"
           name="confirm"
-          type="password"
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
       </div>
 

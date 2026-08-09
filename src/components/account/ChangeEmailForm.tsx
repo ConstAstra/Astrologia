@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 type Locale = "fr" | "en";
 
@@ -89,13 +90,12 @@ export function ChangeEmailForm({ currentEmail, locale = "fr" }: { currentEmail:
         <label className="mb-1 block text-sm text-muted" htmlFor="email-password">
           {t.password}
         </label>
-        <input
+        <PasswordInput
           id="email-password"
           name="password"
-          type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          locale={locale}
         />
       </div>
 
