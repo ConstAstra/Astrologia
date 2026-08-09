@@ -21,7 +21,7 @@ export function ManageBillingButton({ locale = "fr" }: { locale?: "fr" | "en" })
   }
 
   return (
-    <Button variant="secondary" disabled={loading} onClick={handleClick}>
+    <Button variant="secondary" loading={loading} onClick={handleClick}>
       {loading ? t.loading : t.manage}
     </Button>
   );

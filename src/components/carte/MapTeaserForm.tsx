@@ -386,7 +386,7 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
 
         {error && <p className="text-sm text-terracotta">{error}</p>}
 
-        <Button type="button" onClick={handleGenerate} disabled={busy} className="w-full">
+        <Button type="button" onClick={handleGenerate} loading={busy} className="w-full">
           {busy ? t.generating : t.generate}
         </Button>
       </div>

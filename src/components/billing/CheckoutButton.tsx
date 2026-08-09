@@ -61,7 +61,7 @@ export function CheckoutButton({
 
   return (
     <div>
-      <Button variant={variant} className="w-full" disabled={loading} onClick={handleClick}>
+      <Button variant={variant} className="w-full" loading={loading} onClick={handleClick}>
         {loading ? t.loading : children}
       </Button>
       {error && <p className="mt-2 text-xs text-terracotta">{error}</p>}

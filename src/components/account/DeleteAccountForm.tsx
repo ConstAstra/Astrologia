@@ -90,7 +90,7 @@ export function DeleteAccountForm({ locale = "fr" }: { locale?: Locale }) {
       />
       {error && <p className="text-sm text-terracotta">{error}</p>}
       <div className="flex gap-2">
-        <Button type="submit" variant="secondary" disabled={loading} className="border-terracotta/50 text-terracotta">
+        <Button type="submit" variant="secondary" loading={loading} className="border-terracotta/50 text-terracotta">
           {loading ? t.loading : t.confirm}
         </Button>
         <button

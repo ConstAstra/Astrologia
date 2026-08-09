@@ -131,7 +131,7 @@ export function FriendInviteAccept({ token }: { token: string }) {
 
       {info.isAuthenticated ? (
         <div className="mt-7">
-          <Button onClick={handleAccept} disabled={accepting} className="w-full">
+          <Button onClick={handleAccept} loading={accepting} className="w-full">
             {accepting ? t.accepting : t.accept}
           </Button>
           {error && <p className="mt-3 text-xs text-terracotta">{error}</p>}

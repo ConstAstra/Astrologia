@@ -148,7 +148,7 @@ export function UnlockGate({
 
       <div className="mt-6 space-y-3">
         {credits > 0 ? (
-          <Button className="w-full" disabled={loading} onClick={handleUnlock}>
+          <Button className="w-full" loading={loading} onClick={handleUnlock}>
             {loading ? t.loading : t.unlockWithCredit(credits)}
           </Button>
         ) : (

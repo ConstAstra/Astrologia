@@ -301,10 +301,10 @@ export function AvatarEditor({
         </section>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Button onClick={handleSave} disabled={status === "saving"}>
+          <Button onClick={handleSave} loading={status === "saving"}>
             {status === "saving" ? t.saving : status === "saved" ? t.saved : t.save}
           </Button>
-          <Button variant="ghost" onClick={handleReset} disabled={resetting}>
+          <Button variant="ghost" onClick={handleReset} loading={resetting}>
             {resetting ? t.resetting : t.reset}
           </Button>
         </div>

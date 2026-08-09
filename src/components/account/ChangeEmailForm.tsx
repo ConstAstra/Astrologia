@@ -102,7 +102,7 @@ export function ChangeEmailForm({ currentEmail, locale = "fr" }: { currentEmail:
       {error && <p className="text-sm text-terracotta">{error}</p>}
       {success && <p className="text-sm text-sage">{t.success}</p>}
 
-      <Button type="submit" variant="secondary" disabled={loading}>
+      <Button type="submit" variant="secondary" loading={loading}>
         {loading ? t.loading : t.submit}
       </Button>
     </form>
