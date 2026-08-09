@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/Card";
@@ -14,27 +15,31 @@ export default function MentionsLegalesPage() {
           <h1 className="font-display text-4xl">Mentions légales</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              Modèle à personnaliser avant mise en ligne : remplacez chaque [À COMPLÉTER] par vos informations
-              réelles (idéalement avec l&apos;avis d&apos;un professionnel du droit avant commercialisation).
+              L&apos;immatriculation de l&apos;entreprise (SIRET) est en cours. Les champs marqués
+              [À COMPLÉTER] seront renseignés dès sa délivrance ; aucune information d&apos;identité n&apos;est
+              inventée en attendant. Le reste de cette page reflète la configuration réelle du service.
             </p>
 
             <div>
               <h2 className="font-display text-xl text-foreground">Éditeur du site</h2>
               <p className="mt-2">
-                Raison sociale : [À COMPLÉTER]<br />
-                Forme juridique : [À COMPLÉTER — auto-entreprise, SASU, etc.]<br />
-                Siège social : [À COMPLÉTER]<br />
-                SIRET : [À COMPLÉTER]<br />
-                Directeur de la publication : [À COMPLÉTER]<br />
-                Contact : [À COMPLÉTER — e-mail de contact]
+                Nom commercial : Constastra<br />
+                Forme juridique : Entreprise individuelle (micro-entreprise), immatriculation en cours auprès
+                du Guichet unique (INPI)<br />
+                Nom et prénom de l&apos;exploitant : [À COMPLÉTER]<br />
+                Adresse de l&apos;établissement : [À COMPLÉTER]<br />
+                SIRET : [À COMPLÉTER — en cours d&apos;attribution]<br />
+                Directeur de la publication : l&apos;exploitant nommé ci-dessus<br />
+                Contact : [À COMPLÉTER — adresse e-mail de contact]
               </p>
             </div>
 
             <div>
               <h2 className="font-display text-xl text-foreground">Hébergement</h2>
               <p className="mt-2">
-                Hébergeur : [À COMPLÉTER — ex. Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA]<br />
-                Base de données : [À COMPLÉTER — nom de votre fournisseur PostgreSQL en production]
+                Hébergeur applicatif : Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA<br />
+                Hébergeur de la base de données : Neon Inc. (service Neon Postgres), infrastructure exploitée
+                depuis l&apos;Union européenne
               </p>
             </div>
 
@@ -66,6 +71,59 @@ export default function MentionsLegalesPage() {
                 L&apos;ensemble des textes, méthodes de mise en forme et éléments graphiques du site sont la
                 propriété de l&apos;éditeur, sauf mention contraire, et ne peuvent être reproduits sans
                 autorisation préalable.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="font-display text-xl text-foreground">Responsabilité</h2>
+              <p className="mt-2">
+                L&apos;éditeur met tout en œuvre pour assurer l&apos;exactitude technique des calculs
+                astronomiques (éphémérides, systèmes de maisons) mais ne peut garantir une exactitude absolue,
+                notamment lorsque l&apos;heure de naissance renseignée par l&apos;utilisateur est imprécise ou
+                inconnue. L&apos;éditeur ne pourra être tenu responsable d&apos;une indisponibilité temporaire du
+                service ni de dommages indirects résultant de son utilisation.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="font-display text-xl text-foreground">Droit applicable et juridiction</h2>
+              <p className="mt-2">
+                Le présent site et les présentes mentions sont soumis au droit français. À défaut de résolution
+                amiable d&apos;un litige, les tribunaux français compétents seront saisis, sous réserve des
+                règles impératives de protection du consommateur applicables aux utilisateurs résidant dans
+                l&apos;Union européenne.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="font-display text-xl text-foreground">Médiation de la consommation</h2>
+              <p className="mt-2">
+                Conformément à l&apos;article L.616-1 du Code de la consommation, tout consommateur a le droit
+                de recourir gratuitement à un médiateur de la consommation en vue de la résolution amiable
+                d&apos;un litige. Le médiateur compétent sera précisé ici dès l&apos;immatriculation de
+                l&apos;entreprise achevée. Vous pouvez par ailleurs recourir à la plateforme européenne de
+                règlement en ligne des litiges :{" "}
+                <a
+                  href="https://ec.europa.eu/consumers/odr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold-strong hover:underline"
+                >
+                  ec.europa.eu/consumers/odr
+                </a>
+                .
+              </p>
+            </div>
+
+            <div>
+              <h2 className="font-display text-xl text-foreground">Cookies</h2>
+              <p className="mt-2">
+                Ce site utilise uniquement un cookie de session strictement nécessaire à l&apos;authentification.
+                Aucun cookie publicitaire ou de mesure d&apos;audience tiers n&apos;est déposé. Détails dans notre{" "}
+                <Link href="/confidentialite" className="text-gold-strong hover:underline">
+                  politique de confidentialité
+                </Link>
+                .
               </p>
             </div>
           </Card>

@@ -96,6 +96,7 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const generalItems = [
+    { href: hrefs.guides, label: t.guides },
     { href: hrefs.method, label: t.method },
     { href: hrefs.news, label: t.news },
   ];
@@ -119,8 +120,8 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
           <Link href={hrefs.horoscope} className="hover:text-foreground">
             {t.horoscope}
           </Link>
-          <Link href={hrefs.guides} className="hover:text-foreground">
-            {t.guides}
+          <Link href={hrefs.compatibility} className="hover:text-foreground">
+            {t.compatibility}
           </Link>
 
           <div className="relative" onMouseEnter={openGeneral} onMouseLeave={scheduleCloseGeneral}>
@@ -150,9 +151,6 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
             )}
           </div>
 
-          <Link href={hrefs.compatibility} className="hover:text-foreground">
-            {t.compatibility}
-          </Link>
           <Link href={hrefs.pricing} className="hover:text-foreground">
             {t.pricing}
           </Link>
