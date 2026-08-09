@@ -13,6 +13,14 @@ export interface SendEmailInput {
 export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
+    if (process.env.NODE_ENV === "production") {
+      // Ne jamais déverser un e-mail en clair (il peut contenir un jeton de
+      // réinitialisation de mot de passe ou de désabonnement) dans les logs
+      // de production si la clé manque par erreur — un avertissement suffit
+      // à diagnostiquer le problème de configuration.
+      console.warn(`[email] RESEND_API_KEY manquant en production — e-mail "${subject}" à ${to} non envoyé.`);
+      return;
+    }
     console.log(`[email:dev] À: ${to}\nSujet: ${subject}\n${html}`);
     return;
   }

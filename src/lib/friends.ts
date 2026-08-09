@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { notifyFriendActivity } from "@/lib/notify";
+import { escapeHtml } from "@/lib/html";
 
 const ACCEPT_PUSH_TEXT = {
   fr: { title: "🔮 Nouvelle amitié", body: (name: string) => `${name} a accepté ton invitation sur Astrologium.` },
@@ -92,11 +93,14 @@ export async function acceptFriendInvite(token: string, acceptingUserId: string)
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
     const accepterName = accepter.name?.trim() || accepter.email;
     // Ne bloque jamais l'acceptation elle-même si l'envoi échoue (fournisseur
-    // indisponible, etc.) — l'amitié est déjà actée à ce stade.
+    // indisponible, etc.) — l'amitié est déjà actée à ce stade. Le nom est
+    // choisi librement par l'accepteur et envoyé dans le corps HTML d'un
+    // e-mail à UN TIERS (l'inviteur) : échappement obligatoire pour ce corps,
+    // pas pour le sujet (texte brut) ni pour la notification push (idem).
     await sendEmail({
       to: inviter.email,
       subject: t.subject(accepterName),
-      html: t.body(accepterName, siteUrl),
+      html: t.body(escapeHtml(accepterName), siteUrl),
     }).catch(() => {});
 
     const pushT = ACCEPT_PUSH_TEXT[locale];

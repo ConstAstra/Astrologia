@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { canonicalPair, hasFeatureAccess } from "@/lib/billing/entitlements";
+import { listFriendSelfProfiles } from "@/lib/friends";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
 import { computeCompatibilityScore, compatibilityPunchline } from "@/lib/astro/compatibility-score";
@@ -58,16 +59,26 @@ export async function GET(request: Request) {
   const isStory = format === "story";
   const s = <T,>(post: T, story: T): T => (isStory ? story : post);
 
-  const [profileA, profileB, user] = await Promise.all([
+  const [profileA, profileB, user, ownProfiles, friendSelfProfiles] = await Promise.all([
     prisma.profile.findUnique({ where: { id: a } }),
     prisma.profile.findUnique({ where: { id: b } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+    prisma.profile.findMany({ where: { userId }, select: { id: true } }),
+    listFriendSelfProfiles(userId),
   ]);
   if (!profileA || !profileB) return NextResponse.json({ error: "Profil introuvable" }, { status: 404 });
 
-  // Il faut être l'un des deux comptes de la paire — pas de génération de
-  // carte pour des profils qui n'ont aucun lien avec le compte appelant.
-  if (profileA.userId !== userId && profileB.userId !== userId) {
+  // Même règle d'accès que la page /dashboard/synastrie : chaque profil de la
+  // paire doit être un profil du compte appelant OU le profil "soi" d'un ami
+  // accepté — jamais un profil tiers arbitraire. Vérifié ICI, avant tout
+  // appel à hasFeatureAccess : celui-ci ne juge que le paywall (abonnement/
+  // crédit), pas l'appartenance des profils, et un compte Premium ne doit
+  // jamais pouvoir contourner cette vérification d'ownership.
+  const allowedProfileIds = new Set([
+    ...ownProfiles.map((p) => p.id),
+    ...friendSelfProfiles.map((f) => f.profile.id),
+  ]);
+  if (!allowedProfileIds.has(a) || !allowedProfileIds.has(b)) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 

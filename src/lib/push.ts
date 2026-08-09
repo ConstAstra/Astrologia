@@ -40,6 +40,12 @@ function ensureConfigured(): boolean {
  */
 export async function sendPushNotification(sub: PushSubscriptionRecord, input: SendPushInput): Promise<void> {
   if (!ensureConfigured()) {
+    if (process.env.NODE_ENV === "production") {
+      // Ne pas logguer l'endpoint (identifiant unique de l'appareil de
+      // l'utilisateur) en clair si les clés VAPID manquent en production.
+      console.warn(`[push] Clés VAPID manquantes en production — notification "${input.title}" non envoyée.`);
+      return;
+    }
     console.log(`[push:dev] ${input.title} — ${input.body} (${input.url}) → ${sub.endpoint}`);
     return;
   }

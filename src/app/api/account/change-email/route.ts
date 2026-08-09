@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { verifyPassword } from "@/lib/auth/password";
+import { createRateLimiter } from "@/lib/rate-limit";
 
 const MESSAGES = {
   fr: {
@@ -11,6 +12,7 @@ const MESSAGES = {
     invalidEmail: "Adresse e-mail invalide",
     wrongPassword: "Mot de passe incorrect.",
     alreadyUsed: "Cette adresse e-mail est déjà utilisée par un autre compte.",
+    tooManyAttempts: "Trop de tentatives, réessayez dans quelques minutes.",
   },
   en: {
     notAuthenticated: "Not authenticated.",
@@ -18,10 +20,15 @@ const MESSAGES = {
     invalidEmail: "Invalid email address",
     wrongPassword: "Incorrect password.",
     alreadyUsed: "This email address is already used by another account.",
+    tooManyAttempts: "Too many attempts, please try again in a few minutes.",
   },
 } as const;
 
 type Locale = keyof typeof MESSAGES;
+
+// Même raisonnement que change-password : la vérification du mot de passe
+// actuel ne doit pas pouvoir être devinée par essais répétés.
+const changeEmailLimiter = createRateLimiter({ max: 10, windowMs: 5 * 60_000 });
 
 function buildSchema(locale: Locale) {
   const m = MESSAGES[locale];
@@ -43,6 +50,10 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const locale: Locale = body?.locale === "en" ? "en" : "fr";
   const m = MESSAGES[locale];
+
+  if (changeEmailLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: m.tooManyAttempts }, { status: 429 });
+  }
 
   const parsed = buildSchema(locale).safeParse(body);
   if (!parsed.success) {

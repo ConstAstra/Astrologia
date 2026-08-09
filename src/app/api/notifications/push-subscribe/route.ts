@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
+import { createRateLimiter } from "@/lib/rate-limit";
+
+const pushSubscribeLimiter = createRateLimiter({ max: 20, windowMs: 5 * 60_000 });
 
 const FEATURES = ["dailyTransit", "streakReminder", "friendActivity", "upcomingTransitAlert"] as const;
 type Feature = (typeof FEATURES)[number];
@@ -44,6 +47,9 @@ const ALL_OPT_IN_FALSE = {
 export async function POST(request: Request) {
   const userId = await getCurrentUserId();
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  if (pushSubscribeLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: "Trop de requêtes, réessayez dans quelques minutes." }, { status: 429 });
+  }
 
   const body = await request.json().catch(() => null);
   const parsed = subscribeSchema.safeParse(body);
@@ -53,11 +59,21 @@ export async function POST(request: Request) {
 
   const { endpoint, keys, feature } = parsed.data;
 
+  // Un endpoint Push est en pratique unique par navigateur/appareil : le
+  // navigateur en émet un nouveau à chaque (ré)abonnement. Le voir associé à
+  // un AUTRE compte que l'appelant n'arrive donc jamais en usage normal —
+  // on refuse la réassignation silencieuse plutôt que d'écraser le
+  // propriétaire existant (voir aussi le commentaire sur l'upsert).
+  const existing = await prisma.pushSubscription.findUnique({ where: { endpoint }, select: { userId: true } });
+  if (existing && existing.userId !== userId) {
+    return NextResponse.json({ error: "Requête invalide." }, { status: 409 });
+  }
+
   await prisma.$transaction([
     prisma.pushSubscription.upsert({
       where: { endpoint },
       create: { userId, endpoint, p256dh: keys.p256dh, auth: keys.auth },
-      update: { userId, p256dh: keys.p256dh, auth: keys.auth },
+      update: { p256dh: keys.p256dh, auth: keys.auth },
     }),
     prisma.user.update({ where: { id: userId }, data: { [OPT_IN_FIELD[feature]]: true } }),
   ]);
@@ -75,6 +91,9 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const userId = await getCurrentUserId();
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  if (pushSubscribeLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: "Trop de requêtes, réessayez dans quelques minutes." }, { status: 429 });
+  }
 
   const body = await request.json().catch(() => null);
   const parsed = unsubscribeSchema.safeParse(body);

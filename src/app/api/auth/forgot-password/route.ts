@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { createPasswordResetToken } from "@/lib/auth/passwordReset";
 import { sendEmail } from "@/lib/email";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
+import { escapeHtml } from "@/lib/html";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
   await sendEmail({
     to: user.email,
     subject: t.subject,
-    html: t.body(user.name ? ` ${user.name}` : "", resetUrl),
+    html: t.body(user.name ? ` ${escapeHtml(user.name)}` : "", resetUrl),
   });
 
   return NextResponse.json({ message: t.successMessage });

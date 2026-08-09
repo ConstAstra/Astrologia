@@ -14,10 +14,16 @@ const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 30; // 30 jours
 function getSecret(): Uint8Array {
   const value = process.env.AUTH_SECRET;
   if (!value) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("AUTH_SECRET manquant : définissez une valeur secrète en production.");
+    // Le secret par défaut n'est acceptable que sur une vraie machine de dev
+    // locale (NODE_ENV="development" explicite) — jamais en staging/preview/
+    // test ni dans un environnement où NODE_ENV serait simplement absent ou
+    // mal configuré. Un simple `NODE_ENV !== "production"` laissait passer
+    // silencieusement ce secret public et codé en dur sur tout déploiement
+    // dont NODE_ENV ne vaut pas exactement "production".
+    if (process.env.NODE_ENV === "development") {
+      return new TextEncoder().encode("dev-only-insecure-secret-astrologium");
     }
-    return new TextEncoder().encode("dev-only-insecure-secret-astrologium");
+    throw new Error("AUTH_SECRET manquant : définissez une valeur secrète pour cet environnement.");
   }
   return new TextEncoder().encode(value);
 }

@@ -3,6 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { canCreateProfile } from "@/lib/billing/entitlements";
+import { createRateLimiter } from "@/lib/rate-limit";
+
+// Défense en profondeur au-delà du quota gratuit (canCreateProfile) : un
+// compte Premium n'a normalement jamais besoin de créer autant de profils
+// en si peu de temps.
+const createProfileLimiter = createRateLimiter({ max: 20, windowMs: 5 * 60_000 });
 
 const schema = z.object({
   label: z.string().trim().min(1, "Nom requis").max(80),
@@ -34,6 +40,9 @@ export async function GET() {
 export async function POST(request: Request) {
   const userId = await getCurrentUserId();
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  if (createProfileLimiter.isLimited(userId)) {
+    return NextResponse.json({ error: "Trop de requêtes, réessayez dans quelques minutes." }, { status: 429 });
+  }
 
   if (!(await canCreateProfile(userId))) {
     return NextResponse.json(
