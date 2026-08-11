@@ -53,3 +53,19 @@ export function playSoftChime(): void {
     // Best-effort.
   }
 }
+
+/**
+ * Micro-tic très bref et discret pour les interactions fréquentes et
+ * répétées (sélectionner une planète, basculer un filtre) — un seul son
+ * court plutôt qu'un arpège, pour ne jamais devenir agaçant même cliqué
+ * dix fois de suite.
+ */
+export function playClickTick(): void {
+  try {
+    const audio = getContext();
+    if (!audio) return;
+    tone(audio, 1568, 0, 0.09, 0.028); // G6, très courte et douce
+  } catch {
+    // Best-effort.
+  }
+}

@@ -9,6 +9,7 @@ import { LINE_TYPE_META_EN } from "@/lib/astro/interpretations/astrocartography-
 import { describeAstroCartoLine } from "@/lib/astro/interpretations/compose";
 import type { CountryLineMatch } from "@/lib/astro/astrocartography-countries";
 import type { PlanetKey } from "@/lib/astro/types";
+import { playClickTick } from "@/lib/sound";
 
 const PLANET_COLORS: Record<string, string> = {
   sun: "#f2b799",
@@ -118,6 +119,7 @@ export function AstrocartographyMap({
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(initialSelectedCountryId ?? null);
 
   function togglePlanet(p: PlanetKey) {
+    playClickTick();
     setVisiblePlanets((prev) => {
       const next = new Set(prev);
       if (next.has(p)) next.delete(p);
@@ -127,6 +129,7 @@ export function AstrocartographyMap({
   }
 
   function toggleType(t: string) {
+    playClickTick();
     setVisibleTypes((prev) => {
       const next = new Set(prev);
       if (next.has(t)) next.delete(t);
@@ -136,6 +139,7 @@ export function AstrocartographyMap({
   }
 
   function selectCountry(id: string | null) {
+    if (id) playClickTick();
     setSelectedCountryId(id);
     syncCountryToUrl(id);
     onCountrySelect?.(id);
@@ -151,7 +155,7 @@ export function AstrocartographyMap({
             <button
               key={p}
               onClick={() => togglePlanet(p)}
-              className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
+              className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-all duration-150 active:scale-95"
               style={{
                 borderColor: visiblePlanets.has(p) ? PLANET_COLORS[p] : "var(--border-soft)",
                 color: visiblePlanets.has(p) ? PLANET_COLORS[p] : "var(--muted)",
@@ -167,7 +171,7 @@ export function AstrocartographyMap({
             <button
               key={lt.key}
               onClick={() => toggleType(lt.key)}
-              className={`rounded-full border px-2.5 py-1 text-xs ${
+              className={`rounded-full border px-2.5 py-1 text-xs transition-all duration-150 active:scale-95 ${
                 visibleTypes.has(lt.key) ? "border-gold/50 text-gold-strong" : "border-border-soft text-muted opacity-50"
               }`}
             >
@@ -250,7 +254,7 @@ export function AstrocartographyMap({
       </div>
 
       {selectedCountryId && selectedMatches && (
-        <div className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
+        <div key={selectedCountryId} className="stagger-item mt-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-xl">{t.heading(countryName.get(selectedCountryId) ?? selectedCountryId)}</h3>
             <button

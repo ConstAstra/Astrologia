@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { playClickTick } from "@/lib/sound";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
@@ -122,6 +123,12 @@ export function ChartWheel({
   interactive?: boolean;
 }) {
   const [selected, setSelected] = useState<PointKey | null>(null);
+
+  function selectPoint(key: PointKey) {
+    playClickTick();
+    setSelected((cur) => (cur === key ? null : key));
+  }
+
   const cx = size / 2;
   const cy = size / 2;
   const rOuter = size * 0.48;
@@ -290,7 +297,7 @@ export function ChartWheel({
         return (
           <g
             key={p.key}
-            onClick={interactive ? () => setSelected((cur) => (cur === p.key ? null : p.key)) : undefined}
+            onClick={interactive ? () => selectPoint(p.key) : undefined}
             style={interactive ? { cursor: "pointer" } : undefined}
             tabIndex={interactive ? 0 : undefined}
             role={interactive ? "button" : undefined}
@@ -301,7 +308,7 @@ export function ChartWheel({
                 ? (e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      setSelected((cur) => (cur === p.key ? null : p.key));
+                      selectPoint(p.key);
                     }
                   }
                 : undefined
@@ -314,6 +321,7 @@ export function ChartWheel({
               fill={isSelected ? tint : "#1f1420"}
               stroke={tint}
               strokeWidth={isSelected ? 1.5 : 1}
+              className={interactive ? "transition-all duration-200 ease-out" : undefined}
             />
             <text
               x={pos.x}
@@ -322,6 +330,7 @@ export function ChartWheel({
               dominantBaseline="central"
               fontSize={size * 0.03}
               fill={isSelected ? "#1f1420" : tint}
+              className={interactive ? "transition-colors duration-200 ease-out" : undefined}
             >
               {!interactive && <title>{`${meta.name} — ${pointSign.name}`}</title>}
               {meta.symbol}
@@ -343,7 +352,7 @@ export function ChartWheel({
     <div>
       {wheel}
       {selectedPoint ? (
-        <Card className="mt-4 p-5">
+        <Card key={selectedPoint.key} className="stagger-item mt-4 p-5">
           <div className="flex items-start justify-between gap-3">
             <p className="flex items-center gap-2 font-display text-lg">
               <span className="text-2xl">{planetMap[selectedPoint.key].symbol}</span>
