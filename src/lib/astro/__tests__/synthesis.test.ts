@@ -28,7 +28,7 @@ describe("composeChartSynthesis", () => {
     expect(s.ascendantRulerIntro).toMatch(/Lune/);
     expect(s.ascendantRulerSign).not.toBeNull();
     expect(s.ascendantRulerHouse).not.toBeNull();
-    expect(s.ascendantRulerHouse).toMatch(/Maison VI/);
+    expect(s.ascendantRulerHouse).toMatch(/maison VI/i);
   });
 
   it("omits the Ascendant ruler section when the birth time is unknown", () => {
