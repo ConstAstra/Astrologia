@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { Button } from "@/components/ui/Button";
+import { playClickTick } from "@/lib/sound";
 import type { ZodiacSign } from "@/lib/astro/types";
 
 export interface PickableProfile {
@@ -48,6 +49,7 @@ export function AvatarPairPicker({
   const t = TEXT[locale];
 
   function handlePick(id: string) {
+    playClickTick();
     if (id === a) {
       setA(null);
       return;
@@ -77,12 +79,12 @@ export function AvatarPairPicker({
             <button
               key={p.id}
               onClick={() => handlePick(p.id)}
-              className={`relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-colors ${
+              className={`relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-150 active:scale-95 ${
                 rank ? "border-gold/60 bg-gold/10" : "border-border-soft hover:border-gold/30"
               }`}
             >
               {rank && (
-                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-xs font-bold text-[#1a1508]">
+                <span className="badge-pop-in absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-xs font-bold text-[#1a1508]">
                   {rank}
                 </span>
               )}

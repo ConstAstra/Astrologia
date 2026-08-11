@@ -7,6 +7,7 @@ import { computeAvatarTraits, SKIN_TONES, HAIR_COLORS, CLOTHING_COLORS, HAIR_MAS
 import type { AvatarOverrides } from "./avatarTraits";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { Button } from "@/components/ui/Button";
+import { playClickTick } from "@/lib/sound";
 
 type Locale = "fr" | "en";
 
@@ -105,7 +106,10 @@ function Swatch({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        playClickTick();
+        onClick();
+      }}
       aria-label={label}
       aria-pressed={active}
       className={`h-9 w-9 rounded-full border-2 transition-transform ${
@@ -247,7 +251,10 @@ export function AvatarEditor({
               <button
                 key={i}
                 type="button"
-                onClick={() => setHairMaskIndex(i)}
+                onClick={() => {
+                  playClickTick();
+                  setHairMaskIndex(i);
+                }}
                 className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
                   hairMaskIndex === i
                     ? "border-gold-strong bg-gold/10 text-gold-strong"
