@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { computeDegreeReading } from "@/lib/astro/degrees";
+import { describeDegree } from "@/lib/astro/interpretations/compose";
 
 describe("computeDegreeReading", () => {
   it("assigns the Chaldean decan ruler in sequence (Mars, Sun, Venus, Mercury, Moon, Saturn, Jupiter, repeat)", () => {
@@ -44,5 +45,31 @@ describe("computeDegreeReading", () => {
     expect(fr.decanText).toMatch(/décan/i);
     expect(en.decanText).toMatch(/decan/i);
     expect(en.decanText).not.toMatch(/décan/i);
+  });
+});
+
+describe("describeDegree ruler connection", () => {
+  // 0° Bélier -> decan ruler Mars (see the Chaldean sequence test above).
+  it("omits the ruler-connection sentence when chartPoints isn't provided", () => {
+    const text = describeDegree(0);
+    expect(text).not.toMatch(/maître de ce décan/);
+  });
+
+  it("mentions the ruler's real sign and house once chartPoints is provided", () => {
+    const text = describeDegree(0, "fr", { mars: { longitude: 40, house: 5 } }); // Mars at 10° Taureau
+    expect(text).toMatch(/maître de ce décan, Mars, se trouve lui-même en Taureau \(maison 5\)/);
+  });
+
+  it("flags domicile when the ruler sits on one of its own classical signs", () => {
+    const inDomicile = describeDegree(0, "fr", { mars: { longitude: 5 } }); // 5° Bélier: Mars domicile
+    const notInDomicile = describeDegree(0, "fr", { mars: { longitude: 40 } }); // 10° Taureau: not
+    expect(inDomicile).toMatch(/chez lui/);
+    expect(notInDomicile).not.toMatch(/chez lui/);
+  });
+
+  it("produces bilingual ruler-connection text without leaking the other language", () => {
+    const en = describeDegree(0, "en", { mars: { longitude: 5 } });
+    expect(en).toMatch(/This decan's ruler, Mars, sits in Aries/);
+    expect(en).not.toMatch(/maître de ce décan/);
   });
 });

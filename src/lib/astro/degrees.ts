@@ -1,9 +1,10 @@
 import { degreeInSign } from "./signs";
 import { ZODIAC_SIGNS } from "./types";
+import type { PointKey } from "./types";
 
 /**
  * Interprétation du degré exact occupé par un point, indépendamment du
- * signe. Quatre couches classiques, toutes structurelles (calculées, pas
+ * signe. Cinq couches classiques, toutes structurelles (calculées, pas
  * recopiées d'un texte tiers), et toutes chiffrées au degré-minute près —
  * pas de simple "précoce/médian/tardif" sans le nombre derrière :
  *
@@ -27,6 +28,13 @@ import { ZODIAC_SIGNS } from "./types";
  *    approchés avec un orbe d'1° plutôt qu'une correspondance au degré
  *    entier près, pour ne rien manquer d'un point tombé à quelques minutes
  *    d'un repère traditionnel.
+ * 5. Connexion au maître du décan — quand la position réelle de la
+ *    planète-maîtresse dans le thème de la personne est connue (voir
+ *    describeDegree dans compose.ts, qui fait cette recherche), on indique
+ *    où elle se trouve elle-même (signe, maison), et si elle y est chez
+ *    elle (domicile classique) — pour que la lecture du décan renvoie à un
+ *    point précis et personnel du thème plutôt qu'à une généralité valable
+ *    pour tout le monde né avec le même décan.
  */
 
 const CHALDEAN_SEQUENCE = ["Mars", "Soleil", "Vénus", "Mercure", "Lune", "Saturne", "Jupiter"] as const;
@@ -69,6 +77,34 @@ const DECAN_RULER_TEMPERAMENT: Record<DecanRuler, Temperament> = {
   Lune: { heat: "cold", moisture: "moist" },
   Saturne: { heat: "cold", moisture: "dry" },
   Jupiter: { heat: "hot", moisture: "moist" },
+};
+
+// Point du thème natal correspondant à chaque planète-maîtresse de décan —
+// pour retrouver sa propre position réelle dans le thème de la personne
+// (voir rulerConnectionText), plutôt que de parler du décan uniquement en
+// général comme si la même chose valait pour tout le monde né à ce degré.
+export const DECAN_RULER_TO_POINT_KEY: Record<DecanRuler, PointKey> = {
+  Mars: "mars",
+  Soleil: "sun",
+  Vénus: "venus",
+  Mercure: "mercury",
+  Lune: "moon",
+  Saturne: "saturn",
+  Jupiter: "jupiter",
+};
+
+// Domicile classique (avant la co-régence des planètes modernes) — sert
+// uniquement à signaler si la planète-maîtresse du décan est, dans le
+// thème réel de la personne, sur l'un de ses propres signes : un fait
+// structurel simple (correspondance de signe), pas un jugement de force.
+export const DECAN_RULER_DOMICILE_SIGNS: Record<DecanRuler, string[]> = {
+  Mars: ["belier", "scorpion"],
+  Soleil: ["lion"],
+  Vénus: ["taureau", "balance"],
+  Mercure: ["gemeaux", "vierge"],
+  Lune: ["cancer"],
+  Saturne: ["capricorne", "verseau"],
+  Jupiter: ["sagittaire", "poissons"],
 };
 
 const ELEMENT_TEMPERAMENT: Record<"Feu" | "Terre" | "Air" | "Eau", Temperament> = {

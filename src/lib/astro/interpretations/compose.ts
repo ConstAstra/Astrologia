@@ -20,7 +20,7 @@ import type { LineTypeKey } from "./astrocartography-content";
 import { ASTROCARTO_TEXT_EN, LINE_TYPE_META_EN } from "./astrocartography-content.en";
 import { getPairTheme, isRomanticCodedPair } from "./pair-themes";
 import { getPairThemeEn } from "./pair-themes.en";
-import { computeDegreeReading } from "../degrees";
+import { computeDegreeReading, DECAN_RULER_TO_POINT_KEY, DECAN_RULER_DOMICILE_SIGNS } from "../degrees";
 import { signOf } from "../signs";
 import type { RelationshipType } from "./relationship";
 
@@ -98,10 +98,57 @@ export function describePlanetInSign(
   return `${base}${generationalSuffix}`;
 }
 
-/** Lecture du degré exact (décan, phase précoce/médiane/tardive, degré anarétique ou critique). */
-export function describeDegree(longitude: number, locale: Locale = "fr"): string {
+/**
+ * Où se trouve, dans le thème réel de la personne, la planète qui gouverne
+ * ce décan — pour ancrer la lecture dans SON thème plutôt que dans une
+ * généralité valable pour tout le monde né avec le même décan. `chartPoints`
+ * est optionnel : sans lui (ex. pages SEO génériques sans thème réel), la
+ * phrase est simplement omise.
+ */
+function rulerConnectionText(
+  decanRuler: ReturnType<typeof computeDegreeReading>["decanRuler"],
+  chartPoints: Partial<Record<PointKey, { longitude: number; house?: number }>> | undefined,
+  locale: Locale
+): string {
+  if (!chartPoints) return "";
+  const rulerKey = DECAN_RULER_TO_POINT_KEY[decanRuler];
+  const rulerPoint = chartPoints[rulerKey];
+  if (!rulerPoint) return "";
+
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const rulerSign = signOf(rulerPoint.longitude);
+  const rulerName = planetMap[rulerKey].name;
+  const signName = signMap[rulerSign].name;
+  const isDomicile = DECAN_RULER_DOMICILE_SIGNS[decanRuler].includes(rulerSign);
+
+  if (locale === "en") {
+    const housePart = rulerPoint.house ? ` (house ${rulerPoint.house})` : "";
+    const domicilePart = isDomicile
+      ? " It's even in one of its own signs there, which reinforces this coloring further."
+      : "";
+    return ` This decan's ruler, ${rulerName}, sits in ${signName}${housePart} in your own chart — worth reading alongside this one to see how that influence actually plays out for you.${domicilePart}`;
+  }
+  const housePart = rulerPoint.house ? ` (maison ${rulerPoint.house})` : "";
+  const domicilePart = isDomicile
+    ? " Il y est d'ailleurs chez lui (dans l'un de ses propres signes), ce qui renforce encore cette coloration."
+    : "";
+  return ` Le maître de ce décan, ${rulerName}, se trouve lui-même en ${signName}${housePart} dans votre thème — un point qui vaut la peine d'être lu en écho de celui-ci pour voir comment cette influence se vit concrètement chez vous.${domicilePart}`;
+}
+
+/**
+ * Lecture du degré exact (décan, phase précoce/médiane/tardive, degré
+ * anarétique ou critique). `chartPoints` (optionnel) permet d'ajouter où se
+ * trouve réellement le maître du décan dans le thème de la personne — voir
+ * rulerConnectionText.
+ */
+export function describeDegree(
+  longitude: number,
+  locale: Locale = "fr",
+  chartPoints?: Partial<Record<PointKey, { longitude: number; house?: number }>>
+): string {
   const r = computeDegreeReading(longitude, locale);
-  const parts = [r.decanText, r.phaseText];
+  const parts = [r.decanText + rulerConnectionText(r.decanRuler, chartPoints, locale), r.phaseText];
   if (r.isAnaretic) parts.push(r.anareticText!);
   if (r.isCritical) parts.push(r.criticalText!);
   return parts.join(" ");
