@@ -127,6 +127,68 @@ const PAIR_THEMES: Partial<Record<string, string>> = {
     "L'axe le plus lent du thème, à l'échelle de plusieurs générations : la rencontre entre la dissolution des repères et la transformation profonde des structures collectives. Rarement une signature individuelle, il se lit surtout à travers la maison qu'il occupe, là où une génération entière est amenée à réinventer ce en quoi elle croit.",
   "pluto-uranus":
     "Un axe générationnel marquant, souvent associé à des périodes de bouleversement radical et de remise en cause profonde des structures établies. Dans un thème individuel, c'est la maison qu'il occupe qui donne la clé : c'est là que cette tension collective entre rupture et transformation prend une couleur personnelle.",
+
+  // Paires impliquant le Nœud Nord — jusqu'ici absentes, ce qui privait
+  // chaque aspect reçu par le Nœud Nord (donc toute la section "aspects"
+  // de la Mission de vie) du thème de fond que tous les autres points ont
+  // déjà. Ici, la "planète familière" rencontre la direction de croissance
+  // plutôt qu'un autre trait de caractère : la tension type n'est donc pas
+  // "qui l'emporte" mais "cette énergie sert-elle l'évolution, ou la retient-elle".
+  "northNode-sun":
+    "Le rapport entre l'identité déjà construite et la direction vers laquelle il faut grandir : ce que l'on est déjà (Soleil) rencontre ce que l'on est appelé·e à devenir (Nœud Nord), pas toujours dans le même sens. Cet axe indique si le sens de soi déjà acquis sert de tremplin vers cette évolution, ou s'il s'y accroche par peur de perdre ce qu'on connaît déjà.",
+  "moon-northNode":
+    "Le dialogue entre le besoin de sécurité affective et la direction vers laquelle il faut grandir : ce qui rassure (Lune) n'est pas toujours ce qui fait avancer (Nœud Nord). Cet axe montre si ce besoin de sécurité freine l'évolution par attachement au connu, ou s'il finit par trouver, plus loin, un nouveau terrain où se sentir en sécurité autrement.",
+  "mercury-northNode":
+    "Le rapport entre la façon de penser et de communiquer et la direction vers laquelle il faut grandir : les idées et les mots familiers (Mercure) ne mènent pas toujours spontanément vers ce qui fait évoluer (Nœud Nord). Cet axe indique si la pensée sert de pont vers cette croissance, ou si elle reste un refuge intellectuel qui évite le vrai changement.",
+  "northNode-venus":
+    "Le rapport entre ce qu'on aime, ce qu'on valorise, et la direction vers laquelle il faut grandir : les attachements et les goûts familiers (Vénus) ne pointent pas toujours vers ce qui fait évoluer (Nœud Nord). Cet axe montre si les valeurs déjà acquises soutiennent cette croissance, ou si elles retiennent par confort et habitude affective.",
+  "mars-northNode":
+    "Le rapport entre l'action, le désir d'agir, et la direction vers laquelle il faut grandir : les réflexes offensifs familiers (Mars) ne servent pas toujours spontanément ce qui fait évoluer (Nœud Nord). Cet axe indique si l'énergie d'action se met au service de cette croissance, ou si elle s'épuise à défendre un territoire déjà connu.",
+  "jupiter-northNode":
+    "La rencontre entre la confiance, l'envie d'aller plus loin, et la direction vers laquelle il faut grandir : l'élan d'expansion (Jupiter) peut accélérer cette évolution (Nœud Nord), ou au contraire la disperser dans trop de directions à la fois. Cet axe indique si l'optimisme sert un vrai cap, ou s'il se contente de promesses jamais concrétisées.",
+  "northNode-saturn":
+    "Le rapport entre le sens des responsabilités, des limites, et la direction vers laquelle il faut grandir : la structure et la prudence familières (Saturne) peuvent freiner cette évolution (Nœud Nord) par peur de l'échec, ou au contraire lui donner la discipline nécessaire pour durer. Cet axe indique si la rigueur devient une alliée de cette croissance, ou un obstacle qui la retarde indéfiniment.",
+  "northNode-uranus":
+    "Le rapport entre le besoin de liberté, de rupture, et la direction vers laquelle il faut grandir : l'énergie de changement (Uranus) peut accélérer cette évolution (Nœud Nord), ou la disperser en changements de cap trop fréquents pour vraiment aboutir. Cet axe indique si cette indépendance sert un vrai cap personnel, ou si elle devient une fuite permanente qui empêche de s'engager dans la direction choisie.",
+  "neptune-northNode":
+    "Le rapport entre l'inspiration, le besoin de sens, et la direction vers laquelle il faut grandir : l'idéal et l'intuition (Neptune) peuvent nourrir cette évolution (Nœud Nord) d'une vraie vision, ou la diluer dans le flou, dans l'attente d'un signe qui ne vient jamais. Cet axe indique si cette part rêveuse éclaire le chemin à suivre, ou si elle sert d'excuse pour ne jamais vraiment s'y engager.",
+  "northNode-pluto":
+    "Le rapport entre la force de transformation profonde et la direction vers laquelle il faut grandir : l'intensité et le besoin de contrôle (Pluton) peuvent pousser cette évolution (Nœud Nord) avec une détermination rare, ou la retarder par peur de perdre la maîtrise en s'aventurant vers l'inconnu. Cet axe indique si cette puissance sert vraiment la croissance choisie, ou si elle s'accroche au pouvoir déjà acquis sur le terrain familier.",
+  "asc-northNode":
+    "Le rapport entre l'image spontanée que l'on projette et la direction vers laquelle il faut grandir : la façon d'aborder le monde déjà installée (Ascendant) peut soutenir cette évolution (Nœud Nord), ou au contraire la contredire, comme si le personnage joué au premier abord retardait le changement intérieur en cours. Cet axe indique si l'image de soi évolue avec cette croissance, ou si elle reste figée dans une posture plus rassurante mais dépassée.",
+  "mc-northNode":
+    "Le rapport entre la vocation, la direction publique d'une vie, et la direction vers laquelle il faut grandir intérieurement : le chemin professionnel ou social visé (Milieu du Ciel) peut être exactement ce qui sert cette évolution (Nœud Nord), ou rester un but plus confortable qui évite le vrai changement à faire. Cet axe indique si la réussite visée sert une évolution réelle, ou si elle reste une façon de paraître avancer sans vraiment bouger.",
+
+  // Paires impliquant l'Ascendant ou le Milieu du Ciel non couvertes
+  // ci-dessus — deux angles omniprésents (toujours présents dès qu'une
+  // heure de naissance est connue) qui, sans thème de fond dédié, laissaient
+  // beaucoup d'aspects réels (natal, synastrie, composite, transit) sans
+  // cette couche de lecture alors que la quasi-totalité des paires
+  // planète-planète l'ont déjà.
+  "asc-mercury":
+    "Ce qui se joue entre l'image spontanée et la façon de penser et de s'exprimer : la manière de parler ou de raisonner devient, ici, un trait immédiatement perceptible de la présentation de soi. Cet axe indique si la vivacité d'esprit sert la première impression donnée, ou si elle se traduit par une nervosité verbale qui trahit une présence moins assurée qu'elle n'y paraît.",
+  "mc-mercury":
+    "Le lien entre la vocation et la façon de penser et de communiquer : un chemin professionnel ou social où la parole, l'écrit ou la réflexion occupent une place centrale, presque inévitable. Cet axe montre si cette aisance intellectuelle sert directement la reconnaissance recherchée, ou si elle reste un outil qui ne trouve jamais la direction où vraiment s'exprimer.",
+  "asc-venus":
+    "Ce qui se joue entre l'image spontanée et le charme, le goût, la capacité à séduire sans effort : une présence qui, au premier abord, dégage une aisance relationnelle ou esthétique reconnaissable. Cet axe indique si cette grâce naturelle ouvre facilement les échanges, ou si elle reste une façade agréable qui ne dit rien de ce qu'on ressent vraiment en dessous.",
+  "mc-venus":
+    "Le lien entre la vocation et le sens esthétique, relationnel ou financier : un chemin professionnel ou social où le goût, la diplomatie ou le rapport à la beauté jouent un rôle concret, parfois décisif. Cet axe montre si ce sens du beau et du plaisant sert vraiment la réussite visée, ou s'il reste un atout secondaire jamais pleinement exploité.",
+  "asc-mars":
+    "Ce qui se joue entre l'image spontanée et l'énergie d'action : une présence qui frappe par son dynamisme, sa capacité à s'affirmer ou à en découdre dès le premier abord. Cet axe indique si cette combativité ouvre la voie à une vraie affirmation de soi, ou si elle se traduit par une impression d'agressivité ou d'impatience qui précède la vraie rencontre.",
+  "mars-mc":
+    "Le lien entre la vocation et l'énergie d'action : un chemin professionnel ou social qui se construit par la combativité, l'initiative, le goût de se mesurer à un objectif concret. Cet axe montre si cette énergie sert efficacement l'ambition visée, ou si elle s'épuise en luttes de pouvoir qui détournent de l'objectif réel.",
+  "asc-jupiter":
+    "Ce qui se joue entre l'image spontanée et la confiance, l'optimisme, le sens de l'ampleur : une présence qui inspire souvent d'emblée la générosité ou l'assurance, parfois jusqu'à l'excès. Cet axe indique si cette aisance naturelle attire la confiance des autres, ou si elle donne une impression de facilité ou de démesure qui peut sembler moins sincère qu'elle ne l'est.",
+  "jupiter-mc":
+    "Le lien entre la vocation et la confiance, l'ambition, le sens de l'opportunité : un chemin professionnel ou social porté par l'optimisme et le goût de viser large. Cet axe montre si cet élan se traduit en réussite concrète et durable, ou s'il reste une promesse d'ampleur jamais tout à fait tenue.",
+  "asc-saturn":
+    "Ce qui se joue entre l'image spontanée et le sens des responsabilités, de la retenue : une présence qui peut sembler sérieuse, réservée, parfois plus âgée ou plus prudente qu'elle ne l'est vraiment. Cet axe indique si cette maturité apparente inspire confiance et respect, ou si elle installe une distance, une difficulté à se montrer spontané·e dès le premier abord.",
+  "mc-saturn":
+    "Le lien entre la vocation et le sens des responsabilités, de la discipline : un chemin professionnel construit patiemment, souvent avec une exigence élevée envers soi-même. Cet axe montre si cette rigueur porte ses fruits dans la durée — une réussite qui se construit lentement mais solidement — ou si elle installe un doute permanent sur le fait de ne jamais être assez à la hauteur.",
+  "mc-moon":
+    "Le lien entre la vocation et le besoin de sécurité affective : un chemin professionnel ou social où le besoin d'être reconnu·e, entouré·e ou utile à un cercle proche joue un rôle réel. Cet axe indique si la réussite visée nourrit vraiment ce besoin de sécurité, ou si elle reste une quête de reconnaissance qui ne comble jamais tout à fait le manque affectif sous-jacent.",
+  "asc-mc":
+    "L'axe le plus structurant après Soleil-Lune : la rencontre entre l'image spontanée donnée au monde (Ascendant) et la direction publique, la vocation vers laquelle on avance (Milieu du Ciel). Cet axe indique si la façon de se présenter au quotidien sert naturellement l'ambition visée, ou si un décalage s'installe entre l'image donnée au premier abord et le chemin réellement poursuivi.",
 };
 
 // Thèmes de fond formulés en langage de couple (désir, séduction,

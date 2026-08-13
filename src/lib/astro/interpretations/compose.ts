@@ -183,6 +183,20 @@ function deContract(phrase: string): string {
   return `de ${phrase}`;
 }
 
+// Contraction de "à" + "le"/"les" en "au"/"aux" quand un connecteur
+// d'aspect se termine par "à" (ex. "se superpose à", "peine à s'ajuster à")
+// et que l'objet qui suit porte un article généré par frArticle — évite les
+// "se superpose à le Nœud Nord" mal formés. "la"/"l'" ne contractent pas et
+// restent inchangés ; les connecteurs qui ne se terminent pas par "à"
+// (contre/avec/etc.) n'ont de toute façon rien à contracter.
+function joinConnector(connector: string, articledObject: string): string {
+  if (connector.endsWith("à")) {
+    if (articledObject.startsWith("le ")) return `${connector.slice(0, -1)}au ${articledObject.slice(3)}`;
+    if (articledObject.startsWith("les ")) return `${connector.slice(0, -1)}aux ${articledObject.slice(4)}`;
+  }
+  return `${connector} ${articledObject}`;
+}
+
 /**
  * Signification, en synastrie, du fait que la planète de l'une des deux
  * personnes ("guest") tombe dans une maison natale de l'autre ("host").
@@ -255,7 +269,7 @@ export function describeAspect(
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
   const article = meta.genderFr === "f" ? "une" : "un";
 
-  return `${subjectA} ${meta.transitConnector} ${objectB}${relationSuffix} (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence}`;
+  return `${subjectA} ${joinConnector(meta.transitConnector, objectB)}${relationSuffix} (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence}`;
 }
 
 /**
@@ -340,7 +354,8 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
   const manifestation = TRANSIT_MANIFESTATIONS[aspect.transitingPlanet]?.[meta.tone];
   const manifestationSentence = manifestation ? ` Concrètement, pour la relation, ça peut se traduire par : ${manifestation}` : "";
 
-  return `${transitName} en transit ${meta.transitConnector} ${frArticle(aspect.natalPoint, compositeName)}${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
+  const compositeObject = `${frArticle(aspect.natalPoint, compositeName)}${compositeName}`;
+  return `${transitName} en transit ${joinConnector(meta.transitConnector, compositeObject)} du thème composite de votre relation (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
 }
 
 /** Aspect de synastrie réactivé aujourd'hui par un transit sur le point natal de l'un des deux partenaires. */
@@ -389,7 +404,8 @@ export function describeActivatedSynastryAspect(
   const manifestationSentence = manifestation
     ? ` Concrètement, entre vous deux, ça peut se traduire par : ${manifestation}`
     : " C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.";
-  return `La dynamique ${synMeta.name.toLowerCase()} (${synMeta.symbol}) entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} s'active aujourd'hui : ${transitPlanetName} en transit ${transitMeta.transitConnector} ${personArticle}${personName} de ${personLabel} (écart à l'exact : ${gap}°) — ${transitArticle} ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) en langage astrologique.${themeSentence}${manifestationSentence}`;
+  const personObject = `${personArticle}${personName} de ${personLabel}`;
+  return `La dynamique ${synMeta.name.toLowerCase()} (${synMeta.symbol}) entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} s'active aujourd'hui : ${transitPlanetName} en transit ${joinConnector(transitMeta.transitConnector, personObject)} (écart à l'exact : ${gap}°) — ${transitArticle} ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) en langage astrologique.${themeSentence}${manifestationSentence}`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, locale: Locale = "fr"): string {

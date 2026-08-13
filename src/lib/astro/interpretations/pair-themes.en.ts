@@ -117,6 +117,56 @@ const PAIR_THEMES_EN: Partial<Record<string, string>> = {
     "The slowest axis in the chart, unfolding across several generations: the meeting between the dissolving of shared reference points and the deep transformation of collective structures. Rarely a personal signature on its own, it mainly shows up through the house it occupies — where an entire generation is led to reinvent what it believes in.",
   "pluto-uranus":
     "A notable generational axis, often associated with periods of radical upheaval and a deep questioning of established structures. In an individual chart, the house it occupies is the key detail: that's where this collective tension between rupture and transformation takes on a personal color.",
+
+  "northNode-sun":
+    "The relationship between the identity already built and the direction one is meant to grow into: what one already is (Sun) meets what one is called to become (North Node), not always pointing the same way. This axis shows whether the already-built sense of self acts as a springboard for that growth, or clings to it out of fear of losing what's already known.",
+  "moon-northNode":
+    "The dialogue between the need for emotional security and the direction one is meant to grow into: what feels reassuring (Moon) isn't always what moves things forward (North Node). This axis shows whether that need for security holds the growth back through attachment to the familiar, or eventually finds new ground, further out, where security can be felt in a different way.",
+  "mercury-northNode":
+    "The relationship between the way of thinking and communicating and the direction one is meant to grow into: familiar ideas and words (Mercury) don't always spontaneously lead toward what fosters growth (North Node). This axis shows whether the mind acts as a bridge toward that growth, or stays an intellectual refuge that avoids the real change.",
+  "northNode-venus":
+    "The relationship between what one loves and values and the direction one is meant to grow into: familiar attachments and tastes (Venus) don't always point toward what fosters growth (North Node). This axis shows whether already-held values support that growth, or hold it back through comfort and emotional habit.",
+  "mars-northNode":
+    "The relationship between action, the drive to act, and the direction one is meant to grow into: familiar offensive reflexes (Mars) don't always spontaneously serve what fosters growth (North Node). This axis shows whether that active energy gets put to work for the growth, or wears itself out defending already-familiar territory.",
+  "jupiter-northNode":
+    "The meeting between confidence, the urge to go further, and the direction one is meant to grow into: the drive to expand (Jupiter) can accelerate that growth (North Node), or scatter it across too many directions at once. This axis shows whether the optimism serves a real direction, or settles for promises never quite delivered.",
+  "northNode-saturn":
+    "The relationship between a sense of responsibility and limits and the direction one is meant to grow into: familiar structure and caution (Saturn) can slow that growth (North Node) out of fear of failure, or give it the discipline it needs to last. This axis shows whether the rigor becomes an ally of the growth, or an obstacle that delays it indefinitely.",
+  "northNode-uranus":
+    "The relationship between the need for freedom and rupture and the direction one is meant to grow into: the energy of change (Uranus) can speed that growth (North Node) up, or scatter it across too many sudden changes of course to ever really land. This axis shows whether that independence serves a genuine personal direction, or becomes a permanent escape that prevents committing to the direction chosen.",
+  "neptune-northNode":
+    "The relationship between inspiration, the need for meaning, and the direction one is meant to grow into: idealism and intuition (Neptune) can feed that growth (North Node) with real vision, or dissolve it into vagueness, waiting for a sign that never comes. This axis shows whether that dreamy streak lights the way forward, or serves as an excuse to never quite commit to it.",
+  "northNode-pluto":
+    "The relationship between deep transformative power and the direction one is meant to grow into: intensity and the need for control (Pluto) can push that growth (North Node) forward with rare determination, or delay it out of fear of losing control by venturing into the unknown. This axis shows whether that power genuinely serves the chosen growth, or clings to power already held on familiar ground.",
+  "asc-northNode":
+    "The relationship between the spontaneous image one projects and the direction one is meant to grow into: the already-settled way of approaching the world (Ascendant) can support that growth (North Node), or work against it, as if the persona shown at first glance were holding back the inner change underway. This axis shows whether the self-image evolves along with that growth, or stays frozen in a more reassuring but outdated posture.",
+  "mc-northNode":
+    "The relationship between vocation, the public direction of a life, and the direction one is meant to grow into inwardly: the professional or social path aimed for (Midheaven) can be exactly what serves that growth (North Node), or stay a more comfortable goal that avoids the real change needed. This axis shows whether the success being pursued serves a genuine evolution, or stays a way of appearing to move forward without really moving.",
+
+  "asc-mercury":
+    "What plays out between the spontaneous image and the way of thinking and expressing oneself: the way of speaking or reasoning becomes, here, an immediately noticeable trait of one's self-presentation. This axis shows whether quickness of mind serves the first impression given, or shows up as a verbal nervousness that betrays a presence less sure of itself than it appears.",
+  "mc-mercury":
+    "The link between vocation and the way of thinking and communicating: a professional or social path where speaking, writing, or thinking occupy a central, almost inevitable place. This axis shows whether that intellectual ease directly serves the recognition sought, or stays a tool that never finds the direction where it can truly express itself.",
+  "asc-venus":
+    "What plays out between the spontaneous image and charm, taste, an effortless capacity to attract: a presence that, at first glance, gives off a recognizable relational or aesthetic ease. This axis shows whether that natural grace easily opens exchanges, or stays a pleasant surface that says nothing about what's actually felt underneath.",
+  "mc-venus":
+    "The link between vocation and aesthetic, relational, or financial sensibility: a professional or social path where taste, diplomacy, or a relationship to beauty play a concrete, sometimes decisive role. This axis shows whether that sense of the beautiful and pleasant genuinely serves the success being pursued, or stays a secondary asset never fully put to use.",
+  "asc-mars":
+    "What plays out between the spontaneous image and the energy of action: a presence that stands out for its drive, its capacity to assert itself or push back from the very first glance. This axis shows whether that combativeness opens the way to genuine self-assertion, or shows up as an impression of aggressiveness or impatience that precedes the real encounter.",
+  "mars-mc":
+    "The link between vocation and the energy of action: a professional or social path built through combativeness, initiative, a taste for measuring oneself against a concrete goal. This axis shows whether that energy efficiently serves the ambition aimed for, or wears itself out in power struggles that pull away from the real goal.",
+  "asc-jupiter":
+    "What plays out between the spontaneous image and confidence, optimism, a sense of scale: a presence that often inspires generosity or assurance right away, sometimes to excess. This axis shows whether that natural ease draws others' trust, or gives an impression of glibness or excess that can seem less sincere than it really is.",
+  "jupiter-mc":
+    "The link between vocation and confidence, ambition, a sense of opportunity: a professional or social path carried by optimism and a taste for aiming big. This axis shows whether that drive translates into concrete, lasting success, or stays a promise of scale never quite delivered on.",
+  "asc-saturn":
+    "What plays out between the spontaneous image and a sense of responsibility, restraint: a presence that can come across as serious, reserved, sometimes older or more cautious than it really is. This axis shows whether that apparent maturity inspires trust and respect, or sets up a distance, a difficulty showing up spontaneously at first glance.",
+  "mc-saturn":
+    "The link between vocation and a sense of responsibility, discipline: a professional path built patiently, often with high standards for oneself. This axis shows whether that rigor pays off over time — success built slowly but solidly — or sets up a permanent doubt about never quite measuring up.",
+  "mc-moon":
+    "The link between vocation and the need for emotional security: a professional or social path where the need to be recognized, surrounded, or useful to a close circle plays a real role. This axis shows whether the success being pursued genuinely feeds that need for security, or stays a quest for recognition that never quite fills the underlying emotional gap.",
+  "asc-mc":
+    "The most structuring axis after Sun-Moon: the meeting between the spontaneous image shown to the world (Ascendant) and the public direction, the vocation one is moving toward (Midheaven). This axis shows whether the way one shows up day to day naturally serves the ambition aimed for, or whether a gap sets in between the image given at first glance and the path actually being pursued.",
 };
 
 function pairKey(a: PointKey, b: PointKey): string {
