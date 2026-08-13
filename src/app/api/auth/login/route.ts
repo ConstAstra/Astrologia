@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSessionCookie } from "@/lib/auth/session";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
+import { hasSiteAccess } from "@/lib/site-access";
 
 const MESSAGES = {
   fr: {
@@ -11,12 +12,14 @@ const MESSAGES = {
     wrongLogin: "E-mail ou mot de passe incorrect.",
     tooManyAttempts: "Trop de tentatives, réessayez dans quelques minutes.",
     genericError: "Une erreur est survenue, réessayez.",
+    siteLocked: "Accès non autorisé.",
   },
   en: {
     invalidCredentials: "Invalid credentials.",
     wrongLogin: "Incorrect email or password.",
     tooManyAttempts: "Too many attempts, please try again in a few minutes.",
     genericError: "Something went wrong, please try again.",
+    siteLocked: "Access not authorized.",
   },
 } as const;
 
@@ -36,6 +39,12 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const locale: Locale = body?.locale === "en" ? "en" : "fr";
   const m = MESSAGES[locale];
+
+  // Voir la même garde dans /api/auth/register : le Proxy laisse passer
+  // tout /api sans vérifier le verrou du site.
+  if (!(await hasSiteAccess())) {
+    return NextResponse.json({ error: m.siteLocked }, { status: 403 });
+  }
 
   if (loginLimiter.isLimited(clientIp(request))) {
     return NextResponse.json({ error: m.tooManyAttempts }, { status: 429 });

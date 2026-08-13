@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { createSessionCookie } from "@/lib/auth/session";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
+import { hasSiteAccess } from "@/lib/site-access";
 
 const MESSAGES = {
   fr: {
@@ -15,6 +16,7 @@ const MESSAGES = {
     alreadyExists: "Un compte existe déjà avec cet e-mail.",
     genericError: "Une erreur est survenue, réessayez.",
     tooManyAttempts: "Trop de tentatives, réessayez dans quelques minutes.",
+    siteLocked: "Accès non autorisé.",
   },
   en: {
     invalidEmail: "Invalid email address",
@@ -23,6 +25,7 @@ const MESSAGES = {
     alreadyExists: "An account already exists with this email.",
     genericError: "Something went wrong, please try again.",
     tooManyAttempts: "Too many attempts, please try again in a few minutes.",
+    siteLocked: "Access not authorized.",
   },
 } as const;
 
@@ -50,6 +53,13 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const locale: Locale = body?.locale === "en" ? "en" : "fr";
   const m = MESSAGES[locale];
+
+  // Le Proxy laisse passer tout /api sans vérifier le verrou du site (voir
+  // proxy.ts) — sans ce contrôle, n'importe qui pouvait créer un compte en
+  // appelant cette route directement, sans jamais passer par /acces.
+  if (!(await hasSiteAccess())) {
+    return NextResponse.json({ error: m.siteLocked }, { status: 403 });
+  }
 
   if (registerLimiter.isLimited(clientIp(request))) {
     return NextResponse.json({ error: m.tooManyAttempts }, { status: 429 });

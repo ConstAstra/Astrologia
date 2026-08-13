@@ -5,6 +5,7 @@ import { createPasswordResetToken } from "@/lib/auth/passwordReset";
 import { sendEmail } from "@/lib/email";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 import { escapeHtml } from "@/lib/html";
+import { hasSiteAccess } from "@/lib/site-access";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -26,6 +27,7 @@ const TEXT = {
       <p><a href="${resetUrl}">${resetUrl}</a></p>
       <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail.</p>
     `,
+    siteLocked: "Accès non autorisé.",
   },
   en: {
     successMessage: "If an account exists for this address, a reset email has just been sent.",
@@ -37,6 +39,7 @@ const TEXT = {
       <p><a href="${resetUrl}">${resetUrl}</a></p>
       <p>If you didn't request this, simply ignore this email.</p>
     `,
+    siteLocked: "Access not authorized.",
   },
 };
 
@@ -48,6 +51,13 @@ export async function POST(request: Request) {
   }
 
   const t = TEXT[parsed.data.locale];
+
+  // Voir la même garde dans /api/auth/register : le Proxy laisse passer
+  // tout /api sans vérifier le verrou du site — sans elle, n'importe qui
+  // pouvait déclencher un envoi d'e-mail vers une adresse arbitraire.
+  if (!(await hasSiteAccess())) {
+    return NextResponse.json({ error: t.siteLocked }, { status: 403 });
+  }
 
   if (forgotPasswordLimiter.isLimited(clientIp(request))) {
     // Même réponse "succès" que le cas nominal : ne jamais révéler qu'un

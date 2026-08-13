@@ -5,6 +5,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { consumePasswordResetToken } from "@/lib/auth/passwordReset";
 import { createSessionCookie } from "@/lib/auth/session";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
+import { hasSiteAccess } from "@/lib/site-access";
 
 const schema = z.object({
   token: z.string().min(1),
@@ -16,6 +17,12 @@ const schema = z.object({
 const resetPasswordLimiter = createRateLimiter({ max: 10, windowMs: 60 * 60_000 });
 
 export async function POST(request: Request) {
+  // Voir la même garde dans /api/auth/register : le Proxy laisse passer
+  // tout /api sans vérifier le verrou du site.
+  if (!(await hasSiteAccess())) {
+    return NextResponse.json({ error: "Accès non autorisé." }, { status: 403 });
+  }
+
   if (resetPasswordLimiter.isLimited(clientIp(request))) {
     return NextResponse.json({ error: "Trop de tentatives, réessayez dans quelques minutes." }, { status: 429 });
   }
