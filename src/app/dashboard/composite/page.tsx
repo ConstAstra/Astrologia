@@ -31,7 +31,7 @@ import { ChartWheel } from "@/components/chart/ChartWheel";
 
 type Locale = "fr" | "en";
 
-const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc"];
+const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "fortune"];
 
 const TEXT: Record<
   Locale,

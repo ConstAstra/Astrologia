@@ -40,6 +40,7 @@ const DISPLAY_ORDER: PointKey[] = [
   "neptune",
   "pluto",
   "northNode",
+  "fortune",
 ];
 
 const ASPECT_COLOR: Record<string, string> = {
