@@ -67,6 +67,8 @@ const NAV_TEXT: Record<
     login: string;
     cta: string;
     switchTo: string;
+    openMenu: string;
+    closeMenu: string;
   }
 > = {
   fr: {
@@ -82,6 +84,8 @@ const NAV_TEXT: Record<
     login: "Connexion",
     cta: "Créer mon thème",
     switchTo: "EN",
+    openMenu: "Ouvrir le menu",
+    closeMenu: "Fermer le menu",
   },
   en: {
     horoscope: "Horoscope",
@@ -96,6 +100,8 @@ const NAV_TEXT: Record<
     login: "Log in",
     cta: "Create my chart",
     switchTo: "FR",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
 };
 
@@ -105,6 +111,7 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
   const switchHref = locale === "en" ? HREFS.fr.home : HREFS.en.home;
   const pathname = usePathname();
   const [generalOpen, setGeneralOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const generalItems = [
@@ -123,6 +130,14 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
   function scheduleCloseGeneral() {
     closeTimeout.current = setTimeout(() => setGeneralOpen(false), 150);
   }
+
+  const mobileLinks = [
+    { href: hrefs.horoscope, label: t.horoscope },
+    { href: hrefs.compatibility, label: t.compatibility },
+    ...generalItems,
+    { href: hrefs.pricing, label: t.pricing },
+    { href: hrefs.login, label: t.login },
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border-soft bg-background/70 backdrop-blur-md">
@@ -177,11 +192,63 @@ export function SiteHeader({ locale = "fr" }: { locale?: Locale }) {
         </nav>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <ButtonLink href={hrefs.signup} size="sm">
-            {t.cta}
-          </ButtonLink>
+          <span className="hidden sm:inline-flex">
+            <ButtonLink href={hrefs.signup} size="sm">
+              {t.cta}
+            </ButtonLink>
+          </span>
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
+            aria-controls="site-mobile-menu"
+            aria-label={mobileOpen ? t.closeMenu : t.openMenu}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border-soft text-foreground lg:hidden"
+          >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
+              {mobileOpen ? (
+                <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              ) : (
+                <path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {mobileOpen && (
+        <nav id="site-mobile-menu" className="border-t border-border-soft bg-background px-6 py-4 lg:hidden">
+          <ul className="space-y-1 text-sm">
+            {mobileLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block rounded-lg px-3 py-2.5 ${
+                    pathname?.startsWith(link.href) ? "bg-gold/10 text-gold-strong" : "text-muted hover:bg-gold/5 hover:text-foreground"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex items-center gap-3 border-t border-border-soft pt-4">
+            <div className="flex-1" onClick={() => setMobileOpen(false)}>
+              <ButtonLink href={hrefs.signup} size="sm" className="w-full justify-center">
+                {t.cta}
+              </ButtonLink>
+            </div>
+            <Link
+              href={switchHref}
+              onClick={() => setMobileOpen(false)}
+              className="rounded-full border border-border-soft px-3 py-2 text-xs text-muted hover:text-foreground"
+            >
+              {t.switchTo}
+            </Link>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }

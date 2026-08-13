@@ -34,6 +34,8 @@ const TEXT: Record<
     streakDay: string;
     streakDays: string;
     addProfile: string;
+    openMenu: string;
+    closeMenu: string;
   }
 > = {
   fr: {
@@ -57,6 +59,8 @@ const TEXT: Record<
     logout: "Déconnexion",
     streakDay: "jour",
     streakDays: "jours",
+    openMenu: "Ouvrir le menu",
+    closeMenu: "Fermer le menu",
   },
   en: {
     natalChart: "Natal chart",
@@ -79,6 +83,8 @@ const TEXT: Record<
     streakDay: "day",
     streakDays: "days",
     addProfile: "Add a profile",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
 };
 
@@ -103,6 +109,7 @@ export function DashboardNav({
   const router = useRouter();
   const t = TEXT[locale];
   const [compatOpen, setCompatOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const horoscopeHref = locale === "en" ? "/en/horoscope" : "/horoscope";
@@ -120,9 +127,20 @@ export function DashboardNav({
     { href: horoscopeHref, label: t.horoscope, hint: undefined },
   ];
 
-  const secondaryLinks = [
+  const secondaryLinks: { href: string; label: string; hint?: undefined }[] = [
     { href: "/dashboard/amis", label: t.friends },
     { href: "/dashboard/abonnement", label: t.subscription },
+  ];
+
+  // Menu mobile : les mêmes liens que la nav desktop (repliée sous xl), mais
+  // à plat plutôt qu'en sous-menu déroulant — plus simple à parcourir au
+  // doigt qu'un survol de souris qui n'existe pas sur tactile.
+  const mobileLinks = [
+    { href: "/dashboard/profils", label: t.profiles, hint: undefined },
+    mainLinks[0],
+    ...compatItems,
+    ...mainLinks.slice(1),
+    ...secondaryLinks,
   ];
 
   function openCompat() {
@@ -223,11 +241,57 @@ export function DashboardNav({
           <span className="hidden max-w-[14ch] truncate text-muted 2xl:inline">{email}</span>
           <ThemeToggle />
           <LocaleToggle locale={locale} />
-          <button onClick={logout} className="whitespace-nowrap text-muted hover:text-foreground">
+          <button onClick={logout} className="hidden whitespace-nowrap text-muted hover:text-foreground sm:inline">
             {t.logout}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
+            aria-controls="dashboard-mobile-menu"
+            aria-label={mobileOpen ? t.closeMenu : t.openMenu}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-soft text-foreground xl:hidden"
+          >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
+              {mobileOpen ? (
+                <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              ) : (
+                <path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              )}
+            </svg>
           </button>
         </div>
       </div>
+
+      {mobileOpen && (
+        <nav id="dashboard-mobile-menu" className="border-t border-border-soft bg-background px-4 py-4 sm:px-6 xl:hidden">
+          <ul className="space-y-1 text-sm">
+            {mobileLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  title={link.hint}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block rounded-lg px-3 py-2.5 ${
+                    pathname.startsWith(link.href) ? "bg-gold/10 text-gold-strong" : "text-muted hover:bg-gold/5 hover:text-foreground"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => {
+              setMobileOpen(false);
+              logout();
+            }}
+            className="mt-3 block w-full rounded-lg border-t border-border-soft px-3 pt-4 text-left text-sm text-muted hover:text-foreground sm:hidden"
+          >
+            {t.logout}
+          </button>
+        </nav>
+      )}
     </header>
   );
 }
