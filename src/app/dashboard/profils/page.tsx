@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
-import { FREE_PROFILE_LIMIT, isAvatarGlowing, STREAK_GLOW_THRESHOLD } from "@/lib/billing/entitlements";
+import { FREE_PROFILE_LIMIT, isAvatarGlowing, isPremiumActive, STREAK_GLOW_THRESHOLD } from "@/lib/billing/entitlements";
 import { DeleteProfileButton } from "@/components/dashboard/DeleteProfileButton";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { quickSunSign, quickMoonSign } from "@/lib/astro/quick";
@@ -21,6 +21,7 @@ const TEXT: Record<
     eyebrow: string;
     heading: string;
     quota: (count: number, limit: number) => string;
+    quotaPremium: string;
     addProfile: string;
     emptyHeading: string;
     empty: string;
@@ -47,6 +48,7 @@ const TEXT: Record<
     eyebrow: "Vos profils",
     heading: "Thèmes enregistrés",
     quota: (count, limit) => `${count} / ${limit} profils sur l'offre gratuite.`,
+    quotaPremium: "Profils illimités (Premium).",
     addProfile: "+ Ajouter un profil",
     emptyHeading: "Votre ciel vous attend",
     empty: "Ajoutez votre date, heure et lieu de naissance : positions planétaires, maisons et aspects se calculent en quelques secondes.",
@@ -78,6 +80,7 @@ const TEXT: Record<
     eyebrow: "Your profiles",
     heading: "Saved charts",
     quota: (count, limit) => `${count} / ${limit} profiles on the free plan.`,
+    quotaPremium: "Unlimited profiles (Premium).",
     addProfile: "+ Add a profile",
     emptyHeading: "Your sky is waiting",
     empty: "Add your birth date, time and place: planetary positions, houses and aspects compute in seconds.",
@@ -120,6 +123,7 @@ export default async function ProfilsPage() {
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const isPremium = isPremiumActive(user);
   const glowing = isAvatarGlowing(user);
   const daysUntilGlow = Math.max(0, STREAK_GLOW_THRESHOLD - user.currentStreak);
 
@@ -154,7 +158,9 @@ export default async function ProfilsPage() {
         <div>
           <Eyebrow>{t.eyebrow}</Eyebrow>
           <h1 className="font-display mt-2 text-3xl">{t.heading}</h1>
-          <p className="mt-1 text-sm text-muted">{t.quota(profiles.length, FREE_PROFILE_LIMIT)}</p>
+          <p className="mt-1 text-sm text-muted">
+            {isPremium ? t.quotaPremium : t.quota(profiles.length, FREE_PROFILE_LIMIT)}
+          </p>
         </div>
         <ButtonLink href="/dashboard/profils/nouveau">{t.addProfile}</ButtonLink>
       </div>
@@ -261,7 +267,7 @@ export default async function ProfilsPage() {
         </Card>
       )}
 
-      {profiles.length > 0 && profiles.length < FREE_PROFILE_LIMIT && (
+      {!isPremium && profiles.length > 0 && profiles.length < FREE_PROFILE_LIMIT && (
         <Card className="mt-8 overflow-hidden p-6">
           <div className="flex items-start gap-4">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/5 text-lg text-gold-strong">

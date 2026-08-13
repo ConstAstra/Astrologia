@@ -64,6 +64,8 @@ export function canonicalPair(a: string, b?: string | null): [string, string | u
 }
 
 export async function canCreateProfile(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  if (isPremiumActive(user)) return true;
   const count = await prisma.profile.count({ where: { userId } });
   return count < FREE_PROFILE_LIMIT;
 }
