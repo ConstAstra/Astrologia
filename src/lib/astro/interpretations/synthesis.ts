@@ -1,18 +1,37 @@
-import type { NatalChart, PointKey } from "../types";
+import { PLANET_KEYS, type NatalChart, type PointKey } from "../types";
 import { computeBigThree, computeDominance } from "../dominance";
 import { computeAspects } from "../aspects";
 import { signOf } from "../signs";
-import { describeAspect, describePlanetInSign, describePlanetInHouse, type Locale } from "./compose";
+import {
+  describeAspect,
+  describePlanetInSign,
+  describePlanetInHouse,
+  frArticle,
+  type Locale,
+} from "./compose";
 import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
 import { PLANET_META } from "./planets";
 import { PLANET_META_EN } from "./planets.en";
+import { HOUSE_META } from "./houses";
+import { HOUSE_META_EN } from "./houses.en";
+import { SIGN_RULER } from "./rulership";
 
-// Points comparés entre eux pour repérer contradictions et forces : les
-// planètes personnelles + les deux angles majeurs (Ascendant, Milieu du
-// Ciel), qui structurent l'identité et la trajectoire — pas les planètes
-// lentes, dont les aspects mutuels marquent surtout une génération.
-const SYNTHESIS_POINTS: PointKey[] = ["sun", "moon", "mercury", "venus", "mars", "asc", "mc"];
+// Planètes personnelles + les deux angles majeurs (Ascendant, Milieu du
+// Ciel), qui structurent l'identité et la trajectoire de façon strictement
+// individuelle.
+const PERSONAL_AND_ANGLES: PointKey[] = ["sun", "moon", "mercury", "venus", "mars", "asc", "mc"];
+// Planètes lentes : leurs aspects entre elles marquent surtout une
+// génération entière (voir dominance.ts), mais un aspect entre l'une
+// d'elles et un point personnel reste, lui, individuel et significatif —
+// on ne les exclut donc que des paires purement lentes-lentes plus bas.
+const OUTER_POINTS: PointKey[] = ["jupiter", "saturn", "uranus", "neptune", "pluto", "northNode"];
+const SYNTHESIS_POINTS: PointKey[] = [...PERSONAL_AND_ANGLES, ...OUTER_POINTS];
+
+// Occupants possibles d'une maison, pour la lecture "domaines de vie" —
+// tous les points mobiles du thème (les angles sont les pointes de maison
+// elles-mêmes, pas des occupants).
+const DOMAIN_OCCUPANT_KEYS: PointKey[] = [...PLANET_KEYS, "fortune"];
 
 const TENSE_ASPECT_KEYS = ["square", "opposition", "semi-square", "sesquiquadrate", "quincunx"];
 const FLOWING_ASPECT_KEYS = ["trine", "sextile"];
@@ -46,6 +65,12 @@ const ELEMENT_KEYWORD: Record<Locale, Record<string, string>> = {
 
 const MODALITY_NAME_EN: Record<string, string> = { Cardinal: "Cardinal", Fixe: "Fixed", Mutable: "Mutable" };
 
+export interface LifeDomainReading {
+  house: number;
+  title: string;
+  text: string;
+}
+
 export interface ChartSynthesis {
   overview: string;
   ascendantRulerIntro: string | null;
@@ -53,6 +78,71 @@ export interface ChartSynthesis {
   ascendantRulerHouse: string | null;
   contradictions: string[];
   strengths: string[];
+  lifeDomains: LifeDomainReading[];
+}
+
+/**
+ * Parcourt les 12 maisons une à une pour que la synthèse couvre tout le
+ * thème, domaine de vie par domaine de vie — pas seulement Big 3 et
+ * quelques aspects. Une maison occupée réutilise describePlanetInHouse
+ * (déjà écrit, planète par planète) pour chaque occupant ; une maison vide
+ * se lit indirectement à travers le signe sur sa pointe et la position de
+ * son maître ailleurs dans le thème — une lecture classique en astrologie,
+ * plutôt que de la passer sous silence faute de planète dedans.
+ */
+function buildLifeDomains(chart: NatalChart, locale: Locale = "fr"): LifeDomainReading[] {
+  if (!chart.hasReliableHouses) return [];
+
+  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+
+  const domains: LifeDomainReading[] = [];
+
+  for (let houseNumber = 1; houseNumber <= 12; houseNumber++) {
+    const house = houseList[houseNumber - 1];
+    const occupants = DOMAIN_OCCUPANT_KEYS.filter((key) => chart.points[key]?.house === houseNumber);
+
+    if (occupants.length > 0) {
+      const paragraphs = occupants.map((key) => describePlanetInHouse(key, houseNumber, locale)).join(" ");
+      const names = occupants.map((key) => planetMap[key].name).join(locale === "en" ? " and " : " et ");
+      const intro =
+        occupants.length > 1
+          ? locale === "en"
+            ? `${house.name} concentrates several placements at once (${names}) — a domain that carries real weight in this chart. `
+            : `${house.name} concentre plusieurs placements à la fois (${names}) — un domaine qui pèse particulièrement dans ce thème. `
+          : "";
+      domains.push({ house: houseNumber, title: house.name, text: `${intro}${paragraphs}` });
+      continue;
+    }
+
+    const cuspSign = signOf(chart.houses.cusps[houseNumber - 1]);
+    const cuspSignName = signMap[cuspSign].name;
+    const rulerKey = SIGN_RULER[cuspSign];
+    const rulerPoint = chart.points[rulerKey];
+    const rulerName = planetMap[rulerKey].name;
+
+    let text: string;
+    if (locale === "en") {
+      const rulerPlace = rulerPoint
+        ? ` In this chart, ${rulerName} sits in ${signMap[signOf(rulerPoint.longitude)].name}${
+            rulerPoint.house ? `, house ${rulerPoint.house}` : ""
+          } — that placement is where this domain's real story actually plays out.`
+        : "";
+      text = `${house.name} holds no planet of its own: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
+    } else {
+      const rulerPlace = rulerPoint
+        ? ` Dans ce thème, ${rulerName} se trouve en ${signMap[signOf(rulerPoint.longitude)].name}${
+            rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
+          } — c'est là que se joue concrètement l'histoire réelle de ce domaine.`
+        : "";
+      text = `${house.name} n'abrite aucune planète en propre : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
+    }
+
+    domains.push({ house: houseNumber, title: house.name, text });
+  }
+
+  return domains;
 }
 
 /**
@@ -158,19 +248,24 @@ export function composeChartSynthesis(chart: NatalChart, locale: Locale = "fr"):
     }
   }
 
-  const keyAspects = computeAspects(chart.points, SYNTHESIS_POINTS).sort(
-    (a, b) => Math.abs(a.exact) - Math.abs(b.exact)
-  );
+  // Un aspect entre deux planètes lentes (ex. Uranus-Neptune) marque surtout
+  // une génération entière plutôt que la personne — on ne garde donc que les
+  // aspects touchant au moins un point personnel ou un angle.
+  const keyAspects = computeAspects(chart.points, SYNTHESIS_POINTS)
+    .filter((a) => PERSONAL_AND_ANGLES.includes(a.a) || PERSONAL_AND_ANGLES.includes(a.b))
+    .sort((a, b) => Math.abs(a.exact) - Math.abs(b.exact));
 
-  const tense = keyAspects.filter((a) => TENSE_ASPECT_KEYS.includes(a.aspect)).slice(0, 2);
+  const tense = keyAspects.filter((a) => TENSE_ASPECT_KEYS.includes(a.aspect)).slice(0, 4);
   for (const a of tense) {
     contradictions.push(describeAspect(a, "natal", undefined, locale));
   }
 
-  const flowing = keyAspects.filter((a) => FLOWING_ASPECT_KEYS.includes(a.aspect)).slice(0, 2);
+  const flowing = keyAspects.filter((a) => FLOWING_ASPECT_KEYS.includes(a.aspect)).slice(0, 4);
   for (const a of flowing) {
     strengths.push(describeAspect(a, "natal", undefined, locale));
   }
+
+  const lifeDomains = buildLifeDomains(chart, locale);
 
   return {
     overview,
@@ -179,5 +274,6 @@ export function composeChartSynthesis(chart: NatalChart, locale: Locale = "fr"):
     ascendantRulerHouse,
     contradictions,
     strengths,
+    lifeDomains,
   };
 }

@@ -34,12 +34,12 @@ const GENERATIONAL_POINTS = new Set<PointKey>(["uranus", "neptune", "pluto"]);
 // point est inséré dans une phrase — évite de coder "le" en dur devant des
 // points féminins (Lune, Vénus, Part de Fortune) ou masculins à voyelle
 // initiale (Ascendant, Uranus).
-function frArticle(point: PointKey, name: string): string {
+export function frArticle(point: PointKey, name: string): string {
   if (/^[aeiouyàâäéèêëîïôöùûü]/i.test(name)) return "l'";
   return PLANET_GENDER_FR[point] === "f" ? "la " : "le ";
 }
 
-function frArticleCap(point: PointKey, name: string): string {
+export function frArticleCap(point: PointKey, name: string): string {
   const article = frArticle(point, name);
   return article.charAt(0).toUpperCase() + article.slice(1);
 }

@@ -88,6 +88,8 @@ const TEXT: Record<
     synthesisContradictionsIntro: string;
     synthesisStrengthsHeading: string;
     synthesisStrengthsIntro: string;
+    synthesisLifeDomainsHeading: string;
+    synthesisLifeDomainsIntro: string;
     noneDetected: string;
     viewingAsFriend: (name: string) => string;
   }
@@ -127,6 +129,8 @@ const TEXT: Record<
     synthesisContradictionsIntro: "Là où deux logiques de votre thème tirent dans des directions différentes.",
     synthesisStrengthsHeading: "Vos points d'appui",
     synthesisStrengthsIntro: "Là où plusieurs parties de votre thème travaillent naturellement dans le même sens.",
+    synthesisLifeDomainsHeading: "Tous les domaines de votre vie",
+    synthesisLifeDomainsIntro: "Maison par maison, ce que votre thème dit de chaque grand domaine — occupé ou non.",
     noneDetected: "Aucun élément notable détecté ici.",
     viewingAsFriend: (name) => `Vous voyez le thème de ${name} en tant qu'ami — lecture seule.`,
   },
@@ -165,6 +169,8 @@ const TEXT: Record<
     synthesisContradictionsIntro: "Where two logics in your chart pull in different directions.",
     synthesisStrengthsHeading: "Your points of strength",
     synthesisStrengthsIntro: "Where several parts of your chart naturally work in the same direction.",
+    synthesisLifeDomainsHeading: "Every area of your life",
+    synthesisLifeDomainsIntro: "House by house, what your chart says about each major life domain — occupied or not.",
     noneDetected: "No notable element detected here.",
     viewingAsFriend: (name) => `You're viewing ${name}'s chart as a friend — read-only.`,
   },
@@ -408,6 +414,21 @@ export default async function ThemeNatalPage({
                 )}
               </div>
             </div>
+
+            {synthesis.lifeDomains.length > 0 && (
+              <div className="mt-6 border-t border-border-soft pt-6">
+                <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisLifeDomainsHeading}</p>
+                <p className="mt-1 text-xs text-muted/70">{t.synthesisLifeDomainsIntro}</p>
+                <div className="mt-3 space-y-4">
+                  {synthesis.lifeDomains.map((domain) => (
+                    <div key={domain.house}>
+                      <p className="text-sm font-medium">{domain.title}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-muted">{domain.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </Card>
         ) : (
           <UnlockGate feature="synthesis" profileIdA={profile.id} credits={user.credits} locale={locale} compact />
