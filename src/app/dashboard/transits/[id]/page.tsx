@@ -41,12 +41,17 @@ const FORECAST_DAYS = 7;
 
 const TEXT: Record<Locale, {
   eyebrow: string;
+  transitIntro: string;
   illuminated: (pct: number) => string;
   planetsToday: string;
   majorAspects: string;
   orbNote: string;
   noMajor: string;
   minorAspects: string;
+  todayVsNatal: string;
+  natalSuffix: string;
+  retrogradeLabel: string;
+  retrogradeNote: string;
   today: string;
   tomorrow: string;
   lockedTitle: string;
@@ -70,12 +75,20 @@ const TEXT: Record<Locale, {
 }> = {
   fr: {
     eyebrow: "Transits",
+    transitIntro:
+      "Un « transit », c'est la position des planètes aujourd'hui, comparée à celle qu'elles occupaient le jour de votre naissance. Quand une planète du jour touche un point sensible de votre thème, ça active quelque chose — parfois une ambiance, parfois un événement concret.",
     illuminated: (pct) => `${pct}% illuminée`,
     planetsToday: "Planètes en transit",
     majorAspects: "Aspects actifs majeurs",
-    orbNote: "Orbes resserrées (un transit se joue sur quelques jours). Les aspects mineurs sont listés plus bas.",
+    orbNote:
+      "Seuls les contacts les plus serrés sont retenus ici (leur écart à l'exact, qu'on appelle l'« orbe », est faible) — un transit se joue sur quelques jours. Les aspects mineurs, plus discrets, sont listés plus bas.",
     noMajor: "Aucun aspect majeur en transit dans les orbes retenues.",
     minorAspects: "Aspects actifs mineurs",
+    todayVsNatal: "aujourd'hui, vers votre",
+    natalSuffix: " natal",
+    retrogradeLabel: "Rétrograde",
+    retrogradeNote:
+      "« Rétrograde » : vue depuis la Terre, la planète semble reculer dans le ciel — un effet d'optique dû aux vitesses orbitales, mais que la tradition lit comme un temps de relecture plutôt que d'action pour ce qu'elle représente.",
     today: "Aujourd'hui",
     tomorrow: "Demain",
     lockedTitle: "Voyez venir vos prochains jours",
@@ -101,12 +114,20 @@ const TEXT: Record<Locale, {
   },
   en: {
     eyebrow: "Transits",
+    transitIntro:
+      "A \"transit\" is where the planets sit today, compared to where they sat on the day you were born. When today's sky touches a sensitive point in your chart, it activates something — sometimes a mood, sometimes a concrete event.",
     illuminated: (pct) => `${pct}% illuminated`,
     planetsToday: "Planets in transit",
     majorAspects: "Active major aspects",
-    orbNote: "Tight orbs (a transit plays out over a few days). Minor aspects are listed further below.",
+    orbNote:
+      "Only the tightest contacts are kept here (their gap to exact, called the \"orb\", is small) — a transit plays out over a few days. The subtler minor aspects are listed further below.",
     noMajor: "No major aspect in transit within the orbs used.",
     minorAspects: "Active minor aspects",
+    todayVsNatal: "today, reaching your",
+    natalSuffix: " (natal)",
+    retrogradeLabel: "Retrograde",
+    retrogradeNote:
+      "\"Retrograde\": seen from Earth, the planet appears to move backward across the sky — an optical effect of orbital speeds, but one tradition reads as a time for revisiting rather than acting on whatever that planet represents.",
     today: "Today",
     tomorrow: "Tomorrow",
     lockedTitle: "See your upcoming days coming",
@@ -287,6 +308,7 @@ export default async function TransitsPage({
       <Eyebrow>{t.eyebrow}</Eyebrow>
       <h1 className="font-display mt-2 text-3xl">{displayLabel}</h1>
       <p className="mt-1 text-sm capitalize text-muted">{dateLabel}</p>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{t.transitIntro}</p>
       {!isOwner && (
         <p className="mt-2 inline-block rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs text-gold-strong">
           {t.viewingAsFriend(displayLabel)}
@@ -397,7 +419,7 @@ export default async function TransitsPage({
                       <span className="font-medium">
                         {planetMap[key].symbol} {planetMap[key].name}
                       </span>
-                      {point.retrograde && <Badge tone="terracotta">Rx</Badge>}
+                      {point.retrograde && <Badge tone="terracotta">{t.retrogradeLabel}</Badge>}
                     </div>
                     <p className="mt-1 text-gold-strong">
                       {formatLongitude(point.longitude)} {signMap[sign].name}
@@ -406,6 +428,9 @@ export default async function TransitsPage({
                 );
               })}
             </div>
+            {PLANET_KEYS.some((key) => transiting[key].retrograde) && (
+              <p className="mt-3 text-xs leading-relaxed text-muted">{t.retrogradeNote}</p>
+            )}
           </section>
 
           <section className="mt-10">
@@ -507,8 +532,10 @@ export default async function TransitsPage({
                 <Card key={i} className="p-4">
                   <div className="flex items-center justify-between text-sm">
                     <p className="font-medium">
-                      {planetMap[aspect.transitingPlanet].symbol} {planetMap[aspect.transitingPlanet].name} (transit){" "}
-                      {aspectMap[aspect.aspect].symbol} {planetMap[aspect.natalPoint]?.symbol} {planetMap[aspect.natalPoint]?.name} (natal)
+                      {planetMap[aspect.transitingPlanet].symbol} {planetMap[aspect.transitingPlanet].name}{" "}
+                      <span className="font-normal text-muted">{t.todayVsNatal}</span>{" "}
+                      {planetMap[aspect.natalPoint]?.symbol} {planetMap[aspect.natalPoint]?.name}
+                      {t.natalSuffix}
                     </p>
                     <Badge
                       tone={
@@ -536,8 +563,10 @@ export default async function TransitsPage({
                   <Card key={i} className="p-4">
                     <div className="flex items-center justify-between text-sm">
                       <p className="font-medium">
-                        {planetMap[aspect.transitingPlanet].symbol} {planetMap[aspect.transitingPlanet].name} (transit){" "}
-                        {aspectMap[aspect.aspect].symbol} {planetMap[aspect.natalPoint]?.symbol} {planetMap[aspect.natalPoint]?.name} (natal)
+                        {planetMap[aspect.transitingPlanet].symbol} {planetMap[aspect.transitingPlanet].name}{" "}
+                        <span className="font-normal text-muted">{t.todayVsNatal}</span>{" "}
+                        {planetMap[aspect.natalPoint]?.symbol} {planetMap[aspect.natalPoint]?.name}
+                        {t.natalSuffix}
                       </p>
                       <Badge>{aspectMap[aspect.aspect].name}</Badge>
                     </div>
