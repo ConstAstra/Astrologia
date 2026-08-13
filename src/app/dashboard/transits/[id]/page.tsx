@@ -15,6 +15,7 @@ import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeTransitAspect, type Locale } from "@/lib/astro/interpretations/compose";
+import { composeTransitDaySummary } from "@/lib/astro/interpretations/day-summary";
 import { MOON_PHASE_TEXT } from "@/lib/astro/interpretations/moonphase-content";
 import { MOON_PHASE_TEXT_EN, MOON_PHASE_LABEL_EN } from "@/lib/astro/interpretations/moonphase-content.en";
 import { composeSocialWeather } from "@/lib/astro/interpretations/social-weather";
@@ -52,6 +53,10 @@ const TEXT: Record<Locale, {
   natalSuffix: string;
   retrogradeLabel: string;
   retrogradeNote: string;
+  daySummaryTitle: string;
+  daySummaryPremiumBadge: string;
+  daySummaryLockedBody: string;
+  daySummaryUnlock: string;
   today: string;
   tomorrow: string;
   lockedTitle: string;
@@ -89,6 +94,11 @@ const TEXT: Record<Locale, {
     retrogradeLabel: "Rétrograde",
     retrogradeNote:
       "« Rétrograde » : vue depuis la Terre, la planète semble reculer dans le ciel — un effet d'optique dû aux vitesses orbitales, mais que la tradition lit comme un temps de relecture plutôt que d'action pour ce qu'elle représente.",
+    daySummaryTitle: "Résumé du jour",
+    daySummaryPremiumBadge: "Premium",
+    daySummaryLockedBody:
+      "Une lecture d'ensemble de la journée en un paragraphe, plutôt qu'une liste d'aspects à recomposer soi-même — réservée à Premium.",
+    daySummaryUnlock: "Débloquer avec Premium",
     today: "Aujourd'hui",
     tomorrow: "Demain",
     lockedTitle: "Voyez venir vos prochains jours",
@@ -128,6 +138,10 @@ const TEXT: Record<Locale, {
     retrogradeLabel: "Retrograde",
     retrogradeNote:
       "\"Retrograde\": seen from Earth, the planet appears to move backward across the sky — an optical effect of orbital speeds, but one tradition reads as a time for revisiting rather than acting on whatever that planet represents.",
+    daySummaryTitle: "Day summary",
+    daySummaryPremiumBadge: "Premium",
+    daySummaryLockedBody: "A one-paragraph overview of the day, instead of a list of aspects to piece together yourself — a Premium feature.",
+    daySummaryUnlock: "Unlock with Premium",
     today: "Today",
     tomorrow: "Tomorrow",
     lockedTitle: "See your upcoming days coming",
@@ -248,6 +262,7 @@ export default async function TransitsPage({
   const minorAspects = transitAspects.filter((a) => !a.major);
   const transiting = computeTransitingPositions(target);
   const moon = computeMoonPhase(target);
+  const daySummary = isPremium ? composeTransitDaySummary(majorAspects, moon.waxing, locale) : null;
   const wheelAscendant = chart.hasReliableHouses ? chart.houses.ascendant : 0;
   const wheelNatalPoints = PLANET_KEYS.filter((k) => chart.points[k]).map((k) => ({
     key: k,
@@ -371,6 +386,25 @@ export default async function TransitsPage({
           {t.datePickerSubmit}
         </button>
       </form>
+
+      {!locked && (
+        <Card className="mt-6 p-5">
+          <div className="flex items-center justify-between">
+            <Eyebrow>{t.daySummaryTitle}</Eyebrow>
+            <Badge tone="gold">{t.daySummaryPremiumBadge}</Badge>
+          </div>
+          {daySummary ? (
+            <p className="mt-2 text-sm leading-relaxed">{daySummary}</p>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-muted">{t.daySummaryLockedBody}</p>
+              <ButtonLink href="/dashboard/abonnement" size="sm" className="mt-3">
+                {t.daySummaryUnlock}
+              </ButtonLink>
+            </>
+          )}
+        </Card>
+      )}
 
       <div className={`relative mt-6 ${locked ? "max-h-[640px] overflow-hidden" : ""}`}>
         <div className={locked ? "pointer-events-none select-none blur-sm" : undefined} aria-hidden={locked}>
