@@ -580,8 +580,9 @@ export default async function ThemeNatalPage({
                 <Card key={i} className="p-4">
                   <div className="flex items-center justify-between text-sm">
                     <p className="font-medium">
-                      {planetMap[aspect.a].symbol} {planetMap[aspect.a].name} {aspectMap[aspect.aspect].symbol}{" "}
-                      {planetMap[aspect.b].symbol} {planetMap[aspect.b].name}
+                      {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
+                      <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol}{" "}
+                      {planetMap[aspect.b].name}
                     </p>
                     <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
                       {aspectMap[aspect.aspect].name}

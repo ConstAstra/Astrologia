@@ -50,6 +50,7 @@ const TEXT: Record<
     planetsOf: (b: string, a: string) => string;
     inHouse: (house: number) => string;
     compatibilityLabel: string;
+    personPlanet: (label: string, symbol: string, name: string) => string;
   }
 > = {
   fr: {
@@ -64,6 +65,7 @@ const TEXT: Record<
     planetsOf: (b, a) => `Planètes de ${b} dans les maisons de ${a}`,
     inHouse: (house) => `en maison ${house} —`,
     compatibilityLabel: "Compatibilité astrologique",
+    personPlanet: (label, symbol, name) => `${symbol} ${name} de ${label}`,
   },
   en: {
     synastry: "Synastry",
@@ -77,6 +79,7 @@ const TEXT: Record<
     planetsOf: (b, a) => `${b}'s planets in ${a}'s houses`,
     inHouse: (house) => `in house ${house} —`,
     compatibilityLabel: "Astrological compatibility",
+    personPlanet: (label, symbol, name) => `${label}'s ${symbol} ${name}`,
   },
 };
 
@@ -324,9 +327,9 @@ export default async function SynastriePage({
               <Card key={i} className="p-4">
                 <div className="flex items-center justify-between text-sm">
                   <p className="font-medium">
-                    A · {planetMap[aspect.personA].symbol} {planetMap[aspect.personA].name}{" "}
-                    {aspectMap[aspect.aspect].symbol} {planetMap[aspect.personB].symbol}{" "}
-                    {planetMap[aspect.personB].name} · B
+                    {t.personPlanet(profileA.label, planetMap[aspect.personA].symbol, planetMap[aspect.personA].name)}{" "}
+                    <span className="font-normal text-muted">↔</span>{" "}
+                    {t.personPlanet(profileB.label, planetMap[aspect.personB].symbol, planetMap[aspect.personB].name)}
                   </p>
                   <Badge
                     tone={

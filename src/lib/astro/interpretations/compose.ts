@@ -196,28 +196,29 @@ export function describeAspect(
     context !== "natal" && relationshipType !== undefined && relationshipType !== "romantique" && isRomanticCodedPair(keyA, keyB);
 
   if (locale === "en") {
-    const subject =
-      context === "synastry"
-        ? `The first person's ${nameA} and the second person's ${nameB}`
-        : context === "composite"
-          ? `The composite chart's ${nameA} and ${nameB}`
-          : `${nameA} and ${nameB}`;
+    const subjectA = context === "synastry" ? `The first person's ${nameA}` : nameA;
+    const objectB = context === "synastry" ? `the second person's ${nameB}` : nameB;
+    const relationSuffix = context === "composite" ? ", in your relationship's composite chart" : "";
     const pairTheme = suppressRomantic ? undefined : getPairThemeEn(keyA, keyB);
     const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
-    return `${subject} form ${meta.name.toLowerCase()} ${meta.symbol} (gap to exact: ${gap}°). ${meta.description}${themeSentence}`;
+    const nameLower = meta.name.toLowerCase();
+    const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
+    return `${subjectA} ${meta.transitConnector} ${objectB}${relationSuffix} (gap to exact: ${gap}°) — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence}`;
   }
 
-  const subject =
+  const subjectA =
     context === "synastry"
-      ? `${frArticleCap(keyA, nameA)}${nameA} de la première personne et ${frArticle(keyB, nameB)}${nameB} de la seconde`
-      : context === "composite"
-        ? `${frArticleCap(keyA, nameA)}${nameA} et ${frArticle(keyB, nameB)}${nameB} du thème composite`
-        : `${nameA} et ${nameB}`;
+      ? `${frArticleCap(keyA, nameA)}${nameA} de la première personne`
+      : `${frArticleCap(keyA, nameA)}${nameA}`;
+  const objectB =
+    context === "synastry" ? `${frArticle(keyB, nameB)}${nameB} de la seconde` : `${frArticle(keyB, nameB)}${nameB}`;
+  const relationSuffix = context === "composite" ? ", dans le thème composite de votre relation" : "";
 
   const pairTheme = suppressRomantic ? undefined : getPairTheme(keyA, keyB);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
+  const article = meta.genderFr === "f" ? "une" : "un";
 
-  return `${subject} forment ${meta.name.toLowerCase()} ${meta.symbol} (écart à l'exact : ${gap}°). ${meta.description}${themeSentence}`;
+  return `${subjectA} ${meta.transitConnector} ${objectB}${relationSuffix} (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence}`;
 }
 
 /**
