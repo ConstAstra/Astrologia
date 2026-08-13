@@ -14,7 +14,12 @@ import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
-import { describeAspect, describeDegree, describePlanetInSign } from "@/lib/astro/interpretations/compose";
+import {
+  describeAspect,
+  describeDegree,
+  describePlanetInHouse,
+  describePlanetInSign,
+} from "@/lib/astro/interpretations/compose";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -178,7 +183,11 @@ export default async function CompositePage({
 
   const composite = computeComposite(chartA, chartB);
   const aspects = computeAspects(composite.points, composite.hasReliableHouses ? DISPLAY_POINTS : [...PLANET_KEYS]);
-  const wheelPoints = DISPLAY_POINTS.filter((k) => composite.points[k]).map((k) => ({ key: k, longitude: composite.points[k].longitude }));
+  const wheelPoints = DISPLAY_POINTS.filter((k) => composite.points[k]).map((k) => ({
+    key: k,
+    longitude: composite.points[k].longitude,
+    house: composite.points[k].house,
+  }));
 
   return (
     <div>
@@ -218,6 +227,11 @@ export default async function CompositePage({
                     <p className="mt-2 text-xs leading-relaxed text-muted">
                       {describePlanetInSign(key, sign, relationshipType, locale)}
                     </p>
+                    {point.house && (
+                      <p className="mt-2 text-xs leading-relaxed text-muted">
+                        {describePlanetInHouse(key, point.house, locale)}
+                      </p>
+                    )}
                     <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
                       {describeDegree(point.longitude, locale, composite.points)}

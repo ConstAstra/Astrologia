@@ -173,6 +173,43 @@ export function describePlanetInHouse(point: PointKey, houseNumber: number, loca
   return `${planet.name} en ${house.name} : cette énergie (${planet.essence}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
 }
 
+// Contraction de "de" + un groupe nominal français commençant par un article
+// défini (le/la/l'/les) — évite les "de les" ou "de le" mal formés quand un
+// keyword de maison/planète (qui inclut déjà son propre article) est inséré
+// après "de" dans une phrase composée.
+function deContract(phrase: string): string {
+  if (/^les /i.test(phrase)) return `des ${phrase.slice(4)}`;
+  if (/^le /i.test(phrase)) return `du ${phrase.slice(3)}`;
+  return `de ${phrase}`;
+}
+
+/**
+ * Signification, en synastrie, du fait que la planète de l'une des deux
+ * personnes ("guest") tombe dans une maison natale de l'autre ("host").
+ * Contrairement au simple mot-clé affiché auparavant, cette fonction relie
+ * la planète invitée au thème de vie complet de la maison d'accueil
+ * (réutilise HOUSE_META.paragraph, déjà écrit pour ça) pour que le lecteur
+ * comprenne concrètement ce que ce recouvrement change au quotidien.
+ */
+export function describeHouseOverlay(
+  point: PointKey,
+  houseNumber: number,
+  guestLabel: string,
+  hostLabel: string,
+  locale: Locale = "fr"
+): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
+  const planet = planetMap[point];
+  const house = houseList[houseNumber - 1];
+  if (!house) return "";
+
+  if (locale === "en") {
+    return `${guestLabel}'s ${planet.name} falls in ${hostLabel}'s house ${houseNumber} (${house.name}): ${guestLabel} tends to bring ${planet.keyword} into ${hostLabel}'s everyday experience of ${house.keyword}. ${house.paragraph}`;
+  }
+  return `${planet.name} de ${guestLabel} tombe dans la maison ${houseNumber} de ${hostLabel} (${house.name}) : ${guestLabel} a tendance à apporter ${planet.keyword} dans le quotidien ${deContract(house.keyword)} chez ${hostLabel}. ${house.paragraph}`;
+}
+
 export function describeAspect(
   aspect: Aspect | SynastryAspect,
   context: "natal" | "synastry" | "composite" = "natal",

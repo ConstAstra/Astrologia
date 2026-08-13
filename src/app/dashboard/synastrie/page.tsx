@@ -12,9 +12,7 @@ import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
-import { describeAspect } from "@/lib/astro/interpretations/compose";
-import { HOUSE_META } from "@/lib/astro/interpretations/houses";
-import { HOUSE_META_EN } from "@/lib/astro/interpretations/houses.en";
+import { describeAspect, describeHouseOverlay } from "@/lib/astro/interpretations/compose";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -48,7 +46,7 @@ const TEXT: Record<
     majorAspects: string;
     noMajorAspects: string;
     planetsOf: (b: string, a: string) => string;
-    inHouse: (house: number) => string;
+    house: string;
     compatibilityLabel: string;
     personPlanet: (label: string, symbol: string, name: string) => string;
   }
@@ -63,7 +61,7 @@ const TEXT: Record<
     majorAspects: "Aspects croisés majeurs",
     noMajorAspects: "Aucun aspect majeur détecté dans les orbes retenues.",
     planetsOf: (b, a) => `Planètes de ${b} dans les maisons de ${a}`,
-    inHouse: (house) => `en maison ${house} —`,
+    house: "Maison",
     compatibilityLabel: "Compatibilité astrologique",
     personPlanet: (label, symbol, name) => `${symbol} ${name} de ${label}`,
   },
@@ -77,7 +75,7 @@ const TEXT: Record<
     majorAspects: "Major cross-aspects",
     noMajorAspects: "No major aspect detected within the orbs used.",
     planetsOf: (b, a) => `${b}'s planets in ${a}'s houses`,
-    inHouse: (house) => `in house ${house} —`,
+    house: "House",
     compatibilityLabel: "Astrological compatibility",
     personPlanet: (label, symbol, name) => `${label}'s ${symbol} ${name}`,
   },
@@ -113,7 +111,6 @@ export default async function SynastriePage({
   const t = TEXT[locale];
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
   const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
-  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
   const relationshipMeta = locale === "en" ? RELATIONSHIP_META_EN : RELATIONSHIP_META;
   const getAspectNote = locale === "en" ? relationshipAspectNoteEn : relationshipAspectNote;
 
@@ -358,13 +355,33 @@ export default async function SynastriePage({
           <h2 className="font-display text-2xl">{t.planetsOf(profileB.label, profileA.label)}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {synastry.bPlanetsInAHouses.map((overlay, i) => (
-              <Card key={i} className="p-4 text-sm">
-                <span className="font-medium">
-                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}
-                </span>{" "}
-                <span className="text-muted">
-                  {t.inHouse(overlay.house)} {houseList[overlay.house - 1].keyword}
-                </span>
+              <Card key={i} className="p-4">
+                <p className="text-sm font-medium">
+                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}{" "}
+                  <span className="font-normal text-muted">— {t.house} {overlay.house}</span>
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  {describeHouseOverlay(overlay.point, overlay.house, profileB.label, profileA.label, locale)}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {chartB.hasReliableHouses && (
+        <section className="mt-10">
+          <h2 className="font-display text-2xl">{t.planetsOf(profileA.label, profileB.label)}</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {synastry.aPlanetsInBHouses.map((overlay, i) => (
+              <Card key={i} className="p-4">
+                <p className="text-sm font-medium">
+                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}{" "}
+                  <span className="font-normal text-muted">— {t.house} {overlay.house}</span>
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  {describeHouseOverlay(overlay.point, overlay.house, profileA.label, profileB.label, locale)}
+                </p>
               </Card>
             ))}
           </div>
