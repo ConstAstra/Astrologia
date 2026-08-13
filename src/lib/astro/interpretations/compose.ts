@@ -20,6 +20,8 @@ import type { LineTypeKey } from "./astrocartography-content";
 import { ASTROCARTO_TEXT_EN, LINE_TYPE_META_EN } from "./astrocartography-content.en";
 import { getPairTheme, isRomanticCodedPair } from "./pair-themes";
 import { getPairThemeEn } from "./pair-themes.en";
+import { TRANSIT_MANIFESTATIONS } from "./transit-manifestations";
+import { TRANSIT_MANIFESTATIONS_EN } from "./transit-manifestations.en";
 import { computeDegreeReading, DECAN_RULER_TO_POINT_KEY, DECAN_RULER_DOMICILE_SIGNS } from "../degrees";
 import { signOf } from "../signs";
 import type { RelationshipType } from "./relationship";
@@ -242,7 +244,9 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
     const orbClause = omitOrb ? "" : ` (orb: ${gap}°)`;
     const nameLower = meta.name.toLowerCase();
     const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
-    return `Transiting ${transitName} ${meta.transitConnector} your natal ${natalName}${orbClause} — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}`;
+    const manifestation = TRANSIT_MANIFESTATIONS_EN[aspect.transitingPlanet]?.[meta.tone];
+    const manifestationSentence = manifestation ? ` Concretely, this can look like: ${manifestation}` : "";
+    return `Transiting ${transitName} ${meta.transitConnector} your natal ${natalName}${orbClause} — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
   }
 
   const timing = aspect.applying
@@ -254,9 +258,11 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
 
   const orbClause = omitOrb ? "" : ` (écart à l'exact : ${gap}°)`;
   const article = meta.genderFr === "f" ? "une" : "un";
+  const manifestation = TRANSIT_MANIFESTATIONS[aspect.transitingPlanet]?.[meta.tone];
+  const manifestationSentence = manifestation ? ` Concrètement, ça peut se traduire par : ${manifestation}` : "";
   return `${transitName} en transit ${meta.transitConnector} votre ${natalName} natal${
     PLANET_GENDER_FR[aspect.natalPoint] === "f" ? "e" : ""
-  }${orbClause} — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}`;
+  }${orbClause} — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
 }
 
 /** Aspect entre une planète en transit (aujourd'hui) et un point du thème composite d'un couple. */
@@ -282,7 +288,9 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
     const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
     const nameLower = meta.name.toLowerCase();
     const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
-    return `Transiting ${transitName} ${meta.transitConnector} the ${compositeName} of your relationship's composite chart (orb: ${gap}°) — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}`;
+    const manifestation = TRANSIT_MANIFESTATIONS_EN[aspect.transitingPlanet]?.[meta.tone];
+    const manifestationSentence = manifestation ? ` Concretely, for the relationship this can look like: ${manifestation}` : "";
+    return `Transiting ${transitName} ${meta.transitConnector} the ${compositeName} of your relationship's composite chart (orb: ${gap}°) — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
   }
 
   const timing = aspect.applying
@@ -291,8 +299,10 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
   const pairTheme = suppressRomantic ? undefined : getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
   const article = meta.genderFr === "f" ? "une" : "un";
+  const manifestation = TRANSIT_MANIFESTATIONS[aspect.transitingPlanet]?.[meta.tone];
+  const manifestationSentence = manifestation ? ` Concrètement, pour la relation, ça peut se traduire par : ${manifestation}` : "";
 
-  return `${transitName} en transit ${meta.transitConnector} ${frArticle(aspect.natalPoint, compositeName)}${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}`;
+  return `${transitName} en transit ${meta.transitConnector} ${frArticle(aspect.natalPoint, compositeName)}${compositeName} du thème composite de votre relation (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
 }
 
 /** Aspect de synastrie réactivé aujourd'hui par un transit sur le point natal de l'un des deux partenaires. */
@@ -324,7 +334,11 @@ export function describeActivatedSynastryAspect(
   if (locale === "en") {
     const pairTheme = suppressRomantic ? undefined : getPairThemeEn(personPoint, partnerPoint);
     const themeSentence = pairTheme ? ` Underlying theme of the bond: ${pairTheme}` : "";
-    return `The ${synMeta.name.toLowerCase()} (${synMeta.symbol}) between ${personLabel}'s ${personName} and ${partnerLabel}'s ${partnerName} is switched on today: transiting ${transitPlanetName} ${transitMeta.transitConnector} ${personLabel}'s ${personName} (orb: ${gap}°) — a ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) in astrological terms.${themeSentence} This is the moment when this dynamic between you two is most likely to manifest concretely.`;
+    const manifestation = TRANSIT_MANIFESTATIONS_EN[transit.transitingPlanet]?.[transitMeta.tone];
+    const manifestationSentence = manifestation
+      ? ` Concretely, between you two this can look like: ${manifestation}`
+      : " This is the moment when this dynamic between you two is most likely to manifest concretely.";
+    return `The ${synMeta.name.toLowerCase()} (${synMeta.symbol}) between ${personLabel}'s ${personName} and ${partnerLabel}'s ${partnerName} is switched on today: transiting ${transitPlanetName} ${transitMeta.transitConnector} ${personLabel}'s ${personName} (orb: ${gap}°) — a ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) in astrological terms.${themeSentence}${manifestationSentence}`;
   }
 
   const pairTheme = suppressRomantic ? undefined : getPairTheme(personPoint, partnerPoint);
@@ -333,7 +347,11 @@ export function describeActivatedSynastryAspect(
   const personArticle = frArticle(personPoint, personName);
   const partnerArticle = frArticle(partnerPoint, partnerName);
   const transitArticle = transitMeta.genderFr === "f" ? "une" : "un";
-  return `La dynamique ${synMeta.name.toLowerCase()} (${synMeta.symbol}) entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} s'active aujourd'hui : ${transitPlanetName} en transit ${transitMeta.transitConnector} ${personArticle}${personName} de ${personLabel} (écart à l'exact : ${gap}°) — ${transitArticle} ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) en langage astrologique.${themeSentence} C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.`;
+  const manifestation = TRANSIT_MANIFESTATIONS[transit.transitingPlanet]?.[transitMeta.tone];
+  const manifestationSentence = manifestation
+    ? ` Concrètement, entre vous deux, ça peut se traduire par : ${manifestation}`
+    : " C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.";
+  return `La dynamique ${synMeta.name.toLowerCase()} (${synMeta.symbol}) entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} s'active aujourd'hui : ${transitPlanetName} en transit ${transitMeta.transitConnector} ${personArticle}${personName} de ${personLabel} (écart à l'exact : ${gap}°) — ${transitArticle} ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) en langage astrologique.${themeSentence}${manifestationSentence}`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, locale: Locale = "fr"): string {
