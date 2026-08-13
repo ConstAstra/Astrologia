@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
+import { isPremiumActive } from "@/lib/billing/entitlements";
+import { isAdminEmail } from "@/lib/admin";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ManageBillingButton } from "@/components/billing/ManageBillingButton";
@@ -57,6 +59,7 @@ const TEXT: Record<Locale, {
   changePassword: string;
   dangerZone: string;
   giftCode: string;
+  adminPremium: string;
 }> = {
   fr: {
     eyebrow: "Abonnement",
@@ -84,6 +87,7 @@ const TEXT: Record<Locale, {
     changePassword: "Mot de passe",
     dangerZone: "Zone dangereuse",
     giftCode: "Un code cadeau ?",
+    adminPremium: "Accès Premium activé via votre statut administrateur — aucun abonnement réel n'est débité.",
   },
   en: {
     eyebrow: "Subscription",
@@ -111,6 +115,7 @@ const TEXT: Record<Locale, {
     changePassword: "Password",
     dangerZone: "Danger zone",
     giftCode: "Got a gift code?",
+    adminPremium: "Premium access granted through your administrator status — no real subscription is being charged.",
   },
 };
 
@@ -127,7 +132,13 @@ export default async function AbonnementPage({
   const t = TEXT[locale];
   const statusLabels = STATUS_LABELS[locale];
 
-  const isPremium = user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing";
+  const isPremium = isPremiumActive(user);
+  // Premium accordé par le statut admin plutôt que par un vrai abonnement :
+  // le badge doit rester cohérent avec isPremiumActive (utilisé partout
+  // ailleurs dans l'app) sans laisser croire à un abonnement Stripe/Apple
+  // qui n'existe pas.
+  const isAdminGrantedPremium =
+    isPremium && isAdminEmail(user.email) && user.subscriptionStatus !== "active" && user.subscriptionStatus !== "trialing";
   const successfulReferrals = await prisma.user.count({
     where: { referredByUserId: user.id, referralRewardGranted: true },
   });
@@ -171,6 +182,7 @@ export default async function AbonnementPage({
             {t.managedVia(user.entitlementSource === "stripe" ? t.stripeWeb : t.appleStore)}
           </p>
         )}
+        {isAdminGrantedPremium && <p className="mt-1 text-xs text-muted/70">{t.adminPremium}</p>}
 
         <p className="mt-4 text-sm text-muted">
           {t.creditsBalance} <span className="text-gold-strong">{user.credits}</span>

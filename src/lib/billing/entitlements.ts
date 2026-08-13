@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isAdminEmail } from "@/lib/admin";
 
 // Volontairement bas : assez pour tester la synastrie (vous + 1 autre)
 // sans lever toute pression à passer Premium, qui vend justement les
@@ -36,7 +37,12 @@ export class PaywallError extends Error {
   }
 }
 
-export function isPremiumActive(user: { subscriptionStatus: string; currentPeriodEnd: Date | null }) {
+// Un compte admin (ADMIN_EMAILS) a toujours accès à Premium, sans jamais
+// passer par Stripe : utile pour tester l'app en conditions réelles, et
+// cohérent avec le principe déjà appliqué à l'accès admin lui-même (une
+// variable d'environnement, jamais un champ modifiable en base).
+export function isPremiumActive(user: { email: string; subscriptionStatus: string; currentPeriodEnd: Date | null }) {
+  if (isAdminEmail(user.email)) return true;
   if (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "trialing") return false;
   if (user.currentPeriodEnd && user.currentPeriodEnd.getTime() < Date.now()) return false;
   return true;
@@ -47,7 +53,7 @@ export function isPremiumActive(user: { subscriptionStatus: string; currentPerio
 // gagné (voir /lib/streak.ts pour les paliers de série).
 export const STREAK_GLOW_THRESHOLD = 7;
 
-export function isAvatarGlowing(user: { subscriptionStatus: string; currentPeriodEnd: Date | null; currentStreak: number }) {
+export function isAvatarGlowing(user: { email: string; subscriptionStatus: string; currentPeriodEnd: Date | null; currentStreak: number }) {
   return isPremiumActive(user) || user.currentStreak >= STREAK_GLOW_THRESHOLD;
 }
 
