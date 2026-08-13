@@ -22,6 +22,10 @@ import { getPairTheme, isRomanticCodedPair } from "./pair-themes";
 import { getPairThemeEn } from "./pair-themes.en";
 import { TRANSIT_MANIFESTATIONS } from "./transit-manifestations";
 import { TRANSIT_MANIFESTATIONS_EN } from "./transit-manifestations.en";
+import { TRANSIT_MANIFESTATIONS_SYNASTRY } from "./transit-manifestations-synastry";
+import { TRANSIT_MANIFESTATIONS_SYNASTRY_EN } from "./transit-manifestations-synastry.en";
+import { TRANSIT_MANIFESTATIONS_COMPOSITE } from "./transit-manifestations-composite";
+import { TRANSIT_MANIFESTATIONS_COMPOSITE_EN } from "./transit-manifestations-composite.en";
 import { computeDegreeReading, DECAN_RULER_TO_POINT_KEY, DECAN_RULER_DOMICILE_SIGNS } from "../degrees";
 import { signOf } from "../signs";
 import type { RelationshipType } from "./relationship";
@@ -340,7 +344,7 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
     const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
     const nameLower = meta.name.toLowerCase();
     const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
-    const manifestation = TRANSIT_MANIFESTATIONS_EN[aspect.transitingPlanet]?.[meta.tone];
+    const manifestation = TRANSIT_MANIFESTATIONS_COMPOSITE_EN[aspect.transitingPlanet]?.[meta.tone];
     const manifestationSentence = manifestation ? ` Concretely, for the relationship this can look like: ${manifestation}` : "";
     return `Transiting ${transitName} ${meta.transitConnector} the ${compositeName} of your relationship's composite chart (orb: ${gap}°) — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
   }
@@ -351,7 +355,7 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
   const pairTheme = suppressRomantic ? undefined : getPairTheme(aspect.transitingPlanet, aspect.natalPoint);
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
   const article = meta.genderFr === "f" ? "une" : "un";
-  const manifestation = TRANSIT_MANIFESTATIONS[aspect.transitingPlanet]?.[meta.tone];
+  const manifestation = TRANSIT_MANIFESTATIONS_COMPOSITE[aspect.transitingPlanet]?.[meta.tone];
   const manifestationSentence = manifestation ? ` Concrètement, pour la relation, ça peut se traduire par : ${manifestation}` : "";
 
   const compositeObject = `${frArticle(aspect.natalPoint, compositeName)}${compositeName}`;
@@ -387,7 +391,7 @@ export function describeActivatedSynastryAspect(
   if (locale === "en") {
     const pairTheme = suppressRomantic ? undefined : getPairThemeEn(personPoint, partnerPoint);
     const themeSentence = pairTheme ? ` Underlying theme of the bond: ${pairTheme}` : "";
-    const manifestation = TRANSIT_MANIFESTATIONS_EN[transit.transitingPlanet]?.[transitMeta.tone];
+    const manifestation = TRANSIT_MANIFESTATIONS_SYNASTRY_EN[transit.transitingPlanet]?.[transitMeta.tone];
     const manifestationSentence = manifestation
       ? ` Concretely, between you two this can look like: ${manifestation}`
       : " This is the moment when this dynamic between you two is most likely to manifest concretely.";
@@ -400,7 +404,7 @@ export function describeActivatedSynastryAspect(
   const personArticle = frArticle(personPoint, personName);
   const partnerArticle = frArticle(partnerPoint, partnerName);
   const transitArticle = transitMeta.genderFr === "f" ? "une" : "un";
-  const manifestation = TRANSIT_MANIFESTATIONS[transit.transitingPlanet]?.[transitMeta.tone];
+  const manifestation = TRANSIT_MANIFESTATIONS_SYNASTRY[transit.transitingPlanet]?.[transitMeta.tone];
   const manifestationSentence = manifestation
     ? ` Concrètement, entre vous deux, ça peut se traduire par : ${manifestation}`
     : " C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.";
