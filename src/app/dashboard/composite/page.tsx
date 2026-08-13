@@ -20,6 +20,7 @@ import {
   describePlanetInHouse,
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
+import { composeCompositeSynthesis } from "@/lib/astro/interpretations/composite-synthesis";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -50,6 +51,15 @@ const TEXT: Record<
     house: string;
     degree: string;
     internalAspects: string;
+    synthesisTitle: string;
+    synthesisOverviewHeading: string;
+    synthesisTensionsHeading: string;
+    synthesisTensionsIntro: string;
+    synthesisStrengthsHeading: string;
+    synthesisStrengthsIntro: string;
+    synthesisLifeDomainsHeading: string;
+    synthesisLifeDomainsIntro: string;
+    noneDetected: string;
   }
 > = {
   fr: {
@@ -62,6 +72,15 @@ const TEXT: Record<
     house: "Maison",
     degree: "Degré —",
     internalAspects: "Aspects internes",
+    synthesisTitle: "Lecture de synthèse",
+    synthesisOverviewHeading: "Vue d'ensemble",
+    synthesisTensionsHeading: "Ses principales tensions",
+    synthesisTensionsIntro: "Les aspects internes qui demandent le plus d'ajustement conscient pour cette relation.",
+    synthesisStrengthsHeading: "Ses principaux points d'appui",
+    synthesisStrengthsIntro: "Les aspects internes qui circulent le plus naturellement pour cette relation.",
+    synthesisLifeDomainsHeading: "Tous les domaines de cette relation",
+    synthesisLifeDomainsIntro: "Maison par maison, ce que le thème composite dit de chaque grand domaine — occupé ou non.",
+    noneDetected: "Aucun détecté dans les orbes retenues.",
   },
   en: {
     composite: "Composite chart",
@@ -73,6 +92,15 @@ const TEXT: Record<
     house: "House",
     degree: "Degree —",
     internalAspects: "Internal aspects",
+    synthesisTitle: "Synthesis reading",
+    synthesisOverviewHeading: "Overview",
+    synthesisTensionsHeading: "Its main tensions",
+    synthesisTensionsIntro: "The internal aspects that ask for the most conscious adjustment in this relationship.",
+    synthesisStrengthsHeading: "Its main points of strength",
+    synthesisStrengthsIntro: "The internal aspects that flow most naturally in this relationship.",
+    synthesisLifeDomainsHeading: "Every area of this relationship",
+    synthesisLifeDomainsIntro: "House by house, what the composite chart says about each major life domain — occupied or not.",
+    noneDetected: "None detected within the orbs used.",
   },
 };
 
@@ -188,11 +216,68 @@ export default async function CompositePage({
     longitude: composite.points[k].longitude,
     house: composite.points[k].house,
   }));
+  const synthesis = composeCompositeSynthesis(composite, relationshipType, locale);
 
   return (
     <div>
       {header}
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].compositeFraming}</Card>
+
+      <Card className="mt-6 p-6">
+        <Eyebrow>{t.synthesisTitle}</Eyebrow>
+
+        <div className="mt-4">
+          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisOverviewHeading}</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.overview}</p>
+        </div>
+
+        <div className="mt-6 border-t border-border-soft pt-6">
+          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisTensionsHeading}</p>
+          <p className="mt-1 text-xs text-muted/70">{t.synthesisTensionsIntro}</p>
+          <div className="mt-3 space-y-3">
+            {synthesis.tensions.length === 0 ? (
+              <p className="text-sm text-muted">{t.noneDetected}</p>
+            ) : (
+              synthesis.tensions.map((s, i) => (
+                <p key={i} className="text-sm leading-relaxed text-muted">
+                  {s}
+                </p>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-border-soft pt-6">
+          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisStrengthsHeading}</p>
+          <p className="mt-1 text-xs text-muted/70">{t.synthesisStrengthsIntro}</p>
+          <div className="mt-3 space-y-3">
+            {synthesis.strengths.length === 0 ? (
+              <p className="text-sm text-muted">{t.noneDetected}</p>
+            ) : (
+              synthesis.strengths.map((s, i) => (
+                <p key={i} className="text-sm leading-relaxed text-muted">
+                  {s}
+                </p>
+              ))
+            )}
+          </div>
+        </div>
+
+        {synthesis.lifeDomains.length > 0 && (
+          <div className="mt-6 border-t border-border-soft pt-6">
+            <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisLifeDomainsHeading}</p>
+            <p className="mt-1 text-xs text-muted/70">{t.synthesisLifeDomainsIntro}</p>
+            <div className="mt-3 space-y-4">
+              {synthesis.lifeDomains.map((domain) => (
+                <div key={domain.house}>
+                  <p className="text-sm font-medium">{domain.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">{domain.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[420px_1fr]">
         <Card className="p-4">

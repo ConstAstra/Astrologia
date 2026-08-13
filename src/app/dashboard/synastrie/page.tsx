@@ -13,6 +13,7 @@ import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeAspect, describeHouseOverlay } from "@/lib/astro/interpretations/compose";
+import { composeSynastrySynthesis } from "@/lib/astro/interpretations/synastry-synthesis";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -49,6 +50,13 @@ const TEXT: Record<
     house: string;
     compatibilityLabel: string;
     personPlanet: (label: string, symbol: string, name: string) => string;
+    synthesisTitle: string;
+    synthesisOverviewHeading: string;
+    synthesisTensionsHeading: string;
+    synthesisTensionsIntro: string;
+    synthesisStrengthsHeading: string;
+    synthesisStrengthsIntro: string;
+    noneDetected: string;
   }
 > = {
   fr: {
@@ -64,6 +72,13 @@ const TEXT: Record<
     house: "Maison",
     compatibilityLabel: "Compatibilité astrologique",
     personPlanet: (label, symbol, name) => `${symbol} ${name} de ${label}`,
+    synthesisTitle: "Lecture de synthèse",
+    synthesisOverviewHeading: "Vue d'ensemble",
+    synthesisTensionsHeading: "Vos principales tensions",
+    synthesisTensionsIntro: "Les aspects croisés qui demandent le plus d'ajustement conscient entre vous deux.",
+    synthesisStrengthsHeading: "Vos principaux points d'appui",
+    synthesisStrengthsIntro: "Les aspects croisés qui circulent le plus naturellement entre vous deux.",
+    noneDetected: "Aucun détecté dans les orbes retenues.",
   },
   en: {
     synastry: "Synastry",
@@ -78,6 +93,13 @@ const TEXT: Record<
     house: "House",
     compatibilityLabel: "Astrological compatibility",
     personPlanet: (label, symbol, name) => `${label}'s ${symbol} ${name}`,
+    synthesisTitle: "Synthesis reading",
+    synthesisOverviewHeading: "Overview",
+    synthesisTensionsHeading: "Your main tensions",
+    synthesisTensionsIntro: "The cross-aspects that ask for the most conscious adjustment between you two.",
+    synthesisStrengthsHeading: "Your main points of strength",
+    synthesisStrengthsIntro: "The cross-aspects that flow most naturally between you two.",
+    noneDetected: "None detected within the orbs used.",
   },
 };
 
@@ -223,6 +245,15 @@ export default async function SynastriePage({
     synastry.aspects,
     locale
   );
+  const synthesis = composeSynastrySynthesis(
+    synastry.aspects,
+    compatibilityPercentage,
+    compatibilityPunch,
+    profileA.label,
+    profileB.label,
+    relationshipType,
+    locale
+  );
 
   const moonA = signOf(chartA.points.moon.longitude);
   const moonB = signOf(chartB.points.moon.longitude);
@@ -313,6 +344,47 @@ export default async function SynastriePage({
       </div>
 
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].synastryFraming}</Card>
+
+      <Card className="mt-6 p-6">
+        <Eyebrow>{t.synthesisTitle}</Eyebrow>
+
+        <div className="mt-4">
+          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisOverviewHeading}</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.overview}</p>
+        </div>
+
+        <div className="mt-6 border-t border-border-soft pt-6">
+          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisTensionsHeading}</p>
+          <p className="mt-1 text-xs text-muted/70">{t.synthesisTensionsIntro}</p>
+          <div className="mt-3 space-y-3">
+            {synthesis.tensions.length === 0 ? (
+              <p className="text-sm text-muted">{t.noneDetected}</p>
+            ) : (
+              synthesis.tensions.map((s, i) => (
+                <p key={i} className="text-sm leading-relaxed text-muted">
+                  {s}
+                </p>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-border-soft pt-6">
+          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisStrengthsHeading}</p>
+          <p className="mt-1 text-xs text-muted/70">{t.synthesisStrengthsIntro}</p>
+          <div className="mt-3 space-y-3">
+            {synthesis.strengths.length === 0 ? (
+              <p className="text-sm text-muted">{t.noneDetected}</p>
+            ) : (
+              synthesis.strengths.map((s, i) => (
+                <p key={i} className="text-sm leading-relaxed text-muted">
+                  {s}
+                </p>
+              ))
+            )}
+          </div>
+        </div>
+      </Card>
 
       <section className="mt-8">
         <h2 className="font-display text-2xl">{t.majorAspects}</h2>

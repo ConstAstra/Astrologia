@@ -132,7 +132,7 @@ function buildLifeDomains(chart: NatalChart, locale: Locale = "fr"): LifeDomainR
       text = `${house.name} holds no planet of its own: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
     } else {
       const rulerPlace = rulerPoint
-        ? ` Dans ce thème, ${rulerName} se trouve en ${signMap[signOf(rulerPoint.longitude)].name}${
+        ? ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName} se trouve en ${signMap[signOf(rulerPoint.longitude)].name}${
             rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
           } — c'est là que se joue concrètement l'histoire réelle de ce domaine.`
         : "";
