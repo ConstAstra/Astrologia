@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Impossible pour une date future." }, { status: 400 });
   }
 
-  const profile = await prisma.profile.findUnique({ where: { id: profileId }, select: { userId: true } });
+  const profile = await prisma.profile.findUnique({ where: { id: profileId, archivedAt: null }, select: { userId: true } });
   if (!profile || profile.userId !== userId) {
     return NextResponse.json({ error: "Non autorisé." }, { status: 403 });
   }

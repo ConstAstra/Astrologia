@@ -160,8 +160,8 @@ export async function listFriendSelfProfiles(userId: string): Promise<FriendSumm
   const friendships = await prisma.friendship.findMany({
     where: { OR: [{ userAId: userId }, { userBId: userId }] },
     include: {
-      userA: { select: { id: true, name: true, profiles: { where: { isSelf: true }, take: 1 } } },
-      userB: { select: { id: true, name: true, profiles: { where: { isSelf: true }, take: 1 } } },
+      userA: { select: { id: true, name: true, profiles: { where: { isSelf: true, archivedAt: null }, take: 1 } } },
+      userB: { select: { id: true, name: true, profiles: { where: { isSelf: true, archivedAt: null }, take: 1 } } },
     },
   });
 

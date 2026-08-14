@@ -208,7 +208,7 @@ export default async function TransitsPage({
   const eventType = isEventType(eventParam) ? eventParam : null;
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findUnique({ where: { id } }),
+    prisma.profile.findUnique({ where: { id, archivedAt: null } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) notFound();

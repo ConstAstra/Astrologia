@@ -56,7 +56,7 @@ export default async function AmisPage() {
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     getOrCreateFriendInvite(userId),
     listFriendSelfProfiles(userId),
-    prisma.profile.findMany({ where: { userId, isSelf: true }, take: 1 }),
+    prisma.profile.findMany({ where: { userId, isSelf: true, archivedAt: null }, take: 1 }),
   ]);
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";

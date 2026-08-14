@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { prisma } from "@/lib/db";
 import { getStripe } from "@/lib/billing/stripe";
 import type { SubscriptionPlanId } from "@/lib/billing/plans";
-import { grantReferralRewardOnce } from "@/lib/billing/entitlements";
+import { grantReferralRewardOnce, restoreArchivedProfiles } from "@/lib/billing/entitlements";
 import { sendEmail } from "@/lib/email";
 
 const PAYMENT_ISSUE_TEXT = {
@@ -56,6 +56,14 @@ async function syncSubscription(subscription: Stripe.Subscription) {
       currentPeriodEnd,
     },
   });
+
+  // Un abonnement qui (re)devient actif désarchive tout de suite les
+  // profils mis de côté pendant une période sans Premium (voir
+  // /dashboard/profils/choisir) — l'utilisateur ne devrait jamais avoir à
+  // redemander explicitement l'accès à un profil qu'il a payé pour garder.
+  if (subscription.status === "active" || subscription.status === "trialing") {
+    await restoreArchivedProfiles(userId);
+  }
 
   // Le parrainage n'est récompensé qu'au premier paiement réel — pas à la
   // création de l'abonnement, qui peut n'être qu'un essai gratuit pas

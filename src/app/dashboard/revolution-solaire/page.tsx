@@ -35,7 +35,7 @@ export default async function RevolutionSolaireIndexPage() {
   const userId = await requireUserId();
   const [profiles, user] = await Promise.all([
     prisma.profile.findMany({
-      where: { userId },
+      where: { userId, archivedAt: null },
       orderBy: [{ isSelf: "desc" }, { createdAt: "asc" }],
     }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),

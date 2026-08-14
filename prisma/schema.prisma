@@ -144,6 +144,15 @@ model Profile {
   // à la main, auquel cas l'avatar reste généré automatiquement depuis le thème.
   avatarOverrides String?
 
+  // Non null quand un compte non-Premium repasse sous le seuil de profils
+  // gratuits (voir FREE_PROFILE_LIMIT) et que ce profil fait partie de ceux
+  // mis de côté lors de la sélection obligatoire (/dashboard/profils/choisir).
+  // Un profil archivé reste en base avec tout son historique (déblocages,
+  // avis de transit) mais disparaît des listes, pickers et accès aux
+  // fonctionnalités, jusqu'à réarchivage manuel ou reprise d'un abonnement
+  // Premium (qui désarchive automatiquement tous les profils du compte).
+  archivedAt DateTime?
+
   checkIns TransitCheckIn[]
 }
 

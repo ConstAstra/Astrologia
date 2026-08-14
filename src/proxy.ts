@@ -41,7 +41,13 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Propage le pathname courant aux Server Components : `usePathname()` est
+  // un hook Client uniquement, et le dashboard layout a besoin de connaître
+  // la route active (côté serveur, avec accès Prisma) pour savoir s'il doit
+  // rediriger vers /dashboard/profils/choisir sans jamais boucler dessus.
+  const headers = new Headers(request.headers);
+  headers.set("x-pathname", pathname);
+  return NextResponse.next({ request: { headers } });
 }
 
 // Ne s'applique qu'aux pages : les routes API ont déjà leur propre

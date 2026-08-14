@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { restoreArchivedProfiles } from "@/lib/billing/entitlements";
 
 const MESSAGES = {
   fr: {
@@ -106,10 +107,12 @@ export async function POST(request: Request) {
 
       return {
         success: giftCode.grantType === "subscription" ? m.successSubscription : m.successCredits(giftCode.creditsAmount ?? 0),
+        grantType: giftCode.grantType,
       };
     });
 
     if ("error" in result) return NextResponse.json({ error: result.error }, { status: 400 });
+    if (result.grantType === "subscription") await restoreArchivedProfiles(userId);
     return NextResponse.json({ message: result.success });
   } catch (err) {
     console.error("[gift:redeem]", err instanceof Error ? err.message : err);

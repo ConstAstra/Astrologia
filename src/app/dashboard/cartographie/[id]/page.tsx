@@ -74,7 +74,7 @@ export default async function CartographiePage({
   const { country: selectedCountryId } = await searchParams;
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findFirst({ where: { id, userId } }),
+    prisma.profile.findFirst({ where: { id, userId, archivedAt: null } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) notFound();

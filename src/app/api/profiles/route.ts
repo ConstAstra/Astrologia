@@ -31,7 +31,7 @@ export async function GET() {
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
 
   const profiles = await prisma.profile.findMany({
-    where: { userId },
+    where: { userId, archivedAt: null },
     orderBy: [{ isSelf: "desc" }, { createdAt: "asc" }],
   });
   return NextResponse.json({ profiles });

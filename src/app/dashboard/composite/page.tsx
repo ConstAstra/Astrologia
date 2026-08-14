@@ -116,7 +116,7 @@ export default async function CompositePage({
   const relationshipType: RelationshipType = isRelationshipType(relation) ? relation : "amitie";
 
   const [profiles, currentUser] = await Promise.all([
-    prisma.profile.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    prisma.profile.findMany({ where: { userId, archivedAt: null }, orderBy: { createdAt: "asc" } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   const locale: Locale = currentUser.locale === "en" ? "en" : "fr";

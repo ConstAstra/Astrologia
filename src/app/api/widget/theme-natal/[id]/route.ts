@@ -38,7 +38,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Jeton manquant." }, { status: 400 });
   }
 
-  const profile = await prisma.profile.findFirst({ where: { id, widgetToken: token }, include: { user: true } });
+  const profile = await prisma.profile.findFirst({ where: { id, widgetToken: token, archivedAt: null }, include: { user: true } });
   if (!profile) {
     return NextResponse.json({ error: "Profil introuvable ou jeton invalide." }, { status: 404 });
   }

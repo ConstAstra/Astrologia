@@ -66,8 +66,58 @@ export function canonicalPair(a: string, b?: string | null): [string, string | u
 export async function canCreateProfile(userId: string): Promise<boolean> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   if (isPremiumActive(user)) return true;
-  const count = await prisma.profile.count({ where: { userId } });
+  const count = await prisma.profile.count({ where: { userId, archivedAt: null } });
   return count < FREE_PROFILE_LIMIT;
+}
+
+/**
+ * Vrai quand un compte non-Premium a plus de profils actifs que la limite
+ * gratuite — typiquement juste après la fin d'un abonnement Premium
+ * pendant lequel plusieurs profils ont été créés. Sert de verrou global du
+ * dashboard (voir layout.tsx) tant que l'utilisateur n'a pas choisi
+ * lesquels garder sur /dashboard/profils/choisir.
+ */
+export async function needsProfileSelection(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  if (isPremiumActive(user)) return false;
+  const count = await prisma.profile.count({ where: { userId, archivedAt: null } });
+  return count > FREE_PROFILE_LIMIT;
+}
+
+/**
+ * Archive tous les profils actifs du compte SAUF ceux listés dans
+ * `keepProfileIds` — jamais une suppression : un profil archivé garde tout
+ * son historique et redevient accessible dès qu'un abonnement Premium
+ * reprend (voir restoreArchivedProfiles) ou qu'il est réarchivé manuellement.
+ * Valide côté serveur que le nombre à garder correspond bien à la limite
+ * gratuite et que chaque id appartient réellement à l'utilisateur, pour ne
+ * jamais faire confiance à une sélection façonnée côté client.
+ */
+export async function archiveExcessProfiles(userId: string, keepProfileIds: string[]): Promise<void> {
+  if (keepProfileIds.length !== FREE_PROFILE_LIMIT) {
+    throw new Error(`Il faut choisir exactement ${FREE_PROFILE_LIMIT} profils à garder.`);
+  }
+  const owned = await prisma.profile.findMany({
+    where: { userId, archivedAt: null },
+    select: { id: true },
+  });
+  const ownedIds = new Set(owned.map((p) => p.id));
+  if (!keepProfileIds.every((id) => ownedIds.has(id))) {
+    throw new Error("Sélection de profils invalide.");
+  }
+
+  await prisma.profile.updateMany({
+    where: { userId, archivedAt: null, id: { notIn: keepProfileIds } },
+    data: { archivedAt: new Date() },
+  });
+}
+
+/** Désarchive tous les profils du compte — appelé quand un abonnement Premium redevient actif. */
+export async function restoreArchivedProfiles(userId: string): Promise<void> {
+  await prisma.profile.updateMany({
+    where: { userId, archivedAt: { not: null } },
+    data: { archivedAt: null },
+  });
 }
 
 interface FeatureTarget {

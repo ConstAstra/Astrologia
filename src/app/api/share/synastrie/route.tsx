@@ -60,10 +60,10 @@ export async function GET(request: Request) {
   const s = <T,>(post: T, story: T): T => (isStory ? story : post);
 
   const [profileA, profileB, user, ownProfiles, friendSelfProfiles] = await Promise.all([
-    prisma.profile.findUnique({ where: { id: a } }),
-    prisma.profile.findUnique({ where: { id: b } }),
+    prisma.profile.findUnique({ where: { id: a, archivedAt: null } }),
+    prisma.profile.findUnique({ where: { id: b, archivedAt: null } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
-    prisma.profile.findMany({ where: { userId }, select: { id: true } }),
+    prisma.profile.findMany({ where: { userId, archivedAt: null }, select: { id: true } }),
     listFriendSelfProfiles(userId),
   ]);
   if (!profileA || !profileB) return NextResponse.json({ error: "Profil introuvable" }, { status: 404 });

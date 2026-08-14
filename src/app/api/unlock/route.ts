@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const { feature, profileIdA, profileIdB } = parsed.data;
 
   const ids = [profileIdA, profileIdB].filter(Boolean) as string[];
-  const owned = await prisma.profile.count({ where: { id: { in: ids }, userId } });
+  const owned = await prisma.profile.count({ where: { id: { in: ids }, userId, archivedAt: null } });
   if (owned !== ids.length) {
     return NextResponse.json({ error: "Profil introuvable" }, { status: 404 });
   }

@@ -59,7 +59,7 @@ export default async function SolarReturnPage({ params }: { params: Promise<{ id
   const { id } = await params;
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findFirst({ where: { id, userId } }),
+    prisma.profile.findFirst({ where: { id, userId, archivedAt: null } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) notFound();

@@ -135,7 +135,7 @@ export default async function SynastriePage({
   const relationshipType: RelationshipType = isRelationshipType(relation) ? relation : "amitie";
 
   const [ownProfiles, currentUser, friends] = await Promise.all([
-    prisma.profile.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    prisma.profile.findMany({ where: { userId, archivedAt: null }, orderBy: { createdAt: "asc" } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     listFriendSelfProfiles(userId),
   ]);

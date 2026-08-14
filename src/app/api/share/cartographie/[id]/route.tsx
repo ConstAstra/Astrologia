@@ -61,7 +61,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const s = <T,>(post: T, story: T): T => (isStory ? story : post);
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findFirst({ where: { id, userId } }),
+    prisma.profile.findFirst({ where: { id, userId, archivedAt: null } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) return NextResponse.json({ error: "Profil introuvable" }, { status: 404 });

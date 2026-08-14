@@ -188,7 +188,7 @@ export default async function ThemeNatalPage({
   const { maisons } = await searchParams;
 
   const [profile, user] = await Promise.all([
-    prisma.profile.findUnique({ where: { id } }),
+    prisma.profile.findUnique({ where: { id, archivedAt: null } }),
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
   ]);
   if (!profile) notFound();

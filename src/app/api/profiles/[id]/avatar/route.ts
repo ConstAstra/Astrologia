@@ -32,7 +32,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
 
   const { id } = await params;
-  const profile = await prisma.profile.findFirst({ where: { id, userId } });
+  const profile = await prisma.profile.findFirst({ where: { id, userId, archivedAt: null } });
   if (!profile) return NextResponse.json({ error: "Profil introuvable" }, { status: 404 });
 
   const body = await request.json().catch(() => null);
@@ -54,7 +54,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
 
   const { id } = await params;
-  const profile = await prisma.profile.findFirst({ where: { id, userId } });
+  const profile = await prisma.profile.findFirst({ where: { id, userId, archivedAt: null } });
   if (!profile) return NextResponse.json({ error: "Profil introuvable" }, { status: 404 });
 
   await prisma.profile.update({ where: { id }, data: { avatarOverrides: null } });
