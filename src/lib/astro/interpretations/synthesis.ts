@@ -82,84 +82,92 @@ export interface ChartSynthesis {
 }
 
 /**
- * Parcourt les 12 maisons une à une pour que la synthèse couvre tout le
- * thème, domaine de vie par domaine de vie — pas seulement Big 3 et
- * quelques aspects. Une maison occupée réutilise describePlanetInHouse
- * (déjà écrit, planète par planète) pour chaque occupant ; une maison vide
- * se lit indirectement à travers le signe sur sa pointe et la position de
- * son maître ailleurs dans le thème — une lecture classique en astrologie,
- * plutôt que de la passer sous silence faute de planète dedans.
+ * Lecture détaillée d'une maison précise : occupée, elle réutilise
+ * describePlanetInHouse (déjà écrit, planète par planète) pour chaque
+ * occupant ; vide, elle se lit indirectement à travers le signe sur sa
+ * pointe et la position de son maître ailleurs dans le thème (avec le même
+ * niveau de détail que si la planète occupait la maison directement) —
+ * une lecture classique en astrologie, plutôt que de la passer sous
+ * silence faute de planète dedans. Extraite en fonction autonome pour être
+ * réutilisée aussi bien par `buildLifeDomains` (les 12 maisons à la suite)
+ * que par la synthèse "grimoire" (regroupement thématique de quelques
+ * maisons ciblées, voir chart-domains.ts).
  */
-function buildLifeDomains(chart: NatalChart, locale: Locale = "fr"): LifeDomainReading[] {
-  if (!chart.hasReliableHouses) return [];
-
+export function describeHouseDomain(chart: NatalChart, houseNumber: number, locale: Locale = "fr"): LifeDomainReading {
   const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
 
-  const domains: LifeDomainReading[] = [];
+  const house = houseList[houseNumber - 1];
+  const occupants = DOMAIN_OCCUPANT_KEYS.filter((key) => chart.points[key]?.house === houseNumber);
 
-  for (let houseNumber = 1; houseNumber <= 12; houseNumber++) {
-    const house = houseList[houseNumber - 1];
-    const occupants = DOMAIN_OCCUPANT_KEYS.filter((key) => chart.points[key]?.house === houseNumber);
-
-    if (occupants.length > 0) {
-      const paragraphs = occupants.map((key) => describePlanetInHouse(key, houseNumber, locale)).join(" ");
-      const names = occupants.map((key) => planetMap[key].name).join(locale === "en" ? " and " : " et ");
-      const intro =
-        occupants.length > 1
-          ? locale === "en"
-            ? `${house.name} concentrates several placements at once (${names}), a domain that carries real weight in this chart. `
-            : `${house.name} concentre plusieurs placements à la fois (${names}), un domaine qui pèse particulièrement dans ce thème. `
-          : "";
-      domains.push({ house: houseNumber, title: house.name, text: `${intro}${paragraphs}` });
-      continue;
-    }
-
-    const cuspSign = signOf(chart.houses.cusps[houseNumber - 1]);
-    const cuspSignName = signMap[cuspSign].name;
-    const rulerKey = SIGN_RULER[cuspSign];
-    const rulerPoint = chart.points[rulerKey];
-    const rulerName = planetMap[rulerKey].name;
-
-    // Ne pas se contenter de dire où se trouve le maître de la maison : le
-    // lecteur qui n'a jamais fait d'astrologie n'a aucun moyen de deviner ce
-    // que "Mercure en Poissons, maison 8" veut dire concrètement. On
-    // réutilise donc le même texte détaillé par signe/maison que celui
-    // affiché quand la planète occupe directement la maison, pour que la
-    // profondeur de lecture soit la même, qu'on lise le maître ou l'occupant.
-    let text: string;
-    if (locale === "en") {
-      let rulerPlace = "";
-      if (rulerPoint) {
-        const rulerSign = signOf(rulerPoint.longitude);
-        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
-        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
-        rulerPlace = ` In this chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
-          rulerPoint.house ? `, house ${rulerPoint.house}` : ""
-        }: that placement is where this domain's real story actually plays out. Concretely, here's what that means: ${rulerSignText}${
-          rulerHouseText ? ` ${rulerHouseText}` : ""
-        }`;
-      }
-      text = `${house.name} holds no planet of its own: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
-    } else {
-      let rulerPlace = "";
-      if (rulerPoint) {
-        const rulerSign = signOf(rulerPoint.longitude);
-        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
-        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
-        rulerPlace = ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
-          rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
-        } : c'est là que se joue concrètement l'histoire réelle de ce domaine. Concrètement, voici ce que ça signifie : ${rulerSignText}${
-          rulerHouseText ? ` ${rulerHouseText}` : ""
-        }`;
-      }
-      text = `${house.name} n'abrite aucune planète en propre : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
-    }
-
-    domains.push({ house: houseNumber, title: house.name, text });
+  if (occupants.length > 0) {
+    const paragraphs = occupants.map((key) => describePlanetInHouse(key, houseNumber, locale)).join(" ");
+    const names = occupants.map((key) => planetMap[key].name).join(locale === "en" ? " and " : " et ");
+    const intro =
+      occupants.length > 1
+        ? locale === "en"
+          ? `${house.name} concentrates several placements at once (${names}), a domain that carries real weight in this chart. `
+          : `${house.name} concentre plusieurs placements à la fois (${names}), un domaine qui pèse particulièrement dans ce thème. `
+        : "";
+    return { house: houseNumber, title: house.name, text: `${intro}${paragraphs}` };
   }
 
+  const cuspSign = signOf(chart.houses.cusps[houseNumber - 1]);
+  const cuspSignName = signMap[cuspSign].name;
+  const rulerKey = SIGN_RULER[cuspSign];
+  const rulerPoint = chart.points[rulerKey];
+  const rulerName = planetMap[rulerKey].name;
+
+  // Ne pas se contenter de dire où se trouve le maître de la maison : le
+  // lecteur qui n'a jamais fait d'astrologie n'a aucun moyen de deviner ce
+  // que "Mercure en Poissons, maison 8" veut dire concrètement. On
+  // réutilise donc le même texte détaillé par signe/maison que celui
+  // affiché quand la planète occupe directement la maison, pour que la
+  // profondeur de lecture soit la même, qu'on lise le maître ou l'occupant.
+  let text: string;
+  if (locale === "en") {
+    let rulerPlace = "";
+    if (rulerPoint) {
+      const rulerSign = signOf(rulerPoint.longitude);
+      const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
+      const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+      rulerPlace = ` In this chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
+        rulerPoint.house ? `, house ${rulerPoint.house}` : ""
+      }: that placement is where this domain's real story actually plays out. Concretely, here's what that means: ${rulerSignText}${
+        rulerHouseText ? ` ${rulerHouseText}` : ""
+      }`;
+    }
+    text = `${house.name} holds no planet of its own: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
+  } else {
+    let rulerPlace = "";
+    if (rulerPoint) {
+      const rulerSign = signOf(rulerPoint.longitude);
+      const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
+      const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+      rulerPlace = ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
+        rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
+      } : c'est là que se joue concrètement l'histoire réelle de ce domaine. Concrètement, voici ce que ça signifie : ${rulerSignText}${
+        rulerHouseText ? ` ${rulerHouseText}` : ""
+      }`;
+    }
+    text = `${house.name} n'abrite aucune planète en propre : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
+  }
+
+  return { house: houseNumber, title: house.name, text };
+}
+
+/**
+ * Parcourt les 12 maisons une à une pour que la synthèse couvre tout le
+ * thème, domaine de vie par domaine de vie — pas seulement Big 3 et
+ * quelques aspects.
+ */
+function buildLifeDomains(chart: NatalChart, locale: Locale = "fr"): LifeDomainReading[] {
+  if (!chart.hasReliableHouses) return [];
+  const domains: LifeDomainReading[] = [];
+  for (let houseNumber = 1; houseNumber <= 12; houseNumber++) {
+    domains.push(describeHouseDomain(chart, houseNumber, locale));
+  }
   return domains;
 }
 

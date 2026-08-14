@@ -3,12 +3,8 @@ import type { SynastryResult } from "../synastry";
 import { signOf } from "../signs";
 import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
-import { PLANET_META } from "./planets";
-import { PLANET_META_EN } from "./planets.en";
-import { HOUSE_META } from "./houses";
-import { HOUSE_META_EN } from "./houses.en";
-import type { Locale } from "./compose";
-import type { ChartDomains } from "./chart-domains";
+import { describeHouseOverlay, describePlanetInSign, type Locale } from "./compose";
+import { type ChartDomains, elementNuance } from "./chart-domains";
 
 function sn(sign: ZodiacSign, locale: Locale) {
   const m = locale === "en" ? SIGN_META_EN : SIGN_META;
@@ -22,30 +18,6 @@ function sk(sign: ZodiacSign, locale: Locale) {
 function personSign(chart: NatalChart, key: PointKey): ZodiacSign | null {
   const p = chart.points[key];
   return p ? signOf(p.longitude) : null;
-}
-
-/** Planètes de `guestChart` tombées dans une des maisons cibles de `hostChart`, avec leur nom localisé. */
-function overlaysInHouses(
-  overlays: { point: PointKey; house: number }[],
-  targetHouses: number[],
-  locale: Locale
-): { name: string; house: number }[] {
-  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
-  return overlays
-    .filter((o) => targetHouses.includes(o.house))
-    .map((o) => ({ name: planetMap[o.point].name, house: o.house }));
-}
-
-function houseName(houseNumber: number, locale: Locale) {
-  const list = locale === "en" ? HOUSE_META_EN : HOUSE_META;
-  return list[houseNumber - 1].name;
-}
-
-function listNames(names: string[], locale: Locale): string {
-  if (names.length === 0) return "";
-  if (names.length === 1) return names[0];
-  const sep = locale === "en" ? " and " : " et ";
-  return `${names.slice(0, -1).join(", ")}${sep}${names[names.length - 1]}`;
 }
 
 function generalChapter(
@@ -63,6 +35,30 @@ function generalChapter(
   return `Le Soleil de ${labelA} en ${sn(sunA, locale)} (${sk(sunA, locale)}) rencontre le Soleil de ${labelB} en ${sn(sunB, locale)} (${sk(sunB, locale)}), deux identités qui ne fusionnent pas en une seule, elles restent deux personnes côte à côte. En dessous, la Lune de ${labelA} en ${sn(moonA, locale)} et la Lune de ${labelB} en ${sn(moonB, locale)} décident de ce qui rassure vraiment chacun·e, souvent le vrai moteur d'un lien longtemps après que l'étincelle initiale s'est estompée.`;
 }
 
+/**
+ * Recouvrements de maisons ciblés, décrits en profondeur via
+ * describeHouseOverlay (déjà écrit, planète par planète, réutilisé aussi
+ * dans la section "Planètes de X dans les maisons de Y" plus bas sur la
+ * page) plutôt qu'une simple liste de noms de planètes.
+ */
+function overlayTexts(
+  synastry: SynastryResult,
+  labelA: string,
+  labelB: string,
+  targetHouses: number[],
+  bothHouses: boolean,
+  locale: Locale
+): string[] {
+  if (!bothHouses) return [];
+  const bInA = synastry.bPlanetsInAHouses
+    .filter((o) => targetHouses.includes(o.house))
+    .map((o) => describeHouseOverlay(o.point, o.house, labelB, labelA, locale));
+  const aInB = synastry.aPlanetsInBHouses
+    .filter((o) => targetHouses.includes(o.house))
+    .map((o) => describeHouseOverlay(o.point, o.house, labelA, labelB, locale));
+  return [...bInA, ...aInB];
+}
+
 function loveChapter(
   labelA: string,
   labelB: string,
@@ -70,23 +66,20 @@ function loveChapter(
   venusB: ZodiacSign | null,
   marsA: ZodiacSign | null,
   marsB: ZodiacSign | null,
-  overlayHouseNames: string[],
+  overlays: string[],
   locale: Locale
 ): string {
-  const houseBit =
-    overlayHouseNames.length > 0
-      ? locale === "en"
-        ? ` Planets land directly in the partnership houses on both sides (${listNames(overlayHouseNames, locale)}), the terrain of the couple itself is directly activated between you.`
-        : ` Des planètes atterrissent directement dans les maisons du couple des deux côtés (${listNames(overlayHouseNames, locale)}), le terrain du couple lui-même est directement activé entre vous.`
-      : "";
-  if (locale === "en") {
-    return `${venusA && venusB ? `${labelA}'s Venus in ${sn(venusA, locale)} and ${labelB}'s Venus in ${sn(venusB, locale)} show what each of you is drawn to and how affection actually gets shown, not always the same language.` : ""}${
-      marsA && marsB ? ` ${labelA}'s Mars in ${sn(marsA, locale)} and ${labelB}'s Mars in ${sn(marsB, locale)} show how each of you pursues what you want, matching paces or not.` : ""
-    }${houseBit}`;
+  const nuance = venusA && marsB ? elementNuance(venusA, marsB, locale === "en" ? `What ${labelA} is drawn to` : `Ce à quoi ${labelA} est attiré·e`, locale === "en" ? `how ${labelB} actually pursues` : `la façon dont ${labelB} poursuit réellement`, locale) : "";
+  if (overlays.length > 0) {
+    const intro =
+      locale === "en"
+        ? `The couple's own houses, pleasure and partnership, are directly activated between you:`
+        : `Les maisons propres au couple, plaisir et partenariat, sont directement activées entre vous :`;
+    return `${intro} ${overlays.join(" ")}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${venusA && venusB ? `La Vénus de ${labelA} en ${sn(venusA, locale)} et la Vénus de ${labelB} en ${sn(venusB, locale)} montrent ce à quoi chacun·e est attiré·e et comment l'affection se montre réellement, pas toujours le même langage.` : ""}${
-    marsA && marsB ? ` Le Mars de ${labelA} en ${sn(marsA, locale)} et le Mars de ${labelB} en ${sn(marsB, locale)} montrent comment chacun·e poursuit ce qu'il ou elle veut, au même rythme ou non.` : ""
-  }${houseBit}`;
+  const venusText = venusA && venusB ? `${describePlanetInSign("venus", venusA, undefined, locale)} ${describePlanetInSign("venus", venusB, undefined, locale)}` : "";
+  const marsText = marsA && marsB ? `${describePlanetInSign("mars", marsA, undefined, locale)} ${describePlanetInSign("mars", marsB, undefined, locale)}` : "";
+  return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
 function moneyChapter(
@@ -96,23 +89,20 @@ function moneyChapter(
   jupiterB: ZodiacSign | null,
   saturnA: ZodiacSign | null,
   saturnB: ZodiacSign | null,
-  overlayHouseNames: string[],
+  overlays: string[],
   locale: Locale
 ): string {
-  const houseBit =
-    overlayHouseNames.length > 0
-      ? locale === "en"
-        ? ` Planets fall in the resource-and-value houses on both sides (${listNames(overlayHouseNames, locale)}): money and shared resources are a real, active topic between you, not a side issue.`
-        : ` Des planètes tombent dans les maisons de ressources et de valeurs des deux côtés (${listNames(overlayHouseNames, locale)}) : l'argent et les ressources partagées sont un vrai sujet actif entre vous, pas un détail.`
-      : "";
-  if (locale === "en") {
-    return `${jupiterA && jupiterB ? `${labelA}'s Jupiter in ${sn(jupiterA, locale)} and ${labelB}'s Jupiter in ${sn(jupiterB, locale)} show where each of you naturally expects things to expand.` : ""}${
-      saturnA && saturnB ? ` ${labelA}'s Saturn in ${sn(saturnA, locale)} and ${labelB}'s Saturn in ${sn(saturnB, locale)} show what each of you takes seriously before trusting it.` : ""
-    }${houseBit}`;
+  const nuance = jupiterA && saturnB ? elementNuance(jupiterA, saturnB, locale === "en" ? `${labelA}'s instinct to expand` : `L'instinct d'expansion de ${labelA}`, locale === "en" ? `${labelB}'s instinct to consolidate` : `l'instinct de consolidation de ${labelB}`, locale) : "";
+  if (overlays.length > 0) {
+    const intro =
+      locale === "en"
+        ? `Resources and shared money, this bond's 2nd and 8th houses, are directly activated between you:`
+        : `Les ressources et l'argent partagé, les maisons II et VIII de ce lien, sont directement activés entre vous :`;
+    return `${intro} ${overlays.join(" ")}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${jupiterA && jupiterB ? `Le Jupiter de ${labelA} en ${sn(jupiterA, locale)} et le Jupiter de ${labelB} en ${sn(jupiterB, locale)} montrent où chacun·e s'attend naturellement à ce que les choses grandissent.` : ""}${
-    saturnA && saturnB ? ` Le Saturne de ${labelA} en ${sn(saturnA, locale)} et le Saturne de ${labelB} en ${sn(saturnB, locale)} montrent ce que chacun·e prend au sérieux avant d'y faire confiance.` : ""
-  }${houseBit}`;
+  const jupiterText = jupiterA && jupiterB ? `${describePlanetInSign("jupiter", jupiterA, undefined, locale)} ${describePlanetInSign("jupiter", jupiterB, undefined, locale)}` : "";
+  const saturnText = saturnA && saturnB ? `${describePlanetInSign("saturn", saturnA, undefined, locale)} ${describePlanetInSign("saturn", saturnB, undefined, locale)}` : "";
+  return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
 function careerChapter(
@@ -120,29 +110,19 @@ function careerChapter(
   labelB: string,
   sunA: ZodiacSign,
   sunB: ZodiacSign,
-  mcA: ZodiacSign | null,
-  mcB: ZodiacSign | null,
-  overlayHouseNames: string[],
+  overlays: string[],
   locale: Locale
 ): string {
-  const houseBit =
-    overlayHouseNames.length > 0
-      ? locale === "en"
-        ? ` Planets land in the public-facing, ambition houses on both sides (${listNames(overlayHouseNames, locale)}): this bond has a real effect on how each of you shows up professionally, not just privately.`
-        : ` Des planètes atterrissent dans les maisons d'ambition et d'image publique des deux côtés (${listNames(overlayHouseNames, locale)}) : ce lien a un vrai effet sur la façon dont chacun·e se présente professionnellement, pas seulement en privé.`
-      : "";
-  if (locale === "en") {
-    const main =
-      mcA && mcB
-        ? `${labelA}'s Midheaven in ${sn(mcA, locale)} and ${labelB}'s Midheaven in ${sn(mcB, locale)} rarely aim at the exact same public role, and don't need to.`
-        : `${labelA}'s Sun in ${sn(sunA, locale)} and ${labelB}'s Sun in ${sn(sunB, locale)} rarely chase the exact same kind of recognition, and don't need to.`;
-    return `${main}${houseBit}`;
+  const nuance = elementNuance(sunA, sunB, locale === "en" ? `What ${labelA} is trying to prove` : `Ce que ${labelA} essaie de prouver`, locale === "en" ? `what ${labelB} is trying to prove` : `ce que ${labelB} essaie de prouver`, locale);
+  if (overlays.length > 0) {
+    const intro =
+      locale === "en"
+        ? `Daily work and public ambition, this bond's 6th and 10th houses, are directly activated between you:`
+        : `Le travail quotidien et l'ambition publique, les maisons VI et X de ce lien, sont directement activés entre vous :`;
+    return `${intro} ${overlays.join(" ")} ${nuance}`;
   }
-  const main =
-    mcA && mcB
-      ? `Le Milieu du Ciel de ${labelA} en ${sn(mcA, locale)} et celui de ${labelB} en ${sn(mcB, locale)} visent rarement exactement le même rôle public, et n'ont pas besoin de le viser.`
-      : `Le Soleil de ${labelA} en ${sn(sunA, locale)} et le Soleil de ${labelB} en ${sn(sunB, locale)} recherchent rarement exactement le même type de reconnaissance, et n'ont pas besoin de le rechercher.`;
-  return `${main}${houseBit}`;
+  const sunText = `${describePlanetInSign("sun", sunA, undefined, locale)} ${describePlanetInSign("sun", sunB, undefined, locale)}`;
+  return `${sunText} ${nuance}`;
 }
 
 function spiritualChapter(
@@ -150,27 +130,31 @@ function spiritualChapter(
   labelB: string,
   neptuneA: ZodiacSign | null,
   neptuneB: ZodiacSign | null,
-  overlayHouseNames: string[],
+  moonA: ZodiacSign,
+  moonB: ZodiacSign,
+  overlays: string[],
   locale: Locale
 ): string {
-  const houseBit =
-    overlayHouseNames.length > 0
-      ? locale === "en"
-        ? ` Planets fall in the more private, inward houses on both sides (${listNames(overlayHouseNames, locale)}), an intimacy that operates beneath what either of you says out loud.`
-        : ` Des planètes tombent dans les maisons les plus intimes et intérieures des deux côtés (${listNames(overlayHouseNames, locale)}), une intimité qui fonctionne en dessous de ce que l'un ou l'autre dit à voix haute.`
-      : "";
-  if (locale === "en") {
-    return `${neptuneA && neptuneB ? `${labelA}'s Neptune in ${sn(neptuneA, locale)} and ${labelB}'s Neptune in ${sn(neptuneB, locale)} mark generational, not personal, undertones here, what's actually yours together plays out through house and aspect, not sign alone.` : ""}${houseBit}`;
+  const nuance = elementNuance(moonA, moonB, locale === "en" ? `What soothes ${labelA}` : `Ce qui apaise ${labelA}`, locale === "en" ? `what soothes ${labelB}` : `ce qui apaise ${labelB}`, locale);
+  if (overlays.length > 0) {
+    const intro =
+      locale === "en"
+        ? `The search for meaning and the more private, inward houses of this bond are directly activated between you:`
+        : `La quête de sens et les maisons les plus intimes de ce lien sont directement activées entre vous :`;
+    return `${intro} ${overlays.join(" ")} ${nuance}`;
   }
-  return `${neptuneA && neptuneB ? `Le Neptune de ${labelA} en ${sn(neptuneA, locale)} et celui de ${labelB} en ${sn(neptuneB, locale)} marquent ici une tonalité générationnelle plus que personnelle, ce qui vous appartient vraiment à deux se joue dans la maison et l'aspect, pas dans le seul signe.` : ""}${houseBit}`;
+  const neptuneText = neptuneA && neptuneB ? `${describePlanetInSign("neptune", neptuneA, undefined, locale)} ${describePlanetInSign("neptune", neptuneB, undefined, locale)}` : "";
+  return `${neptuneText ? `${neptuneText} ` : ""}${nuance}`;
 }
 
 /**
- * Synthèse "grimoire" pour la synastrie : construite uniquement à partir des
- * signes propres à chacun·e et des recouvrements de maisons (déjà une
- * lecture légitime, distincte d'un aspect), jamais à partir de
- * synastry.aspects, pour ne jamais empiéter sur la section d'aspects
- * détaillés plus bas sur la page.
+ * Synthèse "grimoire" pour la synastrie : réutilise la même matière que la
+ * section "Planètes de X dans les maisons de Y" (describeHouseOverlay,
+ * déjà écrite en profondeur) regroupée par thème de vie, avec un repli sur
+ * les positions en signe complètes (describePlanetInSign, pas de simples
+ * mots-clés) quand aucun recouvrement de maison ne tombe dans les maisons
+ * ciblées. Jamais construite à partir de synastry.aspects, pour ne pas
+ * empiéter sur la section d'aspects détaillés plus bas sur la page.
  */
 export function composeSynastryChartDomains(
   synastry: SynastryResult,
@@ -194,26 +178,14 @@ export function composeSynastryChartDomains(
   const saturnB = personSign(chartB, "saturn");
   const neptuneA = personSign(chartA, "neptune");
   const neptuneB = personSign(chartB, "neptune");
-  const mcA = chartA.hasReliableHouses ? personSign(chartA, "mc") : null;
-  const mcB = chartB.hasReliableHouses ? personSign(chartB, "mc") : null;
 
   const bothHouses = chartA.hasReliableHouses && chartB.hasReliableHouses;
 
-  const collectOverlayNames = (targetHouses: number[]) => {
-    if (!bothHouses) return [];
-    const inA = overlaysInHouses(synastry.bPlanetsInAHouses, targetHouses, locale);
-    const inB = overlaysInHouses(synastry.aPlanetsInBHouses, targetHouses, locale);
-    const names = new Set<string>();
-    for (const o of inA) names.add(`${o.name} ${locale === "en" ? "in" : "en"} ${houseName(o.house, locale)}`);
-    for (const o of inB) names.add(`${o.name} ${locale === "en" ? "in" : "en"} ${houseName(o.house, locale)}`);
-    return [...names];
-  };
-
   return {
     general: generalChapter(labelA, labelB, sunA, sunB, moonA, moonB, locale),
-    love: loveChapter(labelA, labelB, venusA, venusB, marsA, marsB, collectOverlayNames([5, 7]), locale),
-    money: moneyChapter(labelA, labelB, jupiterA, jupiterB, saturnA, saturnB, collectOverlayNames([2, 8]), locale),
-    career: careerChapter(labelA, labelB, sunA, sunB, mcA, mcB, collectOverlayNames([10]), locale),
-    spiritual: spiritualChapter(labelA, labelB, neptuneA, neptuneB, collectOverlayNames([12]), locale),
+    love: loveChapter(labelA, labelB, venusA, venusB, marsA, marsB, overlayTexts(synastry, labelA, labelB, [5, 7], bothHouses, locale), locale),
+    money: moneyChapter(labelA, labelB, jupiterA, jupiterB, saturnA, saturnB, overlayTexts(synastry, labelA, labelB, [2, 8], bothHouses, locale), locale),
+    career: careerChapter(labelA, labelB, sunA, sunB, overlayTexts(synastry, labelA, labelB, [6, 10], bothHouses, locale), locale),
+    spiritual: spiritualChapter(labelA, labelB, neptuneA, neptuneB, moonA, moonB, overlayTexts(synastry, labelA, labelB, [9, 12], bothHouses, locale), locale),
   };
 }

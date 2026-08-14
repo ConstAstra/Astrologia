@@ -228,7 +228,7 @@ export default async function CompositePage({
     house: composite.points[k].house,
   }));
   const synthesis = composeCompositeSynthesis(composite, relationshipType, locale);
-  const grimoireDomains = composeCompositeChartDomains(composite, locale);
+  const grimoireDomains = composeCompositeChartDomains(composite, relationshipType, locale);
 
   return (
     <div>

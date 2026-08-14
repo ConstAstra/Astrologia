@@ -33,77 +33,89 @@ export interface CompositeSynthesis {
   lifeDomains: CompositeLifeDomainReading[];
 }
 
+/**
+ * Lecture détaillée d'une maison précise du composite. Extraite en
+ * fonction autonome pour être réutilisée aussi bien par
+ * `buildCompositeLifeDomains` (les 12 maisons à la suite) que par la
+ * synthèse "grimoire" (regroupement thématique de quelques maisons
+ * ciblées, voir chart-domains.ts).
+ */
+export function describeCompositeHouseDomain(
+  composite: CompositeChart,
+  relationshipType: RelationshipType,
+  houseNumber: number,
+  locale: Locale
+): CompositeLifeDomainReading {
+  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+
+  const house = houseList[houseNumber - 1];
+  const occupants = DOMAIN_OCCUPANT_KEYS.filter((key) => composite.points[key]?.house === houseNumber);
+
+  if (occupants.length > 0) {
+    const paragraphs = occupants.map((key) => describePlanetInHouse(key, houseNumber, locale)).join(" ");
+    const names = occupants.map((key) => planetMap[key].name).join(locale === "en" ? " and " : " et ");
+    const intro =
+      occupants.length > 1
+        ? locale === "en"
+          ? `${house.name} concentrates several placements at once in this relationship's composite chart (${names}), a domain that carries real weight for this bond. `
+          : `${house.name} concentre plusieurs placements à la fois dans le thème composite de cette relation (${names}), un domaine qui pèse particulièrement pour ce lien. `
+        : "";
+    return { house: houseNumber, title: house.name, text: `${intro}${paragraphs}` };
+  }
+
+  const cuspSign = signOf(composite.houses.cusps[houseNumber - 1]);
+  const cuspSignName = signMap[cuspSign].name;
+  const rulerKey = SIGN_RULER[cuspSign];
+  const rulerPoint = composite.points[rulerKey];
+  const rulerName = planetMap[rulerKey].name;
+
+  // Comme pour la synthèse natale : ne pas se contenter d'énoncer où se
+  // trouve le maître de la maison, mais réutiliser le texte détaillé par
+  // signe/maison pour expliquer concrètement ce que ce placement veut dire.
+  let text: string;
+  if (locale === "en") {
+    let rulerPlace = "";
+    if (rulerPoint) {
+      const rulerSign = signOf(rulerPoint.longitude);
+      const rulerSignText = describePlanetInSign(rulerKey, rulerSign, relationshipType, locale);
+      const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+      rulerPlace = ` In this relationship's composite chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
+        rulerPoint.house ? `, house ${rulerPoint.house}` : ""
+      }: that placement is where this domain's real story actually plays out for the bond. Concretely, here's what that means: ${rulerSignText}${
+        rulerHouseText ? ` ${rulerHouseText}` : ""
+      }`;
+    }
+    text = `${house.name} holds no planet of its own in this composite chart: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
+  } else {
+    let rulerPlace = "";
+    if (rulerPoint) {
+      const rulerSign = signOf(rulerPoint.longitude);
+      const rulerSignText = describePlanetInSign(rulerKey, rulerSign, relationshipType, locale);
+      const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+      rulerPlace = ` Dans le thème composite de cette relation, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
+        rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
+      } : c'est là que se joue concrètement l'histoire réelle de ce domaine pour ce lien. Concrètement, voici ce que ça signifie : ${rulerSignText}${
+        rulerHouseText ? ` ${rulerHouseText}` : ""
+      }`;
+    }
+    text = `${house.name} n'abrite aucune planète en propre dans ce thème composite : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
+  }
+
+  return { house: houseNumber, title: house.name, text };
+}
+
 function buildCompositeLifeDomains(
   composite: CompositeChart,
   relationshipType: RelationshipType,
   locale: Locale
 ): CompositeLifeDomainReading[] {
   if (!composite.hasReliableHouses) return [];
-
-  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
-  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
-  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
-
   const domains: CompositeLifeDomainReading[] = [];
-
   for (let houseNumber = 1; houseNumber <= 12; houseNumber++) {
-    const house = houseList[houseNumber - 1];
-    const occupants = DOMAIN_OCCUPANT_KEYS.filter((key) => composite.points[key]?.house === houseNumber);
-
-    if (occupants.length > 0) {
-      const paragraphs = occupants.map((key) => describePlanetInHouse(key, houseNumber, locale)).join(" ");
-      const names = occupants.map((key) => planetMap[key].name).join(locale === "en" ? " and " : " et ");
-      const intro =
-        occupants.length > 1
-          ? locale === "en"
-            ? `${house.name} concentrates several placements at once in this relationship's composite chart (${names}), a domain that carries real weight for this bond. `
-            : `${house.name} concentre plusieurs placements à la fois dans le thème composite de cette relation (${names}), un domaine qui pèse particulièrement pour ce lien. `
-          : "";
-      domains.push({ house: houseNumber, title: house.name, text: `${intro}${paragraphs}` });
-      continue;
-    }
-
-    const cuspSign = signOf(composite.houses.cusps[houseNumber - 1]);
-    const cuspSignName = signMap[cuspSign].name;
-    const rulerKey = SIGN_RULER[cuspSign];
-    const rulerPoint = composite.points[rulerKey];
-    const rulerName = planetMap[rulerKey].name;
-
-    // Comme pour la synthèse natale : ne pas se contenter d'énoncer où se
-    // trouve le maître de la maison, mais réutiliser le texte détaillé par
-    // signe/maison pour expliquer concrètement ce que ce placement veut dire.
-    let text: string;
-    if (locale === "en") {
-      let rulerPlace = "";
-      if (rulerPoint) {
-        const rulerSign = signOf(rulerPoint.longitude);
-        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, relationshipType, locale);
-        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
-        rulerPlace = ` In this relationship's composite chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
-          rulerPoint.house ? `, house ${rulerPoint.house}` : ""
-        }: that placement is where this domain's real story actually plays out for the bond. Concretely, here's what that means: ${rulerSignText}${
-          rulerHouseText ? ` ${rulerHouseText}` : ""
-        }`;
-      }
-      text = `${house.name} holds no planet of its own in this composite chart: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
-    } else {
-      let rulerPlace = "";
-      if (rulerPoint) {
-        const rulerSign = signOf(rulerPoint.longitude);
-        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, relationshipType, locale);
-        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
-        rulerPlace = ` Dans le thème composite de cette relation, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
-          rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
-        } : c'est là que se joue concrètement l'histoire réelle de ce domaine pour ce lien. Concrètement, voici ce que ça signifie : ${rulerSignText}${
-          rulerHouseText ? ` ${rulerHouseText}` : ""
-        }`;
-      }
-      text = `${house.name} n'abrite aucune planète en propre dans ce thème composite : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
-    }
-
-    domains.push({ house: houseNumber, title: house.name, text });
+    domains.push(describeCompositeHouseDomain(composite, relationshipType, houseNumber, locale));
   }
-
   return domains;
 }
 

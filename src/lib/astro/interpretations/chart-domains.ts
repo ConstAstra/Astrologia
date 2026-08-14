@@ -3,15 +3,21 @@ import { computeDominance } from "../dominance";
 import { signOf } from "../signs";
 import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
-import { SIGN_RULER } from "./rulership";
-import type { Locale } from "./compose";
+import { PLANET_META } from "./planets";
+import { PLANET_META_EN } from "./planets.en";
+import { describePlanetInSign, describePlanetInHouse, type Locale } from "./compose";
+import { describeHouseDomain } from "./synthesis";
+import { describeCompositeHouseDomain } from "./composite-synthesis";
+import type { RelationshipType } from "./relationship";
 
 /**
- * La synthèse "grimoire" : cinq chapitres qui mettent bout à bout tout le
- * thème (Big 3, dominantes, planètes clés, maisons) en un récit continu,
- * sans jamais entrer dans le détail aspect par aspect, cette lecture-là
- * reste plus bas dans la page. Une lecture "livre qu'on feuillette", pas
- * une liste technique de plus.
+ * La synthèse "grimoire" : cinq chapitres qui regroupent, par thème de vie
+ * (amour, argent, carrière, spiritualité), la même matière que la "Lecture
+ * de synthèse" (maisons occupées ou lues via leur maître, positions en
+ * signe) plutôt qu'une liste de mots-clés isolée — c'est une synthèse comme
+ * les autres, seule sa présentation change (chapitres qu'on feuillette,
+ * plutôt qu'un bloc unique). Volontairement sans détail d'aspect (déjà
+ * couvert plus bas sur la page, aspect par aspect).
  */
 export interface ChartDomains {
   general: string;
@@ -42,8 +48,9 @@ export interface Signals {
   house8: ZodiacSign | null;
   house10: ZodiacSign | null;
   house12: ZodiacSign | null;
-  house10RulerSign: ZodiacSign | null;
-  house2RulerSign: ZodiacSign | null;
+  ascendantRulerKey: PointKey | null;
+  ascendantRulerSign: ZodiacSign | null;
+  ascendantRulerHouse: number | null;
 }
 
 function pointSign(points: Partial<Record<PointKey, EclipticPoint>>, key: PointKey): ZodiacSign | null {
@@ -58,8 +65,8 @@ export function gatherSignals(
 ): Signals {
   const dominance = computeDominance(points, hasReliableHouses);
   const cuspSign = (houseNumber: number) => (hasReliableHouses ? signOf(houses.cusps[houseNumber - 1]) : null);
-  const house10 = cuspSign(10);
-  const house2 = cuspSign(2);
+  const ascendantRulerKey = dominance.ascendantRuler;
+  const ascendantRulerPoint = ascendantRulerKey ? points[ascendantRulerKey] : undefined;
 
   return {
     sun: signOf(points.sun!.longitude),
@@ -76,14 +83,15 @@ export function gatherSignals(
     dominantElements: dominance.dominantElements,
     dominantModalities: dominance.dominantModalities,
     hasReliableHouses,
-    house2,
+    house2: cuspSign(2),
     house5: cuspSign(5),
     house7: cuspSign(7),
     house8: cuspSign(8),
-    house10,
+    house10: cuspSign(10),
     house12: cuspSign(12),
-    house10RulerSign: house10 ? pointSign(points, SIGN_RULER[house10]) : null,
-    house2RulerSign: house2 ? pointSign(points, SIGN_RULER[house2]) : null,
+    ascendantRulerKey: ascendantRulerPoint ? ascendantRulerKey : null,
+    ascendantRulerSign: ascendantRulerPoint ? signOf(ascendantRulerPoint.longitude) : null,
+    ascendantRulerHouse: ascendantRulerPoint?.house ?? null,
   };
 }
 
@@ -95,7 +103,56 @@ export function sk(sign: ZodiacSign, locale: Locale) {
   const m = locale === "en" ? SIGN_META_EN : SIGN_META;
   return m[sign].keyword;
 }
+export function pn(key: PointKey, locale: Locale) {
+  const m = locale === "en" ? PLANET_META_EN : PLANET_META;
+  return m[key].name;
+}
 const ELEMENT_NAME_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
+
+const ELEMENT_FRICTION_PAIRS: [string, string][] = [
+  ["Feu", "Eau"],
+  ["Terre", "Air"],
+];
+
+export type ElementRelation = "same" | "friction" | "flow";
+
+/**
+ * Compare deux signes sur l'axe des éléments : "same" (même élément, les
+ * deux logiques tournent au même carburant), "friction" (Feu/Eau ou
+ * Terre/Air, les paires classiquement antagonistes, cf. dominance.ts),
+ * "flow" (éléments différents mais compatibles). Sert de base à toute
+ * lecture de nuance entre deux placements précis, plutôt que d'affirmer
+ * une tension générique valable pour n'importe quel thème.
+ */
+export function elementRelation(signA: ZodiacSign, signB: ZodiacSign): ElementRelation {
+  const eA = SIGN_META[signA].element;
+  const eB = SIGN_META[signB].element;
+  if (eA === eB) return "same";
+  const isFriction = ELEMENT_FRICTION_PAIRS.some(([a, b]) => (a === eA && b === eB) || (a === eB && b === eA));
+  return isFriction ? "friction" : "flow";
+}
+
+/**
+ * Phrase de nuance réutilisable : `roleA`/`roleB` décrivent, dans le
+ * vocabulaire du domaine concerné (amour, argent...), ce que chaque
+ * placement représente concrètement (ex. "Ce qui vous attire" / "la façon
+ * dont vous le poursuivez"), pour que la nuance reste ancrée dans les deux
+ * signes réels du thème plutôt que dans une généralité interchangeable
+ * d'un thème à l'autre. `roleA` doit être fourni déjà en début de phrase
+ * (majuscule), `roleB` en milieu de phrase (minuscule). Vient toujours en
+ * clôture d'un chapitre, après l'explication détaillée, jamais à sa place.
+ */
+export function elementNuance(signA: ZodiacSign, signB: ZodiacSign, roleA: string, roleB: string, locale: Locale): string {
+  const rel = elementRelation(signA, signB);
+  if (locale === "en") {
+    if (rel === "same") return `${roleA} and ${roleB} run on the same fuel here, a rare kind of ease.`;
+    if (rel === "friction") return `${roleA} and ${roleB} pull in different directions, a real, recurring negotiation rather than a flaw.`;
+    return `${roleA} and ${roleB} don't clash, but they don't speak quite the same language either, two logics that usually find a way to cooperate.`;
+  }
+  if (rel === "same") return `${roleA} et ${roleB} fonctionnent au même carburant ici, une forme de facilité assez rare.`;
+  if (rel === "friction") return `${roleA} et ${roleB} tirent dans des directions différentes, une vraie négociation récurrente, pas un défaut.`;
+  return `${roleA} et ${roleB} ne se télescopent pas, mais ne parlent pas non plus tout à fait la même langue, deux logiques qui trouvent en général le moyen de coopérer.`;
+}
 
 export function dominanceClause(s: Signals, locale: Locale): string {
   const el = s.dominantElements;
@@ -134,105 +191,110 @@ export function dominanceClause(s: Signals, locale: Locale): string {
   return `Globalement, ${elText}, avec une façon d'avancer construite sur le réflexe de ${modText}.`;
 }
 
+/** Paragraphe détaillé (signe puis maison) du maître de l'Ascendant, prêt à être inséré dans le chapitre "général". */
+function ascendantRulerParagraph(s: Signals, relationshipType: RelationshipType | undefined, locale: Locale): string {
+  if (!s.asc || !s.ascendantRulerKey || !s.ascendantRulerSign) return "";
+  const rulerName = pn(s.ascendantRulerKey, locale);
+  const signText = describePlanetInSign(s.ascendantRulerKey, s.ascendantRulerSign, relationshipType, locale);
+  const houseText = s.ascendantRulerHouse ? describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale) : "";
+  if (locale === "en") {
+    return ` Traditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits. ${signText}${houseText ? ` ${houseText}` : ""}`;
+  }
+  return ` En astrologie, ${sn(s.asc, locale)} est traditionnellement gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText ? ` ${houseText}` : ""}`;
+}
+
 // ---------------------------------------------------------------------------
 // NATAL (voix "vous")
 // ---------------------------------------------------------------------------
 
 function generalNatal(s: Signals, locale: Locale): string {
+  const rulerText = ascendantRulerParagraph(s, undefined, locale);
   if (locale === "en") {
     return `Sun in ${sn(s.sun, locale)} (${sk(s.sun, locale)}) and Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)}) form the backbone of who you are${
       s.asc ? `, wrapped in an Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}), the first impression you give before anyone knows the rest` : ""
     }. ${dominanceClause(s, locale)} Put together, this is a chart that wants to want something consciously (Sun), feel it in the body before trusting it (Moon)${
       s.asc ? ", and walk into a room a certain way while doing both" : ""
-    }, three layers that don't always agree, and don't need to.`;
+    }, three layers that don't always agree, and don't need to.${rulerText}`;
   }
   return `Le Soleil en ${sn(s.sun, locale)} (${sk(s.sun, locale)}) et la Lune en ${sn(s.moon, locale)} (${sk(s.moon, locale)}) forment le socle de ce que vous êtes${
     s.asc ? `, enveloppé d'un Ascendant en ${sn(s.asc, locale)} (${sk(s.asc, locale)}), la première impression que vous donnez avant que qui que ce soit ne connaisse le reste` : ""
   }. ${dominanceClause(s, locale)} Mis bout à bout, c'est un thème qui veut vouloir consciemment quelque chose (le Soleil), le ressentir dans le corps avant d'y croire (la Lune)${
     s.asc ? ", et entrer dans une pièce d'une certaine façon en faisant les deux à la fois" : ""
-  }, trois couches qui ne sont pas toujours d'accord, et n'ont pas besoin de l'être.`;
+  }, trois couches qui ne sont pas toujours d'accord, et n'ont pas besoin de l'être.${rulerText}`;
 }
 
-function loveNatal(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house7
-      ? locale === "en"
-        ? ` The 7th house, the terrain of partnership itself, falls in ${sn(s.house7, locale)} (${sk(s.house7, locale)}), shaping the kind of "other" you keep finding yourself drawn to build something with.`
-        : ` La maison VII, le terrain du couple lui-même, tombe en ${sn(s.house7, locale)} (${sk(s.house7, locale)}), ce qui colore le type d'autre avec qui vous vous retrouvez à vouloir construire quelque chose.`
-      : "";
-  if (locale === "en") {
-    return `${s.venus ? `Venus in ${sn(s.venus, locale)} shows what you're drawn to and how you show affection (${sk(s.venus, locale)}).` : ""} ${s.mars ? `Mars in ${sn(s.mars, locale)} shows how you pursue what you want and how you fight for it (${sk(s.mars, locale)}).` : ""} Your Moon in ${sn(s.moon, locale)} decides what actually makes you feel safe once the chase is over.${houseBit} Read together, that's desire, pursuit and emotional need, three different questions a relationship has to answer, not one.`;
+function loveNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+  const nuance = s.venus && s.mars ? elementNuance(s.venus, s.mars, locale === "en" ? "What draws you in" : "Ce qui vous attire", locale === "en" ? "how you actually go after it" : "la façon dont vous allez réellement le chercher", locale) : "";
+  if (s.hasReliableHouses) {
+    const fifth = describeHouseDomain(chart, 5, locale);
+    const seventh = describeHouseDomain(chart, 7, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry the weight of your love life: pleasure and romance (${fifth.title}), and partnership itself (${seventh.title}).`
+        : `Deux maisons portent le poids de votre vie amoureuse : le plaisir et la romance (${fifth.title}), et le partenariat lui-même (${seventh.title}).`;
+    return `${intro} ${fifth.text} ${seventh.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${s.venus ? `Vénus en ${sn(s.venus, locale)} montre ce qui vous attire et la façon dont vous montrez votre affection (${sk(s.venus, locale)}).` : ""} ${s.mars ? `Mars en ${sn(s.mars, locale)} montre comment vous poursuivez ce que vous voulez et comment vous vous battez pour l'obtenir (${sk(s.mars, locale)}).` : ""} Votre Lune en ${sn(s.moon, locale)} décide de ce qui vous fait vraiment vous sentir en sécurité une fois la conquête terminée.${houseBit} Mis ensemble, c'est le désir, la conquête et le besoin affectif, trois questions différentes auxquelles une relation doit répondre, pas une seule.`;
+  const venusText = s.venus ? describePlanetInSign("venus", s.venus, undefined, locale) : "";
+  const marsText = s.mars ? describePlanetInSign("mars", s.mars, undefined, locale) : "";
+  return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function moneyNatal(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house2
-      ? locale === "en"
-        ? ` The 2nd house, money earned by your own means, sits in ${sn(s.house2, locale)} (${sk(s.house2, locale)})${
-            s.house2RulerSign ? `, ruled by a planet that itself sits in ${sn(s.house2RulerSign, locale)}, which is where the real story of your finances actually plays out` : ""
-          }.${s.house8 ? ` The 8th house, shared resources, debt, what you build with someone else's money as much as your own, falls in ${sn(s.house8, locale)} (${sk(s.house8, locale)}).` : ""}`
-        : ` La maison II, l'argent gagné par vos propres moyens, se trouve en ${sn(s.house2, locale)} (${sk(s.house2, locale)})${
-            s.house2RulerSign ? `, gouvernée par une planète qui se trouve elle-même en ${sn(s.house2RulerSign, locale)}, là où se joue réellement l'histoire de vos finances` : ""
-          }.${s.house8 ? ` La maison VIII, les ressources partagées, les dettes, ce que vous construisez avec l'argent d'un autre autant qu'avec le vôtre, tombe en ${sn(s.house8, locale)} (${sk(s.house8, locale)}).` : ""}`
-      : "";
-  if (locale === "en") {
-    return `${s.venus ? `What you value, and what feels worth paying for, is colored by Venus in ${sn(s.venus, locale)}.` : ""}${
-      s.jupiter ? ` Jupiter in ${sn(s.jupiter, locale)} shows where you naturally expect things to grow (${sk(s.jupiter, locale)}).` : ""
-    }${s.saturn ? ` Saturn in ${sn(s.saturn, locale)} shows where discipline is required before anything solid gets built (${sk(s.saturn, locale)}).` : ""}${houseBit} Growth and caution rarely point the same direction here, and that tension is exactly what shapes real financial habits over time, not a one-time decision.`;
+function moneyNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+  const nuance = s.jupiter && s.saturn ? elementNuance(s.jupiter, s.saturn, locale === "en" ? "Your instinct to expand" : "Votre instinct d'expansion", locale === "en" ? "your instinct to hold back and consolidate" : "votre instinct de retenue et de consolidation", locale) : "";
+  if (s.hasReliableHouses) {
+    const second = describeHouseDomain(chart, 2, locale);
+    const eighth = describeHouseDomain(chart, 8, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry your relationship to money: what you earn and build yourself (${second.title}), and what gets shared, merged or owed with someone else (${eighth.title}).`
+        : `Deux maisons portent votre rapport à l'argent : ce que vous gagnez et construisez par vous-même (${second.title}), et ce qui se partage, se fusionne ou se doit avec quelqu'un d'autre (${eighth.title}).`;
+    return `${intro} ${second.text} ${eighth.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${s.venus ? `Ce que vous valorisez, ce qui vous semble mériter d'être payé, est coloré par Vénus en ${sn(s.venus, locale)}.` : ""}${
-    s.jupiter ? ` Jupiter en ${sn(s.jupiter, locale)} montre où vous vous attendez naturellement à ce que les choses grandissent (${sk(s.jupiter, locale)}).` : ""
-  }${s.saturn ? ` Saturne en ${sn(s.saturn, locale)} montre où la discipline est nécessaire avant que quoi que ce soit de solide ne se construise (${sk(s.saturn, locale)}).` : ""}${houseBit} L'expansion et la prudence pointent rarement dans la même direction ici, et c'est justement cette tension qui façonne vos vraies habitudes financières dans la durée, pas une décision unique.`;
+  const jupiterText = s.jupiter ? describePlanetInSign("jupiter", s.jupiter, undefined, locale) : "";
+  const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, undefined, locale) : "";
+  return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function careerNatal(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house10
-      ? locale === "en"
-        ? ` Your Midheaven in ${sn(s.mc!, locale)} sets the public role you're aiming for${
-            s.house10RulerSign ? `, and its ruler sits in ${sn(s.house10RulerSign, locale)}, which is the flavor that role actually takes once you're the one living it` : ""
-          }.`
-        : ` Votre Milieu du Ciel en ${sn(s.mc!, locale)} fixe le rôle public que vous visez${
-            s.house10RulerSign ? `, et son maître se trouve en ${sn(s.house10RulerSign, locale)}, la couleur que ce rôle prend réellement une fois que c'est vous qui le vivez` : ""
-          }.`
-      : "";
-  if (locale === "en") {
-    return `Career here is less about a job title than about what your Sun in ${sn(s.sun, locale)} is trying to prove to the world.${houseBit}${
-      s.saturn ? ` Saturn in ${sn(s.saturn, locale)} names where you have to put in the hours before anyone hands you credit (${sk(s.saturn, locale)}).` : ""
-    }${s.mars ? ` Mars in ${sn(s.mars, locale)} is the engine, the pace at which you're willing to push (${sk(s.mars, locale)}).` : ""} Ambition and patience aren't opposites in this chart, they're sequential.`;
+function careerNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+  const nuance = s.mars && s.saturn ? elementNuance(s.mars, s.saturn, locale === "en" ? "Your natural pace" : "Votre rythme naturel", locale === "en" ? "the discipline this path demands" : "la discipline que ce chemin exige", locale) : "";
+  if (s.hasReliableHouses) {
+    const sixth = describeHouseDomain(chart, 6, locale);
+    const tenth = describeHouseDomain(chart, 10, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry your work life: daily work and routine (${sixth.title}), and the public role you're building toward (${tenth.title}).`
+        : `Deux maisons portent votre vie professionnelle : le travail au quotidien (${sixth.title}), et le rôle public que vous construisez (${tenth.title}).`;
+    return `${intro} ${sixth.text} ${tenth.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `La carrière, ici, tient moins à un titre de poste qu'à ce que votre Soleil en ${sn(s.sun, locale)} essaie de prouver au monde.${houseBit}${
-    s.saturn ? ` Saturne en ${sn(s.saturn, locale)} désigne l'endroit où il faut mettre les heures avant que qui que ce soit ne vous en attribue le mérite (${sk(s.saturn, locale)}).` : ""
-  }${s.mars ? ` Mars en ${sn(s.mars, locale)} est le moteur, le rythme auquel vous êtes prêt·e à pousser (${sk(s.mars, locale)}).` : ""} L'ambition et la patience ne s'opposent pas dans ce thème, elles se succèdent.`;
+  const sunText = describePlanetInSign("sun", s.sun, undefined, locale);
+  const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, undefined, locale) : "";
+  return `${sunText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function spiritualNatal(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house12
-      ? locale === "en"
-        ? ` The 12th house, what happens once you stop performing for anyone, falls in ${sn(s.house12, locale)} (${sk(s.house12, locale)}).`
-        : ` La maison XII, ce qui se passe une fois que vous cessez de jouer un rôle pour qui que ce soit, tombe en ${sn(s.house12, locale)} (${sk(s.house12, locale)}).`
-      : "";
-  if (locale === "en") {
-    return `${s.neptune ? `Neptune in ${sn(s.neptune, locale)} marks an entire generation's relationship to the invisible, but its house and aspects, read further down, are what make it personally yours.` : ""}${houseBit} Your Moon in ${sn(s.moon, locale)} is the more immediate compass, what actually soothes you when nothing external can.${
-      s.northNode ? ` The North Node in ${sn(s.northNode, locale)} points to the direction this life keeps nudging you toward, unfamiliar at first, worth trusting anyway (${sk(s.northNode, locale)}).` : ""
-    }`;
+function spiritualNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+  const nuance = s.moon && s.neptune ? elementNuance(s.moon, s.neptune, locale === "en" ? "What already soothes you" : "Ce qui vous apaise déjà", locale === "en" ? "the pull toward something less definable" : "l'attirance vers quelque chose de moins définissable", locale) : "";
+  if (s.hasReliableHouses) {
+    const ninth = describeHouseDomain(chart, 9, locale);
+    const twelfth = describeHouseDomain(chart, 12, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry your inner life: the search for meaning (${ninth.title}), and what happens once you stop performing for anyone (${twelfth.title}).`
+        : `Deux maisons portent votre vie intérieure : la quête de sens (${ninth.title}), et ce qui se passe une fois que vous cessez de jouer un rôle pour qui que ce soit (${twelfth.title}).`;
+    return `${intro} ${ninth.text} ${twelfth.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${s.neptune ? `Neptune en ${sn(s.neptune, locale)} marque le rapport de toute une génération à l'invisible, mais sa maison et ses aspects, à lire plus loin, sont ce qui la rend personnellement vôtre.` : ""}${houseBit} Votre Lune en ${sn(s.moon, locale)} reste la boussole la plus immédiate, ce qui vous apaise réellement quand rien d'extérieur n'y parvient.${
-    s.northNode ? ` Le Nœud Nord en ${sn(s.northNode, locale)} pointe la direction vers laquelle cette vie vous pousse sans cesse, peu familière au départ, mais qui mérite votre confiance (${sk(s.northNode, locale)}).` : ""
-  }`;
+  const moonText = describePlanetInSign("moon", s.moon, undefined, locale);
+  const neptuneText = s.neptune ? describePlanetInSign("neptune", s.neptune, undefined, locale) : "";
+  return `${moonText}${neptuneText ? ` ${neptuneText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
 export function composeChartDomains(chart: NatalChart, locale: Locale = "fr"): ChartDomains {
   const s = gatherSignals(chart.points, chart.houses, chart.hasReliableHouses);
   return {
     general: generalNatal(s, locale),
-    love: loveNatal(s, locale),
-    money: moneyNatal(s, locale),
-    career: careerNatal(s, locale),
-    spiritual: spiritualNatal(s, locale),
+    love: loveNatal(chart, s, locale),
+    money: moneyNatal(chart, s, locale),
+    career: careerNatal(chart, s, locale),
+    spiritual: spiritualNatal(chart, s, locale),
   };
 }
 
@@ -240,88 +302,93 @@ export function composeChartDomains(chart: NatalChart, locale: Locale = "fr"): C
 // COMPOSITE (voix "cette relation")
 // ---------------------------------------------------------------------------
 
-function generalComposite(s: Signals, locale: Locale): string {
+function generalComposite(s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+  const rulerText = ascendantRulerParagraph(s, relationshipType, locale);
   if (locale === "en") {
     return `This bond's own composite Sun sits in ${sn(s.sun, locale)} (${sk(s.sun, locale)}), its composite Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)})${
       s.asc ? `, wrapped in a composite Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}), the face this relationship shows before anyone's looked closer` : ""
-    }, not what either of you is alone, but what the two of you generate together. ${dominanceClause(s, locale)} That's a relationship with its own identity, its own comfort zone, and its own instincts, distinct from what either person would build solo.`;
+    }, not what either of you is alone, but what the two of you generate together. ${dominanceClause(s, locale)} That's a relationship with its own identity, its own comfort zone, and its own instincts, distinct from what either person would build solo.${rulerText}`;
   }
   return `Le Soleil composite de ce lien se trouve en ${sn(s.sun, locale)} (${sk(s.sun, locale)}), sa Lune composite en ${sn(s.moon, locale)} (${sk(s.moon, locale)})${
     s.asc ? `, enveloppée d'un Ascendant composite en ${sn(s.asc, locale)} (${sk(s.asc, locale)}), le visage que cette relation montre avant que quiconque ne regarde de plus près` : ""
-  }, pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble. ${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.`;
+  }, pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble. ${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.${rulerText}`;
 }
 
-function loveComposite(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house7
-      ? locale === "en"
-        ? ` The composite 7th house, where this bond faces itself as a couple, falls in ${sn(s.house7, locale)} (${sk(s.house7, locale)}).`
-        : ` La maison VII composite, là où ce lien se regarde en couple, tombe en ${sn(s.house7, locale)} (${sk(s.house7, locale)}).`
-      : "";
-  if (locale === "en") {
-    return `${s.venus ? `The composite Venus in ${sn(s.venus, locale)} is what this bond values and how affection actually gets shown between you (${sk(s.venus, locale)}).` : ""} ${s.mars ? `The composite Mars in ${sn(s.mars, locale)} is how the two of you push for what the relationship wants (${sk(s.mars, locale)}).` : ""} The composite Moon in ${sn(s.moon, locale)} decides what makes this bond feel emotionally safe.${houseBit} None of this describes either of you individually, only what happens in the space between you.`;
+function loveComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+  const nuance = s.venus && s.mars ? elementNuance(s.venus, s.mars, locale === "en" ? "What this bond values" : "Ce que ce lien valorise", locale === "en" ? "how the two of you push for it" : "la façon dont vous deux le poursuivez", locale) : "";
+  if (s.hasReliableHouses) {
+    const fifth = describeCompositeHouseDomain(composite, relationshipType, 5, locale);
+    const seventh = describeCompositeHouseDomain(composite, relationshipType, 7, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry this bond's love life: shared pleasure (${fifth.title}), and the couple facing itself (${seventh.title}).`
+        : `Deux maisons portent la vie amoureuse de ce lien : le plaisir partagé (${fifth.title}), et le couple qui se regarde lui-même (${seventh.title}).`;
+    return `${intro} ${fifth.text} ${seventh.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${s.venus ? `La Vénus composite en ${sn(s.venus, locale)} est ce que ce lien valorise et la façon dont l'affection se montre réellement entre vous (${sk(s.venus, locale)}).` : ""} ${s.mars ? `Le Mars composite en ${sn(s.mars, locale)} est la façon dont vous deux poussez pour obtenir ce que la relation veut (${sk(s.mars, locale)}).` : ""} La Lune composite en ${sn(s.moon, locale)} décide de ce qui rend ce lien sûr émotionnellement.${houseBit} Rien de tout cela ne décrit l'un de vous individuellement, seulement ce qui se passe dans l'espace entre vous deux.`;
+  const venusText = s.venus ? describePlanetInSign("venus", s.venus, relationshipType, locale) : "";
+  const marsText = s.mars ? describePlanetInSign("mars", s.mars, relationshipType, locale) : "";
+  return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function moneyComposite(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house2
-      ? locale === "en"
-        ? ` The composite 2nd house, what this bond builds and protects together, sits in ${sn(s.house2, locale)} (${sk(s.house2, locale)}).${
-            s.house8 ? ` The composite 8th house, everything shared, merged or owed between you, falls in ${sn(s.house8, locale)} (${sk(s.house8, locale)}).` : ""
-          }`
-        : ` La maison II composite, ce que ce lien construit et protège ensemble, se trouve en ${sn(s.house2, locale)} (${sk(s.house2, locale)}).${
-            s.house8 ? ` La maison VIII composite, tout ce qui est partagé, fusionné ou dû entre vous, tombe en ${sn(s.house8, locale)} (${sk(s.house8, locale)}).` : ""
-          }`
-      : "";
-  if (locale === "en") {
-    return `${s.jupiter ? `The composite Jupiter in ${sn(s.jupiter, locale)} shows where this relationship naturally expects to grow (${sk(s.jupiter, locale)}).` : ""}${
-      s.saturn ? ` The composite Saturn in ${sn(s.saturn, locale)} shows where the two of you have to put in real, unglamorous work before anything solid holds (${sk(s.saturn, locale)}).` : ""
-    }${houseBit} What this bond wants to build and what it has to earn the hard way rarely line up on their own, that gap is normal, not a warning sign.`;
+function moneyComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+  const nuance = s.jupiter && s.saturn ? elementNuance(s.jupiter, s.saturn, locale === "en" ? "This bond's instinct to expand" : "L'instinct d'expansion de ce lien", locale === "en" ? "its instinct to consolidate" : "son instinct de consolidation", locale) : "";
+  if (s.hasReliableHouses) {
+    const second = describeCompositeHouseDomain(composite, relationshipType, 2, locale);
+    const eighth = describeCompositeHouseDomain(composite, relationshipType, 8, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry this bond's relationship to money: what it builds and protects together (${second.title}), and what's merged or owed between you (${eighth.title}).`
+        : `Deux maisons portent le rapport de ce lien à l'argent : ce qu'il construit et protège ensemble (${second.title}), et ce qui est fusionné ou dû entre vous (${eighth.title}).`;
+    return `${intro} ${second.text} ${eighth.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${s.jupiter ? `Le Jupiter composite en ${sn(s.jupiter, locale)} montre où cette relation s'attend naturellement à grandir (${sk(s.jupiter, locale)}).` : ""}${
-    s.saturn ? ` Le Saturne composite en ${sn(s.saturn, locale)} montre où vous deux devez fournir un travail réel, peu glorieux, avant que quoi que ce soit de solide ne tienne (${sk(s.saturn, locale)}).` : ""
-  }${houseBit} Ce que ce lien veut construire et ce qu'il doit gagner à la dure ne s'alignent que rarement tout seuls, cet écart est normal, pas un signal d'alarme.`;
+  const jupiterText = s.jupiter ? describePlanetInSign("jupiter", s.jupiter, relationshipType, locale) : "";
+  const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, relationshipType, locale) : "";
+  return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function careerComposite(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house10
-      ? locale === "en"
-        ? ` The composite Midheaven in ${sn(s.mc!, locale)} sets what this relationship stands for once other people can see it.`
-        : ` Le Milieu du Ciel composite en ${sn(s.mc!, locale)} fixe ce que cette relation représente une fois que d'autres personnes peuvent la voir.`
-      : "";
-  if (locale === "en") {
-    return `What this bond ultimately builds together, the shared project it points toward, starts with the composite Sun in ${sn(s.sun, locale)}.${houseBit}${
-      s.saturn ? ` Composite Saturn in ${sn(s.saturn, locale)} names the discipline the relationship needs to actually deliver on that ambition (${sk(s.saturn, locale)}).` : ""
-    } A relationship's "career" is really its shared purpose, what it's trying to leave behind once the two of you have moved past just enjoying each other's company.`;
+function careerComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+  const nuance = s.sun && s.saturn ? elementNuance(s.sun, s.saturn, locale === "en" ? "What this bond is trying to become" : "Ce que ce lien essaie de devenir", locale === "en" ? "the discipline it needs to get there" : "la discipline dont il a besoin pour y arriver", locale) : "";
+  if (s.hasReliableHouses) {
+    const sixth = describeCompositeHouseDomain(composite, relationshipType, 6, locale);
+    const tenth = describeCompositeHouseDomain(composite, relationshipType, 10, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry this bond's shared work: its daily upkeep (${sixth.title}), and what it stands for once others can see it (${tenth.title}).`
+        : `Deux maisons portent le travail commun de ce lien : son entretien au quotidien (${sixth.title}), et ce qu'il représente une fois que d'autres peuvent le voir (${tenth.title}).`;
+    return `${intro} ${sixth.text} ${tenth.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `Ce que ce lien finit par construire ensemble, le projet commun vers lequel il tend, commence avec le Soleil composite en ${sn(s.sun, locale)}.${houseBit}${
-    s.saturn ? ` Le Saturne composite en ${sn(s.saturn, locale)} nomme la discipline dont la relation a besoin pour vraiment tenir cette ambition (${sk(s.saturn, locale)}).` : ""
-  } La "carrière" d'une relation, c'est en réalité son projet commun, ce qu'elle cherche à laisser derrière elle une fois passé le simple plaisir d'être ensemble.`;
+  const sunText = describePlanetInSign("sun", s.sun, relationshipType, locale);
+  const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, relationshipType, locale) : "";
+  return `${sunText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function spiritualComposite(s: Signals, locale: Locale): string {
-  const houseBit =
-    s.hasReliableHouses && s.house12
-      ? locale === "en"
-        ? ` The composite 12th house, what this bond shares below the surface, unspoken, falls in ${sn(s.house12, locale)} (${sk(s.house12, locale)}).`
-        : ` La maison XII composite, ce que ce lien partage sous la surface, sans le dire, tombe en ${sn(s.house12, locale)} (${sk(s.house12, locale)}).`
-      : "";
-  if (locale === "en") {
-    return `${s.neptune ? `Composite Neptune in ${sn(s.neptune, locale)} colors the intangible, almost wordless part of this bond, the feeling neither of you can fully explain to outsiders.` : ""}${houseBit} The composite Moon in ${sn(s.moon, locale)} is what this relationship instinctively reaches for when things get hard, the thing it trusts without needing proof.`;
+function spiritualComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+  const nuance = s.moon && s.neptune ? elementNuance(s.moon, s.neptune, locale === "en" ? "What this bond reaches for instinctively" : "Ce vers quoi ce lien se tourne instinctivement", locale === "en" ? "the harder-to-name pull it also carries" : "l'attirance plus difficile à nommer qu'il porte aussi", locale) : "";
+  if (s.hasReliableHouses) {
+    const ninth = describeCompositeHouseDomain(composite, relationshipType, 9, locale);
+    const twelfth = describeCompositeHouseDomain(composite, relationshipType, 12, locale);
+    const intro =
+      locale === "en"
+        ? `Two houses carry this bond's inner life: the meaning it searches for together (${ninth.title}), and what it shares below the surface, unspoken (${twelfth.title}).`
+        : `Deux maisons portent la vie intérieure de ce lien : le sens qu'il cherche ensemble (${ninth.title}), et ce qu'il partage sous la surface, sans le dire (${twelfth.title}).`;
+    return `${intro} ${ninth.text} ${twelfth.text}${nuance ? ` ${nuance}` : ""}`;
   }
-  return `${s.neptune ? `Le Neptune composite en ${sn(s.neptune, locale)} colore la part intangible, presque indicible, de ce lien, ce ressenti qu'aucun de vous deux ne parvient tout à fait à expliquer à l'extérieur.` : ""}${houseBit} La Lune composite en ${sn(s.moon, locale)} est ce vers quoi cette relation se tourne instinctivement quand les choses se compliquent, ce en quoi elle a confiance sans avoir besoin de preuve.`;
+  const moonText = describePlanetInSign("moon", s.moon, relationshipType, locale);
+  const neptuneText = s.neptune ? describePlanetInSign("neptune", s.neptune, relationshipType, locale) : "";
+  return `${moonText}${neptuneText ? ` ${neptuneText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-export function composeCompositeChartDomains(composite: CompositeChart, locale: Locale = "fr"): ChartDomains {
+export function composeCompositeChartDomains(
+  composite: CompositeChart,
+  relationshipType: RelationshipType,
+  locale: Locale = "fr"
+): ChartDomains {
   const s = gatherSignals(composite.points, composite.houses, composite.hasReliableHouses);
   return {
-    general: generalComposite(s, locale),
-    love: loveComposite(s, locale),
-    money: moneyComposite(s, locale),
-    career: careerComposite(s, locale),
-    spiritual: spiritualComposite(s, locale),
+    general: generalComposite(s, relationshipType, locale),
+    love: loveComposite(composite, s, relationshipType, locale),
+    money: moneyComposite(composite, s, relationshipType, locale),
+    career: careerComposite(composite, s, relationshipType, locale),
+    spiritual: spiritualComposite(composite, s, relationshipType, locale),
   };
 }
