@@ -109,8 +109,8 @@ function buildLifeDomains(chart: NatalChart, locale: Locale = "fr"): LifeDomainR
       const intro =
         occupants.length > 1
           ? locale === "en"
-            ? `${house.name} concentrates several placements at once (${names}) — a domain that carries real weight in this chart. `
-            : `${house.name} concentre plusieurs placements à la fois (${names}) — un domaine qui pèse particulièrement dans ce thème. `
+            ? `${house.name} concentrates several placements at once (${names}), a domain that carries real weight in this chart. `
+            : `${house.name} concentre plusieurs placements à la fois (${names}), un domaine qui pèse particulièrement dans ce thème. `
           : "";
       domains.push({ house: houseNumber, title: house.name, text: `${intro}${paragraphs}` });
       continue;
@@ -122,20 +122,38 @@ function buildLifeDomains(chart: NatalChart, locale: Locale = "fr"): LifeDomainR
     const rulerPoint = chart.points[rulerKey];
     const rulerName = planetMap[rulerKey].name;
 
+    // Ne pas se contenter de dire où se trouve le maître de la maison : le
+    // lecteur qui n'a jamais fait d'astrologie n'a aucun moyen de deviner ce
+    // que "Mercure en Poissons, maison 8" veut dire concrètement. On
+    // réutilise donc le même texte détaillé par signe/maison que celui
+    // affiché quand la planète occupe directement la maison, pour que la
+    // profondeur de lecture soit la même, qu'on lise le maître ou l'occupant.
     let text: string;
     if (locale === "en") {
-      const rulerPlace = rulerPoint
-        ? ` In this chart, ${rulerName} sits in ${signMap[signOf(rulerPoint.longitude)].name}${
-            rulerPoint.house ? `, house ${rulerPoint.house}` : ""
-          } — that placement is where this domain's real story actually plays out.`
-        : "";
+      let rulerPlace = "";
+      if (rulerPoint) {
+        const rulerSign = signOf(rulerPoint.longitude);
+        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
+        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+        rulerPlace = ` In this chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
+          rulerPoint.house ? `, house ${rulerPoint.house}` : ""
+        }: that placement is where this domain's real story actually plays out. Concretely, here's what that means: ${rulerSignText}${
+          rulerHouseText ? ` ${rulerHouseText}` : ""
+        }`;
+      }
       text = `${house.name} holds no planet of its own: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
     } else {
-      const rulerPlace = rulerPoint
-        ? ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName} se trouve en ${signMap[signOf(rulerPoint.longitude)].name}${
-            rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
-          } — c'est là que se joue concrètement l'histoire réelle de ce domaine.`
-        : "";
+      let rulerPlace = "";
+      if (rulerPoint) {
+        const rulerSign = signOf(rulerPoint.longitude);
+        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
+        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+        rulerPlace = ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
+          rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
+        } : c'est là que se joue concrètement l'histoire réelle de ce domaine. Concrètement, voici ce que ça signifie : ${rulerSignText}${
+          rulerHouseText ? ` ${rulerHouseText}` : ""
+        }`;
+      }
       text = `${house.name} n'abrite aucune planète en propre : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
     }
 
@@ -180,14 +198,14 @@ export function composeChartSynthesis(chart: NatalChart, locale: Locale = "fr"):
         }. ${
           elementsEnList.length > 0
             ? elementsEnList.length > 1
-              ? `Your chart is evenly split between ${elementsEnList.join(" and ")} overall — no single one wins outright`
+              ? `Your chart is evenly split between ${elementsEnList.join(" and ")} overall, no single one wins outright`
               : `Your chart leans ${elementsEnList[0]} overall`
             : "No single element clearly dominates your chart"
         }${
           modalitiesEnList.length > 0
             ? `, with a ${modalitiesEnList.join("/")} approach to how you act on it`
             : ""
-        } — meaning, in practice, ${
+        }, meaning, in practice, ${
           primaryModality === "Cardinal"
             ? "you tend to initiate and set things in motion rather than wait for the right moment"
             : primaryModality === "Fixe"
@@ -199,12 +217,12 @@ export function composeChartSynthesis(chart: NatalChart, locale: Locale = "fr"):
         }. ${
           elementsFrList.length > 0
             ? elementsFrList.length > 1
-              ? `Votre thème est partagé à égalité entre ${elementsFrList.join(" et ")} — aucun des deux ne l'emporte franchement`
+              ? `Votre thème est partagé à égalité entre ${elementsFrList.join(" et ")}, aucun des deux ne l'emporte franchement`
               : `Votre thème penche globalement du côté ${elementsFrList[0] === "Air" || elementsFrList[0] === "Eau" ? "de l'" : "du "}${elementsFrList[0]}`
             : "Aucun élément ne domine nettement votre thème"
         }${
           dominantModalities.length > 0 ? `, avec une approche ${dominantModalities.join("/")} de la façon dont vous agissez dessus` : ""
-        } — concrètement, ${
+        }, concrètement, ${
           primaryModality === "Cardinal"
             ? "vous avez tendance à lancer les choses et à initier plutôt qu'à attendre le bon moment"
             : primaryModality === "Fixe"
@@ -242,8 +260,8 @@ export function composeChartSynthesis(chart: NatalChart, locale: Locale = "fr"):
       const kw = ELEMENT_KEYWORD[locale];
       contradictions.push(
         locale === "en"
-          ? `Your conscious identity (Sun in ${sunMeta.name}, ${ELEMENT_NAME_EN[sunElement]}) and your emotional world (Moon in ${moonMeta.name}, ${ELEMENT_NAME_EN[moonElement]}) pull in different directions: one runs on ${kw[sunElement]}, the other on ${kw[moonElement]}. Expect a real, ongoing negotiation between what you consciously want and what you actually feel — not a flaw, just two different operating systems sharing one person.`
-          : `Votre identité consciente (Soleil en ${sunMeta.name}, ${sunElement}) et votre monde émotionnel (Lune en ${moonMeta.name}, ${moonElement}) tirent dans des directions différentes : l'un fonctionne à ${kw[sunElement]}, l'autre à ${kw[moonElement]}. Attendez-vous à une vraie négociation permanente entre ce que vous voulez consciemment et ce que vous ressentez réellement — ce n'est pas un défaut, juste deux logiques différentes qui partagent la même personne.`
+          ? `Your conscious identity (Sun in ${sunMeta.name}, ${ELEMENT_NAME_EN[sunElement]}) and your emotional world (Moon in ${moonMeta.name}, ${ELEMENT_NAME_EN[moonElement]}) pull in different directions: one runs on ${kw[sunElement]}, the other on ${kw[moonElement]}. Expect a real, ongoing negotiation between what you consciously want and what you actually feel, not a flaw, just two different operating systems sharing one person.`
+          : `Votre identité consciente (Soleil en ${sunMeta.name}, ${sunElement}) et votre monde émotionnel (Lune en ${moonMeta.name}, ${moonElement}) tirent dans des directions différentes : l'un fonctionne à ${kw[sunElement]}, l'autre à ${kw[moonElement]}. Attendez-vous à une vraie négociation permanente entre ce que vous voulez consciemment et ce que vous ressentez réellement, ce n'est pas un défaut, juste deux logiques différentes qui partagent la même personne.`
       );
     }
   }

@@ -49,4 +49,17 @@ describe("composeCompositeSynthesis", () => {
     const b = composeCompositeSynthesis(composite, "amitie", "fr");
     expect(a).toEqual(b);
   });
+
+  it("covers all major tense and flowing aspects, without an artificial cap", () => {
+    const s = composeCompositeSynthesis(composite, "amitie", "fr");
+    expect(s.tensions.length + s.strengths.length).toBeGreaterThan(0);
+  });
+
+  it("never contains em-dashes, an AI-writing tell", () => {
+    const s = composeCompositeSynthesis(composite, "amitie", "fr");
+    expect(s.overview).not.toContain("—");
+    for (const t of s.tensions) expect(t).not.toContain("—");
+    for (const st of s.strengths) expect(st).not.toContain("—");
+    for (const d of s.lifeDomains) expect(d.text).not.toContain("—");
+  });
 });

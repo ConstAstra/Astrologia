@@ -303,7 +303,7 @@ export function ChartWheel({
             tabIndex={interactive ? 0 : undefined}
             role={interactive ? "button" : undefined}
             aria-pressed={interactive ? isSelected : undefined}
-            aria-label={interactive ? `${meta.name} — ${pointSign.name}` : undefined}
+            aria-label={interactive ? `${meta.name}, ${pointSign.name}` : undefined}
             onKeyDown={
               interactive
                 ? (e) => {
@@ -333,7 +333,7 @@ export function ChartWheel({
               fill={isSelected ? "#1f1420" : tint}
               className={interactive ? "transition-colors duration-200 ease-out" : undefined}
             >
-              {!interactive && <title>{`${meta.name} — ${pointSign.name}`}</title>}
+              {!interactive && <title>{`${meta.name}, ${pointSign.name}`}</title>}
               {meta.symbol}
             </text>
           </g>
@@ -358,7 +358,7 @@ export function ChartWheel({
             <p className="flex items-center gap-2 font-display text-lg">
               <span className="text-2xl">{planetMap[selectedPoint.key].symbol}</span>
               <span>
-                {planetMap[selectedPoint.key].name} — {signMap[signOf(selectedPoint.longitude)].name}
+                {planetMap[selectedPoint.key].name}, {signMap[signOf(selectedPoint.longitude)].name}
               </span>
             </p>
             <button

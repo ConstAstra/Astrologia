@@ -105,7 +105,7 @@ const TEXT: Record<
       "Heure de naissance inconnue : l'Ascendant, le Milieu du Ciel et les maisons ne sont pas affichés, plutôt que d'afficher une estimation trompeuse.",
     positions: "Positions",
     house: "Maison",
-    degree: "Degré —",
+    degree: "Degré :",
     lifeMission: "Mission de vie",
     lifeMissionIntro:
       "Lecture de l'axe des Nœuds lunaires : le Nœud Nord comme direction d'évolution à apprivoiser, le Nœud Sud comme terrain déjà acquis à ne pas surinvestir.",
@@ -114,7 +114,7 @@ const TEXT: Record<
     southNode: "☋ Nœud Sud",
     lifeMissionRulerHeading: "Le maître de ton Nœud Nord",
     lifeMissionAspectsHeading: "Ce qui soutient ou complique cette trajectoire",
-    lifeMissionAspectsIntro: "Les planètes qui font un aspect à ton Nœud Nord — un appui direct, ou une friction à travailler.",
+    lifeMissionAspectsIntro: "Les planètes qui font un aspect à ton Nœud Nord : un appui direct, ou une friction à travailler.",
     lifeMissionSynthesisHeading: "En pratique",
     aspects: "Aspects",
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
@@ -130,9 +130,9 @@ const TEXT: Record<
     synthesisStrengthsHeading: "Vos points d'appui",
     synthesisStrengthsIntro: "Là où plusieurs parties de votre thème travaillent naturellement dans le même sens.",
     synthesisLifeDomainsHeading: "Tous les domaines de votre vie",
-    synthesisLifeDomainsIntro: "Maison par maison, ce que votre thème dit de chaque grand domaine — occupé ou non.",
+    synthesisLifeDomainsIntro: "Maison par maison, ce que votre thème dit de chaque grand domaine, occupé ou non.",
     noneDetected: "Aucun élément notable détecté ici.",
-    viewingAsFriend: (name) => `Vous voyez le thème de ${name} en tant qu'ami — lecture seule.`,
+    viewingAsFriend: (name) => `Vous voyez le thème de ${name} en tant qu'ami : lecture seule.`,
   },
   en: {
     eyebrow: "Natal chart",
@@ -145,7 +145,7 @@ const TEXT: Record<
       "Unknown birth time: the Ascendant, Midheaven and houses aren't shown, rather than displaying a misleading estimate.",
     positions: "Positions",
     house: "House",
-    degree: "Degree —",
+    degree: "Degree:",
     lifeMission: "Life mission",
     lifeMissionIntro:
       "A reading of the lunar Nodes axis: the North Node as a direction of growth to embrace, the South Node as already-familiar ground not to over-invest in.",
@@ -154,7 +154,7 @@ const TEXT: Record<
     southNode: "☋ South Node",
     lifeMissionRulerHeading: "Your North Node's ruler",
     lifeMissionAspectsHeading: "What supports or complicates this path",
-    lifeMissionAspectsIntro: "The planets that form an aspect to your North Node — a direct boost, or a friction to work with.",
+    lifeMissionAspectsIntro: "The planets that form an aspect to your North Node: a direct boost, or a friction to work with.",
     lifeMissionSynthesisHeading: "In practice",
     aspects: "Aspects",
     noAspects: "No aspect detected within the orbs used.",
@@ -170,9 +170,9 @@ const TEXT: Record<
     synthesisStrengthsHeading: "Your points of strength",
     synthesisStrengthsIntro: "Where several parts of your chart naturally work in the same direction.",
     synthesisLifeDomainsHeading: "Every area of your life",
-    synthesisLifeDomainsIntro: "House by house, what your chart says about each major life domain — occupied or not.",
+    synthesisLifeDomainsIntro: "House by house, what your chart says about each major life domain, occupied or not.",
     noneDetected: "No notable element detected here.",
-    viewingAsFriend: (name) => `You're viewing ${name}'s chart as a friend — read-only.`,
+    viewingAsFriend: (name) => `You're viewing ${name}'s chart as a friend: read-only.`,
   },
 };
 
@@ -540,7 +540,7 @@ export default async function ThemeNatalPage({
 
                 <Card className="p-4">
                   <p className="font-medium">
-                    {t.lifeMissionRulerHeading} — {planetMap[mission.rulerPlanet].symbol} {planetMap[mission.rulerPlanet].name}
+                    {t.lifeMissionRulerHeading}, {planetMap[mission.rulerPlanet].symbol} {planetMap[mission.rulerPlanet].name}
                   </p>
                   <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerIntro}</p>
                   <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerSignText}</p>

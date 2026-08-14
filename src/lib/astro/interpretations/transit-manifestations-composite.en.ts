@@ -4,9 +4,9 @@ import type { PlanetKey } from "../types";
 // file for the rationale.
 export const TRANSIT_MANIFESTATIONS_COMPOSITE_EN: Record<PlanetKey, Record<"harmonieux" | "tendu" | "neutre", string>> = {
   sun: {
-    harmonieux: "a moment where the relationship itself gets noticed in a good way by the people around it — what you embody together is in the spotlight.",
+    harmonieux: "a moment where the relationship itself gets noticed in a good way by the people around it, what you embody together is in the spotlight.",
     tendu:
-      "a need for recognition of what the relationship stands for running into an outside obstacle — a third party or situation encroaching on the space you occupy together.",
+      "a need for recognition of what the relationship stands for running into an outside obstacle, a third party or situation encroaching on the space you occupy together.",
     neutre: "a slight bump in visibility for the relationship, nothing at stake in particular today.",
   },
   moon: {
@@ -20,7 +20,7 @@ export const TRANSIT_MANIFESTATIONS_COMPOSITE_EN: Record<PlanetKey, Record<"harm
     neutre: "a bit more back-and-forth in exchanges touching the relationship, with no real consequence.",
   },
   venus: {
-    harmonieux: "a pleasant moment for the relationship — an invitation, outside recognition, an unexpected bit of income that benefits the bond.",
+    harmonieux: "a pleasant moment for the relationship, an invitation, outside recognition, an unexpected bit of income that benefits the bond.",
     tendu: "tension around money or the relationship's image, worth defusing rather than letting fester.",
     neutre: "a slightly stronger pull toward shared comfort or pleasure for the relationship, with no urgency to it.",
   },
@@ -46,7 +46,7 @@ export const TRANSIT_MANIFESTATIONS_COMPOSITE_EN: Record<PlanetKey, Record<"harm
   },
   neptune: {
     harmonieux: "an accurate intuition about what the relationship is going through, a moment of shared inspiration.",
-    tendu: "confusion worth watching for around the relationship — something to clarify rather than leave vague.",
+    tendu: "confusion worth watching for around the relationship, something to clarify rather than leave vague.",
     neutre: "a light collective daydream, a pull toward withdrawal that doesn't call for any particular action from the relationship.",
   },
   pluto: {

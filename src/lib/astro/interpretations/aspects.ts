@@ -42,7 +42,7 @@ export const ASPECT_META: Record<AspectKey, AspectMeta> = {
     connector: "se frottent à",
     transitConnector: "vient frotter contre",
     description:
-      "Un frottement dynamique, souvent vécu comme un obstacle intérieur ou une friction — l'aspect le plus formateur du zodiaque quand il est travaillé plutôt qu'évité.",
+      "Un frottement dynamique, souvent vécu comme un obstacle intérieur ou une friction : l'aspect le plus formateur du zodiaque quand il est travaillé plutôt qu'évité.",
   },
   trine: {
     name: "Trigone",
@@ -62,7 +62,7 @@ export const ASPECT_META: Record<AspectKey, AspectMeta> = {
     connector: "s'accordent avec",
     transitConnector: "s'accorde avec",
     description:
-      "Une opportunité de collaboration entre les deux énergies, qui demande un minimum d'initiative pour se concrétiser pleinement — moins automatique que le trigone, mais tout aussi porteur.",
+      "Une opportunité de collaboration entre les deux énergies, qui demande un minimum d'initiative pour se concrétiser pleinement : moins automatique que le trigone, mais tout aussi porteur.",
   },
   quincunx: {
     name: "Quinconce",
@@ -82,7 +82,7 @@ export const ASPECT_META: Record<AspectKey, AspectMeta> = {
     connector: "frôlent",
     transitConnector: "frôle",
     description:
-      "Un contact discret, de voisinage, qui relie deux domaines de vie sans grande friction ni grande fluidité — une nuance plus qu'un thème majeur.",
+      "Un contact discret, de voisinage, qui relie deux domaines de vie sans grande friction ni grande fluidité, une nuance plus qu'un thème majeur.",
   },
   "semi-square": {
     name: "Semi-carré",

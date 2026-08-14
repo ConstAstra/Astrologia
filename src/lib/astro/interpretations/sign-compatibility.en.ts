@@ -8,15 +8,15 @@ import type { SignCompatibility } from "./sign-compatibility";
 // the project's existing per-locale content-file pattern.
 const ELEMENT_PAIR: Record<string, { text: string; score: number }> = {
   "Feu-Feu": {
-    text: "Two fire natures: lots of energy, enthusiasm and a shared taste for action. The duo moves fast and rarely gets bored — the risk is both egos wanting to lead at once.",
+    text: "Two fire natures: lots of energy, enthusiasm and a shared taste for action. The duo moves fast and rarely gets bored, the risk is both egos wanting to lead at once.",
     score: 4,
   },
   "Terre-Terre": {
-    text: "Two earth natures: a shared foundation of stability, practicality and reliability. The duo feels secure — the risk is settling into a routine that lacks spark.",
+    text: "Two earth natures: a shared foundation of stability, practicality and reliability. The duo feels secure, the risk is settling into a routine that lacks spark.",
     score: 4,
   },
   "Air-Air": {
-    text: "Two air natures: a shared flow of ideas, curiosity and need for freedom. The duo understands each other intellectually — the risk is staying on the surface emotionally, or over-theorizing instead of acting.",
+    text: "Two air natures: a shared flow of ideas, curiosity and need for freedom. The duo understands each other intellectually, the risk is staying on the surface emotionally, or over-theorizing instead of acting.",
     score: 4,
   },
   "Eau-Eau": {
@@ -24,38 +24,38 @@ const ELEMENT_PAIR: Record<string, { text: string; score: number }> = {
     score: 4,
   },
   "Air-Feu": {
-    text: "Fire and air: one of the zodiac's most naturally dynamic combinations — air feeds fire, and fire gives air a concrete direction. Contagious enthusiasm and spontaneous chemistry.",
+    text: "Fire and air: one of the zodiac's most naturally dynamic combinations, air feeds fire, and fire gives air a concrete direction. Contagious enthusiasm and spontaneous chemistry.",
     score: 5,
   },
   "Eau-Terre": {
-    text: "Water and earth: a combination that nourishes both sides — earth gives water a stable frame, water brings emotional depth to earth. A harmony that often settles in without forcing it.",
+    text: "Water and earth: a combination that nourishes both sides, earth gives water a stable frame, water brings emotional depth to earth. A harmony that often settles in without forcing it.",
     score: 5,
   },
   "Feu-Terre": {
-    text: "Fire and earth: fire wants to act fast, earth wants to move steadily — a pace to negotiate rather than an obstacle. Well managed, fire warms up earth and earth channels fire into concrete results.",
+    text: "Fire and earth: fire wants to act fast, earth wants to move steadily, a pace to negotiate rather than an obstacle. Well managed, fire warms up earth and earth channels fire into concrete results.",
     score: 3,
   },
   "Air-Eau": {
-    text: "Air and water: air thinks and takes distance, water feels and immerses — two different languages that can complement each other (air brings clarity, water brings depth) or miss each other if each stays in its own mode.",
+    text: "Air and water: air thinks and takes distance, water feels and immerses, two different languages that can complement each other (air brings clarity, water brings depth) or miss each other if each stays in its own mode.",
     score: 3,
   },
   "Eau-Feu": {
-    text: "Fire and water: a classically intense combination — water can smother fire, fire can boil water. Plenty of passion on both sides, but it takes real conscious work to avoid wearing each other out.",
+    text: "Fire and water: a classically intense combination, water can smother fire, fire can boil water. Plenty of passion on both sides, but it takes real conscious work to avoid wearing each other out.",
     score: 2,
   },
   "Air-Terre": {
-    text: "Earth and air: earth wants the concrete, air lives in ideas — each can find the other too rigid or too elusive, respectively. The bond is built mainly by learning to translate one's language into the other's.",
+    text: "Earth and air: earth wants the concrete, air lives in ideas, each can find the other too rigid or too elusive, respectively. The bond is built mainly by learning to translate one's language into the other's.",
     score: 2,
   },
 };
 
 const MODALITY_PAIR: Record<string, { text: string; score: number }> = {
   "Cardinal-Cardinal": {
-    text: "Two cardinal signs: two natural leaders, full of initiative. The dynamic is stimulating as long as each has their own ground to lead on — the risk is competing over who decides.",
+    text: "Two cardinal signs: two natural leaders, full of initiative. The dynamic is stimulating as long as each has their own ground to lead on, the risk is competing over who decides.",
     score: 3,
   },
   "Fixe-Fixe": {
-    text: "Two fixed signs: rare loyalty and staying power once the commitment is made. The risk is a standoff if both dig in — neither likes to give in first.",
+    text: "Two fixed signs: rare loyalty and staying power once the commitment is made. The risk is a standoff if both dig in, neither likes to give in first.",
     score: 3,
   },
   "Mutable-Mutable": {
@@ -63,15 +63,15 @@ const MODALITY_PAIR: Record<string, { text: string; score: number }> = {
     score: 3,
   },
   "Cardinal-Fixe": {
-    text: "A cardinal sign and a fixed sign: the cardinal launches projects, the fixed one makes them last — a good complement as long as the fixed sign doesn't experience every new initiative as a threat.",
+    text: "A cardinal sign and a fixed sign: the cardinal launches projects, the fixed one makes them last, a good complement as long as the fixed sign doesn't experience every new initiative as a threat.",
     score: 4,
   },
   "Cardinal-Mutable": {
-    text: "A cardinal sign and a mutable sign: the cardinal drives, the mutable adapts and follows with ease — a dynamic that most often flows naturally.",
+    text: "A cardinal sign and a mutable sign: the cardinal drives, the mutable adapts and follows with ease, a dynamic that most often flows naturally.",
     score: 4,
   },
   "Fixe-Mutable": {
-    text: "A fixed sign and a mutable sign: the fixed one seeks stability, the mutable one needs variety — a fruitful tension if the fixed sign accepts some change and the mutable one some consistency.",
+    text: "A fixed sign and a mutable sign: the fixed one seeks stability, the mutable one needs variety, a fruitful tension if the fixed sign accepts some change and the mutable one some consistency.",
     score: 3,
   },
 };
@@ -89,11 +89,11 @@ export function composeSignCompatibilityEn(signA: ZodiacSign, signB: ZodiacSign)
   const modalityInfo = pairLookup(MODALITY_PAIR, a.modality, b.modality);
   const score = Math.round((elementInfo.score + modalityInfo.score) / 2);
 
-  const strengths = `${a.name} brings ${a.keyword}, ${b.name} brings ${b.keyword} — two strengths that, well combined, enrich each other more than they compete.`;
+  const strengths = `${a.name} brings ${a.keyword}, ${b.name} brings ${b.keyword}, two strengths that, well combined, enrich each other more than they compete.`;
   const challenges =
     score >= 4
       ? `Little structural friction between ${a.name} and ${b.name}: what matters most plays out elsewhere (Moon, Venus, Mars, Ascendant of each person), not on this level.`
-      : `The main friction between ${a.name} and ${b.name} is a difference in pace or language, not a fundamental incompatibility — it's worked through with awareness and communication.`;
+      : `The main friction between ${a.name} and ${b.name} is a difference in pace or language, not a fundamental incompatibility, it's worked through with awareness and communication.`;
   const advice = `This ${a.name}-${b.name} reading is based on sun signs alone: a real synastry (Moon, Venus, Mars, Ascendant, houses) gives a much finer, more personal picture of the bond between two specific people.`;
 
   return {

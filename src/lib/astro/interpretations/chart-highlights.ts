@@ -79,8 +79,8 @@ function composeSunMoonLine(sunSign: ZodiacSign, moonSign: ZodiacSign, locale: L
 
   if (sunElement === moonElement) {
     return locale === "en"
-      ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what you want and what you feel run on the same fuel — a rare comfort, as long as you don't mistake it for the whole picture.`
-      : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce que vous voulez et ce que vous ressentez marchent au même carburant — un confort rare, à condition de ne pas croire que ça suffit à tout expliquer.`;
+      ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what you want and what you feel run on the same fuel, a rare comfort, as long as you don't mistake it for the whole picture.`
+      : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce que vous voulez et ce que vous ressentez marchent au même carburant, un confort rare, à condition de ne pas croire que ça suffit à tout expliquer.`;
   }
 
   const need = ELEMENT_NEED[locale];
@@ -90,13 +90,13 @@ function composeSunMoonLine(sunSign: ZodiacSign, moonSign: ZodiacSign, locale: L
 
   if (isFriction) {
     return locale === "en"
-      ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what you consciously want and what you actually feel don't run on the same fuel — one needs ${need[sunElement]}, the other needs ${need[moonElement]}. That's not a one-time fix, it's an ongoing negotiation.`
-      : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce que vous voulez consciemment et ce que vous ressentez réellement ne parlent pas la même langue — l'un a besoin ${need[sunElement]}, l'autre a besoin ${need[moonElement]}. Ça ne se règle pas une fois pour toutes, ça se négocie en continu.`;
+      ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what you consciously want and what you actually feel don't run on the same fuel. One needs ${need[sunElement]}, the other needs ${need[moonElement]}. That's not a one-time fix, it's an ongoing negotiation.`
+      : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce que vous voulez consciemment et ce que vous ressentez réellement ne parlent pas la même langue. L'un a besoin ${need[sunElement]}, l'autre a besoin ${need[moonElement]}. Ça ne se règle pas une fois pour toutes, ça se négocie en continu.`;
   }
 
   return locale === "en"
-    ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what drives you needs ${need[sunElement]}, what reassures you needs ${need[moonElement]} — two different logics, but neither has to give way for the other to work.`
-    : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce qui vous anime a besoin ${need[sunElement]}, ce qui vous rassure a besoin ${need[moonElement]} — deux logiques différentes, mais qui n'ont pas besoin de s'effacer l'une l'autre pour fonctionner.`;
+    ? `Sun in ${sunMeta.name}, Moon in ${moonMeta.name}: what drives you needs ${need[sunElement]}, what reassures you needs ${need[moonElement]}, two different logics, but neither has to give way for the other to work.`
+    : `Soleil en ${sunMeta.name}, Lune en ${moonMeta.name} : ce qui vous anime a besoin ${need[sunElement]}, ce qui vous rassure a besoin ${need[moonElement]}, deux logiques différentes, mais qui n'ont pas besoin de s'effacer l'une l'autre pour fonctionner.`;
 }
 
 /**

@@ -46,7 +46,7 @@ const TEXT: Record<Locale, {
     distributionElement: "Répartition par élément",
     distributionModality: "Répartition par modalité",
     composedOf: (planets) => `Porté par : ${planets}.`,
-    basis: "Calculée sur vos 5 planètes personnelles (Soleil à Mars) et le maître de votre Ascendant — pas sur l'ensemble du thème, pour rester représentative de vous plutôt que de votre génération. Cliquez une ligne pour l'explication.",
+    basis: "Calculée sur vos 5 planètes personnelles (Soleil à Mars) et le maître de votre Ascendant, pas sur l'ensemble du thème, pour rester représentative de vous plutôt que de votre génération. Cliquez une ligne pour l'explication.",
   },
   en: {
     overview: "Overview",
@@ -57,7 +57,7 @@ const TEXT: Record<Locale, {
     distributionElement: "Breakdown by element",
     distributionModality: "Breakdown by modality",
     composedOf: (planets) => `Driven by: ${planets}.`,
-    basis: "Calculated from your 5 personal planets (Sun through Mars) and your Ascendant ruler — not the whole chart, to stay representative of you rather than your generation. Click a row for the explanation.",
+    basis: "Calculated from your 5 personal planets (Sun through Mars) and your Ascendant ruler, not the whole chart, to stay representative of you rather than your generation. Click a row for the explanation.",
   },
 };
 

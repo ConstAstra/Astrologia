@@ -30,7 +30,7 @@ export const ASPECT_META_EN: Record<AspectKey, AspectMeta> = {
     connector: "rub against",
     transitConnector: "rubs against",
     description:
-      "A dynamic friction, often experienced as an inner obstacle or clash — the most formative aspect of the zodiac when worked with rather than avoided.",
+      "A dynamic friction, often experienced as an inner obstacle or clash: the most formative aspect of the zodiac when worked with rather than avoided.",
   },
   trine: {
     name: "Trine",
@@ -50,7 +50,7 @@ export const ASPECT_META_EN: Record<AspectKey, AspectMeta> = {
     connector: "harmonize with",
     transitConnector: "harmonizes with",
     description:
-      "An opportunity for collaboration between the two energies, which needs a bit of initiative to fully materialize — less automatic than the trine, but just as promising.",
+      "An opportunity for collaboration between the two energies, which needs a bit of initiative to fully materialize: less automatic than the trine, but just as promising.",
   },
   quincunx: {
     name: "Quincunx",
@@ -70,7 +70,7 @@ export const ASPECT_META_EN: Record<AspectKey, AspectMeta> = {
     connector: "brush against",
     transitConnector: "brushes against",
     description:
-      "A discreet, neighborly contact, linking two areas of life without much friction or much flow — more a nuance than a major theme.",
+      "A discreet, neighborly contact, linking two areas of life without much friction or much flow, more a nuance than a major theme.",
   },
   "semi-square": {
     name: "Semi-square",

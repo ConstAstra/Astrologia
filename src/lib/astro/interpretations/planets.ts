@@ -36,7 +36,7 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     symbol: "☉",
     keyword: "l'identité, la vitalité et la volonté d'exister",
     essence:
-      "Le Soleil représente le cœur de la personnalité : ce que l'on cherche à devenir, la lumière que l'on projette, la vitalité fondamentale. Son signe décrit une coloration générale du caractère — mais ce n'est qu'une pièce du puzzle parmi les dizaines de positions du thème.",
+      "Le Soleil représente le cœur de la personnalité : ce que l'on cherche à devenir, la lumière que l'on projette, la vitalité fondamentale. Son signe décrit une coloration générale du caractère, mais ce n'est qu'une pièce du puzzle parmi les dizaines de positions du thème.",
     keySpeed: "environ 1°/jour",
   },
   moon: {
@@ -45,7 +45,7 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     keyword: "les émotions, les besoins affectifs et les réflexes de sécurité",
     essence:
       "La Lune décrit le monde intérieur : la sensibilité, la mémoire, ce qui rassure ou inquiète, la manière de réagir à chaud. C'est souvent le point le plus révélateur pour comprendre le fonctionnement affectif profond d'une personne, parfois plus que le Soleil.",
-    keySpeed: "environ 13°/jour — le point le plus rapide du thème",
+    keySpeed: "environ 13°/jour, le point le plus rapide du thème",
   },
   mercury: {
     name: "Mercure",
@@ -76,7 +76,7 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     symbol: "♃",
     keyword: "l'expansion, la confiance, le sens donné à l'existence",
     essence:
-      "Jupiter indique où l'on cherche à grandir, à croire, à prendre de l'ampleur — la philosophie de vie, la chance perçue, le rapport aux études supérieures et aux horizons lointains.",
+      "Jupiter indique où l'on cherche à grandir, à croire, à prendre de l'ampleur, la philosophie de vie, la chance perçue, le rapport aux études supérieures et aux horizons lointains.",
     keySpeed: "environ 12 ans pour faire le tour du zodiaque",
   },
   saturn: {
@@ -84,7 +84,7 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     symbol: "♄",
     keyword: "la structure, la responsabilité, la discipline et la peur",
     essence:
-      "Saturne montre où l'on rencontre des limites, des exigences, un besoin de construire dans la durée — souvent vécu d'abord comme une contrainte, puis comme une force une fois l'apprentissage intégré.",
+      "Saturne montre où l'on rencontre des limites, des exigences, un besoin de construire dans la durée, souvent vécu d'abord comme une contrainte, puis comme une force une fois l'apprentissage intégré.",
     keySpeed: "environ 29 ans pour faire le tour du zodiaque",
   },
   uranus: {
@@ -124,7 +124,7 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     symbol: "AS",
     keyword: "le masque social, l'allure, la première impression donnée",
     essence:
-      "L'Ascendant est le signe qui se levait à l'horizon Est au moment de la naissance. Il colore l'apparence, les réflexes immédiats, la manière d'aborder le monde — souvent perçu par les autres avant même le Soleil.",
+      "L'Ascendant est le signe qui se levait à l'horizon Est au moment de la naissance. Il colore l'apparence, les réflexes immédiats, la manière d'aborder le monde, souvent perçu par les autres avant même le Soleil.",
     keySpeed: "très rapide : change de signe environ toutes les 2h",
   },
   mc: {
@@ -140,7 +140,7 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     symbol: "DS",
     keyword: "la relation à l'autre et ce que l'on recherche en couple",
     essence:
-      "Opposé à l'Ascendant, le Descendant décrit ce que l'on projette sur les autres et recherche dans la relation à deux — souvent ce qui nous complète ou nous attire chez un partenaire.",
+      "Opposé à l'Ascendant, le Descendant décrit ce que l'on projette sur les autres et recherche dans la relation à deux, souvent ce qui nous complète ou nous attire chez un partenaire.",
     keySpeed: "très rapide, opposé exact de l'Ascendant",
   },
   ic: {

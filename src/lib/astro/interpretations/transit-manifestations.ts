@@ -12,10 +12,10 @@ import type { PlanetKey } from "../types";
 export const TRANSIT_MANIFESTATIONS: Record<PlanetKey, Record<"harmonieux" | "tendu" | "neutre", string>> = {
   sun: {
     harmonieux:
-      "un moment où votre présence passe bien, où l'on vous remarque pour de bonnes raisons — une occasion de vous affirmer sans avoir à forcer.",
+      "un moment où votre présence passe bien, où l'on vous remarque pour de bonnes raisons, une occasion de vous affirmer sans avoir à forcer.",
     tendu:
       "un besoin d'être vu qui se heurte à un obstacle concret : quelqu'un qui prend toute la place, une situation où il est difficile de briller comme vous le voudriez.",
-    neutre: "un léger surcroît de visibilité, sans enjeu particulier — une journée où votre présence se remarque un peu plus que d'habitude.",
+    neutre: "un léger surcroît de visibilité, sans enjeu particulier, une journée où votre présence se remarque un peu plus que d'habitude.",
   },
   moon: {
     harmonieux: "une humeur plus légère, un moment propice pour se sentir bien chez soi ou en petit comité.",
@@ -28,7 +28,7 @@ export const TRANSIT_MANIFESTATIONS: Record<PlanetKey, Record<"harmonieux" | "te
     neutre: "un peu plus d'agitation mentale que d'habitude, sans conséquence particulière.",
   },
   venus: {
-    harmonieux: "un moment agréable en amour, en amitié ou côté finances — une invitation, un compliment, une rentrée d'argent inattendue.",
+    harmonieux: "un moment agréable en amour, en amitié ou côté finances, une invitation, un compliment, une rentrée d'argent inattendue.",
     tendu: "une tension autour de l'argent ou d'une relation, à désamorcer plutôt qu'à laisser s'envenimer.",
     neutre: "une envie de plaisir ou de confort un peu plus marquée que d'habitude, sans urgence particulière.",
   },

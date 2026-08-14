@@ -7,7 +7,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
     symbol: "☉",
     keyword: "identity, vitality and the will to exist",
     essence:
-      "The Sun represents the core of the personality: what one seeks to become, the light one projects, fundamental vitality. Its sign describes a general coloring of character — but it's only one piece of the puzzle among the dozens of positions in the chart.",
+      "The Sun represents the core of the personality: what one seeks to become, the light one projects, fundamental vitality. Its sign describes a general coloring of character, but it's only one piece of the puzzle among the dozens of positions in the chart.",
     keySpeed: "about 1°/day",
   },
   moon: {
@@ -16,7 +16,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
     keyword: "emotions, emotional needs and security reflexes",
     essence:
       "The Moon describes the inner world: sensitivity, memory, what reassures or worries, the way one reacts in the moment. It's often the most revealing point for understanding a person's deep emotional functioning, sometimes more than the Sun.",
-    keySpeed: "about 13°/day — the fastest-moving point in the chart",
+    keySpeed: "about 13°/day, the fastest-moving point in the chart",
   },
   mercury: {
     name: "Mercury",
@@ -47,7 +47,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
     symbol: "♃",
     keyword: "expansion, confidence, the meaning given to life",
     essence:
-      "Jupiter shows where one seeks to grow, to believe, to expand — one's philosophy of life, perceived luck, relationship to higher education and distant horizons.",
+      "Jupiter shows where one seeks to grow, to believe, to expand, one's philosophy of life, perceived luck, relationship to higher education and distant horizons.",
     keySpeed: "about 12 years to circle the zodiac",
   },
   saturn: {
@@ -55,7 +55,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
     symbol: "♄",
     keyword: "structure, responsibility, discipline and fear",
     essence:
-      "Saturn shows where one encounters limits, demands, a need to build for the long term — often experienced first as a constraint, then as a strength once the lesson is integrated.",
+      "Saturn shows where one encounters limits, demands, a need to build for the long term, often experienced first as a constraint, then as a strength once the lesson is integrated.",
     keySpeed: "about 29 years to circle the zodiac",
   },
   uranus: {
@@ -95,7 +95,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
     symbol: "ASC",
     keyword: "the social mask, bearing, first impression given",
     essence:
-      "The Ascendant is the sign that was rising on the eastern horizon at the moment of birth. It colors appearance, immediate reflexes, the way of approaching the world — often perceived by others even before the Sun.",
+      "The Ascendant is the sign that was rising on the eastern horizon at the moment of birth. It colors appearance, immediate reflexes, the way of approaching the world, often perceived by others even before the Sun.",
     keySpeed: "very fast: changes sign roughly every 2 hours",
   },
   mc: {
@@ -111,7 +111,7 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
     symbol: "DSC",
     keyword: "relating to others and what one seeks in partnership",
     essence:
-      "Opposite the Ascendant, the Descendant describes what one projects onto others and seeks in a partnership — often what completes us or attracts us in a partner.",
+      "Opposite the Ascendant, the Descendant describes what one projects onto others and seeks in a partnership, often what completes us or attracts us in a partner.",
     keySpeed: "very fast, exact opposite of the Ascendant",
   },
   ic: {

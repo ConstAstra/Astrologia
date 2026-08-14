@@ -13,9 +13,9 @@ import type { PlanetKey } from "../types";
 export const TRANSIT_MANIFESTATIONS_COMPOSITE: Record<PlanetKey, Record<"harmonieux" | "tendu" | "neutre", string>> = {
   sun: {
     harmonieux:
-      "un moment où la relation elle-même se fait remarquer positivement dans son entourage — ce que vous incarnez ensemble est mis en lumière.",
+      "un moment où la relation elle-même se fait remarquer positivement dans son entourage, ce que vous incarnez ensemble est mis en lumière.",
     tendu:
-      "un besoin de reconnaissance pour ce que représente la relation qui se heurte à un obstacle extérieur — un tiers ou une situation qui empiète sur la place que vous occupez ensemble.",
+      "un besoin de reconnaissance pour ce que représente la relation qui se heurte à un obstacle extérieur, un tiers ou une situation qui empiète sur la place que vous occupez ensemble.",
     neutre: "un léger surcroît de visibilité pour la relation, sans enjeu particulier aujourd'hui.",
   },
   moon: {
@@ -30,7 +30,7 @@ export const TRANSIT_MANIFESTATIONS_COMPOSITE: Record<PlanetKey, Record<"harmoni
     neutre: "un peu plus d'agitation dans les échanges qui touchent la relation, sans conséquence particulière.",
   },
   venus: {
-    harmonieux: "un moment agréable pour la relation — une invitation, une reconnaissance extérieure, une rentrée d'argent qui profite au lien.",
+    harmonieux: "un moment agréable pour la relation, une invitation, une reconnaissance extérieure, une rentrée d'argent qui profite au lien.",
     tendu: "une tension autour de l'argent ou de l'image de la relation, à désamorcer plutôt qu'à laisser s'envenimer.",
     neutre: "une envie de confort ou de plaisir partagé un peu plus marquée pour la relation, sans urgence particulière.",
   },
@@ -57,7 +57,7 @@ export const TRANSIT_MANIFESTATIONS_COMPOSITE: Record<PlanetKey, Record<"harmoni
   },
   neptune: {
     harmonieux: "une intuition juste sur ce que vit la relation, un moment d'inspiration partagée.",
-    tendu: "une confusion à surveiller autour de la relation — une information ou une intention à clarifier plutôt qu'à laisser dans le flou.",
+    tendu: "une confusion à surveiller autour de la relation, une information ou une intention à clarifier plutôt qu'à laisser dans le flou.",
     neutre: "une légère rêverie collective, un besoin de retrait qui n'appelle pas d'action particulière pour la relation.",
   },
   pluto: {

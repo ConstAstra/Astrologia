@@ -8,7 +8,7 @@ export const RELATIONSHIP_META_EN: Record<
   romantique: {
     label: "Couple / romantic",
     synastryFraming:
-      "For a couple, look first at aspects involving Venus, Mars, the Moon and the Sun: they speak to attraction, desire, emotional security and mutual recognition. Tense aspects don't condemn anything — they point to friction to negotiate consciously rather than endure.",
+      "For a couple, look first at aspects involving Venus, Mars, the Moon and the Sun: they speak to attraction, desire, emotional security and mutual recognition. Tense aspects don't condemn anything, they point to friction to negotiate consciously rather than endure.",
     compositeFraming:
       "A couple's composite reads like a portrait of the relationship itself: its Sun says what the couple seeks to embody together, its Moon what it needs to feel secure, its Ascendant the image the couple presents to the outside world.",
   },
@@ -24,7 +24,7 @@ export const RELATIONSHIP_META_EN: Record<
     synastryFraming:
       "For a family bond, aspects involving the Moon, Saturn and the Sun are particularly telling: they speak to attachment, a sense of duty, and how each person recognizes (or struggles to recognize) the other's place.",
     compositeFraming:
-      "A family bond's composite says something about the shared history and what gets passed down through it — less a choice than a given to work with.",
+      "A family bond's composite says something about the shared history and what gets passed down through it, less a choice than a given to work with.",
   },
   collegue: {
     label: "Professional",
@@ -38,41 +38,41 @@ export const RELATIONSHIP_META_EN: Record<
 const RELATIONSHIP_PLANET_NOTES_EN: Record<RelationshipType, Partial<Record<PointKey, string>>> = {
   romantique: {
     venus:
-      "This aspect touches directly on the attraction and tenderness between you — a fairly reliable barometer of how easily desire and affection flow day to day.",
+      "This aspect touches directly on the attraction and tenderness between you, a fairly reliable barometer of how easily desire and affection flow day to day.",
     mars:
-      "This aspect touches on desire and the physical dynamic of the couple — harmonious, it feeds a spontaneous physical complicity; tense, it can turn into rivalry or friction if it's never put into words.",
+      "This aspect touches on desire and the physical dynamic of the couple, harmonious, it feeds a spontaneous physical complicity; tense, it can turn into rivalry or friction if it's never put into words.",
     moon:
-      "This aspect touches on the emotional security you inspire in each other — the real question being whether each of you actually feels safe enough to open up to the other.",
+      "This aspect touches on the emotional security you inspire in each other, the real question being whether each of you actually feels safe enough to open up to the other.",
     sun:
-      "This aspect touches on how you each recognize who the other is — a couple where this axis flows easily feels seen, not just loved.",
+      "This aspect touches on how you each recognize who the other is, a couple where this axis flows easily feels seen, not just loved.",
   },
   amitie: {
     mercury:
-      "This aspect touches on the quality of exchange and intellectual complicity — often what separates a friendship that lasts from a mere acquaintance.",
+      "This aspect touches on the quality of exchange and intellectual complicity, often what separates a friendship that lasts from a mere acquaintance.",
     jupiter:
-      "This aspect touches on shared enthusiasm and the desire to grow together — a real engine for friendships that push each person to think bigger.",
+      "This aspect touches on shared enthusiasm and the desire to grow together, a real engine for friendships that push each person to think bigger.",
     uranus:
-      "This aspect touches on respecting each other's freedom within the friendship — being able to reconnect without feeling obligated or crowded by the other.",
+      "This aspect touches on respecting each other's freedom within the friendship, being able to reconnect without feeling obligated or crowded by the other.",
     sun:
-      "This aspect touches on mutual recognition within the friendship — feeling truly seen by the other, not just tolerated or convenient to have around.",
+      "This aspect touches on mutual recognition within the friendship, feeling truly seen by the other, not just tolerated or convenient to have around.",
   },
   famille: {
     moon:
-      "This aspect touches on attachment and emotional habits inherited from the family — often the key to understanding why certain reactions look disproportionate from the outside.",
+      "This aspect touches on attachment and emotional habits inherited from the family, often the key to understanding why certain reactions look disproportionate from the outside.",
     saturn:
-      "This aspect touches on a sense of duty and shared responsibilities — something that, in a family, can feel like love at times and like a burden at others, depending on how it's lived.",
+      "This aspect touches on a sense of duty and shared responsibilities, something that, in a family, can feel like love at times and like a burden at others, depending on how it's lived.",
     sun:
-      "This aspect touches on recognizing each person's place within the family — a central issue when several strong personalities share the same roof or history.",
+      "This aspect touches on recognizing each person's place within the family, a central issue when several strong personalities share the same roof or history.",
   },
   collegue: {
     mercury:
-      "This aspect touches on professional communication and work organization — often what makes or breaks a collaboration day to day, well before the big decisions.",
+      "This aspect touches on professional communication and work organization, often what makes or breaks a collaboration day to day, well before the big decisions.",
     saturn:
-      "This aspect touches on reliability and seriousness in the collaboration — the real question being whether you can count on each other when it actually matters.",
+      "This aspect touches on reliability and seriousness in the collaboration, the real question being whether you can count on each other when it actually matters.",
     mars:
-      "This aspect touches on how disagreements or competition are handled at work — worth watching if professional egos start outweighing the shared goal.",
+      "This aspect touches on how disagreements or competition are handled at work, worth watching if professional egos start outweighing the shared goal.",
     jupiter:
-      "This aspect touches on the opportunities this collaboration can open up — often a sign that working together serves both careers, not just the project at hand.",
+      "This aspect touches on the opportunities this collaboration can open up, often a sign that working together serves both careers, not just the project at hand.",
   },
 };
 

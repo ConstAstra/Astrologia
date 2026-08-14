@@ -14,6 +14,9 @@ import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeAspect, describeHouseOverlay } from "@/lib/astro/interpretations/compose";
 import { composeSynastrySynthesis } from "@/lib/astro/interpretations/synastry-synthesis";
+import { composeAllPlanetSignComparabilities } from "@/lib/astro/interpretations/planet-sign-comparability";
+import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -52,18 +55,23 @@ const TEXT: Record<
     personPlanet: (label: string, symbol: string, name: string) => string;
     synthesisTitle: string;
     synthesisOverviewHeading: string;
+    synthesisHousesHeading: string;
     synthesisTensionsHeading: string;
     synthesisTensionsIntro: string;
     synthesisStrengthsHeading: string;
     synthesisStrengthsIntro: string;
     noneDetected: string;
+    comparabilityTitle: string;
+    comparabilityIntro: string;
+    easyGround: string;
+    frictionGround: string;
   }
 > = {
   fr: {
     synastry: "Synastrie",
     needTwoProfiles: "Il vous faut deux profils",
     needTwoProfilesBody:
-      "Ajoutez au moins un second profil (par exemple votre partenaire), ou invitez un ami — dès qu'il accepte, son profil apparaît ici automatiquement.",
+      "Ajoutez au moins un second profil (par exemple votre partenaire), ou invitez un ami : dès qu'il accepte, son profil apparaît ici automatiquement.",
     chooseTwo: "Choisissez deux profils",
     profileNotFound: "Profil introuvable.",
     majorAspects: "Aspects croisés majeurs",
@@ -74,17 +82,23 @@ const TEXT: Record<
     personPlanet: (label, symbol, name) => `${symbol} ${name} de ${label}`,
     synthesisTitle: "Lecture de synthèse",
     synthesisOverviewHeading: "Vue d'ensemble",
+    synthesisHousesHeading: "Les maisons les plus activées",
     synthesisTensionsHeading: "Vos principales tensions",
     synthesisTensionsIntro: "Les aspects croisés qui demandent le plus d'ajustement conscient entre vous deux.",
     synthesisStrengthsHeading: "Vos principaux points d'appui",
     synthesisStrengthsIntro: "Les aspects croisés qui circulent le plus naturellement entre vous deux.",
     noneDetected: "Aucun détecté dans les orbes retenues.",
+    comparabilityTitle: "Comparabilité planète par planète",
+    comparabilityIntro:
+      "Pour chaque planète, comment vos signes respectifs dialoguent (ou frottent) sur ce terrain précis, du plus friable au plus fluide.",
+    easyGround: "Terrain facile",
+    frictionGround: "Terrain de friction",
   },
   en: {
     synastry: "Synastry",
     needTwoProfiles: "You need two profiles",
     needTwoProfilesBody:
-      "Add at least a second profile (for example your partner), or invite a friend — once they accept, their profile shows up here automatically.",
+      "Add at least a second profile (for example your partner), or invite a friend: once they accept, their profile shows up here automatically.",
     chooseTwo: "Choose two profiles",
     profileNotFound: "Profile not found.",
     majorAspects: "Major cross-aspects",
@@ -95,11 +109,17 @@ const TEXT: Record<
     personPlanet: (label, symbol, name) => `${label}'s ${symbol} ${name}`,
     synthesisTitle: "Synthesis reading",
     synthesisOverviewHeading: "Overview",
+    synthesisHousesHeading: "Houses most activated",
     synthesisTensionsHeading: "Your main tensions",
     synthesisTensionsIntro: "The cross-aspects that ask for the most conscious adjustment between you two.",
     synthesisStrengthsHeading: "Your main points of strength",
     synthesisStrengthsIntro: "The cross-aspects that flow most naturally between you two.",
     noneDetected: "None detected within the orbs used.",
+    comparabilityTitle: "Planet-by-planet comparability",
+    comparabilityIntro:
+      "For each planet, how your respective signs get along (or clash) on that specific ground, from the most friable to the smoothest.",
+    easyGround: "Easy ground",
+    frictionGround: "Friction ground",
   },
 };
 
@@ -246,7 +266,9 @@ export default async function SynastriePage({
     locale
   );
   const synthesis = composeSynastrySynthesis(
-    synastry.aspects,
+    synastry,
+    chartA,
+    chartB,
     compatibilityPercentage,
     compatibilityPunch,
     profileA.label,
@@ -254,6 +276,8 @@ export default async function SynastriePage({
     relationshipType,
     locale
   );
+  const comparabilities = composeAllPlanetSignComparabilities(chartA, chartB, profileA.label, profileB.label, locale);
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
 
   const moonA = signOf(chartA.points.moon.longitude);
   const moonB = signOf(chartB.points.moon.longitude);
@@ -353,6 +377,13 @@ export default async function SynastriePage({
           <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.overview}</p>
         </div>
 
+        {synthesis.housesOverview && (
+          <div className="mt-6 border-t border-border-soft pt-6">
+            <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisHousesHeading}</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.housesOverview}</p>
+          </div>
+        )}
+
         <div className="mt-6 border-t border-border-soft pt-6">
           <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisTensionsHeading}</p>
           <p className="mt-1 text-xs text-muted/70">{t.synthesisTensionsIntro}</p>
@@ -386,7 +417,74 @@ export default async function SynastriePage({
         </div>
       </Card>
 
-      <section className="mt-8">
+      {chartA.hasReliableHouses && (
+        <section className="mt-10">
+          <h2 className="font-display text-2xl">{t.planetsOf(profileB.label, profileA.label)}</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {synastry.bPlanetsInAHouses.map((overlay, i) => (
+              <Card key={i} className="p-4">
+                <p className="text-sm font-medium">
+                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}{" "}
+                  <span className="font-normal text-muted">, {t.house} {overlay.house}</span>
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  {describeHouseOverlay(overlay.point, overlay.house, profileB.label, profileA.label, locale)}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {chartB.hasReliableHouses && (
+        <section className="mt-10">
+          <h2 className="font-display text-2xl">{t.planetsOf(profileA.label, profileB.label)}</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {synastry.aPlanetsInBHouses.map((overlay, i) => (
+              <Card key={i} className="p-4">
+                <p className="text-sm font-medium">
+                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}{" "}
+                  <span className="font-normal text-muted">, {t.house} {overlay.house}</span>
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  {describeHouseOverlay(overlay.point, overlay.house, profileA.label, profileB.label, locale)}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="mt-10">
+        <h2 className="font-display text-2xl">{t.comparabilityTitle}</h2>
+        <p className="mt-2 text-sm text-muted">{t.comparabilityIntro}</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {comparabilities.map((c, i) => (
+            <Card key={i} className="p-4">
+              <div className="flex items-center justify-between text-sm">
+                <p className="font-medium">
+                  {planetMap[c.point].symbol} {planetMap[c.point].name}
+                </p>
+                <Badge tone={c.score >= 4 ? "sage" : "terracotta"}>
+                  {c.score >= 4 ? t.easyGround : t.frictionGround}
+                </Badge>
+              </div>
+              <p className="mt-1 text-xs text-muted/70">
+                {signMap[c.signA].symbol} {signMap[c.signA].name}
+                {c.signA !== c.signB && (
+                  <>
+                    {" "}
+                    <span className="text-muted/50">↔</span> {signMap[c.signB].symbol} {signMap[c.signB].name}
+                  </>
+                )}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-muted">{c.text}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10">
         <h2 className="font-display text-2xl">{t.majorAspects}</h2>
         <div className="mt-4 space-y-3">
           {majorAspects.length === 0 && <p className="text-sm text-muted">{t.noMajorAspects}</p>}
@@ -421,44 +519,6 @@ export default async function SynastriePage({
           })}
         </div>
       </section>
-
-      {chartA.hasReliableHouses && (
-        <section className="mt-10">
-          <h2 className="font-display text-2xl">{t.planetsOf(profileB.label, profileA.label)}</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {synastry.bPlanetsInAHouses.map((overlay, i) => (
-              <Card key={i} className="p-4">
-                <p className="text-sm font-medium">
-                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}{" "}
-                  <span className="font-normal text-muted">— {t.house} {overlay.house}</span>
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-muted">
-                  {describeHouseOverlay(overlay.point, overlay.house, profileB.label, profileA.label, locale)}
-                </p>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {chartB.hasReliableHouses && (
-        <section className="mt-10">
-          <h2 className="font-display text-2xl">{t.planetsOf(profileA.label, profileB.label)}</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {synastry.aPlanetsInBHouses.map((overlay, i) => (
-              <Card key={i} className="p-4">
-                <p className="text-sm font-medium">
-                  {planetMap[overlay.point].symbol} {planetMap[overlay.point].name}{" "}
-                  <span className="font-normal text-muted">— {t.house} {overlay.house}</span>
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-muted">
-                  {describeHouseOverlay(overlay.point, overlay.house, profileA.label, profileB.label, locale)}
-                </p>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

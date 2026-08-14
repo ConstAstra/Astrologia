@@ -12,8 +12,8 @@ const HEIGHT = 1280;
 const DURATION_MS = 3800;
 
 const TEXT = {
-  fr: { button: "🎬 Vidéo", recording: "…", label: "Notre compatibilité", shareText: "Notre compatibilité astrale, en vidéo — généré sur Astrologium.", unsupported: "Vidéo non disponible sur ce navigateur" },
-  en: { button: "🎬 Video", recording: "…", label: "Our compatibility", shareText: "Our astro compatibility, on video — generated on Astrologium.", unsupported: "Video not available on this browser" },
+  fr: { button: "🎬 Vidéo", recording: "…", label: "Notre compatibilité", shareText: "Notre compatibilité astrale, en vidéo, généré sur Astrologium.", unsupported: "Vidéo non disponible sur ce navigateur" },
+  en: { button: "🎬 Video", recording: "…", label: "Our compatibility", shareText: "Our astro compatibility, on video, generated on Astrologium.", unsupported: "Video not available on this browser" },
 };
 
 function loadImage(src: string): Promise<HTMLImageElement> {

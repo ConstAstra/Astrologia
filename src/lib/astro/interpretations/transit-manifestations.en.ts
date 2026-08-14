@@ -4,9 +4,9 @@ import type { PlanetKey } from "../types";
 // rationale (answers "so what does this actually cause today?").
 export const TRANSIT_MANIFESTATIONS_EN: Record<PlanetKey, Record<"harmonieux" | "tendu" | "neutre", string>> = {
   sun: {
-    harmonieux: "a moment where your presence lands well, where you get noticed for the right reasons — a chance to assert yourself without forcing it.",
+    harmonieux: "a moment where your presence lands well, where you get noticed for the right reasons, a chance to assert yourself without forcing it.",
     tendu: "a need to be seen running into a concrete obstacle: someone taking up all the space, a situation where it's hard to shine the way you'd like.",
-    neutre: "a slight bump in visibility, nothing at stake in particular — a day where your presence gets noticed a bit more than usual.",
+    neutre: "a slight bump in visibility, nothing at stake in particular, a day where your presence gets noticed a bit more than usual.",
   },
   moon: {
     harmonieux: "a lighter mood, a good moment to feel at ease at home or with a small circle.",
@@ -19,7 +19,7 @@ export const TRANSIT_MANIFESTATIONS_EN: Record<PlanetKey, Record<"harmonieux" | 
     neutre: "a bit more mental restlessness than usual, with no real consequence.",
   },
   venus: {
-    harmonieux: "a pleasant moment in love, friendship, or money — an invitation, a compliment, an unexpected bit of income.",
+    harmonieux: "a pleasant moment in love, friendship, or money, an invitation, a compliment, an unexpected bit of income.",
     tendu: "tension around money or a relationship, worth defusing rather than letting fester.",
     neutre: "a slightly stronger pull toward pleasure or comfort than usual, with no urgency to it.",
   },

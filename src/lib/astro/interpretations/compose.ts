@@ -133,13 +133,13 @@ function rulerConnectionText(
     const domicilePart = isDomicile
       ? " It's even in one of its own signs there, which reinforces this coloring further."
       : "";
-    return ` This decan's ruler, ${rulerName}, sits in ${signName}${housePart} in your own chart — worth reading alongside this one to see how that influence actually plays out for you.${domicilePart}`;
+    return ` This decan's ruler, ${rulerName}, sits in ${signName}${housePart} in your own chart, worth reading alongside this one to see how that influence actually plays out for you.${domicilePart}`;
   }
   const housePart = rulerPoint.house ? ` (maison ${rulerPoint.house})` : "";
   const domicilePart = isDomicile
     ? " Il y est d'ailleurs chez lui (dans l'un de ses propres signes), ce qui renforce encore cette coloration."
     : "";
-  return ` Le maître de ce décan, ${rulerName}, se trouve lui-même en ${signName}${housePart} dans votre thème — un point qui vaut la peine d'être lu en écho de celui-ci pour voir comment cette influence se vit concrètement chez vous.${domicilePart}`;
+  return ` Le maître de ce décan, ${rulerName}, se trouve lui-même en ${signName}${housePart} dans votre thème, un point qui vaut la peine d'être lu en écho de celui-ci pour voir comment cette influence se vit concrètement chez vous.${domicilePart}`;
 }
 
 /**
@@ -204,10 +204,12 @@ function joinConnector(connector: string, articledObject: string): string {
 /**
  * Signification, en synastrie, du fait que la planète de l'une des deux
  * personnes ("guest") tombe dans une maison natale de l'autre ("host").
- * Contrairement au simple mot-clé affiché auparavant, cette fonction relie
- * la planète invitée au thème de vie complet de la maison d'accueil
- * (réutilise HOUSE_META.paragraph, déjà écrit pour ça) pour que le lecteur
- * comprenne concrètement ce que ce recouvrement change au quotidien.
+ * Réutilise le texte détaillé par planète et par maison (PLANET_IN_HOUSE,
+ * déjà écrit pour la position natale — ex. "Vénus en maison XII vit l'amour
+ * et la beauté en privé...") plutôt que le mot-clé générique de la maison
+ * seule : une planète en maison XII de quelqu'un d'autre se lit concrètement
+ * de la même façon qu'une planète en maison XII de son propre thème, avec en
+ * plus le rappel de qui apporte cette énergie chez qui.
  */
 export function describeHouseOverlay(
   point: PointKey,
@@ -222,10 +224,12 @@ export function describeHouseOverlay(
   const house = houseList[houseNumber - 1];
   if (!house) return "";
 
+  const placementText = describePlanetInHouse(point, houseNumber, locale);
+
   if (locale === "en") {
-    return `${guestLabel}'s ${planet.name} falls in ${hostLabel}'s house ${houseNumber} (${house.name}): ${guestLabel} tends to bring ${planet.keyword} into ${hostLabel}'s everyday experience of ${house.keyword}. ${house.paragraph}`;
+    return `${guestLabel}'s ${planet.name} falls in ${hostLabel}'s house ${houseNumber} (${house.name}). ${placementText} In practice, this plays out through ${hostLabel}'s everyday experience of ${house.keyword}: ${guestLabel} tends to bring exactly this energy into that part of ${hostLabel}'s life.`;
   }
-  return `${planet.name} de ${guestLabel} tombe dans la maison ${houseNumber} de ${hostLabel} (${house.name}) : ${guestLabel} a tendance à apporter ${planet.keyword} dans le quotidien ${deContract(house.keyword)} chez ${hostLabel}. ${house.paragraph}`;
+  return `${planet.name} de ${guestLabel} tombe dans la maison ${houseNumber} de ${hostLabel} (${house.name}). ${placementText} Concrètement, cela se joue dans le quotidien ${deContract(house.keyword)} chez ${hostLabel} : ${guestLabel} a tendance à apporter exactement cette énergie dans ce domaine de sa vie.`;
 }
 
 export function describeAspect(
@@ -258,7 +262,7 @@ export function describeAspect(
     const themeSentence = pairTheme ? ` Underlying theme: ${pairTheme}` : "";
     const nameLower = meta.name.toLowerCase();
     const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
-    return `${subjectA} ${meta.transitConnector} ${objectB}${relationSuffix} (gap to exact: ${gap}°) — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence}`;
+    return `${subjectA} ${meta.transitConnector} ${objectB}${relationSuffix} (gap to exact: ${gap}°). Astrologers call this ${article} ${nameLower} (${meta.symbol}): ${meta.description}${themeSentence}`;
   }
 
   const subjectA =
@@ -273,7 +277,7 @@ export function describeAspect(
   const themeSentence = pairTheme ? ` Thème de fond : ${pairTheme}` : "";
   const article = meta.genderFr === "f" ? "une" : "un";
 
-  return `${subjectA} ${joinConnector(meta.transitConnector, objectB)}${relationSuffix} (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence}`;
+  return `${subjectA} ${joinConnector(meta.transitConnector, objectB)}${relationSuffix} (écart à l'exact : ${gap}°). Les astrologues appellent cela ${article} ${meta.name.toLowerCase()} (${meta.symbol}) : ${meta.description}${themeSentence}`;
 }
 
 /**
@@ -302,7 +306,7 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
     const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
     const manifestation = TRANSIT_MANIFESTATIONS_EN[aspect.transitingPlanet]?.[meta.tone];
     const manifestationSentence = manifestation ? ` Concretely, this can look like: ${manifestation}` : "";
-    return `Transiting ${transitName} ${meta.transitConnector} your natal ${natalName}${orbClause} — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
+    return `Transiting ${transitName} ${meta.transitConnector} your natal ${natalName}${orbClause}. Astrologers call this ${article} ${nameLower} (${meta.symbol}): ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
   }
 
   const timing = aspect.applying
@@ -318,7 +322,7 @@ export function describeTransitAspect(aspect: TransitAspect, locale: Locale = "f
   const manifestationSentence = manifestation ? ` Concrètement, ça peut se traduire par : ${manifestation}` : "";
   return `${transitName} en transit ${meta.transitConnector} votre ${natalName} natal${
     PLANET_GENDER_FR[aspect.natalPoint] === "f" ? "e" : ""
-  }${orbClause} — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
+  }${orbClause}. Les astrologues appellent cela ${article} ${meta.name.toLowerCase()} (${meta.symbol}) : ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
 }
 
 /** Aspect entre une planète en transit (aujourd'hui) et un point du thème composite d'un couple. */
@@ -346,7 +350,7 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
     const article = /^[aeiou]/i.test(nameLower) ? "an" : "a";
     const manifestation = TRANSIT_MANIFESTATIONS_COMPOSITE_EN[aspect.transitingPlanet]?.[meta.tone];
     const manifestationSentence = manifestation ? ` Concretely, for the relationship this can look like: ${manifestation}` : "";
-    return `Transiting ${transitName} ${meta.transitConnector} the ${compositeName} of your relationship's composite chart (orb: ${gap}°) — what astrologers call ${article} ${nameLower} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
+    return `Transiting ${transitName} ${meta.transitConnector} the ${compositeName} of your relationship's composite chart (orb: ${gap}°). Astrologers call this ${article} ${nameLower} (${meta.symbol}): ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
   }
 
   const timing = aspect.applying
@@ -359,7 +363,7 @@ export function describeCompositeTransitAspect(aspect: TransitAspect, locale: Lo
   const manifestationSentence = manifestation ? ` Concrètement, pour la relation, ça peut se traduire par : ${manifestation}` : "";
 
   const compositeObject = `${frArticle(aspect.natalPoint, compositeName)}${compositeName}`;
-  return `${transitName} en transit ${joinConnector(meta.transitConnector, compositeObject)} du thème composite de votre relation (écart à l'exact : ${gap}°) — ce que les astrologues appellent ${article} ${meta.name.toLowerCase()} (${meta.symbol}). ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
+  return `${transitName} en transit ${joinConnector(meta.transitConnector, compositeObject)} du thème composite de votre relation (écart à l'exact : ${gap}°). Les astrologues appellent cela ${article} ${meta.name.toLowerCase()} (${meta.symbol}) : ${meta.description}${themeSentence} ${timing}${manifestationSentence}`;
 }
 
 /** Aspect de synastrie réactivé aujourd'hui par un transit sur le point natal de l'un des deux partenaires. */
@@ -395,7 +399,7 @@ export function describeActivatedSynastryAspect(
     const manifestationSentence = manifestation
       ? ` Concretely, between you two this can look like: ${manifestation}`
       : " This is the moment when this dynamic between you two is most likely to manifest concretely.";
-    return `The ${synMeta.name.toLowerCase()} (${synMeta.symbol}) between ${personLabel}'s ${personName} and ${partnerLabel}'s ${partnerName} is switched on today: transiting ${transitPlanetName} ${transitMeta.transitConnector} ${personLabel}'s ${personName} (orb: ${gap}°) — a ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) in astrological terms.${themeSentence}${manifestationSentence}`;
+    return `The ${synMeta.name.toLowerCase()} (${synMeta.symbol}) between ${personLabel}'s ${personName} and ${partnerLabel}'s ${partnerName} is switched on today: transiting ${transitPlanetName} ${transitMeta.transitConnector} ${personLabel}'s ${personName} (orb: ${gap}°), a ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) in astrological terms.${themeSentence}${manifestationSentence}`;
   }
 
   const pairTheme = suppressRomantic ? undefined : getPairTheme(personPoint, partnerPoint);
@@ -409,7 +413,7 @@ export function describeActivatedSynastryAspect(
     ? ` Concrètement, entre vous deux, ça peut se traduire par : ${manifestation}`
     : " C'est le moment où cette dynamique entre vous deux a le plus de chances de se manifester concrètement.";
   const personObject = `${personArticle}${personName} de ${personLabel}`;
-  return `La dynamique ${synMeta.name.toLowerCase()} (${synMeta.symbol}) entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} s'active aujourd'hui : ${transitPlanetName} en transit ${joinConnector(transitMeta.transitConnector, personObject)} (écart à l'exact : ${gap}°) — ${transitArticle} ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) en langage astrologique.${themeSentence}${manifestationSentence}`;
+  return `La dynamique ${synMeta.name.toLowerCase()} (${synMeta.symbol}) entre ${personArticle}${personName} de ${personLabel} et ${partnerArticle}${partnerName} de ${partnerLabel} s'active aujourd'hui : ${transitPlanetName} en transit ${joinConnector(transitMeta.transitConnector, personObject)} (écart à l'exact : ${gap}°), ${transitArticle} ${transitMeta.name.toLowerCase()} (${transitMeta.symbol}) en langage astrologique.${themeSentence}${manifestationSentence}`;
 }
 
 export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, locale: Locale = "fr"): string {
@@ -419,8 +423,8 @@ export function describeAstroCartoLine(planet: PointKey, type: LineTypeKey, loca
   const lineMeta = lineMetaMap[type];
   const text = textMap[planet as keyof typeof textMap]?.[type];
   return locale === "en"
-    ? `${planetMeta.name} — ${lineMeta.name}: ${text ?? lineMeta.explanation}`
-    : `${planetMeta.name} — ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
+    ? `${planetMeta.name}, ${lineMeta.name}: ${text ?? lineMeta.explanation}`
+    : `${planetMeta.name}, ${lineMeta.name} : ${text ?? lineMeta.explanation}`;
 }
 
 /**
@@ -441,9 +445,9 @@ export function explainCountryRanking(
   const plural = count > 1;
 
   if (locale === "en") {
-    return `${count} line${plural ? "s" : ""} favorable to this theme actually cross${plural ? "" : "es"} this country — the more of them line up here, the more this theme tends to play out concretely. ${explanations}`;
+    return `${count} line${plural ? "s" : ""} favorable to this theme actually cross${plural ? "" : "es"} this country. The more of them line up here, the more this theme tends to play out concretely. ${explanations}`;
   }
-  return `${count} ligne${plural ? "s" : ""} favorable${plural ? "s" : ""} à ce thème traverse${plural ? "nt" : ""} réellement ce pays — plus elles se recoupent ici, plus ce thème a de chances de se concrétiser dans le vécu quotidien. ${explanations}`;
+  return `${count} ligne${plural ? "s" : ""} favorable${plural ? "s" : ""} à ce thème traverse${plural ? "nt" : ""} réellement ce pays. Plus elles se recoupent ici, plus ce thème a de chances de se concrétiser dans le vécu quotidien. ${explanations}`;
 }
 
 export function describeHouseSystem(houses: HouseCusps, locale: Locale = "fr"): string {

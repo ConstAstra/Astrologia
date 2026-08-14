@@ -150,7 +150,7 @@ function elementInteractionText(decanRuler: DecanRuler, sign: string, locale: "f
     if (matches === 1) {
       return ` This planet is only half in tune with the sign's element (${elementLabel}): part of this energy flows naturally, the other part asks for some adjustment.`;
     }
-    return ` This planet has a nature opposite to the sign's element (${elementLabel}): it brings a real counterpoint here — a nuance that wouldn't have shown up on its own elsewhere in the sign.`;
+    return ` This planet has a nature opposite to the sign's element (${elementLabel}): it brings a real counterpoint here, a nuance that wouldn't have shown up on its own elsewhere in the sign.`;
   }
   if (matches === 2) {
     return ` Cette planète partage la nature même de l'élément du signe (${elementLabel}) : plutôt qu'une note étrangère, c'est une version concentrée, presque amplifiée, de ce que le signe fait déjà naturellement.`;
@@ -158,7 +158,7 @@ function elementInteractionText(decanRuler: DecanRuler, sign: string, locale: "f
   if (matches === 1) {
     return ` Cette planète n'est qu'à moitié en phase avec l'élément du signe (${elementLabel}) : une partie de cette énergie coule naturellement, l'autre demande un ajustement.`;
   }
-  return ` Cette planète a une nature opposée à celle de l'élément du signe (${elementLabel}) : elle introduit ici un vrai contrepoint — une nuance qui ne serait pas venue spontanément ailleurs dans le signe.`;
+  return ` Cette planète a une nature opposée à celle de l'élément du signe (${elementLabel}) : elle introduit ici un vrai contrepoint, une nuance qui ne serait pas venue spontanément ailleurs dans le signe.`;
 }
 
 // Degrés critiques classiques (tradition occidentale), par modalité.
@@ -256,10 +256,10 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   // sous deux blocs de chiffres qui disent la même position.
   const decanText =
     (locale === "en"
-      ? `Every 30° sign splits into three 10° slices called decans, each carrying a touch of a different planet. You're in the ${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°) — ${formatDegMin(
+      ? `Every 30° sign splits into three 10° slices called decans, each carrying a touch of a different planet. You're in the ${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°), ${formatDegMin(
           posInDecan
         )} past its start, ${formatDegMin(remainingInDecan)} left before the next one. That adds ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
-      : `Chaque signe de 30° se découpe en trois tranches de 10° appelées décans, chacune teintée par l'influence d'une autre planète. Vous êtes dans le ${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°) — à ${formatDegMin(
+      : `Chaque signe de 30° se découpe en trois tranches de 10° appelées décans, chacune teintée par l'influence d'une autre planète. Vous êtes dans le ${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°), à ${formatDegMin(
           posInDecan
         )} de son début, encore ${formatDegMin(remainingInDecan)} avant le suivant. Cela ajoute ${DECAN_RULER_FLAVOR[decanRuler]}`) + elementInteractionText(decanRuler, sign, locale);
 
@@ -267,16 +267,16 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
     locale === "en"
       ? `That same third of the sign is also its ${phaseLabelEn(phase).toLowerCase()} phase: ${
           phase === "précoce"
-            ? "the energy shows up here still raw and spontaneous — the most instinctive, least filtered version of the sign."
+            ? "the energy shows up here still raw and spontaneous, the most instinctive, least filtered version of the sign."
             : phase === "tardive"
-              ? "the energy here has matured, sometimes already leaning toward the next sign's theme — a more conscious, occasionally more world-weary, version of it."
+              ? "the energy here has matured, sometimes already leaning toward the next sign's theme, a more conscious, occasionally more world-weary, version of it."
               : "the energy here is fully settled into its most stable, most typical version of the sign."
         }`
       : `Ce même tiers du signe correspond aussi à sa phase ${phase} : ${
           phase === "précoce"
-            ? "l'énergie s'exprime ici de façon encore brute et spontanée — la version la plus instinctive, la moins filtrée du signe."
+            ? "l'énergie s'exprime ici de façon encore brute et spontanée, la version la plus instinctive, la moins filtrée du signe."
             : phase === "tardive"
-              ? "l'énergie est ici mûrie, parfois déjà tournée vers la thématique du signe suivant — une forme plus consciente, parfois plus lasse, de cette même énergie."
+              ? "l'énergie est ici mûrie, parfois déjà tournée vers la thématique du signe suivant, une forme plus consciente, parfois plus lasse, de cette même énergie."
               : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus typique du signe."
         }`;
 
@@ -291,8 +291,8 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
     isAnaretic,
     anareticText: isAnaretic
       ? locale === "en"
-        ? `You're at the very last degree of the sign (29°, ${formatDegMin(remainingInSign)} from the switch to the next one) — what tradition calls the "anaretic" degree: a point of maximum tension before the sign changes, often felt as an urgency to "wrap up" what this sign had to teach before moving on — a raw, sometimes rushed, energy.`
-        : `Vous êtes au tout dernier degré du signe (29e, à ${formatDegMin(remainingInSign)} du passage au signe suivant) — ce que la tradition appelle le degré "anarétique" : point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose — une énergie à vif, parfois précipitée.`
+        ? `You're at the very last degree of the sign (29°, ${formatDegMin(remainingInSign)} from the switch to the next one): what tradition calls the "anaretic" degree, a point of maximum tension before the sign changes, often felt as an urgency to "wrap up" what this sign had to teach before moving on, a raw, sometimes rushed, energy.`
+        : `Vous êtes au tout dernier degré du signe (29e, à ${formatDegMin(remainingInSign)} du passage au signe suivant) : ce que la tradition appelle le degré "anarétique", point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose, une énergie à vif, parfois précipitée.`
       : undefined,
     nearestCriticalDegree,
     criticalOrb,
@@ -301,10 +301,10 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
       ? locale === "en"
         ? `You're ${
             criticalOrb <= EXACT_THRESHOLD ? "almost exactly on" : `${formatDegMin(criticalOrb)} from`
-          } ${nearestCriticalDegree}° — a marker classical tradition calls a "critical" degree: a point astrologers have long considered charged, where the sign's theme shows up with particular intensity or sharpness.`
+          } ${nearestCriticalDegree}°, a marker classical tradition calls a "critical" degree: a point astrologers have long considered charged, where the sign's theme shows up with particular intensity or sharpness.`
         : `Vous êtes ${
             criticalOrb <= EXACT_THRESHOLD ? "quasi exactement sur" : `à ${formatDegMin(criticalOrb)} de`
-          } ${nearestCriticalDegree}° — un repère que la tradition classique appelle degré "critique" : un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
+          } ${nearestCriticalDegree}°, un repère que la tradition classique appelle degré "critique" : un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
       : undefined,
   };
 }

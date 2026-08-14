@@ -7,12 +7,12 @@ const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", 
 
 const TOOLTIP = {
   fr: {
-    companion: (element: string) => `Compagnon — élément de ta Lune (${element})`,
-    glow: "Halo doré — abonnement Premium actif ou série de connexions d'au moins 7 jours",
+    companion: (element: string) => `Compagnon, élément de ta Lune (${element})`,
+    glow: "Halo doré, abonnement Premium actif ou série de connexions d'au moins 7 jours",
   },
   en: {
-    companion: (element: string) => `Companion — your Moon's element (${ELEMENT_LABEL_EN[element] ?? element})`,
-    glow: "Golden glow — active Premium subscription or a 7-day-or-longer login streak",
+    companion: (element: string) => `Companion, your Moon's element (${ELEMENT_LABEL_EN[element] ?? element})`,
+    glow: "Golden glow, active Premium subscription or a 7-day-or-longer login streak",
   },
 };
 
