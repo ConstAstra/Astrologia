@@ -3,15 +3,38 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { isPremiumActive } from "@/lib/billing/entitlements";
 import { computeNatalChart } from "@/lib/astro/chart";
-import { computeActiveSolarReturnWindow, computeSolarReturnChart } from "@/lib/astro/solar-return";
+import {
+  computeActiveSolarReturnWindow,
+  computeSolarReturnWindowForYear,
+  computeSolarReturnChart,
+} from "@/lib/astro/solar-return";
 import { computeAspects } from "@/lib/astro/aspects";
 import { PLANET_KEYS } from "@/lib/astro/types";
+import type { PointKey } from "@/lib/astro/types";
+import { signOf, formatLongitude } from "@/lib/astro/signs";
+import { PLANET_META } from "@/lib/astro/interpretations/planets";
+import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
+import { SIGN_META } from "@/lib/astro/interpretations/signs";
+import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
+import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
+import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
+import {
+  describeAspect,
+  describeDegree,
+  describePlanetInHouse,
+  describePlanetInSign,
+} from "@/lib/astro/interpretations/compose";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
+import { composeSolarReturnDomains } from "@/lib/astro/interpretations/solar-return-domains";
 import type { Locale } from "@/lib/astro/interpretations/compose";
-import { Card, Eyebrow } from "@/components/ui/Card";
+import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
+import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { SolarReturnYearPicker } from "@/components/dashboard/SolarReturnYearPicker";
+
+const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "fortune"];
 
 const TEXT: Record<
   Locale,
@@ -22,6 +45,14 @@ const TEXT: Record<
     validUntil: string;
     locationNote: string;
     inBrief: string;
+    grimoireTitle: string;
+    grimoireSubtitle: string;
+    grimoireAspectsNote: string;
+    positions: string;
+    house: string;
+    degree: string;
+    aspects: string;
+    noAspects: string;
     lockedTitle: string;
     lockedBody: string;
     unlock: string;
@@ -33,8 +64,16 @@ const TEXT: Record<
     exactMoment: "Retour exact du Soleil",
     validUntil: "Valable jusqu'au",
     locationNote:
-      "Calculée sur votre lieu de naissance — la tradition veut qu'on utilise le lieu où vous vivez au moment du retour, mais nous ne le connaissons pas encore.",
+      "Calculée sur votre lieu de naissance : la tradition veut qu'on utilise le lieu où vous vivez au moment du retour, mais nous ne le connaissons pas encore.",
     inBrief: "En bref",
+    grimoireTitle: "Le grimoire de votre année",
+    grimoireSubtitle: "Le thème de cette révolution solaire résumé bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
+    grimoireAspectsNote: "Les aspects détaillés de cette année sont à lire plus bas dans cette page.",
+    positions: "Positions de l'année",
+    house: "Maison",
+    degree: "Degré :",
+    aspects: "Aspects de l'année",
+    noAspects: "Aucun aspect détecté dans les orbes retenues.",
     lockedTitle: "Votre thème de l'année",
     lockedBody:
       "La révolution solaire — un thème recalculé chaque année à l'anniversaire exact de votre Soleil — est réservée à Premium.",
@@ -46,17 +85,32 @@ const TEXT: Record<
     exactMoment: "Exact solar return",
     validUntil: "Valid until",
     locationNote:
-      "Calculated for your birthplace — tradition uses the place you live at the moment of the return, but we don't know it yet.",
+      "Calculated for your birthplace: tradition uses the place you live at the moment of the return, but we don't know it yet.",
     inBrief: "In brief",
+    grimoireTitle: "The grimoire of your year",
+    grimoireSubtitle: "This solar return chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
+    grimoireAspectsNote: "This year's detailed aspects are further down this page.",
+    positions: "This year's positions",
+    house: "House",
+    degree: "Degree:",
+    aspects: "This year's aspects",
+    noAspects: "No aspect detected within the orbs used.",
     lockedTitle: "Your chart for the year",
     lockedBody: "The solar return — a chart recalculated every year on your Sun's exact anniversary — is a Premium feature.",
     unlock: "Unlock with Premium",
   },
 };
 
-export default async function SolarReturnPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SolarReturnPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ annee?: string }>;
+}) {
   const userId = await requireUserId();
   const { id } = await params;
+  const { annee } = await searchParams;
 
   const [profile, user] = await Promise.all([
     prisma.profile.findFirst({ where: { id, userId, archivedAt: null } }),
@@ -66,6 +120,9 @@ export default async function SolarReturnPage({ params }: { params: Promise<{ id
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
   const isPremium = isPremiumActive(user);
 
   const birthInput = {
@@ -78,14 +135,27 @@ export default async function SolarReturnPage({ params }: { params: Promise<{ id
   };
 
   const natalChart = computeNatalChart(birthInput, "placidus");
-  const [, birthMonth, birthDay] = profile.birthDate.split("-").map(Number);
+  const [birthYear, birthMonth, birthDay] = profile.birthDate.split("-").map(Number);
 
-  const window = computeActiveSolarReturnWindow(natalChart.points.sun.longitude, birthMonth, birthDay);
+  const activeWindow = computeActiveSolarReturnWindow(natalChart.points.sun.longitude, birthMonth, birthDay);
+  const minYear = birthYear + 1;
+  const maxYear = activeWindow.year + 10;
+  const requestedYear = Number(annee);
+  const selectedYear =
+    Number.isInteger(requestedYear) && requestedYear >= minYear && requestedYear <= maxYear
+      ? requestedYear
+      : activeWindow.year;
+
+  const window =
+    selectedYear === activeWindow.year
+      ? activeWindow
+      : computeSolarReturnWindowForYear(natalChart.points.sun.longitude, birthMonth, birthDay, selectedYear);
   const returnChart = computeSolarReturnChart(birthInput, window.start);
 
   const aspectKeys = [...PLANET_KEYS, "asc" as const, "mc" as const];
   const highlights = composeChartHighlights(returnChart, locale);
   const aspects = computeAspects(returnChart.points, aspectKeys);
+  const grimoireDomains = composeSolarReturnDomains(returnChart, window.year, locale);
 
   const dateFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "fr-FR", {
     weekday: "long",
@@ -110,15 +180,20 @@ export default async function SolarReturnPage({ params }: { params: Promise<{ id
 
   return (
     <div>
-      <Eyebrow>{t.eyebrow}</Eyebrow>
-      <h1 className="font-display mt-2 text-3xl">{t.heading(window.year)}</h1>
-      <p className="mt-1 text-sm text-muted">
-        {t.exactMoment} : {dateFormatter.format(window.start)}
-      </p>
-      <p className="text-sm text-muted">
-        {t.validUntil} {shortDateFormatter.format(window.end)}
-      </p>
-      <p className="mt-2 max-w-xl text-xs text-muted/70">{t.locationNote}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <Eyebrow>{t.eyebrow}</Eyebrow>
+          <h1 className="font-display mt-2 text-3xl">{t.heading(window.year)}</h1>
+          <p className="mt-1 text-sm text-muted">
+            {t.exactMoment} : {dateFormatter.format(window.start)}
+          </p>
+          <p className="text-sm text-muted">
+            {t.validUntil} {shortDateFormatter.format(window.end)}
+          </p>
+          <p className="mt-2 max-w-xl text-xs text-muted/70">{t.locationNote}</p>
+        </div>
+        <SolarReturnYearPicker profileId={profile.id} selectedYear={window.year} minYear={minYear} maxYear={maxYear} locale={locale} />
+      </div>
 
       <div className={`relative mt-6 ${locked ? "max-h-[640px] overflow-hidden" : ""}`}>
         <div className={locked ? "pointer-events-none select-none blur-sm" : undefined} aria-hidden={locked}>
@@ -147,6 +222,74 @@ export default async function SolarReturnPage({ params }: { params: Promise<{ id
               locale={locale}
             />
           </Card>
+
+          <div className="mt-6">
+            <GrimoireReveal
+              domains={grimoireDomains}
+              title={t.grimoireTitle}
+              subtitle={t.grimoireSubtitle}
+              aspectsNote={t.grimoireAspectsNote}
+              locale={locale}
+            />
+          </div>
+
+          <section className="mt-8">
+            <h2 className="font-display text-2xl">{t.positions}</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {DISPLAY_POINTS.map((key) => {
+                const point = returnChart.points[key];
+                if (!point) return null;
+                const meta = planetMap[key];
+                const sign = signOf(point.longitude);
+                return (
+                  <Card key={key} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">
+                        {meta.symbol} {meta.name}
+                      </p>
+                      <div className="flex items-center gap-1.5">
+                        {point.retrograde && <Badge tone="terracotta">Rx</Badge>}
+                        {point.house && <Badge>{t.house} {point.house}</Badge>}
+                      </div>
+                    </div>
+                    <p className="mt-1 text-sm text-gold-strong">
+                      {formatLongitude(point.longitude)} {signMap[sign].name}
+                    </p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, undefined, locale)}</p>
+                    {point.house && (
+                      <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house, locale)}</p>
+                    )}
+                    <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
+                      <span className="text-gold-strong/90">{t.degree} </span>
+                      {describeDegree(point.longitude, locale, returnChart.points)}
+                    </p>
+                  </Card>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="mt-8">
+            <h2 className="font-display text-2xl">{t.aspects}</h2>
+            <div className="mt-4 space-y-3">
+              {aspects.length === 0 && <p className="text-sm text-muted">{t.noAspects}</p>}
+              {aspects.map((aspect, i) => (
+                <Card key={i} className="p-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <p className="font-medium">
+                      {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
+                      <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol}{" "}
+                      {planetMap[aspect.b].name}
+                    </p>
+                    <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
+                      {aspectMap[aspect.aspect].name}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "natal", undefined, locale)}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
         </div>
 
         {locked && (

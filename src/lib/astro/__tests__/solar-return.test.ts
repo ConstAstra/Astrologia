@@ -3,6 +3,7 @@ import { computeNatalChart } from "@/lib/astro/chart";
 import {
   findSolarReturnMoment,
   computeActiveSolarReturnWindow,
+  computeSolarReturnWindowForYear,
   computeSolarReturnChart,
 } from "@/lib/astro/solar-return";
 
@@ -45,6 +46,22 @@ describe("computeActiveSolarReturnWindow", () => {
     expect(window.year).toBe(2025);
     expect(window.start.getTime()).toBeLessThanOrEqual(now.getTime());
     expect(window.end.getTime()).toBeGreaterThan(now.getTime());
+  });
+});
+
+describe("computeSolarReturnWindowForYear", () => {
+  it("computes the window for a chosen year regardless of the current date", () => {
+    const window = computeSolarReturnWindowForYear(natalSun, 6, 15, 2030);
+    expect(window.year).toBe(2030);
+    expect(window.start.getUTCFullYear()).toBe(2030);
+    expect(window.end.getUTCFullYear()).toBe(2031);
+    expect(window.end.getTime()).toBeGreaterThan(window.start.getTime());
+  });
+
+  it("works for a past year too", () => {
+    const window = computeSolarReturnWindowForYear(natalSun, 6, 15, 2010);
+    expect(window.year).toBe(2010);
+    expect(window.start.getUTCFullYear()).toBe(2010);
   });
 });
 

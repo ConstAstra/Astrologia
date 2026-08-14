@@ -71,6 +71,23 @@ export function computeActiveSolarReturnWindow(
 }
 
 /**
+ * Comme `computeActiveSolarReturnWindow`, mais pour une année d'anniversaire
+ * choisie explicitement plutôt que "celle en cours" — utilisé par le
+ * sélecteur d'année de la page révolution solaire, pour consulter aussi bien
+ * une année passée qu'une année future.
+ */
+export function computeSolarReturnWindowForYear(
+  natalSunLongitude: number,
+  birthMonth: number,
+  birthDay: number,
+  year: number
+): SolarReturnWindow {
+  const start = findSolarReturnMoment(natalSunLongitude, year, birthMonth, birthDay);
+  const end = findSolarReturnMoment(natalSunLongitude, year + 1, birthMonth, birthDay);
+  return { year, start, end };
+}
+
+/**
  * Calcule le thème de révolution solaire : un thème "natal" recalculé pour
  * l'instant exact du retour, au lieu de naissance (simplification standard
  * en l'absence d'un lieu de résidence actuel connu — voir avertissement

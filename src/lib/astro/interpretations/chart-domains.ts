@@ -21,7 +21,7 @@ export interface ChartDomains {
   spiritual: string;
 }
 
-interface Signals {
+export interface Signals {
   sun: ZodiacSign;
   moon: ZodiacSign;
   asc: ZodiacSign | null;
@@ -51,7 +51,7 @@ function pointSign(points: Partial<Record<PointKey, EclipticPoint>>, key: PointK
   return p ? signOf(p.longitude) : null;
 }
 
-function gatherSignals(
+export function gatherSignals(
   points: Partial<Record<PointKey, EclipticPoint>>,
   houses: HouseCusps,
   hasReliableHouses: boolean
@@ -87,17 +87,17 @@ function gatherSignals(
   };
 }
 
-function sn(sign: ZodiacSign, locale: Locale) {
+export function sn(sign: ZodiacSign, locale: Locale) {
   const m = locale === "en" ? SIGN_META_EN : SIGN_META;
   return m[sign].name;
 }
-function sk(sign: ZodiacSign, locale: Locale) {
+export function sk(sign: ZodiacSign, locale: Locale) {
   const m = locale === "en" ? SIGN_META_EN : SIGN_META;
   return m[sign].keyword;
 }
 const ELEMENT_NAME_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
 
-function dominanceClause(s: Signals, locale: Locale): string {
+export function dominanceClause(s: Signals, locale: Locale): string {
   const el = s.dominantElements;
   const mod = s.dominantModalities[0];
   if (locale === "en") {
