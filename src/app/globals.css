@@ -145,36 +145,38 @@ body {
 }
 .starfield::before {
   background-image:
-    radial-gradient(2px 2px at 8% 45%, #ffffff, transparent),
-    radial-gradient(1.5px 1.5px at 48% 28%, #ffffff, transparent),
-    radial-gradient(2px 2px at 78% 72%, #ffffff, transparent),
-    radial-gradient(1.5px 1.5px at 92% 42%, #ffffff, transparent),
-    radial-gradient(2px 2px at 18% 8%, #ffffff, transparent),
-    radial-gradient(1.5px 1.5px at 62% 92%, #f2b799, transparent);
+    radial-gradient(2.6px 2.6px at 8% 45%, #ffffff, transparent),
+    radial-gradient(2px 2px at 48% 28%, #ffffff, transparent),
+    radial-gradient(2.6px 2.6px at 78% 72%, #ffffff, transparent),
+    radial-gradient(2px 2px at 92% 42%, #ffffff, transparent),
+    radial-gradient(2.6px 2.6px at 18% 8%, #ffffff, transparent),
+    radial-gradient(2px 2px at 62% 92%, #f2b799, transparent);
   background-size: 210px 210px, 175px 175px, 245px 245px, 195px 195px, 260px 260px, 150px 150px;
-  filter: drop-shadow(0 0 3px #ffffffaa);
+  filter: drop-shadow(0 0 5px #ffffffdd);
   animation: twinkle-field 3.4s ease-in-out infinite;
 }
 .starfield::after {
   background-image:
-    radial-gradient(1.5px 1.5px at 22% 12%, #ffffff, transparent),
-    radial-gradient(2px 2px at 63% 55%, #ffffff, transparent),
-    radial-gradient(1.5px 1.5px at 35% 88%, #ffffff, transparent),
-    radial-gradient(2px 2px at 88% 18%, #e8935f, transparent),
-    radial-gradient(1.5px 1.5px at 5% 65%, #ffffff, transparent),
-    radial-gradient(2px 2px at 72% 32%, #ffffff, transparent);
+    radial-gradient(2px 2px at 22% 12%, #ffffff, transparent),
+    radial-gradient(2.6px 2.6px at 63% 55%, #ffffff, transparent),
+    radial-gradient(2px 2px at 35% 88%, #ffffff, transparent),
+    radial-gradient(2.6px 2.6px at 88% 18%, #e8935f, transparent),
+    radial-gradient(2px 2px at 5% 65%, #ffffff, transparent),
+    radial-gradient(2.6px 2.6px at 72% 32%, #ffffff, transparent);
   background-size: 190px 190px, 225px 225px, 165px 165px, 205px 205px, 235px 235px, 155px 155px;
-  filter: drop-shadow(0 0 3px #ffffffaa);
+  filter: drop-shadow(0 0 5px #ffffffdd);
   animation: twinkle-field 4.2s ease-in-out infinite;
   animation-delay: 1.4s;
 }
 @keyframes twinkle-field {
   0%,
   100% {
-    opacity: 0.15;
+    opacity: 0.3;
+    transform: scale(0.85);
   }
   50% {
     opacity: 1;
+    transform: scale(1.15);
   }
 }
 @media (prefers-reduced-motion: reduce) {
