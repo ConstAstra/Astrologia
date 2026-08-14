@@ -24,6 +24,8 @@ const TEXT: Record<
     compositeHint: string;
     lifeMission: string;
     lifeMissionHint: string;
+    solarReturn: string;
+    solarReturnHint: string;
     cartography: string;
     cartographyHint: string;
     horoscope: string;
@@ -50,6 +52,8 @@ const TEXT: Record<
     compositeHint: "Le thème \"du couple\" lui-même, calculé par la méthode des points médians — une troisième entité, au-delà des deux personnes.",
     lifeMission: "Mission de vie",
     lifeMissionHint: "Lecture de l'axe des Nœuds lunaires : la direction d'évolution à apprivoiser et le terrain déjà acquis à ne pas surinvestir.",
+    solarReturn: "Révolution solaire",
+    solarReturnHint: "Un thème recalculé chaque année à l'anniversaire exact de votre Soleil — ce que cette année-là a de particulier pour vous.",
     cartography: "Cartographie",
     cartographyHint: "Vos lignes planétaires projetées sur la carte du monde — cliquez un pays pour voir ce qui s'y passerait.",
     horoscope: "Horoscope",
@@ -73,6 +77,8 @@ const TEXT: Record<
     compositeHint: "The chart \"of the couple\" itself, calculated with the midpoint method — a third entity, beyond the two individuals.",
     lifeMission: "Life mission",
     lifeMissionHint: "A reading of the lunar Nodes axis: the direction of growth to embrace, and the already-familiar ground not to over-invest in.",
+    solarReturn: "Solar return",
+    solarReturnHint: "A chart recalculated every year on your Sun's exact anniversary — what makes that particular year yours.",
     cartography: "Cartography",
     cartographyHint: "Your planetary lines projected on the world map — tap a country to see what would happen there.",
     horoscope: "Horoscope",
@@ -122,6 +128,7 @@ export function DashboardNav({
 
   const mainLinks = [
     { href: "/dashboard/theme-natal", label: t.natalChart, hint: undefined },
+    { href: "/dashboard/revolution-solaire", label: t.solarReturn, hint: t.solarReturnHint },
     { href: "/dashboard/mission-de-vie", label: t.lifeMission, hint: t.lifeMissionHint },
     { href: "/dashboard/cartographie", label: t.cartography, hint: t.cartographyHint },
     { href: horoscopeHref, label: t.horoscope, hint: undefined },
