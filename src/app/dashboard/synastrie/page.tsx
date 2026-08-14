@@ -14,6 +14,7 @@ import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeAspect, describeHouseOverlay } from "@/lib/astro/interpretations/compose";
 import { composeSynastrySynthesis } from "@/lib/astro/interpretations/synastry-synthesis";
+import { composeSynastryChartDomains } from "@/lib/astro/interpretations/synastry-domains";
 import { composeAllPlanetSignComparabilities } from "@/lib/astro/interpretations/planet-sign-comparability";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
@@ -34,6 +35,7 @@ import { CompatibilityVideoButton } from "@/components/dashboard/CompatibilityVi
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { SynastryWheel } from "@/components/chart/SynastryWheel";
+import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
 import { PLANET_KEYS } from "@/lib/astro/types";
 import type { PointKey } from "@/lib/astro/types";
 
@@ -53,6 +55,9 @@ const TEXT: Record<
     house: string;
     compatibilityLabel: string;
     personPlanet: (label: string, symbol: string, name: string) => string;
+    grimoireTitle: string;
+    grimoireSubtitle: string;
+    grimoireAspectsNote: string;
     synthesisTitle: string;
     synthesisOverviewHeading: string;
     synthesisHousesHeading: string;
@@ -80,6 +85,9 @@ const TEXT: Record<
     house: "Maison",
     compatibilityLabel: "Compatibilité astrologique",
     personPlanet: (label, symbol, name) => `${symbol} ${name} de ${label}`,
+    grimoireTitle: "Le grimoire de ce lien",
+    grimoireSubtitle: "Ce que vos deux thèmes racontent ensemble, chapitre par chapitre, sans entrer dans le détail des aspects.",
+    grimoireAspectsNote: "Les aspects croisés détaillés sont à lire plus bas dans cette page.",
     synthesisTitle: "Lecture de synthèse",
     synthesisOverviewHeading: "Vue d'ensemble",
     synthesisHousesHeading: "Les maisons les plus activées",
@@ -107,6 +115,9 @@ const TEXT: Record<
     house: "House",
     compatibilityLabel: "Astrological compatibility",
     personPlanet: (label, symbol, name) => `${label}'s ${symbol} ${name}`,
+    grimoireTitle: "The grimoire of this bond",
+    grimoireSubtitle: "What your two charts say together, chapter by chapter, without going into aspect-by-aspect detail.",
+    grimoireAspectsNote: "The detailed cross-aspects are further down this page.",
     synthesisTitle: "Synthesis reading",
     synthesisOverviewHeading: "Overview",
     synthesisHousesHeading: "Houses most activated",
@@ -277,6 +288,7 @@ export default async function SynastriePage({
     locale
   );
   const comparabilities = composeAllPlanetSignComparabilities(chartA, chartB, profileA.label, profileB.label, locale);
+  const grimoireDomains = composeSynastryChartDomains(synastry, chartA, chartB, profileA.label, profileB.label, locale);
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
 
   const moonA = signOf(chartA.points.moon.longitude);
@@ -368,6 +380,16 @@ export default async function SynastriePage({
       </div>
 
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].synastryFraming}</Card>
+
+      <div className="mt-6">
+        <GrimoireReveal
+          domains={grimoireDomains}
+          title={t.grimoireTitle}
+          subtitle={t.grimoireSubtitle}
+          aspectsNote={t.grimoireAspectsNote}
+          locale={locale}
+        />
+      </div>
 
       <Card className="mt-6 p-6">
         <Eyebrow>{t.synthesisTitle}</Eyebrow>

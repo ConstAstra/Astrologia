@@ -24,6 +24,7 @@ import { describeLifeMission } from "@/lib/astro/interpretations/life-mission";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartSynthesis } from "@/lib/astro/interpretations/synthesis";
+import { composeChartDomains } from "@/lib/astro/interpretations/chart-domains";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { canViewProfile } from "@/lib/friends";
@@ -33,6 +34,7 @@ import { OverviewCard } from "@/components/chart/OverviewCard";
 import { ShareChartToggle } from "@/components/account/ShareChartToggle";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
+import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
 
 type Locale = "fr" | "en";
 
@@ -82,6 +84,9 @@ const TEXT: Record<
     houseHeading: string;
     synthesisTitle: string;
     synthesisPremium: string;
+    grimoireTitle: string;
+    grimoireSubtitle: string;
+    grimoireAspectsNote: string;
     synthesisOverviewHeading: string;
     synthesisAscendantRulerHeading: string;
     synthesisContradictionsHeading: string;
@@ -123,6 +128,9 @@ const TEXT: Record<
     houseHeading: "En maison",
     synthesisTitle: "Lecture de synthèse",
     synthesisPremium: "Premium",
+    grimoireTitle: "Le grimoire de votre thème",
+    grimoireSubtitle: "Toute la charte résumée bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
+    grimoireAspectsNote: "Les aspects détaillés, planète par planète, sont à lire plus bas dans cette page.",
     synthesisOverviewHeading: "Vue d'ensemble",
     synthesisAscendantRulerHeading: "Le maître de l'Ascendant",
     synthesisContradictionsHeading: "Vos contradictions internes",
@@ -163,6 +171,9 @@ const TEXT: Record<
     houseHeading: "In house",
     synthesisTitle: "Synthesis reading",
     synthesisPremium: "Premium",
+    grimoireTitle: "The grimoire of your chart",
+    grimoireSubtitle: "The whole chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
+    grimoireAspectsNote: "The planet-by-planet aspect details are further down this page.",
     synthesisOverviewHeading: "Overview",
     synthesisAscendantRulerHeading: "Your Ascendant ruler",
     synthesisContradictionsHeading: "Your internal contradictions",
@@ -236,6 +247,7 @@ export default async function ThemeNatalPage({
 
   const synthesisAccess = await hasFeatureAccess(userId, { feature: "synthesis", primaryProfileId: profile.id });
   const synthesis = synthesisAccess ? composeChartSynthesis(chart, locale) : null;
+  const grimoireDomains = synthesisAccess ? composeChartDomains(chart, locale) : null;
 
   return (
     <div>
@@ -355,6 +367,18 @@ export default async function ThemeNatalPage({
             )}
           </div>
         </Card>
+      )}
+
+      {grimoireDomains && (
+        <div className="mt-6">
+          <GrimoireReveal
+            domains={grimoireDomains}
+            title={t.grimoireTitle}
+            subtitle={t.grimoireSubtitle}
+            aspectsNote={t.grimoireAspectsNote}
+            locale={locale}
+          />
+        </div>
       )}
 
       <div className="mt-6">

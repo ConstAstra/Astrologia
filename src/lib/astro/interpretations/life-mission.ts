@@ -68,11 +68,11 @@ function synthesisText(
   if (locale === "en") {
     return houseKeyword
       ? `In practice, this North Node in ${northSignName} plays out most concretely around ${houseKeyword}: that is where the discomfort is felt first, and where ${rulerName} shows the way to advance step by step rather than all at once.`
-      : `In practice, this North Node in ${northSignName} is a direction to grow into gradually — ${rulerName}, its dispositor, shows the way to advance step by step rather than all at once.`;
+      : `In practice, this North Node in ${northSignName} is a direction to grow into gradually: ${rulerName}, its dispositor, shows the way to advance step by step rather than all at once.`;
   }
   return houseKeyword
     ? `En pratique, ce Nœud Nord en ${northSignName} se joue le plus concrètement autour de ${houseKeyword} : c'est là que l'inconfort se fait sentir en premier, et c'est ${rulerName} qui indique comment avancer pas à pas plutôt que d'un bond.`
-    : `En pratique, ce Nœud Nord en ${northSignName} est une direction à apprivoiser progressivement — ${rulerName}, son maître, indique comment avancer pas à pas plutôt que d'un bond.`;
+    : `En pratique, ce Nœud Nord en ${northSignName} est une direction à apprivoiser progressivement : ${rulerName}, son maître, indique comment avancer pas à pas plutôt que d'un bond.`;
 }
 
 /**

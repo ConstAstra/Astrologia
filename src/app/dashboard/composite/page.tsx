@@ -21,6 +21,7 @@ import {
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
 import { composeCompositeSynthesis } from "@/lib/astro/interpretations/composite-synthesis";
+import { composeCompositeChartDomains } from "@/lib/astro/interpretations/chart-domains";
 import {
   RELATIONSHIP_META,
   isRelationshipType,
@@ -34,6 +35,7 @@ import { RelationshipTabs } from "@/components/dashboard/RelationshipTabs";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ChartWheel } from "@/components/chart/ChartWheel";
+import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
 
 type Locale = "fr" | "en";
 
@@ -51,6 +53,9 @@ const TEXT: Record<
     house: string;
     degree: string;
     internalAspects: string;
+    grimoireTitle: string;
+    grimoireSubtitle: string;
+    grimoireAspectsNote: string;
     synthesisTitle: string;
     synthesisOverviewHeading: string;
     synthesisTensionsHeading: string;
@@ -72,6 +77,9 @@ const TEXT: Record<
     house: "Maison",
     degree: "Degré :",
     internalAspects: "Aspects internes",
+    grimoireTitle: "Le grimoire de cette relation",
+    grimoireSubtitle: "Le thème composite résumé bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
+    grimoireAspectsNote: "Les aspects internes détaillés sont à lire plus bas dans cette page.",
     synthesisTitle: "Lecture de synthèse",
     synthesisOverviewHeading: "Vue d'ensemble",
     synthesisTensionsHeading: "Ses principales tensions",
@@ -92,6 +100,9 @@ const TEXT: Record<
     house: "House",
     degree: "Degree:",
     internalAspects: "Internal aspects",
+    grimoireTitle: "The grimoire of this relationship",
+    grimoireSubtitle: "The composite chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
+    grimoireAspectsNote: "The detailed internal aspects are further down this page.",
     synthesisTitle: "Synthesis reading",
     synthesisOverviewHeading: "Overview",
     synthesisTensionsHeading: "Its main tensions",
@@ -217,11 +228,22 @@ export default async function CompositePage({
     house: composite.points[k].house,
   }));
   const synthesis = composeCompositeSynthesis(composite, relationshipType, locale);
+  const grimoireDomains = composeCompositeChartDomains(composite, locale);
 
   return (
     <div>
       {header}
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].compositeFraming}</Card>
+
+      <div className="mt-6">
+        <GrimoireReveal
+          domains={grimoireDomains}
+          title={t.grimoireTitle}
+          subtitle={t.grimoireSubtitle}
+          aspectsNote={t.grimoireAspectsNote}
+          locale={locale}
+        />
+      </div>
 
       <Card className="mt-6 p-6">
         <Eyebrow>{t.synthesisTitle}</Eyebrow>

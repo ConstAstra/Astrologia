@@ -494,3 +494,47 @@ body {
     animation: none;
   }
 }
+
+/* Page qui se tourne dans la mini-animation "grimoire" (synthèse condensée
+   du thème, voir GrimoireReveal.tsx) : léger effet de profondeur façon page
+   de livre qui se retourne, plutôt qu'un simple fondu, pour appuyer la
+   métaphore sans être une distraction. */
+@keyframes grimoire-page-in {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-10deg) translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(900px) rotateY(0deg) translateX(0);
+  }
+}
+.grimoire-page-in {
+  animation: grimoire-page-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-style: preserve-3d;
+}
+@media (prefers-reduced-motion: reduce) {
+  .grimoire-page-in {
+    animation: none;
+  }
+}
+
+/* Lueur douce qui pulse derrière l'onglet de chapitre actif du grimoire. */
+@keyframes grimoire-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.grimoire-glow {
+  animation: grimoire-glow 2.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .grimoire-glow {
+    animation: none;
+    opacity: 0.8;
+  }
+}
