@@ -27,6 +27,42 @@ export interface ChartDomains {
   spiritual: string;
 }
 
+/**
+ * Filet de sécurité final : si une même phrase venait à réapparaître mot
+ * pour mot, dans le même chapitre ou dans un autre (ex. la synastrie, quand
+ * plusieurs planètes d'une même personne tombent dans la même maison de
+ * l'autre, partage une phrase de clôture identique pour chacune ; ou le
+ * repli sans heure de naissance connue, où Saturne peut légitimement
+ * apparaître à la fois dans "Argent" et "Carrière"), on ne la garde qu'à sa
+ * toute première occurrence dans la lecture plutôt que de la répéter.
+ * `seen` est partagé entre tous les appels d'un même thème (voir
+ * dedupeChartDomains) pour que la déduplication joue aussi entre chapitres.
+ */
+export function dedupeSentences(text: string, seen: Set<string> = new Set()): string {
+  const parts = text.split(/(?<=[.!?])\s+/);
+  const kept: string[] = [];
+  for (const part of parts) {
+    const key = part.trim();
+    if (key.length > 20) {
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
+    kept.push(part);
+  }
+  return kept.join(" ");
+}
+
+export function dedupeChartDomains(domains: ChartDomains): ChartDomains {
+  const seen = new Set<string>();
+  return {
+    general: dedupeSentences(domains.general, seen),
+    love: dedupeSentences(domains.love, seen),
+    money: dedupeSentences(domains.money, seen),
+    career: dedupeSentences(domains.career, seen),
+    spiritual: dedupeSentences(domains.spiritual, seen),
+  };
+}
+
 export interface Signals {
   sun: ZodiacSign;
   moon: ZodiacSign;
@@ -191,16 +227,33 @@ export function dominanceClause(s: Signals, locale: Locale): string {
   return `Globalement, ${elText}, avec une façon d'avancer construite sur le réflexe de ${modText}.`;
 }
 
+// Les 8 maisons couvertes en détail par les quatre chapitres thématiques
+// (amour V+VII, argent II+VIII, carrière VI+X, spiritualité IX+XII) : si le
+// maître de l'Ascendant occupe l'une d'elles, son placement y est déjà
+// expliqué en entier, inutile de recoller le même paragraphe dans "Vue
+// d'ensemble".
+export const COVERED_HOUSES = [2, 5, 6, 7, 8, 9, 10, 12];
+
 /** Paragraphe détaillé (signe puis maison) du maître de l'Ascendant, prêt à être inséré dans le chapitre "général". */
 function ascendantRulerParagraph(s: Signals, relationshipType: RelationshipType | undefined, locale: Locale): string {
   if (!s.asc || !s.ascendantRulerKey || !s.ascendantRulerSign) return "";
   const rulerName = pn(s.ascendantRulerKey, locale);
   const signText = describePlanetInSign(s.ascendantRulerKey, s.ascendantRulerSign, relationshipType, locale);
-  const houseText = s.ascendantRulerHouse ? describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale) : "";
+  const houseAlreadyCovered = Boolean(s.ascendantRulerHouse && COVERED_HOUSES.includes(s.ascendantRulerHouse));
   if (locale === "en") {
-    return ` Traditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits. ${signText}${houseText ? ` ${houseText}` : ""}`;
+    const houseText = houseAlreadyCovered
+      ? ` It sits in house ${s.ascendantRulerHouse}, detailed further in this reading.`
+      : s.ascendantRulerHouse
+        ? ` ${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
+        : "";
+    return ` Traditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits. ${signText}${houseText}`;
   }
-  return ` En astrologie, ${sn(s.asc, locale)} est traditionnellement gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText ? ` ${houseText}` : ""}`;
+  const houseText = houseAlreadyCovered
+    ? ` Il se trouve en maison ${s.ascendantRulerHouse}, détaillée plus loin dans cette lecture.`
+    : s.ascendantRulerHouse
+      ? ` ${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
+      : "";
+  return ` En astrologie, ${sn(s.asc, locale)} est traditionnellement gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -223,11 +276,15 @@ function generalNatal(s: Signals, locale: Locale): string {
   }, trois couches qui ne sont pas toujours d'accord, et n'ont pas besoin de l'être.${rulerText}`;
 }
 
-function loveNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+function loveNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.venus && s.mars ? elementNuance(s.venus, s.mars, locale === "en" ? "What draws you in" : "Ce qui vous attire", locale === "en" ? "how you actually go after it" : "la façon dont vous allez réellement le chercher", locale) : "";
   if (s.hasReliableHouses) {
-    const fifth = describeHouseDomain(chart, 5, locale);
-    const seventh = describeHouseDomain(chart, 7, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 5 && h !== 7), ...usedHouses];
+    const fifth = describeHouseDomain(chart, 5, locale, avoid);
+    const seventh = describeHouseDomain(chart, 7, locale, avoid);
+    usedHouses.add(5).add(7);
+    if (fifth.rulerHouse) usedHouses.add(fifth.rulerHouse);
+    if (seventh.rulerHouse) usedHouses.add(seventh.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry the weight of your love life: pleasure and romance (${fifth.title}), and partnership itself (${seventh.title}).`
@@ -239,11 +296,15 @@ function loveNatal(chart: NatalChart, s: Signals, locale: Locale): string {
   return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function moneyNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+function moneyNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.jupiter && s.saturn ? elementNuance(s.jupiter, s.saturn, locale === "en" ? "Your instinct to expand" : "Votre instinct d'expansion", locale === "en" ? "your instinct to hold back and consolidate" : "votre instinct de retenue et de consolidation", locale) : "";
   if (s.hasReliableHouses) {
-    const second = describeHouseDomain(chart, 2, locale);
-    const eighth = describeHouseDomain(chart, 8, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 2 && h !== 8), ...usedHouses];
+    const second = describeHouseDomain(chart, 2, locale, avoid);
+    const eighth = describeHouseDomain(chart, 8, locale, avoid);
+    usedHouses.add(2).add(8);
+    if (second.rulerHouse) usedHouses.add(second.rulerHouse);
+    if (eighth.rulerHouse) usedHouses.add(eighth.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry your relationship to money: what you earn and build yourself (${second.title}), and what gets shared, merged or owed with someone else (${eighth.title}).`
@@ -255,11 +316,15 @@ function moneyNatal(chart: NatalChart, s: Signals, locale: Locale): string {
   return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function careerNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+function careerNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.mars && s.saturn ? elementNuance(s.mars, s.saturn, locale === "en" ? "Your natural pace" : "Votre rythme naturel", locale === "en" ? "the discipline this path demands" : "la discipline que ce chemin exige", locale) : "";
   if (s.hasReliableHouses) {
-    const sixth = describeHouseDomain(chart, 6, locale);
-    const tenth = describeHouseDomain(chart, 10, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 6 && h !== 10), ...usedHouses];
+    const sixth = describeHouseDomain(chart, 6, locale, avoid);
+    const tenth = describeHouseDomain(chart, 10, locale, avoid);
+    usedHouses.add(6).add(10);
+    if (sixth.rulerHouse) usedHouses.add(sixth.rulerHouse);
+    if (tenth.rulerHouse) usedHouses.add(tenth.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry your work life: daily work and routine (${sixth.title}), and the public role you're building toward (${tenth.title}).`
@@ -271,11 +336,15 @@ function careerNatal(chart: NatalChart, s: Signals, locale: Locale): string {
   return `${sunText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function spiritualNatal(chart: NatalChart, s: Signals, locale: Locale): string {
+function spiritualNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.moon && s.neptune ? elementNuance(s.moon, s.neptune, locale === "en" ? "What already soothes you" : "Ce qui vous apaise déjà", locale === "en" ? "the pull toward something less definable" : "l'attirance vers quelque chose de moins définissable", locale) : "";
   if (s.hasReliableHouses) {
-    const ninth = describeHouseDomain(chart, 9, locale);
-    const twelfth = describeHouseDomain(chart, 12, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 9 && h !== 12), ...usedHouses];
+    const ninth = describeHouseDomain(chart, 9, locale, avoid);
+    const twelfth = describeHouseDomain(chart, 12, locale, avoid);
+    usedHouses.add(9).add(12);
+    if (ninth.rulerHouse) usedHouses.add(ninth.rulerHouse);
+    if (twelfth.rulerHouse) usedHouses.add(twelfth.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry your inner life: the search for meaning (${ninth.title}), and what happens once you stop performing for anyone (${twelfth.title}).`
@@ -289,13 +358,19 @@ function spiritualNatal(chart: NatalChart, s: Signals, locale: Locale): string {
 
 export function composeChartDomains(chart: NatalChart, locale: Locale = "fr"): ChartDomains {
   const s = gatherSignals(chart.points, chart.houses, chart.hasReliableHouses);
-  return {
+  // Partagée entre les 4 chapitres thématiques (traités dans cet ordre) pour
+  // qu'un même maître de maison, une fois expliqué en entier quelque part,
+  // ne soit plus jamais recollé mot pour mot ailleurs dans la lecture, même
+  // quand la maison qu'il occupe n'est pas elle-même l'une des 8 maisons
+  // ciblées par les chapitres (voir describeHouseDomain).
+  const usedHouses = new Set<number>();
+  return dedupeChartDomains({
     general: generalNatal(s, locale),
-    love: loveNatal(chart, s, locale),
-    money: moneyNatal(chart, s, locale),
-    career: careerNatal(chart, s, locale),
-    spiritual: spiritualNatal(chart, s, locale),
-  };
+    love: loveNatal(chart, s, locale, usedHouses),
+    money: moneyNatal(chart, s, locale, usedHouses),
+    career: careerNatal(chart, s, locale, usedHouses),
+    spiritual: spiritualNatal(chart, s, locale, usedHouses),
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -314,11 +389,15 @@ function generalComposite(s: Signals, relationshipType: RelationshipType, locale
   }, pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble. ${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.${rulerText}`;
 }
 
-function loveComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+function loveComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.venus && s.mars ? elementNuance(s.venus, s.mars, locale === "en" ? "What this bond values" : "Ce que ce lien valorise", locale === "en" ? "how the two of you push for it" : "la façon dont vous deux le poursuivez", locale) : "";
   if (s.hasReliableHouses) {
-    const fifth = describeCompositeHouseDomain(composite, relationshipType, 5, locale);
-    const seventh = describeCompositeHouseDomain(composite, relationshipType, 7, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 5 && h !== 7), ...usedHouses];
+    const fifth = describeCompositeHouseDomain(composite, relationshipType, 5, locale, avoid);
+    const seventh = describeCompositeHouseDomain(composite, relationshipType, 7, locale, avoid);
+    usedHouses.add(5).add(7);
+    if (fifth.rulerHouse) usedHouses.add(fifth.rulerHouse);
+    if (seventh.rulerHouse) usedHouses.add(seventh.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry this bond's love life: shared pleasure (${fifth.title}), and the couple facing itself (${seventh.title}).`
@@ -330,11 +409,15 @@ function loveComposite(composite: CompositeChart, s: Signals, relationshipType: 
   return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function moneyComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+function moneyComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.jupiter && s.saturn ? elementNuance(s.jupiter, s.saturn, locale === "en" ? "This bond's instinct to expand" : "L'instinct d'expansion de ce lien", locale === "en" ? "its instinct to consolidate" : "son instinct de consolidation", locale) : "";
   if (s.hasReliableHouses) {
-    const second = describeCompositeHouseDomain(composite, relationshipType, 2, locale);
-    const eighth = describeCompositeHouseDomain(composite, relationshipType, 8, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 2 && h !== 8), ...usedHouses];
+    const second = describeCompositeHouseDomain(composite, relationshipType, 2, locale, avoid);
+    const eighth = describeCompositeHouseDomain(composite, relationshipType, 8, locale, avoid);
+    usedHouses.add(2).add(8);
+    if (second.rulerHouse) usedHouses.add(second.rulerHouse);
+    if (eighth.rulerHouse) usedHouses.add(eighth.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry this bond's relationship to money: what it builds and protects together (${second.title}), and what's merged or owed between you (${eighth.title}).`
@@ -346,11 +429,15 @@ function moneyComposite(composite: CompositeChart, s: Signals, relationshipType:
   return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function careerComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+function careerComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.sun && s.saturn ? elementNuance(s.sun, s.saturn, locale === "en" ? "What this bond is trying to become" : "Ce que ce lien essaie de devenir", locale === "en" ? "the discipline it needs to get there" : "la discipline dont il a besoin pour y arriver", locale) : "";
   if (s.hasReliableHouses) {
-    const sixth = describeCompositeHouseDomain(composite, relationshipType, 6, locale);
-    const tenth = describeCompositeHouseDomain(composite, relationshipType, 10, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 6 && h !== 10), ...usedHouses];
+    const sixth = describeCompositeHouseDomain(composite, relationshipType, 6, locale, avoid);
+    const tenth = describeCompositeHouseDomain(composite, relationshipType, 10, locale, avoid);
+    usedHouses.add(6).add(10);
+    if (sixth.rulerHouse) usedHouses.add(sixth.rulerHouse);
+    if (tenth.rulerHouse) usedHouses.add(tenth.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry this bond's shared work: its daily upkeep (${sixth.title}), and what it stands for once others can see it (${tenth.title}).`
@@ -362,11 +449,15 @@ function careerComposite(composite: CompositeChart, s: Signals, relationshipType
   return `${sunText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
 }
 
-function spiritualComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale): string {
+function spiritualComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.moon && s.neptune ? elementNuance(s.moon, s.neptune, locale === "en" ? "What this bond reaches for instinctively" : "Ce vers quoi ce lien se tourne instinctivement", locale === "en" ? "the harder-to-name pull it also carries" : "l'attirance plus difficile à nommer qu'il porte aussi", locale) : "";
   if (s.hasReliableHouses) {
-    const ninth = describeCompositeHouseDomain(composite, relationshipType, 9, locale);
-    const twelfth = describeCompositeHouseDomain(composite, relationshipType, 12, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== 9 && h !== 12), ...usedHouses];
+    const ninth = describeCompositeHouseDomain(composite, relationshipType, 9, locale, avoid);
+    const twelfth = describeCompositeHouseDomain(composite, relationshipType, 12, locale, avoid);
+    usedHouses.add(9).add(12);
+    if (ninth.rulerHouse) usedHouses.add(ninth.rulerHouse);
+    if (twelfth.rulerHouse) usedHouses.add(twelfth.rulerHouse);
     const intro =
       locale === "en"
         ? `Two houses carry this bond's inner life: the meaning it searches for together (${ninth.title}), and what it shares below the surface, unspoken (${twelfth.title}).`
@@ -384,11 +475,12 @@ export function composeCompositeChartDomains(
   locale: Locale = "fr"
 ): ChartDomains {
   const s = gatherSignals(composite.points, composite.houses, composite.hasReliableHouses);
-  return {
+  const usedHouses = new Set<number>();
+  return dedupeChartDomains({
     general: generalComposite(s, relationshipType, locale),
-    love: loveComposite(composite, s, relationshipType, locale),
-    money: moneyComposite(composite, s, relationshipType, locale),
-    career: careerComposite(composite, s, relationshipType, locale),
-    spiritual: spiritualComposite(composite, s, relationshipType, locale),
-  };
+    love: loveComposite(composite, s, relationshipType, locale, usedHouses),
+    money: moneyComposite(composite, s, relationshipType, locale, usedHouses),
+    career: careerComposite(composite, s, relationshipType, locale, usedHouses),
+    spiritual: spiritualComposite(composite, s, relationshipType, locale, usedHouses),
+  });
 }

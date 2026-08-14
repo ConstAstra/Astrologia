@@ -4,7 +4,7 @@ import { signOf } from "../signs";
 import { SIGN_META } from "./signs";
 import { SIGN_META_EN } from "./signs.en";
 import { describeHouseOverlay, describePlanetInSign, type Locale } from "./compose";
-import { type ChartDomains, elementNuance } from "./chart-domains";
+import { type ChartDomains, elementNuance, dedupeChartDomains } from "./chart-domains";
 
 function sn(sign: ZodiacSign, locale: Locale) {
   const m = locale === "en" ? SIGN_META_EN : SIGN_META;
@@ -181,11 +181,11 @@ export function composeSynastryChartDomains(
 
   const bothHouses = chartA.hasReliableHouses && chartB.hasReliableHouses;
 
-  return {
+  return dedupeChartDomains({
     general: generalChapter(labelA, labelB, sunA, sunB, moonA, moonB, locale),
     love: loveChapter(labelA, labelB, venusA, venusB, marsA, marsB, overlayTexts(synastry, labelA, labelB, [5, 7], bothHouses, locale), locale),
     money: moneyChapter(labelA, labelB, jupiterA, jupiterB, saturnA, saturnB, overlayTexts(synastry, labelA, labelB, [2, 8], bothHouses, locale), locale),
     career: careerChapter(labelA, labelB, sunA, sunB, overlayTexts(synastry, labelA, labelB, [6, 10], bothHouses, locale), locale),
     spiritual: spiritualChapter(labelA, labelB, neptuneA, neptuneB, moonA, moonB, overlayTexts(synastry, labelA, labelB, [9, 12], bothHouses, locale), locale),
-  };
+  });
 }

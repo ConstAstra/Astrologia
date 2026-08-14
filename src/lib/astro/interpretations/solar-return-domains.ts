@@ -1,5 +1,5 @@
 import type { NatalChart } from "../types";
-import { gatherSignals, sn, sk, dominanceClause, elementNuance, type ChartDomains, type Signals } from "./chart-domains";
+import { gatherSignals, sn, sk, dominanceClause, elementNuance, dedupeChartDomains, COVERED_HOUSES, type ChartDomains, type Signals } from "./chart-domains";
 import { describeHouseDomain } from "./synthesis";
 import type { Locale } from "./compose";
 
@@ -34,18 +34,23 @@ function yearChapter(
   introEn: string,
   introFr: string,
   nuance: string,
-  locale: Locale
+  locale: Locale,
+  usedHouses: Set<number>
 ): string {
   if (s.hasReliableHouses) {
-    const a = describeHouseDomain(chart, houseA, locale);
-    const b = describeHouseDomain(chart, houseB, locale);
+    const avoid = [...COVERED_HOUSES.filter((h) => h !== houseA && h !== houseB), ...usedHouses];
+    const a = describeHouseDomain(chart, houseA, locale, avoid);
+    const b = describeHouseDomain(chart, houseB, locale, avoid);
+    usedHouses.add(houseA).add(houseB);
+    if (a.rulerHouse) usedHouses.add(a.rulerHouse);
+    if (b.rulerHouse) usedHouses.add(b.rulerHouse);
     const intro = locale === "en" ? `${introEn} ${a.title} and ${b.title}, this year's version of them, that is.` : `${introFr} ${a.title} et ${b.title}, la version de cette année, cela dit.`;
     return `${intro} ${a.text} ${b.text}${nuance ? ` ${nuance}` : ""}`;
   }
   return nuance;
 }
 
-function loveSolarReturn(chart: NatalChart, s: Signals, locale: Locale): string {
+function loveSolarReturn(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.venus && s.mars ? elementNuance(s.venus, s.mars, locale === "en" ? "What catches your eye this year" : "Ce qui attire votre regard cette année", locale === "en" ? "how you go after it this season" : "la façon dont vous allez le chercher cette saison", locale) : "";
   return yearChapter(
     chart,
@@ -55,11 +60,12 @@ function loveSolarReturn(chart: NatalChart, s: Signals, locale: Locale): string 
     "This year's love life leans on two houses:",
     "La vie amoureuse de cette année s'appuie sur deux maisons :",
     nuance,
-    locale
+    locale,
+    usedHouses
   );
 }
 
-function moneySolarReturn(chart: NatalChart, s: Signals, locale: Locale): string {
+function moneySolarReturn(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.jupiter && s.saturn ? elementNuance(s.jupiter, s.saturn, locale === "en" ? "This year's instinct to expand" : "L'instinct d'expansion de cette année", locale === "en" ? "this year's instinct to hold back" : "l'instinct de retenue de cette année", locale) : "";
   return yearChapter(
     chart,
@@ -69,11 +75,12 @@ function moneySolarReturn(chart: NatalChart, s: Signals, locale: Locale): string
     "This year's money story leans on two houses:",
     "L'histoire financière de cette année s'appuie sur deux maisons :",
     nuance,
-    locale
+    locale,
+    usedHouses
   );
 }
 
-function careerSolarReturn(chart: NatalChart, s: Signals, locale: Locale): string {
+function careerSolarReturn(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = s.mars && s.saturn ? elementNuance(s.mars, s.saturn, locale === "en" ? "This year's pace" : "Le rythme de cette année", locale === "en" ? "the discipline the season demands" : "la discipline que la saison exige", locale) : "";
   return yearChapter(
     chart,
@@ -83,11 +90,12 @@ function careerSolarReturn(chart: NatalChart, s: Signals, locale: Locale): strin
     "This year's work life leans on two houses:",
     "La vie professionnelle de cette année s'appuie sur deux maisons :",
     nuance,
-    locale
+    locale,
+    usedHouses
   );
 }
 
-function spiritualSolarReturn(chart: NatalChart, s: Signals, locale: Locale): string {
+function spiritualSolarReturn(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
   const nuance = elementNuance(s.moon, s.neptune ?? s.moon, locale === "en" ? "What soothes you right now" : "Ce qui vous apaise en ce moment", locale === "en" ? "the harder-to-name pull this year also carries" : "l'attirance plus difficile à nommer que cette année porte aussi", locale);
   return yearChapter(
     chart,
@@ -97,17 +105,19 @@ function spiritualSolarReturn(chart: NatalChart, s: Signals, locale: Locale): st
     "This year's inner life leans on two houses:",
     "La vie intérieure de cette année s'appuie sur deux maisons :",
     nuance,
-    locale
+    locale,
+    usedHouses
   );
 }
 
 export function composeSolarReturnDomains(returnChart: NatalChart, year: number, locale: Locale = "fr"): ChartDomains {
   const s = gatherSignals(returnChart.points, returnChart.houses, returnChart.hasReliableHouses);
-  return {
+  const usedHouses = new Set<number>();
+  return dedupeChartDomains({
     general: generalSolarReturn(s, year, locale),
-    love: loveSolarReturn(returnChart, s, locale),
-    money: moneySolarReturn(returnChart, s, locale),
-    career: careerSolarReturn(returnChart, s, locale),
-    spiritual: spiritualSolarReturn(returnChart, s, locale),
-  };
+    love: loveSolarReturn(returnChart, s, locale, usedHouses),
+    money: moneySolarReturn(returnChart, s, locale, usedHouses),
+    career: careerSolarReturn(returnChart, s, locale, usedHouses),
+    spiritual: spiritualSolarReturn(returnChart, s, locale, usedHouses),
+  });
 }

@@ -69,6 +69,8 @@ export interface LifeDomainReading {
   house: number;
   title: string;
   text: string;
+  /** Maison où se trouve le maître, si cette maison était vide (null si occupée ou si le maître n'a pas de maison connue). */
+  rulerHouse?: number | null;
 }
 
 export interface ChartSynthesis {
@@ -92,8 +94,21 @@ export interface ChartSynthesis {
  * réutilisée aussi bien par `buildLifeDomains` (les 12 maisons à la suite)
  * que par la synthèse "grimoire" (regroupement thématique de quelques
  * maisons ciblées, voir chart-domains.ts).
+ *
+ * `avoidDuplicatingHouses` : maisons dont le texte complet sera (ou a déjà
+ * été) affiché ailleurs dans la même lecture. Si la maison demandée est
+ * vide et gouvernée par une planète qui occupe justement l'une de ces
+ * maisons, on ne recolle pas le paragraphe complet une seconde fois (le
+ * grimoire, en particulier, montre plusieurs maisons ciblées côte à côte :
+ * sans ce garde-fou, le même paragraphe peut réapparaître mot pour mot
+ * dans deux chapitres différents) — on renvoie plutôt un simple pointeur.
  */
-export function describeHouseDomain(chart: NatalChart, houseNumber: number, locale: Locale = "fr"): LifeDomainReading {
+export function describeHouseDomain(
+  chart: NatalChart,
+  houseNumber: number,
+  locale: Locale = "fr",
+  avoidDuplicatingHouses: number[] = []
+): LifeDomainReading {
   const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
@@ -118,43 +133,53 @@ export function describeHouseDomain(chart: NatalChart, houseNumber: number, loca
   const rulerKey = SIGN_RULER[cuspSign];
   const rulerPoint = chart.points[rulerKey];
   const rulerName = planetMap[rulerKey].name;
+  const rulerHouseAlreadyCovered = Boolean(rulerPoint?.house && avoidDuplicatingHouses.includes(rulerPoint.house));
 
   // Ne pas se contenter de dire où se trouve le maître de la maison : le
   // lecteur qui n'a jamais fait d'astrologie n'a aucun moyen de deviner ce
   // que "Mercure en Poissons, maison 8" veut dire concrètement. On
   // réutilise donc le même texte détaillé par signe/maison que celui
   // affiché quand la planète occupe directement la maison, pour que la
-  // profondeur de lecture soit la même, qu'on lise le maître ou l'occupant.
+  // profondeur de lecture soit la même, qu'on lise le maître ou l'occupant
+  // (sauf si ce texte est déjà affiché ailleurs, voir avoidDuplicatingHouses).
   let text: string;
   if (locale === "en") {
     let rulerPlace = "";
     if (rulerPoint) {
       const rulerSign = signOf(rulerPoint.longitude);
-      const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
-      const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
-      rulerPlace = ` In this chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
-        rulerPoint.house ? `, house ${rulerPoint.house}` : ""
-      }: that placement is where this domain's real story actually plays out. Concretely, here's what that means: ${rulerSignText}${
-        rulerHouseText ? ` ${rulerHouseText}` : ""
-      }`;
+      if (rulerHouseAlreadyCovered) {
+        rulerPlace = ` In this chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}, house ${rulerPoint.house}, detailed elsewhere in this reading.`;
+      } else {
+        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
+        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+        rulerPlace = ` In this chart, ${rulerName}, this house's ruler, sits in ${signMap[rulerSign].name}${
+          rulerPoint.house ? `, house ${rulerPoint.house}` : ""
+        }: that placement is where this domain's real story actually plays out. Concretely, here's what that means: ${rulerSignText}${
+          rulerHouseText ? ` ${rulerHouseText}` : ""
+        }`;
+      }
     }
     text = `${house.name} holds no planet of its own: this domain is read indirectly, through ${cuspSignName} on its cusp (${house.keyword}) and through its ruler, ${rulerName}.${rulerPlace}`;
   } else {
     let rulerPlace = "";
     if (rulerPoint) {
       const rulerSign = signOf(rulerPoint.longitude);
-      const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
-      const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
-      rulerPlace = ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
-        rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
-      } : c'est là que se joue concrètement l'histoire réelle de ce domaine. Concrètement, voici ce que ça signifie : ${rulerSignText}${
-        rulerHouseText ? ` ${rulerHouseText}` : ""
-      }`;
+      if (rulerHouseAlreadyCovered) {
+        rulerPlace = ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}, maison ${rulerPoint.house}, détaillée par ailleurs dans cette lecture.`;
+      } else {
+        const rulerSignText = describePlanetInSign(rulerKey, rulerSign, undefined, locale);
+        const rulerHouseText = rulerPoint.house ? describePlanetInHouse(rulerKey, rulerPoint.house, locale) : null;
+        rulerPlace = ` Dans ce thème, ${frArticle(rulerKey, rulerName)}${rulerName}, maître de cette maison, se trouve en ${signMap[rulerSign].name}${
+          rulerPoint.house ? `, maison ${rulerPoint.house}` : ""
+        } : c'est là que se joue concrètement l'histoire réelle de ce domaine. Concrètement, voici ce que ça signifie : ${rulerSignText}${
+          rulerHouseText ? ` ${rulerHouseText}` : ""
+        }`;
+      }
     }
     text = `${house.name} n'abrite aucune planète en propre : ce domaine se lit indirectement, à travers le signe ${cuspSignName} sur sa pointe (${house.keyword}) et à travers ${frArticle(rulerKey, rulerName)}${rulerName}, son maître.${rulerPlace}`;
   }
 
-  return { house: houseNumber, title: house.name, text };
+  return { house: houseNumber, title: house.name, text, rulerHouse: rulerPoint?.house ?? null };
 }
 
 /**
