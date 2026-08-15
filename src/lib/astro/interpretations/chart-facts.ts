@@ -1,5 +1,5 @@
 import { PLANET_KEYS } from "../types";
-import type { NatalChart, PointKey, ZodiacSign, EclipticPoint } from "../types";
+import type { PointKey, ZodiacSign, EclipticPoint } from "../types";
 import { computeAspects } from "../aspects";
 import { signOf, formatLongitude } from "../signs";
 import { computeDominance } from "../dominance";
@@ -69,12 +69,21 @@ export interface ChartFacts {
 const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
 const MODALITY_LABEL_EN: Record<string, string> = { Cardinal: "Cardinal", Fixe: "Fixed", Mutable: "Mutable" };
 
-function formatOrb(exact: number): string {
+export function formatOrb(exact: number): string {
   const abs = Math.abs(exact);
   const deg = Math.floor(abs);
   const min = Math.round((abs - deg) * 60);
   if (min === 60) return `${deg + 1}°00`;
   return `${deg}°${String(min).padStart(2, "0")}`;
+}
+
+/** Nom affichable d'un point, y compris les angles (utilisé aussi par synastry-facts.ts). */
+export function pointDisplayName(key: PointKey, locale: Locale = "fr"): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  if (key === "asc") return "Ascendant";
+  if (key === "mc") return locale === "en" ? "Midheaven" : "Milieu du Ciel";
+  if (key === "desc" || key === "ic" || key === "fortune") return key;
+  return planetMap[key].name;
 }
 
 /**
@@ -83,19 +92,19 @@ function formatOrb(exact: number): string {
  * d'aspects, dominantes) : l'unique matière factuelle transmise au LLM pour
  * rédiger la synthèse profonde, jamais de texte tout fait. Rien ici n'est de
  * l'interprétation, seulement des faits calculés et vérifiables.
+ *
+ * Prend un objet minimal (points + hasReliableHouses) plutôt qu'un NatalChart
+ * complet : NatalChart, CompositeChart et le thème de retour d'une révolution
+ * solaire (lui-même un NatalChart) satisfont tous cette forme directement,
+ * sans conversion, ce qui permet de réutiliser la même extraction de faits
+ * pour les 4 contextes (natal, synastrie, composite, révolution solaire).
  */
-export function buildChartFacts(chart: NatalChart, locale: Locale = "fr"): ChartFacts {
+export function buildPlanetFacts(
+  chart: { points: Record<PointKey, EclipticPoint>; hasReliableHouses: boolean },
+  locale: Locale = "fr"
+): PlanetFact[] {
   const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
-  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
-
-  function nameOf(key: PointKey): string {
-    if (key === "asc") return locale === "en" ? "Ascendant" : "Ascendant";
-    if (key === "mc") return locale === "en" ? "Midheaven" : "Milieu du Ciel";
-    if (key === "desc" || key === "ic" || key === "fortune") return key;
-    return planetMap[key].name;
-  }
-
   const planets: PlanetFact[] = [];
   for (const key of PLANET_KEYS) {
     const point = chart.points[key];
@@ -115,6 +124,21 @@ export function buildChartFacts(chart: NatalChart, locale: Locale = "fr"): Chart
         dignities.length > 0 ? dignities.map((d) => dignityLabel(d, locale)).join(locale === "en" ? " and " : " et ") : null,
     });
   }
+  return planets;
+}
+
+export function buildChartFacts(
+  chart: { points: Record<PointKey, EclipticPoint>; hasReliableHouses: boolean },
+  locale: Locale = "fr"
+): ChartFacts {
+  const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
+  const aspectMap = locale === "en" ? ASPECT_META_EN : ASPECT_META;
+
+  function nameOf(key: PointKey): string {
+    return pointDisplayName(key, locale);
+  }
+
+  const planets = buildPlanetFacts(chart, locale);
 
   let ascendant: ChartFacts["ascendant"] = null;
   let midheaven: ChartFacts["midheaven"] = null;
@@ -185,7 +209,7 @@ export function buildChartFacts(chart: NatalChart, locale: Locale = "fr"): Chart
     patterns,
     dominantElements,
     dominantModalities,
-    ascendantRulerName: ascendantRulerKey ? planetMap[ascendantRulerKey].name : null,
+    ascendantRulerName: ascendantRulerKey ? pointDisplayName(ascendantRulerKey, locale) : null,
     ascendantRulerPlacement,
   };
 }

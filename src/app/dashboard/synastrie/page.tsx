@@ -13,8 +13,9 @@ import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { describeAspect, describeHouseOverlay } from "@/lib/astro/interpretations/compose";
-import { composeSynastrySynthesis } from "@/lib/astro/interpretations/synastry-synthesis";
 import { composeSynastryChartDomains } from "@/lib/astro/interpretations/synastry-domains";
+import { buildSynastryFacts } from "@/lib/astro/interpretations/synastry-facts";
+import { getOrGenerateSynastryDeepSynthesis } from "@/lib/ai/deep-synthesis-cache";
 import { composeAllPlanetSignComparabilities } from "@/lib/astro/interpretations/planet-sign-comparability";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
@@ -58,14 +59,6 @@ const TEXT: Record<
     grimoireTitle: string;
     grimoireSubtitle: string;
     grimoireAspectsNote: string;
-    synthesisTitle: string;
-    synthesisOverviewHeading: string;
-    synthesisHousesHeading: string;
-    synthesisTensionsHeading: string;
-    synthesisTensionsIntro: string;
-    synthesisStrengthsHeading: string;
-    synthesisStrengthsIntro: string;
-    noneDetected: string;
     comparabilityTitle: string;
     comparabilityIntro: string;
     easyGround: string;
@@ -88,14 +81,6 @@ const TEXT: Record<
     grimoireTitle: "Le grimoire de ce lien",
     grimoireSubtitle: "Ce que vos deux thèmes racontent ensemble, chapitre par chapitre, sans entrer dans le détail des aspects.",
     grimoireAspectsNote: "Les aspects croisés détaillés sont à lire plus bas dans cette page.",
-    synthesisTitle: "Lecture de synthèse",
-    synthesisOverviewHeading: "Vue d'ensemble",
-    synthesisHousesHeading: "Les maisons les plus activées",
-    synthesisTensionsHeading: "Vos principales tensions",
-    synthesisTensionsIntro: "Les aspects croisés qui demandent le plus d'ajustement conscient entre vous deux.",
-    synthesisStrengthsHeading: "Vos principaux points d'appui",
-    synthesisStrengthsIntro: "Les aspects croisés qui circulent le plus naturellement entre vous deux.",
-    noneDetected: "Aucun détecté dans les orbes retenues.",
     comparabilityTitle: "Comparabilité planète par planète",
     comparabilityIntro:
       "Pour chaque planète, comment vos signes respectifs dialoguent (ou frottent) sur ce terrain précis, du plus friable au plus fluide.",
@@ -118,14 +103,6 @@ const TEXT: Record<
     grimoireTitle: "The grimoire of this bond",
     grimoireSubtitle: "What your two charts say together, chapter by chapter, without going into aspect-by-aspect detail.",
     grimoireAspectsNote: "The detailed cross-aspects are further down this page.",
-    synthesisTitle: "Synthesis reading",
-    synthesisOverviewHeading: "Overview",
-    synthesisHousesHeading: "Houses most activated",
-    synthesisTensionsHeading: "Your main tensions",
-    synthesisTensionsIntro: "The cross-aspects that ask for the most conscious adjustment between you two.",
-    synthesisStrengthsHeading: "Your main points of strength",
-    synthesisStrengthsIntro: "The cross-aspects that flow most naturally between you two.",
-    noneDetected: "None detected within the orbs used.",
     comparabilityTitle: "Planet-by-planet comparability",
     comparabilityIntro:
       "For each planet, how your respective signs get along (or clash) on that specific ground, from the most friable to the smoothest.",
@@ -276,19 +253,18 @@ export default async function SynastriePage({
     synastry.aspects,
     locale
   );
-  const synthesis = composeSynastrySynthesis(
-    synastry,
-    chartA,
-    chartB,
-    compatibilityPercentage,
-    compatibilityPunch,
-    profileA.label,
-    profileB.label,
-    relationshipType,
-    locale
-  );
   const comparabilities = composeAllPlanetSignComparabilities(chartA, chartB, profileA.label, profileB.label, locale);
-  const grimoireDomains = composeSynastryChartDomains(synastry, chartA, chartB, profileA.label, profileB.label, locale);
+  const anonLabelA = locale === "en" ? "Person A" : "Personne A";
+  const anonLabelB = locale === "en" ? "Person B" : "Personne B";
+  const synastryFacts = buildSynastryFacts(chartA, chartB, synastry, anonLabelA, anonLabelB, locale);
+  const grimoireDomains =
+    (await getOrGenerateSynastryDeepSynthesis(
+      { type: "synastry", profileId: primaryProfileId, secondaryProfileId, relationshipType, locale },
+      synastryFacts,
+      { relationshipLabel: relationshipMeta[relationshipType].label },
+      profileA.label,
+      profileB.label
+    )) ?? composeSynastryChartDomains(synastry, chartA, chartB, profileA.label, profileB.label, locale);
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
 
   const moonA = signOf(chartA.points.moon.longitude);
@@ -390,54 +366,6 @@ export default async function SynastriePage({
           locale={locale}
         />
       </div>
-
-      <Card className="mt-6 p-6">
-        <Eyebrow>{t.synthesisTitle}</Eyebrow>
-
-        <div className="mt-4">
-          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisOverviewHeading}</p>
-          <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.overview}</p>
-        </div>
-
-        {synthesis.housesOverview && (
-          <div className="mt-6 border-t border-border-soft pt-6">
-            <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisHousesHeading}</p>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.housesOverview}</p>
-          </div>
-        )}
-
-        <div className="mt-6 border-t border-border-soft pt-6">
-          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisTensionsHeading}</p>
-          <p className="mt-1 text-xs text-muted/70">{t.synthesisTensionsIntro}</p>
-          <div className="mt-3 space-y-3">
-            {synthesis.tensions.length === 0 ? (
-              <p className="text-sm text-muted">{t.noneDetected}</p>
-            ) : (
-              synthesis.tensions.map((s, i) => (
-                <p key={i} className="text-sm leading-relaxed text-muted">
-                  {s}
-                </p>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="mt-6 border-t border-border-soft pt-6">
-          <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisStrengthsHeading}</p>
-          <p className="mt-1 text-xs text-muted/70">{t.synthesisStrengthsIntro}</p>
-          <div className="mt-3 space-y-3">
-            {synthesis.strengths.length === 0 ? (
-              <p className="text-sm text-muted">{t.noneDetected}</p>
-            ) : (
-              synthesis.strengths.map((s, i) => (
-                <p key={i} className="text-sm leading-relaxed text-muted">
-                  {s}
-                </p>
-              ))
-            )}
-          </div>
-        </div>
-      </Card>
 
       {chartA.hasReliableHouses && (
         <section className="mt-10">

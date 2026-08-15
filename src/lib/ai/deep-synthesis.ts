@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/astro/interpretations/compose";
 import type { AspectFact, ChartFacts, PatternFact, PlanetFact } from "@/lib/astro/interpretations/chart-facts";
+import type { SynastryCrossAspectFact, SynastryFacts, SynastryPersonFacts } from "@/lib/astro/interpretations/synastry-facts";
 
 export interface DeepSynthesisResult {
   general: string;
@@ -10,10 +11,13 @@ export interface DeepSynthesisResult {
 }
 
 export interface DeepSynthesisContext {
-  /** Ex. "thème natal", "révolution solaire 2026", "synastrie entre deux personnes", "thème composite d'un couple". */
+  /** Ex. "thème natal", "révolution solaire 2026", "thème composite d'un couple". */
   themeLabel: string;
-  /** Pour synastrie/composite : qui est qui, en placeholders anonymisés (jamais de nom réel envoyé à l'API). */
-  subjectsNote?: string;
+}
+
+export interface SynastryDeepSynthesisContext {
+  /** Nature de la relation (amitié, couple, famille...), pour adapter le ton. */
+  relationshipLabel: string;
 }
 
 const SYSTEM_PROMPT: Record<Locale, string> = {
@@ -43,6 +47,41 @@ How the 5 parts break down:
 - money: the relationship to money and resources, from houses 2 and 8, Jupiter and Saturn, and the aspects/patterns touching them.
 - career: work and professional ambition (not deep life purpose, which has its own section elsewhere in the app), from houses 6 and 10, the Midheaven, the Sun, and Saturn, and the aspects/patterns touching them.
 - spiritual: inner life, intuition, the relationship to the unseen, from houses 9 and 12, the Moon, and Neptune, and the aspects/patterns touching them.
+
+Never mention a fact that isn't in the given list.`,
+};
+
+const SYSTEM_PROMPT_SYNASTRY: Record<Locale, string> = {
+  fr: `Tu écris pour Astrologium, une app d'astrologie. Tu analyses la relation entre deux personnes, désignées UNIQUEMENT par les libellés donnés dans le message (jamais un nom réel : tu ne les connais pas). Reprends ces libellés textuellement à chaque fois que tu désignes l'une des deux personnes, ne les remplace jamais par "vous", "iel", un prénom inventé ou autre chose.
+
+Tu ne connais QUE les faits donnés : les positions propres à chaque personne (signe, maison, degré, dignité), les aspects entre les deux thèmes avec leur orbe exact, et les recouvrements de maison dans les deux sens (les planètes de l'une tombant dans les maisons de l'autre). Tu ne dois jamais inventer, supposer ou ajouter un fait qui n'est pas dans la liste.
+
+Tu rédiges une synthèse en 5 parties (general, love, money, career, spiritual), retournée en JSON. Chaque partie est un texte de plusieurs paragraphes, en prose continue (jamais de puces, jamais de titre à l'intérieur du texte, jamais de formule d'ouverture). Cite le degré exact, la maison, la dignité et l'orbe des aspects/recouvrements les plus serrés ou les plus structurants quand c'est pertinent pour l'argument, sans lister mécaniquement tout ce qui est donné. Adapte le ton à la nature de la relation précisée dans le message (amitié, couple, famille...) : aucun sous-entendu romantique si ce n'est pas un couple. N'utilise jamais le tiret cadratin ("—").
+
+Écris pour que les deux personnes se sentent vraiment vues dans ce lien, jamais comme une compatibilité générique. Reste accessible à quelqu'un qui ne connaît rien à l'astrologie.
+
+Répartition des 5 parties :
+- general : la signature d'ensemble du lien, à partir du Soleil/Lune/Ascendant de chacune, et des aspects/recouvrements les plus structurants entre les deux thèmes.
+- love : la vie affective et le lien du duo, à partir de Vénus/Mars de chacune et des recouvrements touchant les maisons V et VII.
+- money : la façon dont elles gèrent ce qui se partage (ressources, valeurs), à partir de Jupiter/Saturne de chacune et des recouvrements touchant les maisons II et VIII.
+- career : la dynamique commune face au travail et à l'ambition (pas nécessairement une carrière partagée), à partir du Soleil/Saturne/Milieu du Ciel de chacune et des recouvrements touchant les maisons VI et X.
+- spiritual : la profondeur et l'alchimie du lien, ce qui le dépasse, à partir de la Lune/Neptune de chacune et des recouvrements touchant les maisons IX et XII.
+
+Ne mentionne jamais de fait qui n'est pas dans la liste fournie.`,
+  en: `You write for Astrologium, an astrology app. You analyze the relationship between two people, referred to ONLY by the labels given in the message (never a real name: you don't know them). Reuse these labels verbatim every time you refer to either person, never replace them with "you", a made-up first name, or anything else.
+
+You know ONLY the given facts: each person's own positions (sign, house, degree, dignity), the aspects between the two charts with their exact orb, and the house overlays both ways (one person's planets falling in the other's houses). Never invent, assume, or add a fact that isn't in the list.
+
+You write a synthesis in 5 parts (general, love, money, career, spiritual), returned as JSON. Each part is several paragraphs of continuous prose (never bullet points, never a heading inside the text, never an opener). Cite the exact degree, house, dignity, and orb of the tightest or most structural aspects/overlays when relevant to the point you're making, without mechanically listing everything given. Adapt the tone to the relationship type given in the message (friendship, couple, family...): no romantic undertone unless it's a couple. Never use an em dash ("—").
+
+Write so both people feel truly seen in this bond, never like a generic compatibility reading. Stay accessible to someone who knows nothing about astrology.
+
+How the 5 parts break down:
+- general: the bond's overall signature, from each person's Sun/Moon/Ascendant, and the most structural aspects/overlays between the two charts.
+- love: the duo's emotional and relational life, from each person's Venus/Mars and overlays touching houses 5 and 7.
+- money: how they handle what's shared (resources, values), from each person's Jupiter/Saturn and overlays touching houses 2 and 8.
+- career: their shared dynamic around work and ambition (not necessarily a literally shared career), from each person's Sun/Saturn/Midheaven and overlays touching houses 6 and 10.
+- spiritual: the bond's depth and alchemy, what transcends it, from each person's Moon/Neptune and overlays touching houses 9 and 12.
 
 Never mention a fact that isn't in the given list.`,
 };
@@ -84,7 +123,6 @@ function buildUserPrompt(facts: ChartFacts, context: DeepSynthesisContext, local
   const lines: string[] = [];
   if (locale === "en") {
     lines.push(`Reading type: ${context.themeLabel}`);
-    if (context.subjectsNote) lines.push(context.subjectsNote);
     if (facts.ascendant) lines.push(`Ascendant: ${facts.ascendant.degree} ${facts.ascendant.sign}`);
     if (facts.midheaven) lines.push(`Midheaven: ${facts.midheaven.degree} ${facts.midheaven.sign}`);
     if (facts.ascendantRulerName && facts.ascendantRulerPlacement) {
@@ -97,7 +135,6 @@ function buildUserPrompt(facts: ChartFacts, context: DeepSynthesisContext, local
     lines.push("Planet positions:");
   } else {
     lines.push(`Type de lecture : ${context.themeLabel}`);
-    if (context.subjectsNote) lines.push(context.subjectsNote);
     if (facts.ascendant) lines.push(`Ascendant : ${facts.ascendant.degree} ${facts.ascendant.sign}`);
     if (facts.midheaven) lines.push(`Milieu du Ciel : ${facts.midheaven.degree} ${facts.midheaven.sign}`);
     if (facts.ascendantRulerName && facts.ascendantRulerPlacement) {
@@ -138,6 +175,46 @@ function buildUserPrompt(facts: ChartFacts, context: DeepSynthesisContext, local
   return lines.join("\n");
 }
 
+function personBlock(p: SynastryPersonFacts, locale: Locale): string[] {
+  const lines: string[] = [locale === "en" ? `\n${p.label}'s positions:` : `\nPositions de ${p.label} :`];
+  if (p.ascendant) {
+    lines.push(locale === "en" ? `- Ascendant: ${p.ascendant.degree} ${p.ascendant.sign}` : `- Ascendant : ${p.ascendant.degree} ${p.ascendant.sign}`);
+  }
+  for (const planet of p.planets) lines.push(planetLine(planet, locale));
+  return lines;
+}
+
+function synastryAspectLine(a: SynastryCrossAspectFact, locale: Locale): string {
+  const tightness = locale === "en" ? "orb" : "orbe";
+  const dynamic = a.applying ? (locale === "en" ? "applying" : "appliquant") : locale === "en" ? "separating" : "séparant";
+  return `- ${a.aLabel} ${a.aspectName} ${a.bLabel} (${tightness} ${a.orb}, ${dynamic}${a.major ? "" : locale === "en" ? ", minor" : ", mineur"})`;
+}
+
+function buildSynastryUserPrompt(facts: SynastryFacts, context: SynastryDeepSynthesisContext, locale: Locale): string {
+  const lines: string[] = [
+    locale === "en" ? `Relationship type: ${context.relationshipLabel}` : `Nature de la relation : ${context.relationshipLabel}`,
+    locale === "en" ? `Labels to use verbatim: ${facts.personA.label} and ${facts.personB.label}` : `Libellés à reprendre textuellement : ${facts.personA.label} et ${facts.personB.label}`,
+  ];
+  lines.push(...personBlock(facts.personA, locale));
+  lines.push(...personBlock(facts.personB, locale));
+
+  const topAspects = facts.crossAspects.slice(0, 18);
+  if (topAspects.length > 0) {
+    lines.push(locale === "en" ? "\nTightest cross-chart aspects (most exact first):" : "\nAspects croisés les plus serrés (du plus exact au moins exact) :");
+    for (const a of topAspects) lines.push(synastryAspectLine(a, locale));
+  }
+
+  if (facts.overlaysAinB.length > 0 || facts.overlaysBinA.length > 0) {
+    lines.push(locale === "en" ? "\nHouse overlays:" : "\nRecouvrements de maisons :");
+    for (const l of [...facts.overlaysAinB, ...facts.overlaysBinA]) lines.push(`- ${l}`);
+  }
+
+  lines.push(
+    locale === "en" ? "\nWrite the JSON synthesis now, in English." : "\nÉcris la synthèse JSON maintenant, en français."
+  );
+  return lines.join("\n");
+}
+
 const RESPONSE_SCHEMA = {
   type: "object",
   properties: {
@@ -151,26 +228,9 @@ const RESPONSE_SCHEMA = {
   additionalProperties: false,
 } as const;
 
-/**
- * Génère la synthèse profonde du thème via l'API Claude, à partir des seuls
- * faits déjà calculés (buildChartFacts) : jamais laissée inventer une
- * position, un aspect ou un motif de son cru. Renvoie null si
- * `ANTHROPIC_API_KEY` n'est pas configurée ou si l'appel échoue, le
- * générateur de synthèse gabarit (chart-domains.ts et consorts) sert alors
- * de repli, exactement comme narrateEventBriefing() pour les lectures
- * d'événements. L'appelant est responsable de la mise en cache : cette
- * fonction ne fait qu'un appel réseau, sans persistance.
- */
-export async function narrateDeepSynthesis(
-  facts: ChartFacts,
-  context: DeepSynthesisContext,
-  locale: Locale = "fr"
-): Promise<DeepSynthesisResult | null> {
+async function callSynthesisAPI(system: string, userPrompt: string): Promise<DeepSynthesisResult | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.log(`[ai:dev] Pas de ANTHROPIC_API_KEY — pas de synthèse IA pour "${context.themeLabel}".`);
-    return null;
-  }
+  if (!apiKey) return null;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -184,8 +244,8 @@ export async function narrateDeepSynthesis(
         model: process.env.ANTHROPIC_MODEL_SYNTHESIS || "claude-sonnet-5",
         max_tokens: 12000,
         thinking: { type: "adaptive" },
-        system: SYSTEM_PROMPT[locale],
-        messages: [{ role: "user", content: buildUserPrompt(facts, context, locale) }],
+        system,
+        messages: [{ role: "user", content: userPrompt }],
         output_config: { format: { type: "json_schema", schema: RESPONSE_SCHEMA } },
       }),
     });
@@ -203,4 +263,39 @@ export async function narrateDeepSynthesis(
   } catch {
     return null;
   }
+}
+
+/**
+ * Génère la synthèse profonde d'un thème (natal, composite, ou révolution
+ * solaire, tous au même format ChartFacts) via l'API Claude, à partir des
+ * seuls faits déjà calculés (buildChartFacts) : jamais laissée inventer une
+ * position, un aspect ou un motif de son cru. Renvoie null si
+ * `ANTHROPIC_API_KEY` n'est pas configurée ou si l'appel échoue, le
+ * générateur de synthèse gabarit (chart-domains.ts et consorts) sert alors
+ * de repli, exactement comme narrateEventBriefing() pour les lectures
+ * d'événements. L'appelant est responsable de la mise en cache : cette
+ * fonction ne fait qu'un appel réseau, sans persistance.
+ */
+export async function narrateDeepSynthesis(
+  facts: ChartFacts,
+  context: DeepSynthesisContext,
+  locale: Locale = "fr"
+): Promise<DeepSynthesisResult | null> {
+  return callSynthesisAPI(SYSTEM_PROMPT[locale], buildUserPrompt(facts, context, locale));
+}
+
+/**
+ * Variante synastrie : mêmes garanties (repli null, aucune invention), mais
+ * prompt et system différents puisqu'il s'agit de faits croisés entre deux
+ * thèmes plutôt qu'un seul. `facts.personA.label`/`personB.label` doivent
+ * être des placeholders anonymisés (jamais un nom réel envoyé à l'API) : voir
+ * buildSynastryFacts. L'appelant remplace ensuite ces placeholders par les
+ * vrais libellés de profil dans le texte reçu, avant mise en cache.
+ */
+export async function narrateSynastryDeepSynthesis(
+  facts: SynastryFacts,
+  context: SynastryDeepSynthesisContext,
+  locale: Locale = "fr"
+): Promise<DeepSynthesisResult | null> {
+  return callSynthesisAPI(SYSTEM_PROMPT_SYNASTRY[locale], buildSynastryUserPrompt(facts, context, locale));
 }

@@ -26,6 +26,8 @@ import {
 } from "@/lib/astro/interpretations/compose";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { composeSolarReturnDomains } from "@/lib/astro/interpretations/solar-return-domains";
+import { buildChartFacts } from "@/lib/astro/interpretations/chart-facts";
+import { getOrGenerateDeepSynthesis } from "@/lib/ai/deep-synthesis-cache";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
@@ -155,7 +157,16 @@ export default async function SolarReturnPage({
   const aspectKeys = [...PLANET_KEYS, "asc" as const, "mc" as const];
   const highlights = composeChartHighlights(returnChart, locale);
   const aspects = computeAspects(returnChart.points, aspectKeys);
-  const grimoireDomains = composeSolarReturnDomains(returnChart, window.year, locale);
+  const solarReturnThemeLabel = locale === "en" ? `solar return for ${window.year}` : `révolution solaire ${window.year}`;
+  const solarReturnFacts = buildChartFacts(returnChart, locale);
+  const grimoireDomains =
+    (isPremium &&
+      (await getOrGenerateDeepSynthesis(
+        { type: "solarReturn", profileId: profile.id, year: window.year, locale },
+        solarReturnFacts,
+        { themeLabel: solarReturnThemeLabel }
+      ))) ||
+    composeSolarReturnDomains(returnChart, window.year, locale);
 
   const dateFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "fr-FR", {
     weekday: "long",
