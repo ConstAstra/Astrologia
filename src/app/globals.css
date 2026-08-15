@@ -112,6 +112,10 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* Parallax léger au scroll (voir SkyScroll.tsx, qui pose --star-parallax) :
+     le ciel dérive un peu plus lentement que le contenu, comme s'il était
+     loin derrière, plutôt que de rester collé pile au même endroit. */
+  transform: translateY(var(--star-parallax, 0px));
   /* pas de background-color opaque ici : .sky-scroll (z-index -2) doit se voir en dessous */
   background-image:
     radial-gradient(ellipse 100% 60% at 50% -10%, #1f142033, transparent),
@@ -340,6 +344,71 @@ body {
   }
 }
 
+/* Halo doré au survol/focus, à poser sur tout élément qu'on veut signaler
+   comme "vivant" (avatar, tuile de profil...) sans dépendre d'une bordure
+   qui viendrait déranger sa forme d'origine. */
+.hover-halo {
+  transition: box-shadow 200ms ease;
+  border-radius: inherit;
+}
+.hover-halo:hover,
+.hover-halo:focus-visible {
+  box-shadow: 0 0 0 3px var(--background), 0 0 16px 3px var(--gold);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-halo {
+    transition: none;
+  }
+}
+
+/* Éclat ponctuel au moment précis d'un déblocage (crédit dépensé, Premium
+   activé) : un seul battement, jamais une boucle, pour marquer l'instant
+   sans transformer la carte en gadget clignotant en continu. */
+@keyframes unlock-halo-pulse {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 0 0 var(--gold);
+  }
+  35% {
+    opacity: 1;
+    box-shadow: 0 0 32px 6px var(--gold);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 32px 6px var(--gold);
+  }
+}
+.unlock-halo {
+  pointer-events: none;
+  animation: unlock-halo-pulse 1.1s ease-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .unlock-halo {
+    animation: none;
+  }
+}
+
+/* Respiration lente et discrète sur les CTA Premium : un battement toutes
+   les quelques secondes pour attirer l'œil vers l'action à privilégier,
+   jamais un clignotement — on veut le remarquer, pas être agacé. */
+@keyframes cta-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 20px 3px var(--gold);
+  }
+}
+.cta-glow {
+  animation: cta-glow-pulse 2.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow {
+    animation: none;
+  }
+}
+
 ::selection {
   background: var(--gold);
   color: #14121a;
@@ -365,7 +434,7 @@ body {
 @keyframes page-fade-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -373,7 +442,7 @@ body {
   }
 }
 .page-fade-in {
-  animation: page-fade-in 420ms ease both;
+  animation: page-fade-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-fade-in {

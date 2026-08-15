@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { recordDailyActivity } from "@/lib/streak";
 import { isPremiumActive, needsProfileSelection } from "@/lib/billing/entitlements";
 import { isAdminEmail } from "@/lib/admin";
+import { prisma } from "@/lib/db";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 
 const PROFILE_SELECTION_PATH = "/dashboard/profils/choisir";
@@ -29,6 +30,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
     lastActiveDate: user.lastActiveDate,
   });
 
+  // Léger : juste de quoi peupler le sélecteur rapide de profil du header,
+  // pas les thèmes complets (recalculer chaque roue ici serait du gaspillage
+  // pour une simple liste de liens).
+  const profiles = await prisma.profile.findMany({
+    where: { userId: user.id, archivedAt: null },
+    select: { id: true, label: true, isSelf: true },
+    orderBy: [{ isSelf: "desc" }, { createdAt: "asc" }],
+  });
+
   return (
     <>
       <DashboardNav
@@ -39,6 +49,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         streak={currentStreak}
         streakMilestone={isNewMilestone}
         isAdmin={isAdminEmail(user.email)}
+        profiles={profiles}
       />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">{children}</main>
     </>

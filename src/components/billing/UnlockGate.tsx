@@ -124,6 +124,7 @@ export function UnlockGate({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [justUnlocked, setJustUnlocked] = useState(false);
   const meta = FEATURE_LABELS[locale][feature];
   const t = TEXT[locale];
 
@@ -139,7 +140,12 @@ export function UnlockGate({
       const data = await safeJson(res);
       if (!res.ok) throw new Error(data?.error ?? t.genericError);
       playMagicChime();
-      router.refresh();
+      // Un battement de lumière avant de rafraîchir : sans lui, la carte
+      // disparaît instantanément au profit du contenu débloqué, et l'action
+      // ne se ressent pas vraiment comme un déblocage.
+      setJustUnlocked(true);
+      setLoading(false);
+      setTimeout(() => router.refresh(), 700);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.genericError);
       setLoading(false);
@@ -147,7 +153,8 @@ export function UnlockGate({
   }
 
   return (
-    <Card className={compact ? "p-6" : "mx-auto max-w-lg p-8 text-center"}>
+    <Card className={`relative overflow-hidden ${compact ? "p-6" : "mx-auto max-w-lg p-8 text-center"}`}>
+      {justUnlocked && <span className="unlock-halo pointer-events-none absolute inset-0 rounded-2xl" aria-hidden="true" />}
       <Eyebrow>{t.premiumContent}</Eyebrow>
       <h2 className={compact ? "font-display mt-2 text-xl" : "font-display mt-3 text-2xl"}>{meta.title}</h2>
       <p className="mt-3 text-sm text-muted">{meta.description}</p>
@@ -162,7 +169,7 @@ export function UnlockGate({
             {t.buyCredits}
           </ButtonLink>
         )}
-        <ButtonLink href={t.pricingHref} variant="secondary" className={compact ? "" : "w-full"}>
+        <ButtonLink href={t.pricingHref} variant="secondary" className={`cta-glow ${compact ? "" : "w-full"}`}>
           {t.goPremium}
         </ButtonLink>
       </div>

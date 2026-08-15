@@ -189,7 +189,11 @@ export default async function AbonnementPage({
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {!isPremium && <ButtonLink href={locale === "en" ? "/en/pricing" : "/tarifs"}>{t.goPremium}</ButtonLink>}
+          {!isPremium && (
+            <ButtonLink href={locale === "en" ? "/en/pricing" : "/tarifs"} className="cta-glow">
+              {t.goPremium}
+            </ButtonLink>
+          )}
           <ButtonLink href={locale === "en" ? "/en/pricing" : "/tarifs"} variant="secondary">
             {t.buyCredits}
           </ButtonLink>

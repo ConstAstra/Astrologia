@@ -186,15 +186,17 @@ export default async function ProfilsPage() {
           {withSigns.map(({ profile, sunSign, moonSign, overrides }) => (
             <Card key={profile.id} className="flex flex-col p-6">
               <div className="flex items-center gap-4">
-                <PixelAvatar
-                  seed={profile.id}
-                  sunSign={sunSign}
-                  moonSign={moonSign}
-                  overrides={overrides}
-                  size={64}
-                  glowing={glowing}
-                  locale={locale}
-                />
+                <div className="hover-halo rounded-2xl">
+                  <PixelAvatar
+                    seed={profile.id}
+                    sunSign={sunSign}
+                    moonSign={moonSign}
+                    overrides={overrides}
+                    size={64}
+                    glowing={glowing}
+                    locale={locale}
+                  />
+                </div>
                 <div>
                   <p className="font-display text-xl">{profile.label}</p>
                   <p className="text-xs text-gold-strong">{signMap[sunSign].name}</p>

@@ -38,6 +38,9 @@ const TEXT: Record<
     addProfile: string;
     openMenu: string;
     closeMenu: string;
+    switchProfile: string;
+    selfLabel: string;
+    seeAllProfiles: string;
   }
 > = {
   fr: {
@@ -65,6 +68,9 @@ const TEXT: Record<
     streakDays: "jours",
     openMenu: "Ouvrir le menu",
     closeMenu: "Fermer le menu",
+    switchProfile: "Changer de profil",
+    selfLabel: "Vous",
+    seeAllProfiles: "Voir tous les profils",
   },
   en: {
     natalChart: "Natal chart",
@@ -91,6 +97,9 @@ const TEXT: Record<
     addProfile: "Add a profile",
     openMenu: "Open menu",
     closeMenu: "Close menu",
+    switchProfile: "Switch profile",
+    selfLabel: "You",
+    seeAllProfiles: "See all profiles",
   },
 };
 
@@ -102,6 +111,7 @@ export function DashboardNav({
   streak = 0,
   streakMilestone = false,
   isAdmin = false,
+  profiles = [],
 }: {
   email: string;
   credits: number;
@@ -110,13 +120,17 @@ export function DashboardNav({
   streak?: number;
   streakMilestone?: boolean;
   isAdmin?: boolean;
+  /** Profils actifs de l'utilisateur, pour le sélecteur rapide du header. */
+  profiles?: { id: string; label: string; isSelf: boolean }[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = TEXT[locale];
   const [compatOpen, setCompatOpen] = useState(false);
+  const [profileSwitcherOpen, setProfileSwitcherOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const profileCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const horoscopeHref = locale === "en" ? "/en/horoscope" : "/horoscope";
 
@@ -158,6 +172,14 @@ export function DashboardNav({
     closeTimeout.current = setTimeout(() => setCompatOpen(false), 150);
   }
 
+  function openProfileSwitcher() {
+    if (profileCloseTimeout.current) clearTimeout(profileCloseTimeout.current);
+    setProfileSwitcherOpen(true);
+  }
+  function scheduleCloseProfileSwitcher() {
+    profileCloseTimeout.current = setTimeout(() => setProfileSwitcherOpen(false), 150);
+  }
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
@@ -170,10 +192,12 @@ export function DashboardNav({
         <Link href="/dashboard/profils">
           <Logo />
         </Link>
-        <nav className="hidden items-center gap-5 text-sm text-muted xl:flex">
+        <nav className="hidden items-center gap-1 text-sm text-muted xl:flex">
           <Link
             href={mainLinks[0].href}
-            className={pathname.startsWith(mainLinks[0].href) ? "text-gold-strong" : "hover:text-foreground"}
+            className={`rounded-full px-3 py-1.5 transition-colors ${
+              pathname.startsWith(mainLinks[0].href) ? "bg-gold/15 text-gold-strong" : "hover:bg-gold/5 hover:text-foreground"
+            }`}
           >
             {mainLinks[0].label}
           </Link>
@@ -182,7 +206,9 @@ export function DashboardNav({
             <button
               type="button"
               onClick={() => setCompatOpen((v) => !v)}
-              className={`inline-flex items-center gap-1 ${compatActive ? "text-gold-strong" : "hover:text-foreground"}`}
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 transition-colors ${
+                compatActive ? "bg-gold/15 text-gold-strong" : "hover:bg-gold/5 hover:text-foreground"
+              }`}
               aria-expanded={compatOpen}
             >
               {t.compatibility}
@@ -191,15 +217,17 @@ export function DashboardNav({
               </svg>
             </button>
             {compatOpen && (
-              <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border-soft bg-surface shadow-[0_12px_32px_-12px_#00000080]">
+              <div className="absolute left-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-xl border border-border-soft bg-surface shadow-[0_12px_32px_-12px_#00000080]">
                 {compatItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    title={item.hint}
-                    className={`block px-4 py-2.5 text-sm ${pathname.startsWith(item.href) ? "text-gold-strong" : "text-muted hover:bg-gold/5 hover:text-foreground"}`}
+                    className={`block px-4 py-3 text-sm ${
+                      pathname.startsWith(item.href) ? "bg-gold/10 text-gold-strong" : "text-muted hover:bg-gold/5 hover:text-foreground"
+                    }`}
                   >
-                    {item.label}
+                    <span className="block font-medium">{item.label}</span>
+                    {item.hint && <span className="mt-0.5 block text-xs leading-snug text-muted/80">{item.hint}</span>}
                   </Link>
                 ))}
               </div>
@@ -211,25 +239,82 @@ export function DashboardNav({
               key={link.href}
               href={link.href}
               title={link.hint}
-              className={pathname.startsWith(link.href) ? "text-gold-strong" : "hover:text-foreground"}
+              className={`rounded-full px-3 py-1.5 transition-colors ${
+                pathname.startsWith(link.href) ? "bg-gold/15 text-gold-strong" : "hover:bg-gold/5 hover:text-foreground"
+              }`}
             >
               {link.label}
             </Link>
           ))}
 
-          <span className="h-4 w-px bg-border-soft" aria-hidden="true" />
+          <span className="mx-1 h-4 w-px bg-border-soft" aria-hidden="true" />
 
           {secondaryLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={pathname.startsWith(link.href) ? "text-gold-strong" : "hover:text-foreground"}
+              className={`rounded-full px-3 py-1.5 transition-colors ${
+                pathname.startsWith(link.href) ? "bg-gold/15 text-gold-strong" : "hover:bg-gold/5 hover:text-foreground"
+              }`}
             >
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex flex-wrap items-center justify-end gap-2 text-sm sm:gap-3">
+        {/* ml-auto : quand ce bloc n'a plus la place de tenir sur la même
+            ligne que le logo/la nav et retombe seul sur sa propre ligne,
+            justify-between (sur le conteneur parent) le laisserait collé à
+            gauche — un item seul sur sa ligne n'a "rien" avec quoi se
+            répartir l'espace. ml-auto force la marge à droite quoi qu'il
+            arrive. */}
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-sm sm:gap-3">
+          {profiles.length > 1 && (
+            <div className="relative hidden sm:block" onMouseEnter={openProfileSwitcher} onMouseLeave={scheduleCloseProfileSwitcher}>
+              <button
+                type="button"
+                onClick={() => setProfileSwitcherOpen((v) => !v)}
+                aria-label={t.switchProfile}
+                aria-expanded={profileSwitcherOpen}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-soft text-muted hover:border-gold/40 hover:text-gold-strong"
+              >
+                <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
+                  <path
+                    d="M6 8.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 15.5c0-2.5 1.8-4 3.8-4M17 4.5c-2 0-3.8 1.5-3.8 4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <path d="m10.5 3.5 2-1.4-.5 2.4M9.5 16.5l-2 1.4.5-2.4" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {profileSwitcherOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border-soft bg-surface shadow-[0_12px_32px_-12px_#00000080]">
+                  <p className="px-4 pt-3 text-[11px] uppercase tracking-wide text-muted/70">{t.switchProfile}</p>
+                  <div className="max-h-64 overflow-y-auto py-1">
+                    {profiles.map((profile) => (
+                      <Link
+                        key={profile.id}
+                        href={`/dashboard/theme-natal/${profile.id}`}
+                        onClick={() => setProfileSwitcherOpen(false)}
+                        className="block px-4 py-2 text-sm text-muted hover:bg-gold/5 hover:text-foreground"
+                      >
+                        {profile.label}
+                        {profile.isSelf && <span className="ml-1.5 text-xs text-muted/60">({t.selfLabel})</span>}
+                      </Link>
+                    ))}
+                  </div>
+                  <Link
+                    href="/dashboard/profils"
+                    onClick={() => setProfileSwitcherOpen(false)}
+                    className="block border-t border-border-soft px-4 py-2.5 text-xs text-gold-strong hover:bg-gold/5"
+                  >
+                    {t.seeAllProfiles}
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
           <Link
             href="/dashboard/profils/nouveau"
             title={t.addProfile}
