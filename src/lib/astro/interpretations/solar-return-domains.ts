@@ -19,11 +19,11 @@ function generalSolarReturn(s: Signals, year: number, locale: Locale): string {
   if (locale === "en") {
     return `Every solar return opens the same way: the Sun comes back to the exact degree it held at birth, the anchor that makes ${year} a full year rather than an arbitrary slice of time. What actually changes is everything around it: this year's Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)}) sets the emotional undertone${
       s.asc ? `, and this year's Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}) colors how you come across to others for the next twelve months` : ""
-    }. ${dominanceClause(s, locale)} Think of this chart less as who you are and more as the weather this particular year is running on.`;
+    }.\n\n${dominanceClause(s, locale)} Think of this chart less as who you are and more as the weather this particular year is running on.`;
   }
   return `Chaque révolution solaire commence de la même façon : le Soleil revient exactement sur le degré qu'il occupait à la naissance, l'ancrage qui fait de ${year} une année entière plutôt qu'une tranche de temps arbitraire. Ce qui change réellement, c'est tout ce qui l'entoure : la Lune de cette année en ${sn(s.moon, locale)} (${sk(s.moon, locale)}) donne la tonalité émotionnelle${
     s.asc ? `, et l'Ascendant de cette année en ${sn(s.asc, locale)} (${sk(s.asc, locale)}) colore la façon dont vous êtes perçu·e par les autres pour les douze prochains mois` : ""
-  }. ${dominanceClause(s, locale)} Voyez ce thème moins comme qui vous êtes que comme la météo sur laquelle cette année précise tourne.`;
+  }.\n\n${dominanceClause(s, locale)} Voyez ce thème moins comme qui vous êtes que comme la météo sur laquelle cette année précise tourne.`;
 }
 
 function yearChapter(
@@ -45,7 +45,7 @@ function yearChapter(
     if (a.rulerHouse) usedHouses.add(a.rulerHouse);
     if (b.rulerHouse) usedHouses.add(b.rulerHouse);
     const intro = locale === "en" ? `${introEn} ${a.title} and ${b.title}, this year's version of them, that is.` : `${introFr} ${a.title} et ${b.title}, la version de cette année, cela dit.`;
-    return `${intro} ${a.text} ${b.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${a.text}\n\n${b.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   return nuance;
 }

@@ -39,17 +39,28 @@ export interface ChartDomains {
  * dedupeChartDomains) pour que la déduplication joue aussi entre chapitres.
  */
 export function dedupeSentences(text: string, seen: Set<string> = new Set()): string {
-  const parts = text.split(/(?<=[.!?])\s+/);
-  const kept: string[] = [];
-  for (const part of parts) {
-    const key = part.trim();
-    if (key.length > 20) {
-      if (seen.has(key)) continue;
-      seen.add(key);
+  // Chaque chapitre est composé de paragraphes séparés par une ligne vide
+  // (voir chart-domains.ts et consorts) : la déduplication doit préserver
+  // ces coupures plutôt que tout rejoindre par un simple espace, sans quoi
+  // le découpage en paragraphes du grimoire disparaîtrait silencieusement à
+  // cette étape.
+  const paragraphs = text.split(/\n{2,}/);
+  const keptParagraphs: string[] = [];
+  for (const paragraph of paragraphs) {
+    const parts = paragraph.split(/(?<=[.!?])\s+/);
+    const kept: string[] = [];
+    for (const part of parts) {
+      const key = part.trim();
+      if (key.length > 20) {
+        if (seen.has(key)) continue;
+        seen.add(key);
+      }
+      kept.push(part);
     }
-    kept.push(part);
+    const joined = kept.join(" ").trim();
+    if (joined) keptParagraphs.push(joined);
   }
-  return kept.join(" ");
+  return keptParagraphs.join("\n\n");
 }
 
 export function dedupeChartDomains(domains: ChartDomains): ChartDomains {
@@ -244,16 +255,16 @@ function ascendantRulerParagraph(s: Signals, relationshipType: RelationshipType 
     const houseText = houseAlreadyCovered
       ? ` It sits in house ${s.ascendantRulerHouse}, detailed further in this reading.`
       : s.ascendantRulerHouse
-        ? ` ${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
+        ? `\n\n${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
         : "";
-    return ` Traditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits. ${signText}${houseText}`;
+    return `\n\nTraditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits. ${signText}${houseText}`;
   }
   const houseText = houseAlreadyCovered
     ? ` Il se trouve en maison ${s.ascendantRulerHouse}, détaillée plus loin dans cette lecture.`
     : s.ascendantRulerHouse
-      ? ` ${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
+      ? `\n\n${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
       : "";
-  return ` En astrologie, ${sn(s.asc, locale)} est traditionnellement gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText}`;
+  return `\n\nEn astrologie, ${sn(s.asc, locale)} est traditionnellement gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -265,13 +276,13 @@ function generalNatal(s: Signals, locale: Locale): string {
   if (locale === "en") {
     return `Sun in ${sn(s.sun, locale)} (${sk(s.sun, locale)}) and Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)}) form the backbone of who you are${
       s.asc ? `, wrapped in an Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}), the first impression you give before anyone knows the rest` : ""
-    }. ${dominanceClause(s, locale)} Put together, this is a chart that wants to want something consciously (Sun), feel it in the body before trusting it (Moon)${
+    }.\n\n${dominanceClause(s, locale)} Put together, this is a chart that wants to want something consciously (Sun), feel it in the body before trusting it (Moon)${
       s.asc ? ", and walk into a room a certain way while doing both" : ""
     }, three layers that don't always agree, and don't need to.${rulerText}`;
   }
   return `Le Soleil en ${sn(s.sun, locale)} (${sk(s.sun, locale)}) et la Lune en ${sn(s.moon, locale)} (${sk(s.moon, locale)}) forment le socle de ce que vous êtes${
     s.asc ? `, enveloppé d'un Ascendant en ${sn(s.asc, locale)} (${sk(s.asc, locale)}), la première impression que vous donnez avant que qui que ce soit ne connaisse le reste` : ""
-  }. ${dominanceClause(s, locale)} Mis bout à bout, c'est un thème qui veut vouloir consciemment quelque chose (le Soleil), le ressentir dans le corps avant d'y croire (la Lune)${
+  }.\n\n${dominanceClause(s, locale)} Mis bout à bout, c'est un thème qui veut vouloir consciemment quelque chose (le Soleil), le ressentir dans le corps avant d'y croire (la Lune)${
     s.asc ? ", et entrer dans une pièce d'une certaine façon en faisant les deux à la fois" : ""
   }, trois couches qui ne sont pas toujours d'accord, et n'ont pas besoin de l'être.${rulerText}`;
 }
@@ -289,11 +300,11 @@ function loveNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Se
       locale === "en"
         ? `Two houses carry the weight of your love life: pleasure and romance (${fifth.title}), and partnership itself (${seventh.title}).`
         : `Deux maisons portent le poids de votre vie amoureuse : le plaisir et la romance (${fifth.title}), et le partenariat lui-même (${seventh.title}).`;
-    return `${intro} ${fifth.text} ${seventh.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${fifth.text}\n\n${seventh.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const venusText = s.venus ? describePlanetInSign("venus", s.venus, undefined, locale) : "";
   const marsText = s.mars ? describePlanetInSign("mars", s.mars, undefined, locale) : "";
-  return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${venusText}${marsText ? `\n\n${marsText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function moneyNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
@@ -309,11 +320,11 @@ function moneyNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: S
       locale === "en"
         ? `Two houses carry your relationship to money: what you earn and build yourself (${second.title}), and what gets shared, merged or owed with someone else (${eighth.title}).`
         : `Deux maisons portent votre rapport à l'argent : ce que vous gagnez et construisez par vous-même (${second.title}), et ce qui se partage, se fusionne ou se doit avec quelqu'un d'autre (${eighth.title}).`;
-    return `${intro} ${second.text} ${eighth.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${second.text}\n\n${eighth.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const jupiterText = s.jupiter ? describePlanetInSign("jupiter", s.jupiter, undefined, locale) : "";
   const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, undefined, locale) : "";
-  return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${jupiterText}${saturnText ? `\n\n${saturnText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function careerNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
@@ -329,11 +340,11 @@ function careerNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: 
       locale === "en"
         ? `Two houses carry your work life: daily work and routine (${sixth.title}), and the public role you're building toward (${tenth.title}).`
         : `Deux maisons portent votre vie professionnelle : le travail au quotidien (${sixth.title}), et le rôle public que vous construisez (${tenth.title}).`;
-    return `${intro} ${sixth.text} ${tenth.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${sixth.text}\n\n${tenth.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const sunText = describePlanetInSign("sun", s.sun, undefined, locale);
   const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, undefined, locale) : "";
-  return `${sunText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${sunText}${saturnText ? `\n\n${saturnText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function spiritualNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
@@ -349,11 +360,11 @@ function spiritualNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouse
       locale === "en"
         ? `Two houses carry your inner life: the search for meaning (${ninth.title}), and what happens once you stop performing for anyone (${twelfth.title}).`
         : `Deux maisons portent votre vie intérieure : la quête de sens (${ninth.title}), et ce qui se passe une fois que vous cessez de jouer un rôle pour qui que ce soit (${twelfth.title}).`;
-    return `${intro} ${ninth.text} ${twelfth.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${ninth.text}\n\n${twelfth.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const moonText = describePlanetInSign("moon", s.moon, undefined, locale);
   const neptuneText = s.neptune ? describePlanetInSign("neptune", s.neptune, undefined, locale) : "";
-  return `${moonText}${neptuneText ? ` ${neptuneText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${moonText}${neptuneText ? `\n\n${neptuneText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 export function composeChartDomains(chart: NatalChart, locale: Locale = "fr"): ChartDomains {
@@ -382,11 +393,11 @@ function generalComposite(s: Signals, relationshipType: RelationshipType, locale
   if (locale === "en") {
     return `This bond's own composite Sun sits in ${sn(s.sun, locale)} (${sk(s.sun, locale)}), its composite Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)})${
       s.asc ? `, wrapped in a composite Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}), the face this relationship shows before anyone's looked closer` : ""
-    }, not what either of you is alone, but what the two of you generate together. ${dominanceClause(s, locale)} That's a relationship with its own identity, its own comfort zone, and its own instincts, distinct from what either person would build solo.${rulerText}`;
+    }, not what either of you is alone, but what the two of you generate together.\n\n${dominanceClause(s, locale)} That's a relationship with its own identity, its own comfort zone, and its own instincts, distinct from what either person would build solo.${rulerText}`;
   }
   return `Le Soleil composite de ce lien se trouve en ${sn(s.sun, locale)} (${sk(s.sun, locale)}), sa Lune composite en ${sn(s.moon, locale)} (${sk(s.moon, locale)})${
     s.asc ? `, enveloppée d'un Ascendant composite en ${sn(s.asc, locale)} (${sk(s.asc, locale)}), le visage que cette relation montre avant que quiconque ne regarde de plus près` : ""
-  }, pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble. ${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.${rulerText}`;
+  }, pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble.\n\n${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.${rulerText}`;
 }
 
 function loveComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
@@ -402,11 +413,11 @@ function loveComposite(composite: CompositeChart, s: Signals, relationshipType: 
       locale === "en"
         ? `Two houses carry this bond's love life: shared pleasure (${fifth.title}), and the couple facing itself (${seventh.title}).`
         : `Deux maisons portent la vie amoureuse de ce lien : le plaisir partagé (${fifth.title}), et le couple qui se regarde lui-même (${seventh.title}).`;
-    return `${intro} ${fifth.text} ${seventh.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${fifth.text}\n\n${seventh.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const venusText = s.venus ? describePlanetInSign("venus", s.venus, relationshipType, locale) : "";
   const marsText = s.mars ? describePlanetInSign("mars", s.mars, relationshipType, locale) : "";
-  return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${venusText}${marsText ? `\n\n${marsText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function moneyComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
@@ -422,11 +433,11 @@ function moneyComposite(composite: CompositeChart, s: Signals, relationshipType:
       locale === "en"
         ? `Two houses carry this bond's relationship to money: what it builds and protects together (${second.title}), and what's merged or owed between you (${eighth.title}).`
         : `Deux maisons portent le rapport de ce lien à l'argent : ce qu'il construit et protège ensemble (${second.title}), et ce qui est fusionné ou dû entre vous (${eighth.title}).`;
-    return `${intro} ${second.text} ${eighth.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${second.text}\n\n${eighth.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const jupiterText = s.jupiter ? describePlanetInSign("jupiter", s.jupiter, relationshipType, locale) : "";
   const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, relationshipType, locale) : "";
-  return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${jupiterText}${saturnText ? `\n\n${saturnText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function careerComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
@@ -442,11 +453,11 @@ function careerComposite(composite: CompositeChart, s: Signals, relationshipType
       locale === "en"
         ? `Two houses carry this bond's shared work: its daily upkeep (${sixth.title}), and what it stands for once others can see it (${tenth.title}).`
         : `Deux maisons portent le travail commun de ce lien : son entretien au quotidien (${sixth.title}), et ce qu'il représente une fois que d'autres peuvent le voir (${tenth.title}).`;
-    return `${intro} ${sixth.text} ${tenth.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${sixth.text}\n\n${tenth.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const sunText = describePlanetInSign("sun", s.sun, relationshipType, locale);
   const saturnText = s.saturn ? describePlanetInSign("saturn", s.saturn, relationshipType, locale) : "";
-  return `${sunText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${sunText}${saturnText ? `\n\n${saturnText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function spiritualComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
@@ -462,11 +473,11 @@ function spiritualComposite(composite: CompositeChart, s: Signals, relationshipT
       locale === "en"
         ? `Two houses carry this bond's inner life: the meaning it searches for together (${ninth.title}), and what it shares below the surface, unspoken (${twelfth.title}).`
         : `Deux maisons portent la vie intérieure de ce lien : le sens qu'il cherche ensemble (${ninth.title}), et ce qu'il partage sous la surface, sans le dire (${twelfth.title}).`;
-    return `${intro} ${ninth.text} ${twelfth.text}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${ninth.text}\n\n${twelfth.text}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const moonText = describePlanetInSign("moon", s.moon, relationshipType, locale);
   const neptuneText = s.neptune ? describePlanetInSign("neptune", s.neptune, relationshipType, locale) : "";
-  return `${moonText}${neptuneText ? ` ${neptuneText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${moonText}${neptuneText ? `\n\n${neptuneText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 export function composeCompositeChartDomains(

@@ -20,7 +20,7 @@ const TEXT: Record<Locale, {
   fr: {
     currentEmail: "E-mail actuel :",
     newEmail: "Nouvelle adresse e-mail",
-    password: "Mot de passe",
+    password: "Mot de passe actuel (pour confirmer)",
     genericError: "Une erreur est survenue.",
     loading: "Un instant…",
     submit: "Changer l'e-mail",
@@ -29,7 +29,7 @@ const TEXT: Record<Locale, {
   en: {
     currentEmail: "Current email:",
     newEmail: "New email address",
-    password: "Password",
+    password: "Current password (to confirm)",
     genericError: "Something went wrong.",
     loading: "One moment…",
     submit: "Change email",

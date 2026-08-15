@@ -88,8 +88,16 @@ export function GrimoireReveal({
         })}
       </div>
 
-      <div key={active} className="grimoire-page-in mt-5 border-t border-border-soft pt-5">
-        <p className="text-sm leading-relaxed text-muted sm:text-base">{domains[active]}</p>
+      <div key={active} className="grimoire-page-in mt-5 space-y-3 border-t border-border-soft pt-5">
+        {domains[active]
+          .split(/\n{2,}/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((paragraph, i) => (
+            <p key={i} className="text-sm leading-relaxed text-muted sm:text-base">
+              {paragraph}
+            </p>
+          ))}
       </div>
 
       <p className="mt-6 border-t border-border-soft pt-4 text-xs italic text-muted/70">{aspectsNote}</p>

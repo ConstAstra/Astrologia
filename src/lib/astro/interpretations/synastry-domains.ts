@@ -30,9 +30,9 @@ function generalChapter(
   locale: Locale
 ): string {
   if (locale === "en") {
-    return `${labelA}'s Sun in ${sn(sunA, locale)} (${sk(sunA, locale)}) meets ${labelB}'s Sun in ${sn(sunB, locale)} (${sk(sunB, locale)}), two identities that don't merge into one, they stay two people standing side by side. Underneath, ${labelA}'s Moon in ${sn(moonA, locale)} and ${labelB}'s Moon in ${sn(moonB, locale)} decide how each of you actually feels safe, often the real engine of a bond long after the initial spark fades.`;
+    return `${labelA}'s Sun in ${sn(sunA, locale)} (${sk(sunA, locale)}) meets ${labelB}'s Sun in ${sn(sunB, locale)} (${sk(sunB, locale)}), two identities that don't merge into one, they stay two people standing side by side.\n\nUnderneath, ${labelA}'s Moon in ${sn(moonA, locale)} and ${labelB}'s Moon in ${sn(moonB, locale)} decide how each of you actually feels safe, often the real engine of a bond long after the initial spark fades.`;
   }
-  return `Le Soleil de ${labelA} en ${sn(sunA, locale)} (${sk(sunA, locale)}) rencontre le Soleil de ${labelB} en ${sn(sunB, locale)} (${sk(sunB, locale)}), deux identités qui ne fusionnent pas en une seule, elles restent deux personnes côte à côte. En dessous, la Lune de ${labelA} en ${sn(moonA, locale)} et la Lune de ${labelB} en ${sn(moonB, locale)} décident de ce qui rassure vraiment chacun·e, souvent le vrai moteur d'un lien longtemps après que l'étincelle initiale s'est estompée.`;
+  return `Le Soleil de ${labelA} en ${sn(sunA, locale)} (${sk(sunA, locale)}) rencontre le Soleil de ${labelB} en ${sn(sunB, locale)} (${sk(sunB, locale)}), deux identités qui ne fusionnent pas en une seule, elles restent deux personnes côte à côte.\n\nEn dessous, la Lune de ${labelA} en ${sn(moonA, locale)} et la Lune de ${labelB} en ${sn(moonB, locale)} décident de ce qui rassure vraiment chacun·e, souvent le vrai moteur d'un lien longtemps après que l'étincelle initiale s'est estompée.`;
 }
 
 /**
@@ -75,11 +75,11 @@ function loveChapter(
       locale === "en"
         ? `The couple's own houses, pleasure and partnership, are directly activated between you:`
         : `Les maisons propres au couple, plaisir et partenariat, sont directement activées entre vous :`;
-    return `${intro} ${overlays.join(" ")}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${overlays.join("\n\n")}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const venusText = venusA && venusB ? `${describePlanetInSign("venus", venusA, undefined, locale)} ${describePlanetInSign("venus", venusB, undefined, locale)}` : "";
   const marsText = marsA && marsB ? `${describePlanetInSign("mars", marsA, undefined, locale)} ${describePlanetInSign("mars", marsB, undefined, locale)}` : "";
-  return `${venusText}${marsText ? ` ${marsText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${venusText}${marsText ? `\n\n${marsText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function moneyChapter(
@@ -98,11 +98,11 @@ function moneyChapter(
       locale === "en"
         ? `Resources and shared money, this bond's 2nd and 8th houses, are directly activated between you:`
         : `Les ressources et l'argent partagé, les maisons II et VIII de ce lien, sont directement activés entre vous :`;
-    return `${intro} ${overlays.join(" ")}${nuance ? ` ${nuance}` : ""}`;
+    return `${intro}\n\n${overlays.join("\n\n")}${nuance ? `\n\n${nuance}` : ""}`;
   }
   const jupiterText = jupiterA && jupiterB ? `${describePlanetInSign("jupiter", jupiterA, undefined, locale)} ${describePlanetInSign("jupiter", jupiterB, undefined, locale)}` : "";
   const saturnText = saturnA && saturnB ? `${describePlanetInSign("saturn", saturnA, undefined, locale)} ${describePlanetInSign("saturn", saturnB, undefined, locale)}` : "";
-  return `${jupiterText}${saturnText ? ` ${saturnText}` : ""}${nuance ? ` ${nuance}` : ""}`;
+  return `${jupiterText}${saturnText ? `\n\n${saturnText}` : ""}${nuance ? `\n\n${nuance}` : ""}`;
 }
 
 function careerChapter(
@@ -119,10 +119,10 @@ function careerChapter(
       locale === "en"
         ? `Daily work and public ambition, this bond's 6th and 10th houses, are directly activated between you:`
         : `Le travail quotidien et l'ambition publique, les maisons VI et X de ce lien, sont directement activés entre vous :`;
-    return `${intro} ${overlays.join(" ")} ${nuance}`;
+    return `${intro}\n\n${overlays.join("\n\n")}\n\n${nuance}`;
   }
   const sunText = `${describePlanetInSign("sun", sunA, undefined, locale)} ${describePlanetInSign("sun", sunB, undefined, locale)}`;
-  return `${sunText} ${nuance}`;
+  return `${sunText}\n\n${nuance}`;
 }
 
 function spiritualChapter(
@@ -141,10 +141,10 @@ function spiritualChapter(
       locale === "en"
         ? `The search for meaning and the more private, inward houses of this bond are directly activated between you:`
         : `La quête de sens et les maisons les plus intimes de ce lien sont directement activées entre vous :`;
-    return `${intro} ${overlays.join(" ")} ${nuance}`;
+    return `${intro}\n\n${overlays.join("\n\n")}\n\n${nuance}`;
   }
   const neptuneText = neptuneA && neptuneB ? `${describePlanetInSign("neptune", neptuneA, undefined, locale)} ${describePlanetInSign("neptune", neptuneB, undefined, locale)}` : "";
-  return `${neptuneText ? `${neptuneText} ` : ""}${nuance}`;
+  return `${neptuneText ? `${neptuneText}\n\n` : ""}${nuance}`;
 }
 
 /**

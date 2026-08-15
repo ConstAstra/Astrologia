@@ -37,6 +37,9 @@ import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { SectionNav } from "@/components/dashboard/SectionNav";
+import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
+import type { Aspect } from "@/lib/astro/types";
 
 type Locale = "fr" | "en";
 
@@ -57,6 +60,11 @@ const TEXT: Record<
     grimoireTitle: string;
     grimoireSubtitle: string;
     grimoireAspectsNote: string;
+    navGrimoire: string;
+    navPositions: string;
+    navAspects: string;
+    showMoreMinorAspects: (n: number) => string;
+    showLessAspects: string;
   }
 > = {
   fr: {
@@ -72,6 +80,11 @@ const TEXT: Record<
     grimoireTitle: "Le grimoire de cette relation",
     grimoireSubtitle: "Le thème composite résumé bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
     grimoireAspectsNote: "Les aspects internes détaillés sont à lire plus bas dans cette page.",
+    navGrimoire: "Grimoire",
+    navPositions: "Positions",
+    navAspects: "Aspects",
+    showMoreMinorAspects: (n) => `Voir ${n} aspect${n > 1 ? "s" : ""} mineur${n > 1 ? "s" : ""} de plus`,
+    showLessAspects: "Replier les aspects mineurs",
   },
   en: {
     composite: "Composite chart",
@@ -86,6 +99,11 @@ const TEXT: Record<
     grimoireTitle: "The grimoire of this relationship",
     grimoireSubtitle: "The composite chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
     grimoireAspectsNote: "The detailed internal aspects are further down this page.",
+    navGrimoire: "Grimoire",
+    navPositions: "Positions",
+    navAspects: "Aspects",
+    showMoreMinorAspects: (n) => `Show ${n} more minor aspect${n > 1 ? "s" : ""}`,
+    showLessAspects: "Collapse minor aspects",
   },
 };
 
@@ -213,12 +231,43 @@ export default async function CompositePage({
       { themeLabel: compositeThemeLabel }
     )) ?? composeCompositeChartDomains(composite, relationshipType, locale);
 
+  function renderAspectCard(aspect: Aspect, key: number) {
+    const note = getAspectNote(aspect.a, aspect.b, relationshipType);
+    return (
+      <Card key={key} className="p-4">
+        <div className="flex items-center justify-between text-sm">
+          <p className="font-medium">
+            {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
+            <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol} {planetMap[aspect.b].name}
+          </p>
+          <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
+            {aspectMap[aspect.aspect].name}
+          </Badge>
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-muted">
+          {describeAspect(aspect, "composite", relationshipType, locale)}
+        </p>
+        {note && <p className="mt-1 text-xs leading-relaxed text-gold-strong">{note}</p>}
+      </Card>
+    );
+  }
+
   return (
     <div>
       {header}
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].compositeFraming}</Card>
 
       <div className="mt-6">
+        <SectionNav
+          sections={[
+            { id: "grimoire", label: t.navGrimoire },
+            { id: "positions", label: t.navPositions },
+            { id: "aspects", label: t.navAspects },
+          ]}
+        />
+      </div>
+
+      <div id="grimoire" className="mt-6 scroll-mt-24">
         <GrimoireReveal
           domains={grimoireDomains}
           title={t.grimoireTitle}
@@ -240,7 +289,7 @@ export default async function CompositePage({
         </Card>
 
         <div className="space-y-8">
-          <section>
+          <section id="positions" className="scroll-mt-24">
             <h2 className="font-display text-2xl">{t.positions}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {DISPLAY_POINTS.map((key) => {
@@ -276,30 +325,16 @@ export default async function CompositePage({
             </div>
           </section>
 
-          <section>
+          <section id="aspects" className="scroll-mt-24">
             <h2 className="font-display text-2xl">{t.internalAspects}</h2>
-            <div className="mt-4 space-y-3">
-              {aspects.map((aspect, i) => {
-                const note = getAspectNote(aspect.a, aspect.b, relationshipType);
-                return (
-                  <Card key={i} className="p-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <p className="font-medium">
-                        {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
-                        <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol}{" "}
-                        {planetMap[aspect.b].name}
-                      </p>
-                      <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
-                        {aspectMap[aspect.aspect].name}
-                      </Badge>
-                    </div>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">
-                      {describeAspect(aspect, "composite", relationshipType, locale)}
-                    </p>
-                    {note && <p className="mt-1 text-xs leading-relaxed text-gold-strong">{note}</p>}
-                  </Card>
-                );
-              })}
+            <div className="mt-4">
+              <CollapsibleAspects
+                major={aspects.filter((a) => a.major).map(renderAspectCard)}
+                minor={aspects.filter((a) => !a.major).map(renderAspectCard)}
+                minorCount={aspects.filter((a) => !a.major).length}
+                showMoreLabel={t.showMoreMinorAspects(aspects.filter((a) => !a.major).length)}
+                showLessLabel={t.showLessAspects}
+              />
             </div>
           </section>
         </div>

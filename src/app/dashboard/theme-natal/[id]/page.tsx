@@ -6,7 +6,7 @@ import { computeNatalChart } from "@/lib/astro/chart";
 import { computeAspects } from "@/lib/astro/aspects";
 import { computeDominance } from "@/lib/astro/dominance";
 import { PLANET_KEYS } from "@/lib/astro/types";
-import type { HouseSystem, PointKey } from "@/lib/astro/types";
+import type { Aspect, HouseSystem, PointKey } from "@/lib/astro/types";
 import { signOf } from "@/lib/astro/signs";
 import { formatLongitude } from "@/lib/astro/signs";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
@@ -37,6 +37,8 @@ import { ShareChartToggle } from "@/components/account/ShareChartToggle";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
 import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { SectionNav } from "@/components/dashboard/SectionNav";
+import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
 
 type Locale = "fr" | "en";
 
@@ -88,6 +90,13 @@ const TEXT: Record<
     grimoireSubtitle: string;
     grimoireAspectsNote: string;
     viewingAsFriend: (name: string) => string;
+    navOverview: string;
+    navGrimoire: string;
+    navPositions: string;
+    navMission: string;
+    navAspects: string;
+    showMoreMinorAspects: (n: number) => string;
+    showLessAspects: string;
   }
 > = {
   fr: {
@@ -121,6 +130,13 @@ const TEXT: Record<
     grimoireSubtitle: "Toute la charte résumée bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
     grimoireAspectsNote: "Les aspects détaillés, planète par planète, sont à lire plus bas dans cette page.",
     viewingAsFriend: (name) => `Vous voyez le thème de ${name} en tant qu'ami : lecture seule.`,
+    navOverview: "Vue d'ensemble",
+    navGrimoire: "Grimoire",
+    navPositions: "Positions",
+    navMission: "Mission de vie",
+    navAspects: "Aspects",
+    showMoreMinorAspects: (n) => `Voir ${n} aspect${n > 1 ? "s" : ""} mineur${n > 1 ? "s" : ""} de plus`,
+    showLessAspects: "Replier les aspects mineurs",
   },
   en: {
     eyebrow: "Natal chart",
@@ -153,6 +169,13 @@ const TEXT: Record<
     grimoireSubtitle: "The whole chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
     grimoireAspectsNote: "The planet-by-planet aspect details are further down this page.",
     viewingAsFriend: (name) => `You're viewing ${name}'s chart as a friend: read-only.`,
+    navOverview: "Overview",
+    navGrimoire: "Grimoire",
+    navPositions: "Positions",
+    navMission: "Life mission",
+    navAspects: "Aspects",
+    showMoreMinorAspects: (n) => `Show ${n} more minor aspect${n > 1 ? "s" : ""}`,
+    showLessAspects: "Collapse minor aspects",
   },
 };
 
@@ -232,6 +255,23 @@ export default async function ThemeNatalPage({
       composeChartDomains(chart, locale);
   }
 
+  function renderAspectCard(aspect: Aspect, key: number) {
+    return (
+      <Card key={key} className="p-4">
+        <div className="flex items-center justify-between text-sm">
+          <p className="font-medium">
+            {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
+            <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol} {planetMap[aspect.b].name}
+          </p>
+          <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
+            {aspectMap[aspect.aspect].name}
+          </Badge>
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "natal", undefined, locale)}</p>
+      </Card>
+    );
+  }
+
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -286,7 +326,19 @@ export default async function ThemeNatalPage({
         </div>
       </div>
 
-      <Card className="mt-6 p-6">
+      <div className="mt-6">
+        <SectionNav
+          sections={[
+            { id: "vue-ensemble", label: t.navOverview },
+            { id: "grimoire", label: t.navGrimoire },
+            { id: "positions", label: t.navPositions },
+            { id: "mission-de-vie", label: t.navMission },
+            { id: "aspects", label: t.navAspects },
+          ]}
+        />
+      </div>
+
+      <Card className="p-6">
         <Eyebrow>{t.inBrief}</Eyebrow>
         <ul className="mt-3 space-y-2">
           {chartHighlights.map((line, i) => (
@@ -309,7 +361,7 @@ export default async function ThemeNatalPage({
         </Card>
       )}
 
-      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[380px_1fr]">
+      <div id="vue-ensemble" className="mt-6 grid scroll-mt-24 items-start gap-6 lg:grid-cols-[380px_1fr]">
         <Card className="p-4">
           <ChartWheel
             points={wheelPoints}
@@ -352,7 +404,7 @@ export default async function ThemeNatalPage({
         </Card>
       )}
 
-      <div className="mt-6">
+      <div id="grimoire" className="mt-6 scroll-mt-24">
         {grimoireDomains ? (
           <GrimoireReveal
             domains={grimoireDomains}
@@ -374,7 +426,7 @@ export default async function ThemeNatalPage({
       )}
 
       <div className="mt-8 space-y-8">
-          <section>
+          <section id="positions" className="scroll-mt-24">
             <h2 className="font-display text-2xl">{t.positions}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {DISPLAY_POINTS.map((key) => {
@@ -536,25 +588,19 @@ export default async function ThemeNatalPage({
             )}
           </section>
 
-          <section>
+          <section id="aspects" className="scroll-mt-24">
             <h2 className="font-display text-2xl">{t.aspects}</h2>
-            <div className="mt-4 space-y-3">
+            <div className="mt-4">
               {aspects.length === 0 && <p className="text-sm text-muted">{t.noAspects}</p>}
-              {aspects.map((aspect, i) => (
-                <Card key={i} className="p-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <p className="font-medium">
-                      {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
-                      <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol}{" "}
-                      {planetMap[aspect.b].name}
-                    </p>
-                    <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
-                      {aspectMap[aspect.aspect].name}
-                    </Badge>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "natal", undefined, locale)}</p>
-                </Card>
-              ))}
+              {aspects.length > 0 && (
+                <CollapsibleAspects
+                  major={aspects.filter((a) => a.major).map(renderAspectCard)}
+                  minor={aspects.filter((a) => !a.major).map(renderAspectCard)}
+                  minorCount={aspects.filter((a) => !a.major).length}
+                  showMoreLabel={t.showMoreMinorAspects(aspects.filter((a) => !a.major).length)}
+                  showLessLabel={t.showLessAspects}
+                />
+              )}
             </div>
           </section>
       </div>

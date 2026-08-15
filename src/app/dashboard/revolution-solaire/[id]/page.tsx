@@ -35,6 +35,9 @@ import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
 import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
 import { SolarReturnYearPicker } from "@/components/dashboard/SolarReturnYearPicker";
+import { SectionNav } from "@/components/dashboard/SectionNav";
+import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
+import type { Aspect } from "@/lib/astro/types";
 
 const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "fortune"];
 
@@ -58,6 +61,12 @@ const TEXT: Record<
     lockedTitle: string;
     lockedBody: string;
     unlock: string;
+    navOverview: string;
+    navGrimoire: string;
+    navPositions: string;
+    navAspects: string;
+    showMoreMinorAspects: (n: number) => string;
+    showLessAspects: string;
   }
 > = {
   fr: {
@@ -80,6 +89,12 @@ const TEXT: Record<
     lockedBody:
       "La révolution solaire — un thème recalculé chaque année à l'anniversaire exact de votre Soleil — est réservée à Premium.",
     unlock: "Débloquer avec Premium",
+    navOverview: "Vue d'ensemble",
+    navGrimoire: "Grimoire",
+    navPositions: "Positions",
+    navAspects: "Aspects",
+    showMoreMinorAspects: (n) => `Voir ${n} aspect${n > 1 ? "s" : ""} mineur${n > 1 ? "s" : ""} de plus`,
+    showLessAspects: "Replier les aspects mineurs",
   },
   en: {
     eyebrow: "Solar return",
@@ -100,6 +115,12 @@ const TEXT: Record<
     lockedTitle: "Your chart for the year",
     lockedBody: "The solar return — a chart recalculated every year on your Sun's exact anniversary — is a Premium feature.",
     unlock: "Unlock with Premium",
+    navOverview: "Overview",
+    navGrimoire: "Grimoire",
+    navPositions: "Positions",
+    navAspects: "Aspects",
+    showMoreMinorAspects: (n) => `Show ${n} more minor aspect${n > 1 ? "s" : ""}`,
+    showLessAspects: "Collapse minor aspects",
   },
 };
 
@@ -189,6 +210,23 @@ export default async function SolarReturnPage({
 
   const locked = !isPremium;
 
+  function renderAspectCard(aspect: Aspect, key: number) {
+    return (
+      <Card key={key} className="p-4">
+        <div className="flex items-center justify-between text-sm">
+          <p className="font-medium">
+            {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
+            <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol} {planetMap[aspect.b].name}
+          </p>
+          <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
+            {aspectMap[aspect.aspect].name}
+          </Badge>
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "natal", undefined, locale)}</p>
+      </Card>
+    );
+  }
+
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -206,8 +244,21 @@ export default async function SolarReturnPage({
         <SolarReturnYearPicker profileId={profile.id} selectedYear={window.year} minYear={minYear} maxYear={maxYear} locale={locale} />
       </div>
 
+      {!locked && (
+        <div className="mt-6">
+          <SectionNav
+            sections={[
+              { id: "vue-ensemble", label: t.navOverview },
+              { id: "grimoire", label: t.navGrimoire },
+              { id: "positions", label: t.navPositions },
+              { id: "aspects", label: t.navAspects },
+            ]}
+          />
+        </div>
+      )}
+
       <div className={`relative mt-6 ${locked ? "max-h-[640px] overflow-hidden" : ""}`}>
-        <div className={locked ? "pointer-events-none select-none blur-sm" : undefined} aria-hidden={locked}>
+        <div id="vue-ensemble" className={`scroll-mt-24 ${locked ? "pointer-events-none select-none blur-sm" : ""}`} aria-hidden={locked}>
           <Card className="p-6">
             <Eyebrow>{t.inBrief}</Eyebrow>
             <ul className="mt-3 space-y-2">
@@ -234,7 +285,7 @@ export default async function SolarReturnPage({
             />
           </Card>
 
-          <div className="mt-6">
+          <div id="grimoire" className="mt-6 scroll-mt-24">
             <GrimoireReveal
               domains={grimoireDomains}
               title={t.grimoireTitle}
@@ -244,7 +295,7 @@ export default async function SolarReturnPage({
             />
           </div>
 
-          <section className="mt-8">
+          <section id="positions" className="mt-8 scroll-mt-24">
             <h2 className="font-display text-2xl">{t.positions}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {DISPLAY_POINTS.map((key) => {
@@ -280,25 +331,19 @@ export default async function SolarReturnPage({
             </div>
           </section>
 
-          <section className="mt-8">
+          <section id="aspects" className="mt-8 scroll-mt-24">
             <h2 className="font-display text-2xl">{t.aspects}</h2>
-            <div className="mt-4 space-y-3">
+            <div className="mt-4">
               {aspects.length === 0 && <p className="text-sm text-muted">{t.noAspects}</p>}
-              {aspects.map((aspect, i) => (
-                <Card key={i} className="p-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <p className="font-medium">
-                      {planetMap[aspect.a].symbol} {planetMap[aspect.a].name}{" "}
-                      <span className="font-normal text-muted">↔</span> {planetMap[aspect.b].symbol}{" "}
-                      {planetMap[aspect.b].name}
-                    </p>
-                    <Badge tone={aspectMap[aspect.aspect].tone === "harmonieux" ? "sage" : aspectMap[aspect.aspect].tone === "tendu" ? "terracotta" : "neutral"}>
-                      {aspectMap[aspect.aspect].name}
-                    </Badge>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{describeAspect(aspect, "natal", undefined, locale)}</p>
-                </Card>
-              ))}
+              {aspects.length > 0 && (
+                <CollapsibleAspects
+                  major={aspects.filter((a) => a.major).map(renderAspectCard)}
+                  minor={aspects.filter((a) => !a.major).map(renderAspectCard)}
+                  minorCount={aspects.filter((a) => !a.major).length}
+                  showMoreLabel={t.showMoreMinorAspects(aspects.filter((a) => !a.major).length)}
+                  showLessLabel={t.showLessAspects}
+                />
+              )}
             </div>
           </section>
         </div>

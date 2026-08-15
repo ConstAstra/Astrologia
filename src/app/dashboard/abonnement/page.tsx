@@ -240,11 +240,12 @@ export default async function AbonnementPage({
             <ChangePasswordForm locale={locale} />
           </div>
         </div>
-        <div className="mt-6 border-t border-border-soft pt-6">
-          <p className="text-sm text-muted">{t.dangerZone}</p>
-          <div className="mt-2">
-            <DeleteAccountForm locale={locale} />
-          </div>
+      </Card>
+
+      <Card className="mt-6 border-terracotta/40 bg-terracotta/5 p-6">
+        <p className="text-sm font-medium text-terracotta">{t.dangerZone}</p>
+        <div className="mt-2">
+          <DeleteAccountForm locale={locale} />
         </div>
       </Card>
     </div>
