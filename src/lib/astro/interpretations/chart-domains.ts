@@ -274,17 +274,21 @@ function ascendantRulerParagraph(s: Signals, relationshipType: RelationshipType 
 function generalNatal(s: Signals, locale: Locale): string {
   const rulerText = ascendantRulerParagraph(s, undefined, locale);
   if (locale === "en") {
-    return `Sun in ${sn(s.sun, locale)} (${sk(s.sun, locale)}) and Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)}) form the backbone of who you are${
-      s.asc ? `, wrapped in an Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}), the first impression you give before anyone knows the rest` : ""
-    }.\n\n${dominanceClause(s, locale)} Put together, this is a chart that wants to want something consciously (Sun), feel it in the body before trusting it (Moon)${
-      s.asc ? ", and walk into a room a certain way while doing both" : ""
-    }, three layers that don't always agree, and don't need to.${rulerText}`;
+    const layers = s.asc
+      ? "wanting something consciously (Sun), feeling it in the body before trusting it (Moon), and walking into a room a certain way (Ascendant)"
+      : "wanting something consciously (Sun), and feeling it in the body before trusting it (Moon)";
+    const layerCount = s.asc ? "three layers" : "two layers";
+    return `Sun in ${sn(s.sun, locale)} (${sk(s.sun, locale)}) and Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)}) form the backbone of who you are.${
+      s.asc ? ` Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}) sits on top of that: it's the first impression you give, before anyone knows the rest.` : ""
+    }\n\n${dominanceClause(s, locale)} Put together, this chart is built on ${layerCount} that don't always agree, and don't need to: ${layers}.${rulerText}`;
   }
-  return `Le Soleil en ${sn(s.sun, locale)} (${sk(s.sun, locale)}) et la Lune en ${sn(s.moon, locale)} (${sk(s.moon, locale)}) forment le socle de ce que vous êtes${
-    s.asc ? `, enveloppé d'un Ascendant en ${sn(s.asc, locale)} (${sk(s.asc, locale)}), la première impression que vous donnez avant que qui que ce soit ne connaisse le reste` : ""
-  }.\n\n${dominanceClause(s, locale)} Mis bout à bout, c'est un thème qui veut vouloir consciemment quelque chose (le Soleil), le ressentir dans le corps avant d'y croire (la Lune)${
-    s.asc ? ", et entrer dans une pièce d'une certaine façon en faisant les deux à la fois" : ""
-  }, trois couches qui ne sont pas toujours d'accord, et n'ont pas besoin de l'être.${rulerText}`;
+  const layers = s.asc
+    ? "vouloir consciemment quelque chose (le Soleil), le ressentir dans le corps avant d'y croire (la Lune), et entrer dans une pièce d'une certaine façon (l'Ascendant)"
+    : "vouloir consciemment quelque chose (le Soleil), et le ressentir dans le corps avant d'y croire (la Lune)";
+  const layerCount = s.asc ? "trois couches" : "deux couches";
+  return `Le Soleil en ${sn(s.sun, locale)} (${sk(s.sun, locale)}) et la Lune en ${sn(s.moon, locale)} (${sk(s.moon, locale)}) forment le socle de ce que vous êtes.${
+    s.asc ? ` L'Ascendant en ${sn(s.asc, locale)} (${sk(s.asc, locale)}) vient se poser par-dessus : c'est la première impression que vous donnez, avant que qui que ce soit ne connaisse le reste.` : ""
+  }\n\n${dominanceClause(s, locale)} Mis bout à bout, ce thème repose sur ${layerCount} qui ne sont pas toujours d'accord, et n'ont pas besoin de l'être : ${layers}.${rulerText}`;
 }
 
 function loveNatal(chart: NatalChart, s: Signals, locale: Locale, usedHouses: Set<number>): string {
@@ -391,13 +395,13 @@ export function composeChartDomains(chart: NatalChart, locale: Locale = "fr"): C
 function generalComposite(s: Signals, relationshipType: RelationshipType, locale: Locale): string {
   const rulerText = ascendantRulerParagraph(s, relationshipType, locale);
   if (locale === "en") {
-    return `This bond's own composite Sun sits in ${sn(s.sun, locale)} (${sk(s.sun, locale)}), its composite Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)})${
-      s.asc ? `, wrapped in a composite Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}), the face this relationship shows before anyone's looked closer` : ""
-    }, not what either of you is alone, but what the two of you generate together.\n\n${dominanceClause(s, locale)} That's a relationship with its own identity, its own comfort zone, and its own instincts, distinct from what either person would build solo.${rulerText}`;
+    return `This bond's own composite Sun sits in ${sn(s.sun, locale)} (${sk(s.sun, locale)}), its composite Moon in ${sn(s.moon, locale)} (${sk(s.moon, locale)}): not what either of you is alone, but what the two of you generate together.${
+      s.asc ? ` Its composite Ascendant in ${sn(s.asc, locale)} (${sk(s.asc, locale)}) is the face this relationship shows before anyone's looked closer.` : ""
+    }\n\n${dominanceClause(s, locale)} That's a relationship with its own identity, its own comfort zone, and its own instincts, distinct from what either person would build solo.${rulerText}`;
   }
-  return `Le Soleil composite de ce lien se trouve en ${sn(s.sun, locale)} (${sk(s.sun, locale)}), sa Lune composite en ${sn(s.moon, locale)} (${sk(s.moon, locale)})${
-    s.asc ? `, enveloppée d'un Ascendant composite en ${sn(s.asc, locale)} (${sk(s.asc, locale)}), le visage que cette relation montre avant que quiconque ne regarde de plus près` : ""
-  }, pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble.\n\n${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.${rulerText}`;
+  return `Le Soleil composite de ce lien se trouve en ${sn(s.sun, locale)} (${sk(s.sun, locale)}), sa Lune composite en ${sn(s.moon, locale)} (${sk(s.moon, locale)}) : pas ce que chacun de vous est séparément, mais ce que vous deux générez ensemble.${
+    s.asc ? ` Son Ascendant composite en ${sn(s.asc, locale)} (${sk(s.asc, locale)}) est le visage que cette relation montre avant que quiconque ne regarde de plus près.` : ""
+  }\n\n${dominanceClause(s, locale)} C'est une relation qui a sa propre identité, sa propre zone de confort et ses propres réflexes, distincts de ce que chacun bâtirait seul.${rulerText}`;
 }
 
 function loveComposite(composite: CompositeChart, s: Signals, relationshipType: RelationshipType, locale: Locale, usedHouses: Set<number>): string {
