@@ -33,7 +33,7 @@ import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
-import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { GrimoireOpeningReveal } from "@/components/dashboard/GrimoireOpeningReveal";
 import { SolarReturnYearPicker } from "@/components/dashboard/SolarReturnYearPicker";
 import { SectionNav } from "@/components/dashboard/SectionNav";
 import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
@@ -286,7 +286,8 @@ export default async function SolarReturnPage({
           </Card>
 
           <div id="grimoire" className="mt-6 scroll-mt-24">
-            <GrimoireReveal
+            <GrimoireOpeningReveal
+              storageKey={`grimoire-opened:solarReturn:${profile.id}:${window.year}`}
               domains={grimoireDomains}
               title={t.grimoireTitle}
               subtitle={t.grimoireSubtitle}

@@ -36,7 +36,7 @@ import { CompatibilityVideoButton } from "@/components/dashboard/CompatibilityVi
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { SynastryWheel } from "@/components/chart/SynastryWheel";
-import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { GrimoireOpeningReveal } from "@/components/dashboard/GrimoireOpeningReveal";
 import { PLANET_KEYS } from "@/lib/astro/types";
 import type { PointKey } from "@/lib/astro/types";
 
@@ -358,7 +358,8 @@ export default async function SynastriePage({
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].synastryFraming}</Card>
 
       <div className="mt-6">
-        <GrimoireReveal
+        <GrimoireOpeningReveal
+          storageKey={`grimoire-opened:synastry:${primaryProfileId}:${secondaryProfileId}`}
           domains={grimoireDomains}
           title={t.grimoireTitle}
           subtitle={t.grimoireSubtitle}

@@ -36,7 +36,7 @@ import { RelationshipTabs } from "@/components/dashboard/RelationshipTabs";
 import { PixelAvatar } from "@/components/avatar/PixelAvatar";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ChartWheel } from "@/components/chart/ChartWheel";
-import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { GrimoireOpeningReveal } from "@/components/dashboard/GrimoireOpeningReveal";
 import { SectionNav } from "@/components/dashboard/SectionNav";
 import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
 import type { Aspect } from "@/lib/astro/types";
@@ -268,7 +268,8 @@ export default async function CompositePage({
       </div>
 
       <div id="grimoire" className="mt-6 scroll-mt-24">
-        <GrimoireReveal
+        <GrimoireOpeningReveal
+          storageKey={`grimoire-opened:composite:${primaryProfileId}:${secondaryProfileId}`}
           domains={grimoireDomains}
           title={t.grimoireTitle}
           subtitle={t.grimoireSubtitle}

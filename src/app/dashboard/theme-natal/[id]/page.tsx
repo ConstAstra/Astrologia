@@ -36,7 +36,7 @@ import { OverviewCard } from "@/components/chart/OverviewCard";
 import { ShareChartToggle } from "@/components/account/ShareChartToggle";
 import { UnlockGate } from "@/components/billing/UnlockGate";
 import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
-import { GrimoireReveal } from "@/components/dashboard/GrimoireReveal";
+import { GrimoireOpeningReveal } from "@/components/dashboard/GrimoireOpeningReveal";
 import { SectionNav } from "@/components/dashboard/SectionNav";
 import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
 
@@ -406,7 +406,8 @@ export default async function ThemeNatalPage({
 
       <div id="grimoire" className="mt-6 scroll-mt-24">
         {grimoireDomains ? (
-          <GrimoireReveal
+          <GrimoireOpeningReveal
+            storageKey={`grimoire-opened:natal:${profile.id}`}
             domains={grimoireDomains}
             title={t.grimoireTitle}
             subtitle={t.grimoireSubtitle}
