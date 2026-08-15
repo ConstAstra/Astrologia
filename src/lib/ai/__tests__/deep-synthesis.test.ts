@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { narrateDeepSynthesis } from "@/lib/ai/deep-synthesis";
+import { narrateDeepSynthesis, narrateLifeMissionSynthesis } from "@/lib/ai/deep-synthesis";
 import type { ChartFacts } from "@/lib/astro/interpretations/chart-facts";
+import type { LunarNodeFacts } from "@/lib/astro/interpretations/lunar-node-facts";
 
 const MINIMAL_FACTS: ChartFacts = {
   planets: [
@@ -109,6 +110,63 @@ describe("narrateDeepSynthesis", () => {
       }))
     );
     const result = await narrateDeepSynthesis(MINIMAL_FACTS, { themeLabel: "thème natal" }, "fr");
+    expect(result).toBeNull();
+  });
+});
+
+const MINIMAL_NODE_FACTS: LunarNodeFacts = {
+  northNode: { signName: "Cancer", degree: "12°30'", house: 4 },
+  southNode: { signName: "Capricorne", degree: "12°30'", house: 10 },
+  rulerName: "Lune",
+  rulerSignName: "Scorpion",
+  rulerDegree: "5°10'",
+  rulerHouse: 6,
+  rulerDignityLabel: null,
+  aspects: [],
+};
+
+describe("narrateLifeMissionSynthesis", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    if (ORIGINAL_ENV === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = ORIGINAL_ENV;
+  });
+
+  it("returns null without hitting the network when ANTHROPIC_API_KEY is unset", async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    vi.stubGlobal("fetch", vi.fn());
+    const result = await narrateLifeMissionSynthesis(MINIMAL_NODE_FACTS, "fr");
+    expect(result).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("parses a well-formed structured-output response", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    const body = { comfort: "texte confort", ruler: "texte maître", synthesis: "texte synthèse" };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(body) }] }),
+      }))
+    );
+    const result = await narrateLifeMissionSynthesis(MINIMAL_NODE_FACTS, "fr");
+    expect(result).toEqual(body);
+  });
+
+  it("returns null when a field is missing from the parsed JSON", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          stop_reason: "end_turn",
+          content: [{ type: "text", text: JSON.stringify({ comfort: "x", ruler: "y" }) }],
+        }),
+      }))
+    );
+    const result = await narrateLifeMissionSynthesis(MINIMAL_NODE_FACTS, "fr");
     expect(result).toBeNull();
   });
 });

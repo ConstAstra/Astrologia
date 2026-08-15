@@ -2,15 +2,18 @@ import { prisma } from "@/lib/db";
 import {
   narrateDeepSynthesis,
   narrateSynastryDeepSynthesis,
+  narrateLifeMissionSynthesis,
   type DeepSynthesisContext,
   type DeepSynthesisResult,
   type SynastryDeepSynthesisContext,
+  type LifeMissionSynthesisResult,
 } from "./deep-synthesis";
 import type { ChartFacts } from "@/lib/astro/interpretations/chart-facts";
 import type { SynastryFacts } from "@/lib/astro/interpretations/synastry-facts";
+import type { LunarNodeFacts } from "@/lib/astro/interpretations/lunar-node-facts";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 
-export type DeepSynthesisType = "natal" | "synastry" | "composite" | "solarReturn";
+export type DeepSynthesisType = "natal" | "synastry" | "composite" | "solarReturn" | "lifeMission";
 
 export interface DeepSynthesisCacheKey {
   type: DeepSynthesisType;
@@ -22,7 +25,7 @@ export interface DeepSynthesisCacheKey {
   locale: Locale;
 }
 
-export async function getCachedDeepSynthesis(key: DeepSynthesisCacheKey): Promise<DeepSynthesisResult | null> {
+async function getCachedRow<T>(key: DeepSynthesisCacheKey): Promise<T | null> {
   const row = await prisma.deepSynthesis.findFirst({
     where: {
       type: key.type,
@@ -36,13 +39,13 @@ export async function getCachedDeepSynthesis(key: DeepSynthesisCacheKey): Promis
   });
   if (!row) return null;
   try {
-    return JSON.parse(row.contentJson) as DeepSynthesisResult;
+    return JSON.parse(row.contentJson) as T;
   } catch {
     return null;
   }
 }
 
-async function saveDeepSynthesis(key: DeepSynthesisCacheKey, result: DeepSynthesisResult): Promise<void> {
+async function saveRow<T>(key: DeepSynthesisCacheKey, result: T): Promise<void> {
   await prisma.deepSynthesis.create({
     data: {
       type: key.type,
@@ -54,6 +57,10 @@ async function saveDeepSynthesis(key: DeepSynthesisCacheKey, result: DeepSynthes
       contentJson: JSON.stringify(result),
     },
   });
+}
+
+export async function getCachedDeepSynthesis(key: DeepSynthesisCacheKey): Promise<DeepSynthesisResult | null> {
+  return getCachedRow<DeepSynthesisResult>(key);
 }
 
 function substituteLabels(result: DeepSynthesisResult, replacements: [string, string][]): DeepSynthesisResult {
@@ -85,7 +92,7 @@ export async function getOrGenerateDeepSynthesis(
   const generated = await narrateDeepSynthesis(facts, context, key.locale);
   if (!generated) return null;
 
-  await saveDeepSynthesis(key, generated);
+  await saveRow(key, generated);
   return generated;
 }
 
@@ -113,6 +120,24 @@ export async function getOrGenerateSynastryDeepSynthesis(
     [facts.personA.label, realLabelA],
     [facts.personB.label, realLabelB],
   ]);
-  await saveDeepSynthesis(key, substituted);
+  await saveRow(key, substituted);
   return substituted;
+}
+
+/**
+ * Variante Mission de vie : clé de cache sans profil secondaire/année/type de
+ * relation, une seule synthèse par profil et par langue, jamais régénérée.
+ */
+export async function getOrGenerateLifeMissionSynthesis(
+  key: DeepSynthesisCacheKey,
+  facts: LunarNodeFacts
+): Promise<LifeMissionSynthesisResult | null> {
+  const cached = await getCachedRow<LifeMissionSynthesisResult>(key);
+  if (cached) return cached;
+
+  const generated = await narrateLifeMissionSynthesis(facts, key.locale);
+  if (!generated) return null;
+
+  await saveRow(key, generated);
+  return generated;
 }

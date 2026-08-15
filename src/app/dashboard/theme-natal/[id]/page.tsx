@@ -21,11 +21,12 @@ import {
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
 import { describeLifeMission } from "@/lib/astro/interpretations/life-mission";
+import { buildLunarNodeFacts } from "@/lib/astro/interpretations/lunar-node-facts";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartDomains } from "@/lib/astro/interpretations/chart-domains";
 import { buildChartFacts } from "@/lib/astro/interpretations/chart-facts";
-import { getOrGenerateDeepSynthesis } from "@/lib/ai/deep-synthesis-cache";
+import { getOrGenerateDeepSynthesis, getOrGenerateLifeMissionSynthesis } from "@/lib/ai/deep-synthesis-cache";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { canViewProfile } from "@/lib/friends";
@@ -204,6 +205,14 @@ export default async function ThemeNatalPage({
 
   const mission = describeLifeMission(chart, aspects, locale);
   const lifeMissionAccess = await hasFeatureAccess(userId, { feature: "lifeMission", primaryProfileId: profile.id });
+  let lifeMissionNarration = null;
+  if (lifeMissionAccess) {
+    const lunarNodeFacts = buildLunarNodeFacts(chart, aspects, locale);
+    lifeMissionNarration = await getOrGenerateLifeMissionSynthesis(
+      { type: "lifeMission", profileId: profile.id, locale },
+      lunarNodeFacts
+    );
+  }
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude, house: chart.points[k].house })
@@ -454,9 +463,15 @@ export default async function ThemeNatalPage({
                       {mission.southHouse ? ` · ${t.house} ${mission.southHouse}` : ""}
                     </Badge>
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
-                  {mission.comfortHouseText && (
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortHouseText}</p>
+                  {lifeMissionNarration ? (
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{lifeMissionNarration.comfort}</p>
+                  ) : (
+                    <>
+                      <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
+                      {mission.comfortHouseText && (
+                        <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortHouseText}</p>
+                      )}
+                    </>
                   )}
                 </Card>
 
@@ -464,10 +479,16 @@ export default async function ThemeNatalPage({
                   <p className="font-medium">
                     {t.lifeMissionRulerHeading}, {planetMap[mission.rulerPlanet].symbol} {planetMap[mission.rulerPlanet].name}
                   </p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerIntro}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerSignText}</p>
-                  {mission.rulerHouseText && (
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerHouseText}</p>
+                  {lifeMissionNarration ? (
+                    <p className="mt-2 text-xs leading-relaxed text-muted">{lifeMissionNarration.ruler}</p>
+                  ) : (
+                    <>
+                      <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerIntro}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerSignText}</p>
+                      {mission.rulerHouseText && (
+                        <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerHouseText}</p>
+                      )}
+                    </>
                   )}
                 </Card>
 
@@ -505,7 +526,7 @@ export default async function ThemeNatalPage({
 
                 <Card className="p-4">
                   <p className="font-medium">{t.lifeMissionSynthesisHeading}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{mission.synthesis}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{lifeMissionNarration?.synthesis ?? mission.synthesis}</p>
                 </Card>
               </div>
             ) : (

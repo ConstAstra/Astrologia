@@ -1,6 +1,7 @@
 import type { Locale } from "@/lib/astro/interpretations/compose";
 import type { AspectFact, ChartFacts, PatternFact, PlanetFact } from "@/lib/astro/interpretations/chart-facts";
 import type { SynastryCrossAspectFact, SynastryFacts, SynastryPersonFacts } from "@/lib/astro/interpretations/synastry-facts";
+import type { LunarNodeFacts } from "@/lib/astro/interpretations/lunar-node-facts";
 
 export interface DeepSynthesisResult {
   general: string;
@@ -18,6 +19,12 @@ export interface DeepSynthesisContext {
 export interface SynastryDeepSynthesisContext {
   /** Nature de la relation (amitié, couple, famille...), pour adapter le ton. */
   relationshipLabel: string;
+}
+
+export interface LifeMissionSynthesisResult {
+  comfort: string;
+  ruler: string;
+  synthesis: string;
 }
 
 const SYSTEM_PROMPT: Record<Locale, string> = {
@@ -85,6 +92,74 @@ How the 5 parts break down:
 
 Never mention a fact that isn't in the given list.`,
 };
+
+const SYSTEM_PROMPT_LIFE_MISSION: Record<Locale, string> = {
+  fr: `Tu écris pour Astrologium, une app d'astrologie. Tu ne connais QUE les faits donnés dans le message : le signe, la maison et le degré exact du Nœud Nord et du Nœud Sud, le maître (dispositeur) du Nœud Nord avec son propre signe/maison/degré/dignité, et les aspects que reçoit le Nœud Nord avec leur orbe exact. Tu ne dois jamais inventer, supposer ou ajouter un fait qui n'est pas dans la liste.
+
+Tu rédiges trois textes courts (2 à 4 paragraphes chacun), retournés en JSON, en prose continue (jamais de puces, jamais de titre à l'intérieur du texte, jamais de formule d'ouverture). N'utilise jamais le tiret cadratin ("—") : remplace-le par une virgule, un point, ou des parenthèses. Reste accessible à quelqu'un qui ne connaît rien à l'astrologie : la première fois qu'un terme technique apparaît (dispositeur, dignité, orbe...), glisse en quelques mots ce qu'il veut dire.
+
+Répartition des trois textes :
+- comfort : le Nœud Sud, en signe et en maison, comme terrain déjà acquis, la zone de confort qu'il ne faut pas surinvestir pour ne pas stagner. Cite le signe et la maison donnés.
+- ruler : le maître du Nœud Nord, ce que son propre signe, sa maison et sa dignité (domicile, exaltation, exil, chute) révèlent sur COMMENT avancer concrètement vers la direction indiquée par le Nœud Nord, pas seulement vers où.
+- synthesis : une synthèse pratique qui relie le Nœud Nord, le maître et les aspects les plus structurants (cite l'orbe des plus serrés) en une trajectoire de vie cohérente, pour que la personne se sente vraiment vue dans ce qu'elle a à apprivoiser.
+
+Ne mentionne jamais de fait qui n'est pas dans la liste fournie.`,
+  en: `You write for Astrologium, an astrology app. You know ONLY the facts given in the message: the sign, house, and exact degree of the North Node and South Node, the North Node's ruler (dispositor) with its own sign/house/degree/dignity, and the aspects the North Node receives with their exact orb. Never invent, assume, or add a fact that isn't in the list.
+
+You write three short texts (2 to 4 paragraphs each), returned as JSON, in continuous prose (never bullet points, never a heading inside the text, never an opener). Never use an em dash ("—"): replace it with a comma, a period, or parentheses. Stay accessible to someone who knows nothing about astrology: the first time a technical term appears (dispositor, dignity, orb...), gloss it in a few words.
+
+How the three texts break down:
+- comfort: the South Node, in sign and house, as already-familiar ground, the comfort zone not to over-invest in to avoid stagnating. Cite the given sign and house.
+- ruler: the North Node's ruler, what its own sign, house, and dignity (domicile, exaltation, detriment, fall) reveal about HOW to concretely move toward the direction the North Node points to, not just where.
+- synthesis: a practical synthesis linking the North Node, its ruler, and the most structural aspects (cite the orb of the tightest ones) into a coherent life trajectory, so the person feels truly seen in what they have to grow into.
+
+Never mention a fact that isn't in the given list.`,
+};
+
+function lunarNodeAspectLine(a: LunarNodeFacts["aspects"][number], locale: Locale): string {
+  const tightness = locale === "en" ? "orb" : "orbe";
+  const dynamic = a.applying ? (locale === "en" ? "applying" : "appliquant") : locale === "en" ? "separating" : "séparant";
+  return `- ${a.otherPointName} ${a.aspectName} (${tightness} ${a.orb}, ${dynamic}${a.major ? "" : locale === "en" ? ", minor" : ", mineur"})`;
+}
+
+function buildLifeMissionUserPrompt(facts: LunarNodeFacts, locale: Locale): string {
+  const lines: string[] = [];
+  if (locale === "en") {
+    lines.push(`North Node: ${facts.northNode.degree} ${facts.northNode.signName}${facts.northNode.house != null ? `, house ${facts.northNode.house}` : ""}`);
+    lines.push(`South Node: ${facts.southNode.degree} ${facts.southNode.signName}${facts.southNode.house != null ? `, house ${facts.southNode.house}` : ""}`);
+    lines.push(
+      `North Node ruler: ${facts.rulerName}, ${facts.rulerDegree} ${facts.rulerSignName}${facts.rulerHouse != null ? `, house ${facts.rulerHouse}` : ""}${facts.rulerDignityLabel ? `, ${facts.rulerDignityLabel}` : ""}`
+    );
+    if (facts.aspects.length > 0) {
+      lines.push("\nAspects to the North Node (tightest first):");
+      for (const a of facts.aspects) lines.push(lunarNodeAspectLine(a, locale));
+    }
+    lines.push("\nWrite the JSON synthesis now, in English.");
+  } else {
+    lines.push(`Nœud Nord : ${facts.northNode.degree} ${facts.northNode.signName}${facts.northNode.house != null ? `, maison ${facts.northNode.house}` : ""}`);
+    lines.push(`Nœud Sud : ${facts.southNode.degree} ${facts.southNode.signName}${facts.southNode.house != null ? `, maison ${facts.southNode.house}` : ""}`);
+    lines.push(
+      `Maître du Nœud Nord : ${facts.rulerName}, ${facts.rulerDegree} ${facts.rulerSignName}${facts.rulerHouse != null ? `, maison ${facts.rulerHouse}` : ""}${facts.rulerDignityLabel ? `, ${facts.rulerDignityLabel}` : ""}`
+    );
+    if (facts.aspects.length > 0) {
+      lines.push("\nAspects reçus par le Nœud Nord (du plus serré au moins serré) :");
+      for (const a of facts.aspects) lines.push(lunarNodeAspectLine(a, locale));
+    }
+    lines.push("\nÉcris la synthèse JSON maintenant, en français.");
+  }
+  return lines.join("\n");
+}
+
+const RESPONSE_SCHEMA_LIFE_MISSION = {
+  type: "object",
+  properties: {
+    comfort: { type: "string" },
+    ruler: { type: "string" },
+    synthesis: { type: "string" },
+  },
+  required: ["comfort", "ruler", "synthesis"],
+  additionalProperties: false,
+} as const;
 
 function planetLine(p: PlanetFact, locale: Locale): string {
   const houseLabel = p.house != null ? (locale === "en" ? `house ${p.house}` : `maison ${p.house}`) : locale === "en" ? "house unknown" : "maison inconnue";
@@ -228,7 +303,12 @@ const RESPONSE_SCHEMA = {
   additionalProperties: false,
 } as const;
 
-async function callSynthesisAPI(system: string, userPrompt: string): Promise<DeepSynthesisResult | null> {
+async function callSynthesisAPI<T extends object>(
+  system: string,
+  userPrompt: string,
+  schema: object,
+  requiredKeys: (keyof T)[]
+): Promise<T | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
 
@@ -246,7 +326,7 @@ async function callSynthesisAPI(system: string, userPrompt: string): Promise<Dee
         thinking: { type: "adaptive" },
         system,
         messages: [{ role: "user", content: userPrompt }],
-        output_config: { format: { type: "json_schema", schema: RESPONSE_SCHEMA } },
+        output_config: { format: { type: "json_schema", schema } },
       }),
     });
 
@@ -257,13 +337,16 @@ async function callSynthesisAPI(system: string, userPrompt: string): Promise<Dee
     const text = data.content?.find((block) => block.type === "text")?.text;
     if (!text) return null;
 
-    const parsed = JSON.parse(text) as Partial<DeepSynthesisResult>;
-    if (!parsed.general || !parsed.love || !parsed.money || !parsed.career || !parsed.spiritual) return null;
-    return parsed as DeepSynthesisResult;
+    const parsed = JSON.parse(text) as Partial<T>;
+    if (requiredKeys.some((key) => !parsed[key])) return null;
+    return parsed as T;
   } catch {
     return null;
   }
 }
+
+const DEEP_SYNTHESIS_KEYS: (keyof DeepSynthesisResult)[] = ["general", "love", "money", "career", "spiritual"];
+const LIFE_MISSION_KEYS: (keyof LifeMissionSynthesisResult)[] = ["comfort", "ruler", "synthesis"];
 
 /**
  * Génère la synthèse profonde d'un thème (natal, composite, ou révolution
@@ -281,7 +364,12 @@ export async function narrateDeepSynthesis(
   context: DeepSynthesisContext,
   locale: Locale = "fr"
 ): Promise<DeepSynthesisResult | null> {
-  return callSynthesisAPI(SYSTEM_PROMPT[locale], buildUserPrompt(facts, context, locale));
+  return callSynthesisAPI<DeepSynthesisResult>(
+    SYSTEM_PROMPT[locale],
+    buildUserPrompt(facts, context, locale),
+    RESPONSE_SCHEMA,
+    DEEP_SYNTHESIS_KEYS
+  );
 }
 
 /**
@@ -297,5 +385,28 @@ export async function narrateSynastryDeepSynthesis(
   context: SynastryDeepSynthesisContext,
   locale: Locale = "fr"
 ): Promise<DeepSynthesisResult | null> {
-  return callSynthesisAPI(SYSTEM_PROMPT_SYNASTRY[locale], buildSynastryUserPrompt(facts, context, locale));
+  return callSynthesisAPI<DeepSynthesisResult>(
+    SYSTEM_PROMPT_SYNASTRY[locale],
+    buildSynastryUserPrompt(facts, context, locale),
+    RESPONSE_SCHEMA,
+    DEEP_SYNTHESIS_KEYS
+  );
+}
+
+/**
+ * Variante Mission de vie : prompt plus petit (3 champs au lieu de 5), à
+ * partir des seuls faits de l'axe des Nœuds lunaires (buildLunarNodeFacts).
+ * Mêmes garanties que narrateDeepSynthesis : repli null si pas de clé API ou
+ * échec, jamais d'invention de fait.
+ */
+export async function narrateLifeMissionSynthesis(
+  facts: LunarNodeFacts,
+  locale: Locale = "fr"
+): Promise<LifeMissionSynthesisResult | null> {
+  return callSynthesisAPI<LifeMissionSynthesisResult>(
+    SYSTEM_PROMPT_LIFE_MISSION[locale],
+    buildLifeMissionUserPrompt(facts, locale),
+    RESPONSE_SCHEMA_LIFE_MISSION,
+    LIFE_MISSION_KEYS
+  );
 }

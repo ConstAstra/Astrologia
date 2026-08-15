@@ -46,7 +46,7 @@ export default function PrivacyEnPage() {
                 <li>Securing your account (password hashing, rate limiting, session tokens) — legitimate interest in protecting the service and its users.</li>
                 <li>Sending you the daily horoscope or push notifications — only on the basis of your explicit consent (opt-in, one-click unsubscribe at any time).</li>
                 <li>Referral program — performance of the contract and legitimate interest in promoting the service.</li>
-                <li>Generating an AI-written personalized reading for a significant astrological event, and the in-depth synthesis of your chart (natal, synastry, composite, solar return) — performance of the contract, based solely on your chart&apos;s calculated astrological data (positions, houses, aspects, degrees). No identifying data (name, e-mail, account ID) is ever sent to this subprocessor.</li>
+                <li>Generating an AI-written personalized reading for a significant astrological event, and the in-depth synthesis of your chart (natal, synastry, composite, solar return, life mission) — performance of the contract, based solely on your chart&apos;s calculated astrological data (positions, houses, aspects, degrees). No identifying data (name, e-mail, account ID) is ever sent to this subprocessor.</li>
               </ul>
               <p className="mt-2">No data is ever sold to third parties or used for advertising purposes.</p>
             </div>

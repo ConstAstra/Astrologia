@@ -46,7 +46,7 @@ export default function ConfidentialitePage() {
                 <li>Sécuriser votre compte (hachage du mot de passe, limitation de débit, jetons de session) — intérêt légitime à protéger le service et ses utilisateurs.</li>
                 <li>Vous envoyer l&apos;horoscope du jour ou des notifications push — uniquement sur la base de votre consentement explicite (activation volontaire, désabonnement possible à tout moment en un clic).</li>
                 <li>Programme de parrainage — exécution du contrat et intérêt légitime à faire connaître le service.</li>
-                <li>Générer une lecture personnalisée par intelligence artificielle lors d&apos;un événement astrologique marquant, ainsi que la synthèse approfondie de votre thème (natal, synastrie, composite, révolution solaire) — exécution du contrat, sur la base des seules données astrologiques calculées de votre thème (positions, maisons, aspects, degrés). Aucune donnée d&apos;identification (nom, e-mail, identifiant de compte) n&apos;est transmise à ce sous-traitant.</li>
+                <li>Générer une lecture personnalisée par intelligence artificielle lors d&apos;un événement astrologique marquant, ainsi que la synthèse approfondie de votre thème (natal, synastrie, composite, révolution solaire, mission de vie) — exécution du contrat, sur la base des seules données astrologiques calculées de votre thème (positions, maisons, aspects, degrés). Aucune donnée d&apos;identification (nom, e-mail, identifiant de compte) n&apos;est transmise à ce sous-traitant.</li>
               </ul>
               <p className="mt-2">Aucune donnée n&apos;est vendue à des tiers, ni utilisée à des fins publicitaires.</p>
             </div>
