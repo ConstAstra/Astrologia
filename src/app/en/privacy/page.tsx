@@ -46,7 +46,7 @@ export default function PrivacyEnPage() {
                 <li>Securing your account (password hashing, rate limiting, session tokens) — legitimate interest in protecting the service and its users.</li>
                 <li>Sending you the daily horoscope or push notifications — only on the basis of your explicit consent (opt-in, one-click unsubscribe at any time).</li>
                 <li>Referral program — performance of the contract and legitimate interest in promoting the service.</li>
-                <li>Generating an AI-written personalized reading for a significant astrological event — performance of the contract, based solely on your chart&apos;s calculated astrological data (positions, houses, aspects). No identifying data (name, e-mail, account ID) is ever sent to this subprocessor.</li>
+                <li>Generating an AI-written personalized reading for a significant astrological event, and the in-depth synthesis of your chart (natal, synastry, composite, solar return) — performance of the contract, based solely on your chart&apos;s calculated astrological data (positions, houses, aspects, degrees). No identifying data (name, e-mail, account ID) is ever sent to this subprocessor.</li>
               </ul>
               <p className="mt-2">No data is ever sold to third parties or used for advertising purposes.</p>
             </div>
@@ -59,7 +59,7 @@ export default function PrivacyEnPage() {
                 <li>Stripe — web payment processing.</li>
                 <li>Apple — iOS in-app purchase processing.</li>
                 <li>Resend — transactional e-mail delivery (password reset, daily horoscope), when configured in production.</li>
-                <li>Anthropic — generates the text of personalized astrological event readings, from calculated astrological data only, with no identifying data.</li>
+                <li>Anthropic — generates the text of personalized astrological event readings and the in-depth chart synthesis, from calculated astrological data only, with no identifying data. This synthesis is cached after it is first generated: it is not regenerated on every visit.</li>
                 <li>OpenStreetMap / Nominatim — converts the birthplace you enter into geographic coordinates.</li>
               </ul>
               <p className="mt-2">

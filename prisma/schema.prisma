@@ -154,6 +154,44 @@ model Profile {
   archivedAt DateTime?
 
   checkIns TransitCheckIn[]
+
+  deepSynthesesAsPrimary   DeepSynthesis[] @relation("DeepSynthesisPrimaryProfile")
+  deepSynthesesAsSecondary DeepSynthesis[] @relation("DeepSynthesisSecondaryProfile")
+}
+
+// Synthèse profonde du grimoire (5 chapitres general/love/money/career/spiritual),
+// générée par l'API Claude et mise en cache pour ne jamais être régénérée à
+// chaque visite (voir narrateDeepSynthesis dans src/lib/ai/deep-synthesis.ts).
+// Une seule table pour les 4 contextes (natal/synastrie/composite/révolution
+// solaire) plutôt que des champs dédiés sur Profile, pour ne pas polluer ce
+// modèle avec des colonnes qui ne concernent qu'un seul type de lecture.
+model DeepSynthesis {
+  id String @id @default(cuid())
+
+  // "natal" | "synastry" | "composite" | "solarReturn"
+  type String
+
+  profileId String
+  profile   Profile @relation("DeepSynthesisPrimaryProfile", fields: [profileId], references: [id], onDelete: Cascade)
+
+  // Synastrie/composite uniquement : second profil impliqué.
+  secondaryProfileId String?
+  secondaryProfile   Profile? @relation("DeepSynthesisSecondaryProfile", fields: [secondaryProfileId], references: [id], onDelete: Cascade)
+
+  // Révolution solaire uniquement : année du retour concerné.
+  year Int?
+
+  // Synastrie/composite uniquement : nature de la relation, le ton du texte en dépend.
+  relationshipType String?
+
+  locale String
+
+  // JSON sérialisé de DeepSynthesisResult (general/love/money/career/spiritual).
+  contentJson String
+
+  generatedAt DateTime @default(now())
+
+  @@index([type, profileId, secondaryProfileId, year, locale])
 }
 
 // Retour subjectif du propriétaire du profil sur une lecture de transits

@@ -23,8 +23,9 @@ import {
 import { describeLifeMission } from "@/lib/astro/interpretations/life-mission";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
-import { composeChartSynthesis } from "@/lib/astro/interpretations/synthesis";
 import { composeChartDomains } from "@/lib/astro/interpretations/chart-domains";
+import { buildChartFacts } from "@/lib/astro/interpretations/chart-facts";
+import { getOrGenerateDeepSynthesis } from "@/lib/ai/deep-synthesis-cache";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { canViewProfile } from "@/lib/friends";
@@ -82,20 +83,9 @@ const TEXT: Record<
     ascendantRulerTitle: string;
     signHeading: string;
     houseHeading: string;
-    synthesisTitle: string;
-    synthesisPremium: string;
     grimoireTitle: string;
     grimoireSubtitle: string;
     grimoireAspectsNote: string;
-    synthesisOverviewHeading: string;
-    synthesisAscendantRulerHeading: string;
-    synthesisContradictionsHeading: string;
-    synthesisContradictionsIntro: string;
-    synthesisStrengthsHeading: string;
-    synthesisStrengthsIntro: string;
-    synthesisLifeDomainsHeading: string;
-    synthesisLifeDomainsIntro: string;
-    noneDetected: string;
     viewingAsFriend: (name: string) => string;
   }
 > = {
@@ -126,20 +116,9 @@ const TEXT: Record<
     ascendantRulerTitle: "Maître de l'Ascendant",
     signHeading: "En signe",
     houseHeading: "En maison",
-    synthesisTitle: "Lecture de synthèse",
-    synthesisPremium: "Premium",
     grimoireTitle: "Le grimoire de votre thème",
     grimoireSubtitle: "Toute la charte résumée bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
     grimoireAspectsNote: "Les aspects détaillés, planète par planète, sont à lire plus bas dans cette page.",
-    synthesisOverviewHeading: "Vue d'ensemble",
-    synthesisAscendantRulerHeading: "Le maître de l'Ascendant",
-    synthesisContradictionsHeading: "Vos contradictions internes",
-    synthesisContradictionsIntro: "Là où deux logiques de votre thème tirent dans des directions différentes.",
-    synthesisStrengthsHeading: "Vos points d'appui",
-    synthesisStrengthsIntro: "Là où plusieurs parties de votre thème travaillent naturellement dans le même sens.",
-    synthesisLifeDomainsHeading: "Tous les domaines de votre vie",
-    synthesisLifeDomainsIntro: "Maison par maison, ce que votre thème dit de chaque grand domaine, occupé ou non.",
-    noneDetected: "Aucun élément notable détecté ici.",
     viewingAsFriend: (name) => `Vous voyez le thème de ${name} en tant qu'ami : lecture seule.`,
   },
   en: {
@@ -169,20 +148,9 @@ const TEXT: Record<
     ascendantRulerTitle: "Ascendant ruler",
     signHeading: "In sign",
     houseHeading: "In house",
-    synthesisTitle: "Synthesis reading",
-    synthesisPremium: "Premium",
     grimoireTitle: "The grimoire of your chart",
     grimoireSubtitle: "The whole chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
     grimoireAspectsNote: "The planet-by-planet aspect details are further down this page.",
-    synthesisOverviewHeading: "Overview",
-    synthesisAscendantRulerHeading: "Your Ascendant ruler",
-    synthesisContradictionsHeading: "Your internal contradictions",
-    synthesisContradictionsIntro: "Where two logics in your chart pull in different directions.",
-    synthesisStrengthsHeading: "Your points of strength",
-    synthesisStrengthsIntro: "Where several parts of your chart naturally work in the same direction.",
-    synthesisLifeDomainsHeading: "Every area of your life",
-    synthesisLifeDomainsIntro: "House by house, what your chart says about each major life domain, occupied or not.",
-    noneDetected: "No notable element detected here.",
     viewingAsFriend: (name) => `You're viewing ${name}'s chart as a friend: read-only.`,
   },
 };
@@ -246,8 +214,14 @@ export default async function ThemeNatalPage({
   const ascendantRulerPoint = ascendantRuler ? chart.points[ascendantRuler] : undefined;
 
   const synthesisAccess = await hasFeatureAccess(userId, { feature: "synthesis", primaryProfileId: profile.id });
-  const synthesis = synthesisAccess ? composeChartSynthesis(chart, locale) : null;
-  const grimoireDomains = synthesisAccess ? composeChartDomains(chart, locale) : null;
+  let grimoireDomains = null;
+  if (synthesisAccess) {
+    const facts = buildChartFacts(chart, locale);
+    const themeLabel = locale === "en" ? "natal chart" : "thème natal";
+    grimoireDomains =
+      (await getOrGenerateDeepSynthesis({ type: "natal", profileId: profile.id, locale }, facts, { themeLabel })) ??
+      composeChartDomains(chart, locale);
+  }
 
   return (
     <div>
@@ -369,8 +343,8 @@ export default async function ThemeNatalPage({
         </Card>
       )}
 
-      {grimoireDomains && (
-        <div className="mt-6">
+      <div className="mt-6">
+        {grimoireDomains ? (
           <GrimoireReveal
             domains={grimoireDomains}
             title={t.grimoireTitle}
@@ -378,82 +352,6 @@ export default async function ThemeNatalPage({
             aspectsNote={t.grimoireAspectsNote}
             locale={locale}
           />
-        </div>
-      )}
-
-      <div className="mt-6">
-        {synthesis ? (
-          <Card className="p-6">
-            <div className="flex items-center gap-3">
-              <Eyebrow>{t.synthesisTitle}</Eyebrow>
-              <Badge tone="gold">{t.synthesisPremium}</Badge>
-            </div>
-
-            <div className="mt-4">
-              <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisOverviewHeading}</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.overview}</p>
-            </div>
-
-            {synthesis.ascendantRulerIntro && (
-              <div className="mt-6 border-t border-border-soft pt-6">
-                <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisAscendantRulerHeading}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.ascendantRulerIntro}</p>
-                {synthesis.ascendantRulerSign && (
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.ascendantRulerSign}</p>
-                )}
-                {synthesis.ascendantRulerHouse && (
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{synthesis.ascendantRulerHouse}</p>
-                )}
-              </div>
-            )}
-
-            <div className="mt-6 border-t border-border-soft pt-6">
-              <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisContradictionsHeading}</p>
-              <p className="mt-1 text-xs text-muted/70">{t.synthesisContradictionsIntro}</p>
-              <div className="mt-3 space-y-3">
-                {synthesis.contradictions.length === 0 ? (
-                  <p className="text-sm text-muted">{t.noneDetected}</p>
-                ) : (
-                  synthesis.contradictions.map((c, i) => (
-                    <p key={i} className="text-sm leading-relaxed text-muted">
-                      {c}
-                    </p>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 border-t border-border-soft pt-6">
-              <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisStrengthsHeading}</p>
-              <p className="mt-1 text-xs text-muted/70">{t.synthesisStrengthsIntro}</p>
-              <div className="mt-3 space-y-3">
-                {synthesis.strengths.length === 0 ? (
-                  <p className="text-sm text-muted">{t.noneDetected}</p>
-                ) : (
-                  synthesis.strengths.map((s, i) => (
-                    <p key={i} className="text-sm leading-relaxed text-muted">
-                      {s}
-                    </p>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {synthesis.lifeDomains.length > 0 && (
-              <div className="mt-6 border-t border-border-soft pt-6">
-                <p className="text-xs uppercase tracking-wide text-muted">{t.synthesisLifeDomainsHeading}</p>
-                <p className="mt-1 text-xs text-muted/70">{t.synthesisLifeDomainsIntro}</p>
-                <div className="mt-3 space-y-4">
-                  {synthesis.lifeDomains.map((domain) => (
-                    <div key={domain.house}>
-                      <p className="text-sm font-medium">{domain.title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted">{domain.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </Card>
         ) : (
           <UnlockGate feature="synthesis" profileIdA={profile.id} credits={user.credits} locale={locale} compact />
         )}
