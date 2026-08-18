@@ -132,7 +132,11 @@ export function DashboardNav({
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const horoscopeHref = locale === "en" ? "/en/horoscope" : "/horoscope";
+  // Pointe vers la version personnalisée du dashboard (transits du jour
+  // liés à un vrai profil), pas vers la page marketing publique /horoscope :
+  // cette dernière affiche l'en-tête public (Connexion/Inscription) et donne
+  // l'impression trompeuse d'avoir été déconnecté.
+  const horoscopeHref = "/dashboard/transits";
 
   const compatItems = [
     { href: "/dashboard/synastrie", label: t.synastry, hint: t.synastryHint },

@@ -55,10 +55,17 @@ export function projectAstroCartoLines(
     return { planet: line.planet, type: line.type, points };
   });
 
-  const countryLabels: CountryLabel[] = countries.map((c) => {
-    const proj = map.projectLatLon(c.lat, c.lon);
-    return proj ? { name: c.name, x: proj[0] + (c.dx ?? 0), y: proj[1] + (c.dy ?? 0) } : null;
-  }).filter((l): l is CountryLabel => l !== null);
+  // Seuls les pays repères (`labeled: true`) portent un texte affiché en
+  // permanence sur la carte — en afficher un pour les ~175 pays couverts
+  // rendrait la carte illisible. Les autres restent cliquables (voir
+  // countryPaths ci-dessous) et affichent leur nom au survol via <title>.
+  const countryLabels: CountryLabel[] = countries
+    .filter((c) => c.labeled)
+    .map((c) => {
+      const proj = map.projectLatLon(c.lat, c.lon);
+      return proj ? { name: c.name, x: proj[0] + (c.dx ?? 0), y: proj[1] + (c.dy ?? 0) } : null;
+    })
+    .filter((l): l is CountryLabel => l !== null);
 
   const countryPaths: ClickableCountryPath[] = map.countryPaths.map((cp) => ({
     d: cp.d,
