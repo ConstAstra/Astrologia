@@ -156,6 +156,24 @@ export function pn(key: PointKey, locale: Locale) {
 }
 const ELEMENT_NAME_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
 
+// Glose courte accolée au nom de l'élément la première fois qu'il apparaît
+// dans un chapitre : sans elle, "Terre et Eau se partagent la première
+// place" ne veut rien dire pour qui ne connaît pas déjà le vocabulaire —
+// un mot d'astro ne doit jamais rester posé sans expliquer, en quelques
+// mots, ce qu'il recouvre concrètement.
+const ELEMENT_GLOSS: Record<string, string> = {
+  Feu: "l'élan, l'envie d'agir",
+  Terre: "le concret, ce qui se construit pas à pas",
+  Air: "les idées, l'échange",
+  Eau: "le ressenti, l'intuition",
+};
+const ELEMENT_GLOSS_EN: Record<string, string> = {
+  Feu: "drive, the urge to act",
+  Terre: "the concrete, what gets built step by step",
+  Air: "ideas, exchange",
+  Eau: "feeling, intuition",
+};
+
 const ELEMENT_FRICTION_PAIRS: [string, string][] = [
   ["Feu", "Eau"],
   ["Terre", "Air"],
@@ -209,8 +227,8 @@ export function dominanceClause(s: Signals, locale: Locale): string {
       el.length === 0
         ? "no single element dominates"
         : el.length > 1
-          ? `${el.map((e) => ELEMENT_NAME_EN[e]).join(" and ")} share the lead`
-          : `${ELEMENT_NAME_EN[el[0]]} leads the way`;
+          ? `${el.map((e) => `${ELEMENT_NAME_EN[e]} (${ELEMENT_GLOSS_EN[e]})`).join(" and ")} share the lead`
+          : `${ELEMENT_NAME_EN[el[0]]} (${ELEMENT_GLOSS_EN[el[0]]}) leads the way`;
     const modText =
       mod === "Cardinal"
         ? "initiating rather than waiting"
@@ -225,8 +243,8 @@ export function dominanceClause(s: Signals, locale: Locale): string {
     el.length === 0
       ? "aucun élément ne domine nettement"
       : el.length > 1
-        ? `${el.join(" et ")} se partagent la première place`
-        : `${el[0]} mène la danse`;
+        ? `${el.map((e) => `${e} (${ELEMENT_GLOSS[e]})`).join(" et ")} se partagent la première place`
+        : `${el[0]} (${ELEMENT_GLOSS[el[0]]}) mène la danse`;
   const modText =
     mod === "Cardinal"
       ? "initier plutôt qu'attendre"
