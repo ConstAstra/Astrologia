@@ -37,7 +37,7 @@ const TEXT: Record<Locale, {
     timeUnknown:
       "La cartographie astrologique repose entièrement sur l'heure exacte de naissance (elle détermine les angles Ascendant/Milieu du Ciel dont dépendent toutes les lignes). Ce profil a une heure de naissance inconnue : nous préférons ne rien afficher plutôt que produire une carte trompeuse. Ajoutez l'heure de naissance sur ce profil pour débloquer cet outil.",
     instructions:
-      "Cliquez sur une planète ou un type de ligne pour l'afficher/la masquer. MC/IC sont des méridiens (droites) ; AC/DC sont des courbes qui dépendent de la latitude — voir la page « La méthode ».",
+      "Chaque planète trace une ligne autour du monde, à l'endroit où elle était la plus active au moment de votre naissance : vivre ou voyager sous l'une d'elles fait ressortir cette énergie plus fort qu'ailleurs. Cliquez sur une planète ou un type de ligne pour l'afficher ou la masquer — MC (Carrière) et IC (Racines) sont des lignes droites nord-sud ; AC (Vous-même) et DC (Rencontres) sont des courbes qui changent avec la latitude.",
     mainLines: "Vos lignes principales",
     premium: "Premium",
     bestPlacesHeading: "Meilleurs endroits pour vous",
@@ -51,7 +51,7 @@ const TEXT: Record<Locale, {
     timeUnknown:
       "Astrocartography relies entirely on the exact birth time (it determines the Ascendant/Midheaven angles that all lines depend on). This profile has an unknown birth time: we'd rather show nothing than produce a misleading map. Add the birth time on this profile to unlock this tool.",
     instructions:
-      "Click a planet or a line type to show/hide it. MC/IC are meridians (straight lines); AC/DC are curves that depend on latitude — see the \"Methodology\" page.",
+      "Each planet traces a line around the world, at the spot where it was most active the moment you were born: living or traveling under one of them makes that energy stand out more than elsewhere. Click a planet or a line type to show or hide it — MC (Career) and IC (Roots) are straight north-south lines; AC (Yourself) and DC (Relationships) are curves that shift with latitude.",
     mainLines: "Your main lines",
     premium: "Premium",
     bestPlacesHeading: "Best places for you",

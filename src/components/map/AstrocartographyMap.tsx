@@ -25,12 +25,24 @@ const PLANET_COLORS: Record<string, string> = {
   northNode: "#c2c2c2",
 };
 
-const LINE_TYPES: { key: "MC" | "IC" | "AC" | "DC"; label: string }[] = [
-  { key: "MC", label: "MC" },
-  { key: "IC", label: "IC" },
-  { key: "AC", label: "AC" },
-  { key: "DC", label: "DC" },
-];
+// Le sigle seul (MC/IC/AC/DC) ne veut rien dire sans avoir déjà appris le
+// vocabulaire — chaque bouton porte donc aussi un mot clair, plus une
+// info-bulle qui dit ce que la ligne veut dire concrètement une fois qu'on
+// se trouve dessous.
+const LINE_TYPES: Record<"fr" | "en", { key: "MC" | "IC" | "AC" | "DC"; label: string; word: string; title: string }[]> = {
+  fr: [
+    { key: "MC", label: "MC", word: "Carrière", title: "Milieu du Ciel : image publique et carrière, une ligne droite nord-sud." },
+    { key: "IC", label: "IC", word: "Racines", title: "Fond du Ciel : foyer et racines, une ligne droite nord-sud (à l'opposé du MC)." },
+    { key: "AC", label: "AC", word: "Vous-même", title: "Ascendant : la façon dont vous arrivez quelque part, une courbe qui dépend de la latitude." },
+    { key: "DC", label: "DC", word: "Rencontres", title: "Descendant : les rencontres et partenariats, une courbe (à l'opposé de l'AC)." },
+  ],
+  en: [
+    { key: "MC", label: "MC", word: "Career", title: "Midheaven: public image and career, a straight north-south line." },
+    { key: "IC", label: "IC", word: "Roots", title: "Imum Coeli: home and roots, a straight north-south line (opposite the MC)." },
+    { key: "AC", label: "AC", word: "Yourself", title: "Ascendant: how you come across when you arrive somewhere, a curve that depends on latitude." },
+    { key: "DC", label: "DC", word: "Relationships", title: "Descendant: encounters and partnerships, a curve (opposite the AC)." },
+  ],
+};
 
 const TEXT = {
   fr: {
@@ -166,16 +178,17 @@ export function AstrocartographyMap({
             </button>
           ))}
         </div>
-        <div className="flex gap-1.5">
-          {LINE_TYPES.map((lt) => (
+        <div className="flex flex-wrap gap-1.5">
+          {LINE_TYPES[locale].map((lt) => (
             <button
               key={lt.key}
               onClick={() => toggleType(lt.key)}
+              title={lt.title}
               className={`rounded-full border px-2.5 py-1 text-xs transition-all duration-150 active:scale-95 ${
                 visibleTypes.has(lt.key) ? "border-gold/50 text-gold-strong" : "border-border-soft text-muted opacity-50"
               }`}
             >
-              {lt.label}
+              {lt.label} · {lt.word}
             </button>
           ))}
         </div>
