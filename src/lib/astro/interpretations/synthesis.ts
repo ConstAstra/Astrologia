@@ -275,8 +275,8 @@ export function composeChartSynthesis(chart: NatalChart, locale: Locale = "fr"):
 
     ascendantRulerIntro =
       locale === "en"
-        ? `Your Ascendant is in ${ascMeta!.name}, traditionally ruled by ${rulerPlanet.name} ${rulerPlanet.symbol}. In astrology this "chart ruler" is treated as the guide of the whole chart: its own sign and house color HOW you actually go about embodying the persona your rising sign presents to the world.`
-        : `Votre Ascendant est en ${ascMeta!.name}, traditionnellement gouverné par ${rulerPlanet.name} ${rulerPlanet.symbol}. Ce "maître de l'Ascendant" est considéré en astrologie comme le guide de l'ensemble du thème : son propre signe et sa maison colorent la façon dont vous incarnez concrètement le personnage que votre signe ascendant présente au monde.`;
+        ? `Your Ascendant is in ${ascMeta!.name}, ruled by ${rulerPlanet.name} ${rulerPlanet.symbol}. In astrology this "chart ruler" is treated as the guide of the whole chart: its own sign and house color HOW you actually go about embodying the persona your rising sign presents to the world.`
+        : `Votre Ascendant est en ${ascMeta!.name}, gouverné par ${rulerPlanet.name} ${rulerPlanet.symbol}. Ce "maître de l'Ascendant" est considéré en astrologie comme le guide de l'ensemble du thème : son propre signe et sa maison colorent la façon dont vous incarnez concrètement le personnage que votre signe ascendant présente au monde.`;
 
     ascendantRulerSign = describePlanetInSign(ruler, rulerSign, undefined, locale);
     ascendantRulerHouse = rulerPoint.house ? describePlanetInHouse(ruler, rulerPoint.house, locale) : null;

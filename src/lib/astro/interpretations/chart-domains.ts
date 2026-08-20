@@ -282,7 +282,7 @@ function ascendantRulerParagraph(s: Signals, relationshipType: RelationshipType 
     : s.ascendantRulerHouse
       ? `\n\n${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
       : "";
-  return `\n\nEn astrologie, ${sn(s.asc, locale)} est traditionnellement gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText}`;
+  return `\n\nEn astrologie, ${sn(s.asc, locale)} est gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText}`;
 }
 
 // ---------------------------------------------------------------------------

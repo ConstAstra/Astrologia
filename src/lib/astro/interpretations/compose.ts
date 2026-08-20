@@ -158,7 +158,7 @@ export function describeDegree(
     locale === "en"
       ? "An extra layer of detail, useful but not essential to understanding the rest of the chart:"
       : "Un niveau de détail en plus, utile mais pas indispensable pour comprendre le reste du thème :";
-  const parts = [intro, r.decanText + rulerConnectionText(r.decanRuler, chartPoints, locale), r.phaseText];
+  const parts = [intro, r.decanText + rulerConnectionText(r.decanRuler, chartPoints, locale)];
   if (r.isAnaretic) parts.push(r.anareticText!);
   if (r.isCritical) parts.push(r.criticalText!);
   return parts.join("\n\n");

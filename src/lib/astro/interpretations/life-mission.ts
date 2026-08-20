@@ -55,8 +55,8 @@ export interface LifeMission {
 
 function rulerIntroText(rulerName: string, rulerSymbol: string, northSignName: string, locale: Locale): string {
   return locale === "en"
-    ? `Your North Node sits in ${northSignName}, traditionally ruled by ${rulerName} ${rulerSymbol}. In astrology, this "dispositor" acts as a practical guide: its own sign and house show HOW to actually move toward this direction, not just where it points.`
-    : `Ton Nœud Nord est en ${northSignName}, traditionnellement gouverné par ${rulerName} ${rulerSymbol}. En astrologie, cette planète "maîtresse" agit comme un guide concret : son propre signe et sa maison indiquent COMMENT avancer réellement vers cette direction, pas seulement vers où.`;
+    ? `Your North Node sits in ${northSignName}, ruled by ${rulerName} ${rulerSymbol}. In astrology, this "dispositor" acts as a practical guide: its own sign and house show HOW to actually move toward this direction, not just where it points.`
+    : `Ton Nœud Nord est en ${northSignName}, gouverné par ${rulerName} ${rulerSymbol}. En astrologie, cette planète "maîtresse" agit comme un guide concret : son propre signe et sa maison indiquent COMMENT avancer réellement vers cette direction, pas seulement vers où.`;
 }
 
 function synthesisText(

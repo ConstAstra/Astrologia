@@ -104,7 +104,7 @@ const TEXT: Record<
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
     ascendantRulerTitle: "Maître de l'Ascendant",
     ascendantRulerExplainer:
-      "Le signe Ascendant a une planète qui le gouverne traditionnellement : la position de cette planète dans votre thème colore la façon dont vous vivez concrètement cette première impression.",
+      "Chaque signe a une planète qui le gouverne (son maître) : la position de cette planète dans votre thème colore la façon dont vous vivez concrètement cette première impression.",
     signHeading: "En signe",
     houseHeading: "En maison",
     grimoireTitle: "Le grimoire de votre thème",
@@ -134,7 +134,7 @@ const TEXT: Record<
     noAspects: "No aspect detected within the orbs used.",
     ascendantRulerTitle: "Ascendant ruler",
     ascendantRulerExplainer:
-      "Your rising sign has a planet that traditionally rules it: where that planet sits in your chart colors how you actually live out that first impression.",
+      "Every sign has a planet that rules it (its ruler): where that planet sits in your chart colors how you actually live out that first impression.",
     signHeading: "In sign",
     houseHeading: "In house",
     grimoireTitle: "The grimoire of your chart",

@@ -60,25 +60,6 @@ const DECAN_RULER_FLAVOR_EN: Record<DecanRuler, string> = {
   Jupiter: "a Jupiter coloring: broader, more optimistic, more focused on expansion and confidence.",
 };
 
-// Tempérament classique (chaud/froid, sec/humide) de la planète-maîtresse du
-// décan et de l'élément du signe — comparés pour dire si le décan amplifie,
-// nuance ou contredit la nature de base du signe, plutôt qu'une coloration
-// identique qu'on tombe dans un signe qui la partage ou son opposé exact.
-// Mercure est traditionnellement "variable" (prend la nature de ce qui
-// l'entoure) ; retenu ici froid/sec par défaut, valeur la plus citée en
-// l'absence d'autre configuration.
-type Temperament = { heat: "hot" | "cold"; moisture: "dry" | "moist" };
-
-const DECAN_RULER_TEMPERAMENT: Record<DecanRuler, Temperament> = {
-  Mars: { heat: "hot", moisture: "dry" },
-  Soleil: { heat: "hot", moisture: "dry" },
-  Vénus: { heat: "hot", moisture: "moist" },
-  Mercure: { heat: "cold", moisture: "dry" },
-  Lune: { heat: "cold", moisture: "moist" },
-  Saturne: { heat: "cold", moisture: "dry" },
-  Jupiter: { heat: "hot", moisture: "moist" },
-};
-
 // Point du thème natal correspondant à chaque planète-maîtresse de décan —
 // pour retrouver sa propre position réelle dans le thème de la personne
 // (voir rulerConnectionText), plutôt que de parler du décan uniquement en
@@ -106,60 +87,6 @@ export const DECAN_RULER_DOMICILE_SIGNS: Record<DecanRuler, string[]> = {
   Saturne: ["capricorne", "verseau"],
   Jupiter: ["sagittaire", "poissons"],
 };
-
-const ELEMENT_TEMPERAMENT: Record<"Feu" | "Terre" | "Air" | "Eau", Temperament> = {
-  Feu: { heat: "hot", moisture: "dry" },
-  Terre: { heat: "cold", moisture: "dry" },
-  Air: { heat: "hot", moisture: "moist" },
-  Eau: { heat: "cold", moisture: "moist" },
-};
-
-const SIGN_ELEMENT: Record<string, "Feu" | "Terre" | "Air" | "Eau"> = {
-  belier: "Feu",
-  lion: "Feu",
-  sagittaire: "Feu",
-  taureau: "Terre",
-  vierge: "Terre",
-  capricorne: "Terre",
-  gemeaux: "Air",
-  balance: "Air",
-  verseau: "Air",
-  cancer: "Eau",
-  scorpion: "Eau",
-  poissons: "Eau",
-};
-
-const ELEMENT_LABEL_EN: Record<"Feu" | "Terre" | "Air" | "Eau", string> = {
-  Feu: "Fire",
-  Terre: "Earth",
-  Air: "Air",
-  Eau: "Water",
-};
-
-function elementInteractionText(decanRuler: DecanRuler, sign: string, locale: "fr" | "en"): string {
-  const rulerTemp = DECAN_RULER_TEMPERAMENT[decanRuler];
-  const element = SIGN_ELEMENT[sign];
-  const elementTemp = ELEMENT_TEMPERAMENT[element];
-  const matches = (rulerTemp.heat === elementTemp.heat ? 1 : 0) + (rulerTemp.moisture === elementTemp.moisture ? 1 : 0);
-  const elementLabel = locale === "en" ? ELEMENT_LABEL_EN[element] : element;
-
-  if (locale === "en") {
-    if (matches === 2) {
-      return ` This planet shares the very nature of the sign's element (${elementLabel}): rather than an outside note, it's a concentrated, almost amplified version of what the sign already does naturally.`;
-    }
-    if (matches === 1) {
-      return ` This planet is only half in tune with the sign's element (${elementLabel}): part of this energy flows naturally, the other part asks for some adjustment.`;
-    }
-    return ` This planet has a nature opposite to the sign's element (${elementLabel}): it brings a real counterpoint here, a nuance that wouldn't have shown up on its own elsewhere in the sign.`;
-  }
-  if (matches === 2) {
-    return ` Cette planète partage la nature même de l'élément du signe (${elementLabel}) : plutôt qu'une note étrangère, c'est une version concentrée, presque amplifiée, de ce que le signe fait déjà naturellement.`;
-  }
-  if (matches === 1) {
-    return ` Cette planète n'est qu'à moitié en phase avec l'élément du signe (${elementLabel}) : une partie de cette énergie coule naturellement, l'autre demande un ajustement.`;
-  }
-  return ` Cette planète a une nature opposée à celle de l'élément du signe (${elementLabel}) : elle introduit ici un vrai contrepoint, une nuance qui ne serait pas venue spontanément ailleurs dans le signe.`;
-}
 
 // Degrés critiques classiques (tradition occidentale), par modalité.
 const CRITICAL_DEGREES_BY_MODALITY: Record<"Cardinal" | "Fixe" | "Mutable", number[]> = {
@@ -206,7 +133,6 @@ export interface DegreeReading {
   decanRuler: DecanRuler;
   decanText: string;
   phase: "précoce" | "médiane" | "tardive";
-  phaseText: string;
   isAnaretic: boolean;
   anareticText?: string;
   nearestCriticalDegree: number;
@@ -226,8 +152,6 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   const globalDecan = signIndex * 3 + decanIndex; // 0-35
   const decanRuler = CHALDEAN_SEQUENCE[globalDecan % 7];
   const decanStart = decanIndex * 10;
-  const posInDecan = exact - decanStart;
-  const remainingInDecan = 10 - posInDecan;
 
   const phase: DegreeReading["phase"] = exact < 10 ? "précoce" : exact < 20 ? "médiane" : "tardive";
 
@@ -247,38 +171,30 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   }
   const isCritical = criticalOrb <= CRITICAL_ORB;
 
-  // Décan et phase découpent le signe selon les 3 mêmes tranches de 10° —
-  // deux angles de lecture sur le même tiers plutôt que deux systèmes
-  // indépendants. Le décan explique pourquoi ce tiers a un chose en plus
-  // (l'influence d'une autre planète) ; la phase explique juste où on en
-  // est dans la maturité du signe, sans reformuler le calcul en degrés déjà
-  // donné juste avant, pour ne pas noyer quelqu'un qui découvre le sujet
-  // sous deux blocs de chiffres qui disent la même position.
-  const decanText =
-    (locale === "en"
-      ? `Every 30° sign splits into three 10° slices called decans, each carrying a touch of a different planet. You're in the ${decanNumberLabelEn(decanIndex)} decan (${decanStart}°-${decanStart + 10}°), ${formatDegMin(
-          posInDecan
-        )} past its start, ${formatDegMin(remainingInDecan)} left before the next one. That adds ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
-      : `Chaque signe de 30° se découpe en trois tranches de 10° appelées décans, chacune teintée par l'influence d'une autre planète. Vous êtes dans le ${decanNumberLabel(decanIndex)} décan (${decanStart}°-${decanStart + 10}°), à ${formatDegMin(
-          posInDecan
-        )} de son début, encore ${formatDegMin(remainingInDecan)} avant le suivant. Cela ajoute ${DECAN_RULER_FLAVOR[decanRuler]}`) + elementInteractionText(decanRuler, sign, locale);
-
-  const phaseText =
+  // Un seul paragraphe plutôt que deux : le "décan" et la "phase" classiques
+  // découpent le signe selon les 3 mêmes tranches de 10°, donc les présenter
+  // comme deux blocs séparés répète en substance la même position en deux
+  // vocabulaires différents. Ici, la maturité de l'énergie (brute, stable,
+  // mûrie) sert d'accroche en langage courant, et le nom technique "décan"
+  // n'arrive qu'ensuite, avec sa propre définition entre parenthèses plutôt
+  // que supposée connue.
+  const maturityText =
     locale === "en"
-      ? `That same third of the sign is also its ${phaseLabelEn(phase).toLowerCase()} phase: ${
-          phase === "précoce"
-            ? "the energy shows up here still raw and spontaneous, the most instinctive, least filtered version of the sign."
-            : phase === "tardive"
-              ? "the energy here has matured, sometimes already leaning toward the next sign's theme, a more conscious, occasionally more world-weary, version of it."
-              : "the energy here is fully settled into its most stable, most typical version of the sign."
-        }`
-      : `Ce même tiers du signe correspond aussi à sa phase ${phase} : ${
-          phase === "précoce"
-            ? "l'énergie s'exprime ici de façon encore brute et spontanée, la version la plus instinctive, la moins filtrée du signe."
-            : phase === "tardive"
-              ? "l'énergie est ici mûrie, parfois déjà tournée vers la thématique du signe suivant, une forme plus consciente, parfois plus lasse, de cette même énergie."
-              : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus typique du signe."
-        }`;
+      ? phase === "précoce"
+        ? "the energy shows up here still raw and spontaneous, the most instinctive, least filtered version of the sign"
+        : phase === "tardive"
+          ? "the energy here has matured, sometimes already leaning toward the next sign's theme, a more conscious, occasionally more world-weary version of it"
+          : "the energy here is fully settled into its most stable, most typical version of the sign"
+      : phase === "précoce"
+        ? "l'énergie s'exprime ici de façon encore brute et spontanée, la version la plus instinctive, la moins filtrée du signe"
+        : phase === "tardive"
+          ? "l'énergie est ici mûrie, parfois déjà tournée vers la thématique du signe suivant, une forme plus consciente, parfois plus lasse, de cette même énergie"
+          : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus typique du signe";
+
+  const decanText =
+    locale === "en"
+      ? `You're in the ${decanNumberLabelEn(decanIndex)} third of this sign (${decanStart}°-${decanStart + 10}°): ${maturityText}. Classical astrology also calls this third a "decan", and this one carries ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
+      : `Vous êtes dans le ${decanNumberLabel(decanIndex)} tiers de ce signe (${decanStart}°-${decanStart + 10}°) : ${maturityText}. Ce tiers est aussi appelé "décan" en astrologie classique, et celui-ci porte ${DECAN_RULER_FLAVOR[decanRuler]}`;
 
   return {
     exactDegreeInSign: exact,
@@ -287,7 +203,6 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
     decanRuler,
     decanText,
     phase,
-    phaseText,
     isAnaretic,
     anareticText: isAnaretic
       ? locale === "en"
@@ -309,14 +224,10 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   };
 }
 
-function phaseLabelEn(phase: DegreeReading["phase"]): string {
-  return phase === "précoce" ? "Early" : phase === "tardive" ? "Late" : "Middle";
-}
-
 function decanNumberLabel(decanIndex: number): string {
-  return decanIndex === 0 ? "1er" : `${decanIndex + 1}e`;
+  return decanIndex === 0 ? "premier" : decanIndex === 1 ? "deuxième" : "troisième";
 }
 
 function decanNumberLabelEn(decanIndex: number): string {
-  return decanIndex === 0 ? "1st" : decanIndex === 1 ? "2nd" : "3rd";
+  return decanIndex === 0 ? "first" : decanIndex === 1 ? "second" : "third";
 }
