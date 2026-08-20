@@ -76,29 +76,37 @@ describe("compatibilityPunchline", () => {
 
   it("picks the chaotic tier when hot points balance harmony and tension", () => {
     const { percentage } = computeCompatibilityScore(chaoticHotAspects);
-    expect(compatibilityPunchline(percentage, chaoticHotAspects, "fr").text).toBe("Intense mais chaotique");
-    expect(compatibilityPunchline(percentage, chaoticHotAspects, "en").text).toBe("Intense but chaotic");
+    expect(compatibilityPunchline(percentage, chaoticHotAspects, "romantique", "fr").text).toBe("Intense mais chaotique");
+    expect(compatibilityPunchline(percentage, chaoticHotAspects, "romantique", "en").text).toBe("Intense but chaotic");
   });
 
   it("picks the calm tier when hot points lean entirely one way, even at high amplitude", () => {
     const { percentage } = computeCompatibilityScore(oneSidedHotAspects);
-    expect(compatibilityPunchline(percentage, oneSidedHotAspects, "fr").text).toBe("Fusion rare");
+    expect(compatibilityPunchline(percentage, oneSidedHotAspects, "romantique", "fr").text).toBe("Fusion rare");
   });
 
   it("picks the calm tier with no aspects at all", () => {
     const { percentage } = computeCompatibilityScore([]);
-    expect(compatibilityPunchline(percentage, [], "fr").text).toBe("Ça se construit");
+    expect(compatibilityPunchline(percentage, [], "romantique", "fr").text).toBe("Ça se construit");
   });
 
-  it("defaults to french when no locale is given", () => {
+  it("defaults to romantic tiers and french when neither is given", () => {
     const { percentage } = computeCompatibilityScore([]);
     expect(compatibilityPunchline(percentage, []).text).toBe("Ça se construit");
+  });
+
+  it("picks non-romantic tiers for other relationship types, never mentioning passion or attraction", () => {
+    const { percentage } = computeCompatibilityScore(chaoticHotAspects);
+    for (const type of ["amitie", "famille", "collegue"] as const) {
+      const { text } = compatibilityPunchline(percentage, chaoticHotAspects, type, "fr");
+      expect(text).not.toMatch(/passion|attraction/i);
+    }
   });
 
   it("covers the full 0-100 range without gaps, calm and chaotic alike", () => {
     for (let pct = 0; pct <= 100; pct++) {
       for (const aspects of [[], chaoticHotAspects]) {
-        const { text, color } = compatibilityPunchline(pct, aspects, "fr");
+        const { text, color } = compatibilityPunchline(pct, aspects, "romantique", "fr");
         expect(text.length).toBeGreaterThan(0);
         expect(color).toMatch(/^#[0-9a-f]{6}$/i);
       }

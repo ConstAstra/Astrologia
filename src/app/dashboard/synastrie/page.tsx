@@ -251,6 +251,7 @@ export default async function SynastriePage({
   const { text: compatibilityPunch, color: compatibilityPunchColor } = compatibilityPunchline(
     compatibilityPercentage,
     synastry.aspects,
+    relationshipType,
     locale
   );
   const comparabilities = composeAllPlanetSignComparabilities(chartA, chartB, profileA.label, profileB.label, locale);
@@ -331,6 +332,7 @@ export default async function SynastriePage({
               profileIdB={b}
               fileName={`${profileA.label}-${profileB.label}-compatibilite.png`}
               locale={locale}
+              relationshipType={relationshipType}
             />
             <CompatibilityVideoButton
               seedA={a}

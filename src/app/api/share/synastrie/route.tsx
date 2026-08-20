@@ -9,6 +9,7 @@ import { listFriendSelfProfiles } from "@/lib/friends";
 import { computeNatalChart } from "@/lib/astro/chart";
 import { computeSynastry } from "@/lib/astro/synastry";
 import { computeCompatibilityScore, compatibilityPunchline } from "@/lib/astro/compatibility-score";
+import { isRelationshipType } from "@/lib/astro/interpretations/relationship";
 import { computeBigThree } from "@/lib/astro/dominance";
 import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
@@ -54,6 +55,8 @@ export async function GET(request: Request) {
   const b = url.searchParams.get("b");
   if (!a || !b) return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
 
+  const relationParam = url.searchParams.get("relation") ?? undefined;
+  const relationshipType = isRelationshipType(relationParam) ? relationParam : "romantique";
   const format = url.searchParams.get("format") === "story" ? "story" : "post";
   const { width: WIDTH, height: HEIGHT } = DIMENSIONS[format];
   const isStory = format === "story";
@@ -123,7 +126,12 @@ export async function GET(request: Request) {
 
   const synastry = computeSynastry(chartA, chartB);
   const { percentage } = computeCompatibilityScore(synastry.aspects);
-  const { text: punchline, color: punchlineColor } = compatibilityPunchline(percentage, synastry.aspects, locale);
+  const { text: punchline, color: punchlineColor } = compatibilityPunchline(
+    percentage,
+    synastry.aspects,
+    relationshipType,
+    locale
+  );
 
   const big3A = computeBigThree(chartA.points, chartA.hasReliableHouses);
   const big3B = computeBigThree(chartB.points, chartB.hasReliableHouses);

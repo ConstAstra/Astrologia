@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { playSoftChime } from "@/lib/sound";
+import type { RelationshipType } from "@/lib/astro/interpretations/relationship";
 
 type Locale = "fr" | "en";
 type Format = "post" | "story";
@@ -37,11 +38,13 @@ export function SynastryShareCardButton({
   profileIdB,
   fileName,
   locale = "fr",
+  relationshipType = "romantique",
 }: {
   profileIdA: string;
   profileIdB: string;
   fileName: string;
   locale?: Locale;
+  relationshipType?: RelationshipType;
 }) {
   const [busy, setBusy] = useState<Format | null>(null);
   const t = TEXT[locale];
@@ -51,7 +54,9 @@ export function SynastryShareCardButton({
     try {
       const suffix = format === "story" ? "-story" : "";
       const namedFile = fileName.replace(/(\.[^.]+)$/, `${suffix}$1`);
-      const res = await fetch(`/api/share/synastrie?a=${profileIdA}&b=${profileIdB}&format=${format}`);
+      const res = await fetch(
+        `/api/share/synastrie?a=${profileIdA}&b=${profileIdB}&format=${format}&relation=${relationshipType}`
+      );
       const blob = await res.blob();
       const file = new File([blob], namedFile, { type: "image/png" });
 

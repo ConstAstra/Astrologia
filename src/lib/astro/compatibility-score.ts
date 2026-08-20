@@ -1,5 +1,6 @@
 import type { SynastryAspect } from "./synastry";
 import type { AspectKey, PointKey } from "./types";
+import type { RelationshipType } from "./interpretations/relationship";
 
 // Score de base par type d'aspect : les aspects harmonieux (trigone, sextile)
 // tirent le score vers le haut, les aspects tendus (carré, opposition) vers
@@ -139,17 +140,57 @@ interface ArchetypeTier {
 // beaucoup ou peu en jeu). Le pourcentage affiché reste calculé sur
 // l'ensemble des aspects (computeCompatibilityScore) — ces libellés
 // n'en changent jamais le sens, ils qualifient la texture en plus du score.
-const ARCHETYPE_CALM: ArchetypeTier[] = [
-  { minPercentage: 70, fr: "Fusion rare", en: "Rare fusion", color: "#f2b799" },
-  { minPercentage: 45, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
-  { minPercentage: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
-];
+//
+// Un jeu par type de relation : les tons "passion"/"attraction" n'ont rien
+// à faire dans une synastrie amicale, familiale ou professionnelle. Les
+// tranches du milieu ("Ça se construit" / "Intense mais chaotique") restent
+// neutres et partagées ; seules les tranches haute et basse, les plus
+// susceptibles d'évoquer une intensité romantique, sont réécrites par type.
+const ARCHETYPE_CALM: Record<RelationshipType, ArchetypeTier[]> = {
+  romantique: [
+    { minPercentage: 70, fr: "Fusion rare", en: "Rare fusion", color: "#f2b799" },
+    { minPercentage: 45, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
+    { minPercentage: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+  ],
+  amitie: [
+    { minPercentage: 70, fr: "Complicité rare", en: "Rare closeness", color: "#f2b799" },
+    { minPercentage: 45, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
+    { minPercentage: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+  ],
+  famille: [
+    { minPercentage: 70, fr: "Lien profond", en: "Deep bond", color: "#f2b799" },
+    { minPercentage: 45, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
+    { minPercentage: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+  ],
+  collegue: [
+    { minPercentage: 70, fr: "Association solide", en: "Solid partnership", color: "#f2b799" },
+    { minPercentage: 45, fr: "Ça se construit", en: "Worth building", color: "#9fc0a3" },
+    { minPercentage: 0, fr: "Mondes différents", en: "Different worlds", color: "#c96b4a" },
+  ],
+};
 
-const ARCHETYPE_CHAOTIC: ArchetypeTier[] = [
-  { minPercentage: 70, fr: "Grande passion, montagnes russes", en: "Big passion, rollercoaster", color: "#e6237a" },
-  { minPercentage: 45, fr: "Intense mais chaotique", en: "Intense but chaotic", color: "#c77b8a" },
-  { minPercentage: 0, fr: "Attraction électrique, friction garantie", en: "Electric pull, guaranteed friction", color: "#c96b4a" },
-];
+const ARCHETYPE_CHAOTIC: Record<RelationshipType, ArchetypeTier[]> = {
+  romantique: [
+    { minPercentage: 70, fr: "Grande passion, montagnes russes", en: "Big passion, rollercoaster", color: "#e6237a" },
+    { minPercentage: 45, fr: "Intense mais chaotique", en: "Intense but chaotic", color: "#c77b8a" },
+    { minPercentage: 0, fr: "Attraction électrique, friction garantie", en: "Electric pull, guaranteed friction", color: "#c96b4a" },
+  ],
+  amitie: [
+    { minPercentage: 70, fr: "Duo électrique, fort caractère des deux côtés", en: "Electric duo, strong personalities on both sides", color: "#e6237a" },
+    { minPercentage: 45, fr: "Intense mais chaotique", en: "Intense but chaotic", color: "#c77b8a" },
+    { minPercentage: 0, fr: "Beaucoup d'étincelles, à canaliser", en: "Lots of sparks, needs channeling", color: "#c96b4a" },
+  ],
+  famille: [
+    { minPercentage: 70, fr: "Lien fort, tensions à canaliser", en: "Strong bond, tensions to manage", color: "#e6237a" },
+    { minPercentage: 45, fr: "Intense mais chaotique", en: "Intense but chaotic", color: "#c77b8a" },
+    { minPercentage: 0, fr: "Attachement réel, frictions garanties", en: "Real attachment, guaranteed friction", color: "#c96b4a" },
+  ],
+  collegue: [
+    { minPercentage: 70, fr: "Duo stimulant, à encadrer", en: "Stimulating duo, needs structure", color: "#e6237a" },
+    { minPercentage: 45, fr: "Intense mais chaotique", en: "Intense but chaotic", color: "#c77b8a" },
+    { minPercentage: 0, fr: "Étincelles créatives, cadre à poser", en: "Creative sparks, needs a framework", color: "#c96b4a" },
+  ],
+};
 
 /**
  * Punchline courte + couleur associée à une synastrie — utilisée sur la
@@ -158,16 +199,20 @@ const ARCHETYPE_CHAOTIC: ArchetypeTier[] = [
  * global (computeCompatibilityScore) avec la texture "chaude" du duo
  * (computeSynastryIntensity) : à score égal, une paire dont les planètes
  * personnelles s'équilibrent entre harmonie et friction lit très
- * différemment d'une paire qui penche nettement d'un seul côté.
+ * différemment d'une paire qui penche nettement d'un seul côté. Les
+ * libellés varient aussi selon le type de relation (romantique / amitié /
+ * famille / collègue), pour ne jamais parler de "passion" ou d'"attraction"
+ * en dehors d'un cadre de couple.
  */
 export function compatibilityPunchline(
   percentage: number,
   aspects: SynastryAspect[],
+  relationshipType: RelationshipType = "romantique",
   locale: "fr" | "en" = "fr"
 ): { text: string; color: string } {
   const { amplitude, balance } = computeSynastryIntensity(aspects);
   const isChaotic = amplitude >= INTENSITY_CHARGED_THRESHOLD && balance >= INTENSITY_BALANCE_THRESHOLD;
-  const tiers = isChaotic ? ARCHETYPE_CHAOTIC : ARCHETYPE_CALM;
+  const tiers = (isChaotic ? ARCHETYPE_CHAOTIC : ARCHETYPE_CALM)[relationshipType];
   const tier = tiers.find((t) => percentage >= t.minPercentage) ?? tiers[tiers.length - 1];
   return { text: locale === "en" ? tier.en : tier.fr, color: tier.color };
 }

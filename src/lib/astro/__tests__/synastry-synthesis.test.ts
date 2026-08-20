@@ -15,7 +15,7 @@ describe("composeSynastrySynthesis", () => {
   );
   const synastry = computeSynastry(chartA, chartB);
   const { percentage } = computeCompatibilityScore(synastry.aspects);
-  const { text: punch } = compatibilityPunchline(percentage, synastry.aspects, "fr");
+  const { text: punch } = compatibilityPunchline(percentage, synastry.aspects, "amitie", "fr");
 
   it("names both people and the compatibility percentage in the overview", () => {
     const s = composeSynastrySynthesis(synastry, chartA, chartB, percentage, punch, "Alice", "Bob", "amitie", "fr");
@@ -44,7 +44,7 @@ describe("composeSynastrySynthesis", () => {
 
   it("produces bilingual output without leaking the other language", () => {
     const fr = composeSynastrySynthesis(synastry, chartA, chartB, percentage, punch, "Alice", "Bob", "amitie", "fr");
-    const { text: punchEn } = compatibilityPunchline(percentage, synastry.aspects, "en");
+    const { text: punchEn } = compatibilityPunchline(percentage, synastry.aspects, "amitie", "en");
     const en = composeSynastrySynthesis(synastry, chartA, chartB, percentage, punchEn, "Alice", "Bob", "amitie", "en");
     expect(fr.overview).toMatch(/affichent/);
     expect(en.overview).toMatch(/score/);
