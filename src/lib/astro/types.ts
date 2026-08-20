@@ -27,7 +27,15 @@ export type AngleKey = (typeof ANGLE_KEYS)[number];
 export const ASTEROID_KEYS = ["juno"] as const;
 export type AsteroidKey = (typeof ASTEROID_KEYS)[number];
 
-export type PointKey = PlanetKey | AngleKey | AsteroidKey;
+// Vertex : point calculé (comme l'Ascendant/le Milieu du Ciel), pas un corps
+// céleste. Traité à part de ANGLE_KEYS pour la même raison que les
+// astéroïdes : éviter qu'il s'invite silencieusement partout où ANGLE_KEYS
+// est déjà utilisé (composite, synastrie) avant d'avoir un vrai usage
+// interprétatif dédié.
+export const VERTEX_KEYS = ["vertex"] as const;
+export type VertexKey = (typeof VERTEX_KEYS)[number];
+
+export type PointKey = PlanetKey | AngleKey | AsteroidKey | VertexKey;
 
 export const ZODIAC_SIGNS = [
   "belier",

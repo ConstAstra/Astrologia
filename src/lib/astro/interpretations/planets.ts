@@ -21,6 +21,7 @@ export const PLANET_GENDER_FR: Record<PointKey, "m" | "f"> = {
   ic: "m",
   fortune: "f", // la Part de Fortune
   juno: "f", // Junon
+  vertex: "m", // le Vertex
 };
 
 export interface PlanetMeta {
@@ -167,5 +168,13 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     essence:
       "Junon est l'astéroïde le plus associé à l'engagement amoureux : là où Vénus dit ce qui attire et Mars ce qui fait envie, Junon décrit ce dont on a besoin pour rester, pour construire un vrai partenariat dans la durée plutôt qu'une simple attirance. Son signe et sa maison éclairent le type de lien qui tient, et ce qui, dans une relation, peut être vécu comme une trahison ou une injustice si ce n'est pas respecté.",
     keySpeed: "environ 4,4 ans pour faire le tour du zodiaque",
+  },
+  vertex: {
+    name: "Vertex",
+    symbol: "Vx",
+    keyword: "les rencontres qui semblent écrites, les liens qu'on n'a pas vus venir",
+    essence:
+      "Le Vertex est un point calculé, pas une planète : parfois décrit comme un « second Descendant », il marque un endroit du thème lié aux rencontres qui paraissent relever du destin plus que du choix. En synastrie, un contact entre le Vertex de l'un et une planète personnelle ou l'Ascendant de l'autre est souvent noté comme un signe de lien marquant, presque inévitable.",
+    keySpeed: "point calculé, ne se déplace pas dans le ciel",
   },
 };

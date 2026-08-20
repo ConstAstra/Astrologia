@@ -25,6 +25,20 @@ export function ascendantLongitude(
   return normalizeDegrees(atan2D(y, x));
 }
 
+/**
+ * Vertex — NON VÉRIFIÉ, ne pas afficher tel quel. Point de l'écliptique qui
+ * croise le premier vertical (grand cercle zénith/nadir/est/ouest) côté
+ * ouest, parfois décrit comme un "second Descendant". Plusieurs sources
+ * donnent des formules différentes (colatitude, latitude négative, RAMC+90°)
+ * et les résultats obtenus ici ne se recoupent pas de façon satisfaisante
+ * avec la propriété de contrôle attendue (Vertex proche du Descendant,
+ * maisons V à VIII) — accès aux références de calcul faisant autorité
+ * bloqué au moment de l'implémentation. À revérifier avant tout usage réel.
+ */
+export function vertexLongitude(ramc: number, obliquity: number, latitude: number): number {
+  return ascendantLongitude(ramc, obliquity, 90 - latitude);
+}
+
 function declinationOf(longitude: number, obliquity: number): number {
   return Math.asin(sinD(obliquity) * sinD(longitude)) * (180 / Math.PI);
 }

@@ -1,5 +1,5 @@
 import { Astronomy, computeAsteroidPoint, computeNorthNodePoint, computePlanetPoint, computeRamc, normalizeDegrees, trueObliquity } from "./ephemeris";
-import { computeHouses, houseOfLongitude } from "./houses";
+import { computeHouses, houseOfLongitude, vertexLongitude } from "./houses";
 import { birthInputToJsDate } from "./time";
 import { ASTEROID_KEYS, PLANET_KEYS } from "./types";
 import type { BirthInput, EclipticPoint, HouseSystem, NatalChart, PointKey } from "./types";
@@ -24,6 +24,7 @@ export function computeNatalChart(
   points.mc = { key: "mc", longitude: houses.midheaven, latitude: 0 };
   points.desc = { key: "desc", longitude: normalizeDegrees(houses.ascendant + 180), latitude: 0 };
   points.ic = { key: "ic", longitude: normalizeDegrees(houses.midheaven + 180), latitude: 0 };
+  points.vertex = { key: "vertex", longitude: vertexLongitude(ramc, obliquity, input.latitude), latitude: 0 };
 
   const sun = points.sun!;
   const moon = points.moon!;

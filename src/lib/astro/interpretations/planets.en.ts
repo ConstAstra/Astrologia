@@ -138,4 +138,12 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
       "Juno is the asteroid most associated with romantic commitment: where Venus describes what attracts and Mars what excites, Juno describes what's actually needed to stay, to build a real long-term partnership rather than just an attraction. Its sign and house point to the kind of bond that holds, and to what, in a relationship, can land as betrayal or unfairness if it isn't honored.",
     keySpeed: "about 4.4 years to circle the zodiac",
   },
+  vertex: {
+    name: "Vertex",
+    symbol: "Vx",
+    keyword: "meetings that feel fated, connections nobody saw coming",
+    essence:
+      "The Vertex is a calculated point, not a planet: sometimes described as a \"second Descendant,\" it marks a spot in the chart tied to encounters that feel more like fate than choice. In synastry, a contact between one person's Vertex and the other's personal planets or Ascendant is often noted as a sign of a marking, almost unavoidable-feeling connection.",
+    keySpeed: "a calculated point, doesn't move across the sky",
+  },
 };
