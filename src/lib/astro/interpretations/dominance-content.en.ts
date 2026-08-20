@@ -1,14 +1,14 @@
 // Keys stay the internal French tokens ("Feu", "Terre"...) used throughout
 // the astro engine's dominance computation — only the text is translated.
 export const ELEMENT_DOMINANCE_TEXT_EN: Record<string, string> = {
-  Feu: "Fire dominant: an energy that needs to act, initiate, get enthusiastic. The risk, if unchanneled, is impulsiveness or quickly running out of steam. The growth edge is learning to carry momentum across an entire project, not just its launch, without dimming what makes it powerful.",
-  Terre: "Earth dominant: a need for the concrete, for stability and tangible results. The risk, if too pronounced, is rigidity or difficulty letting go. The growth edge is learning that accepting change doesn't mean losing what's already been built.",
-  Air: "Air dominant: an energy oriented toward ideas, exchange and connecting with others. The risk, if too pronounced, is staying in one's head, avoiding emotional or concrete grounding. The growth edge is learning to let an idea settle back into the body and into feeling, not just circulate between minds.",
-  Eau: "Water dominant: an emotional, intuitive sensitivity in the foreground. The risk, if too pronounced, is being overwhelmed or struggling to set clear boundaries. The growth edge is learning to set a limit without feeling guilty, without losing the richness of that sensitivity.",
+  Feu: "Fire dominant: an energy that runs on action and immediate enthusiasm, to the point of launching into things before fully thinking them through. The downside shows up when a project calls for patience rather than fire: the momentum drops as fast as it rose, or turns into impulsive moves regretted later.",
+  Terre: "Earth dominant: a need for the concrete, for stability, for results you can actually touch or measure. Pushed too far, that need turns into rigidity: sticking to a method or a situation long after it's stopped serving, simply because change feels frightening.",
+  Air: "Air dominant: attention drawn to ideas, words and connecting people, with a real knack for moving between topics and people. The weak spot shows when an idea stays just that, an idea: emotional or concrete grounding gets avoided, as if talking about something were the same as having lived it.",
+  Eau: "Water dominant: an emotional, intuitive sensitivity that picks up on what's happening with others before it's even said. The risk is getting overwhelmed by what's felt, or struggling to say no out of fear of hurting someone.",
 };
 
 export const MODALITY_DOMINANCE_TEXT_EN: Record<string, string> = {
-  Cardinal: "Cardinal dominant: an energy that initiates, that loves starting things. The risk is multiplying beginnings without always following through. The growth edge is learning to pick one project and see it through before opening the next.",
-  Fixe: "Fixed dominant: an energy that holds steady over time, persevering and loyal to its choices. The risk is excessive resistance to change. The growth edge is learning that adjusting course mid-way isn't giving up, it's its own form of consistency.",
-  Mutable: "Mutable dominant: an adaptable energy that adjusts easily to context. The risk is a certain scatteredness or a lack of backbone over time. The growth edge is learning to keep a steady throughline underneath all the adjusting, so flexibility never turns into having no direction at all.",
+  Cardinal: "Cardinal dominant: an energy that loves starting, launching, initiating, with a real talent for kicking things off. The downside shows in how many projects end up open at once: starting is easy, finishing is harder.",
+  Fixe: "Fixed dominant: an energy that holds steady over time, loyal to its choices once they're made. Pushed too far, that persistence becomes resistance to change, even once the situation itself has moved on and holding firm no longer serves anything.",
+  Mutable: "Mutable dominant: an energy that adjusts easily to context, to people, to whatever comes up. The tradeoff is a kind of scatter: without a clear throughline, flexibility can slide into having no direction at all, drifting with the current instead of choosing it.",
 };

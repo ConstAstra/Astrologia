@@ -15,7 +15,7 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
     synastry: {
       title: "Débloquer cette synastrie",
       description:
-        "Découvrez les aspects croisés entre les deux thèmes et la superposition des maisons — analyse complète, à vous pour toujours une fois débloquée.",
+        "Découvrez les aspects croisés entre les deux thèmes et la superposition des maisons : analyse complète, à vous pour toujours une fois débloquée.",
     },
     composite: {
       title: "Débloquer ce thème composite",
@@ -30,7 +30,7 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
     synthesis: {
       title: "Débloquer la lecture de synthèse",
       description:
-        "Une lecture d'ensemble qui relie Big 3, dominantes, maître de l'Ascendant, contradictions internes et aspects porteurs en un seul récit cohérent — plutôt que des placements isolés à interpréter soi-même.",
+        "Une lecture d'ensemble qui relie Big 3, dominantes, maître de l'Ascendant, contradictions internes et aspects porteurs en un seul récit cohérent, plutôt que des placements isolés à interpréter soi-même.",
     },
     lifeMission: {
       title: "Débloquer le développement complet",
@@ -55,7 +55,7 @@ const FEATURE_LABELS: Record<Locale, Record<string, { title: string; description
     synthesis: {
       title: "Unlock the synthesis reading",
       description:
-        "A holistic reading that ties Big 3, dominances, Ascendant ruler, internal contradictions and standout aspects into one coherent narrative — instead of isolated placements you have to interpret yourself.",
+        "A holistic reading that ties Big 3, dominances, Ascendant ruler, internal contradictions and standout aspects into one coherent narrative, instead of isolated placements you have to interpret yourself.",
     },
     lifeMission: {
       title: "Unlock the full development",

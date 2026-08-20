@@ -42,7 +42,7 @@ export default async function MissionDeVieIndexPage() {
   ]);
 
   if (profiles.length === 0) redirect("/dashboard/profils/nouveau");
-  if (profiles.length === 1) redirect(`/dashboard/theme-natal/${profiles[0].id}#mission-de-vie`);
+  if (profiles.length === 1) redirect(`/dashboard/mission-de-vie/${profiles[0].id}`);
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
@@ -76,7 +76,7 @@ export default async function MissionDeVieIndexPage() {
           return (
             <Link
               key={profile.id}
-              href={`/dashboard/theme-natal/${profile.id}#mission-de-vie`}
+              href={`/dashboard/mission-de-vie/${profile.id}`}
               className="stagger-item"
               style={{ "--stagger-i": i } as CSSProperties}
             >

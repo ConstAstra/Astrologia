@@ -20,13 +20,11 @@ import {
   describePlanetInHouse,
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
-import { describeLifeMission } from "@/lib/astro/interpretations/life-mission";
-import { buildLunarNodeFacts } from "@/lib/astro/interpretations/lunar-node-facts";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartDomains } from "@/lib/astro/interpretations/chart-domains";
 import { buildChartFacts } from "@/lib/astro/interpretations/chart-facts";
-import { getOrGenerateDeepSynthesis, getOrGenerateLifeMissionSynthesis } from "@/lib/ai/deep-synthesis-cache";
+import { getOrGenerateDeepSynthesis } from "@/lib/ai/deep-synthesis-cache";
 import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highlights";
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { canViewProfile } from "@/lib/friends";
@@ -72,18 +70,10 @@ const TEXT: Record<
     positions: string;
     house: string;
     degree: string;
-    lifeMission: string;
-    lifeMissionIntro: string;
-    lifeMissionPremium: string;
-    northNode: string;
-    southNode: string;
-    lifeMissionRulerHeading: string;
-    lifeMissionAspectsHeading: string;
-    lifeMissionAspectsIntro: string;
-    lifeMissionSynthesisHeading: string;
     aspects: string;
     noAspects: string;
     ascendantRulerTitle: string;
+    ascendantRulerExplainer: string;
     signHeading: string;
     houseHeading: string;
     grimoireTitle: string;
@@ -93,7 +83,6 @@ const TEXT: Record<
     navOverview: string;
     navGrimoire: string;
     navPositions: string;
-    navMission: string;
     navAspects: string;
     showMoreMinorAspects: (n: number) => string;
     showLessAspects: string;
@@ -111,19 +100,11 @@ const TEXT: Record<
     positions: "Positions",
     house: "Maison",
     degree: "Degré :",
-    lifeMission: "Mission de vie",
-    lifeMissionIntro:
-      "Lecture de l'axe des Nœuds lunaires : le Nœud Nord comme direction d'évolution à apprivoiser, le Nœud Sud comme terrain déjà acquis à ne pas surinvestir.",
-    lifeMissionPremium: "Premium",
-    northNode: "☊ Nœud Nord",
-    southNode: "☋ Nœud Sud",
-    lifeMissionRulerHeading: "Le maître de ton Nœud Nord",
-    lifeMissionAspectsHeading: "Ce qui soutient ou complique cette trajectoire",
-    lifeMissionAspectsIntro: "Les planètes qui font un aspect à ton Nœud Nord : un appui direct, ou une friction à travailler.",
-    lifeMissionSynthesisHeading: "En pratique",
     aspects: "Aspects",
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
     ascendantRulerTitle: "Maître de l'Ascendant",
+    ascendantRulerExplainer:
+      "Le signe Ascendant a une planète qui le gouverne traditionnellement : la position de cette planète dans votre thème colore la façon dont vous vivez concrètement cette première impression.",
     signHeading: "En signe",
     houseHeading: "En maison",
     grimoireTitle: "Le grimoire de votre thème",
@@ -133,7 +114,6 @@ const TEXT: Record<
     navOverview: "Vue d'ensemble",
     navGrimoire: "Grimoire",
     navPositions: "Positions",
-    navMission: "Mission de vie",
     navAspects: "Aspects",
     showMoreMinorAspects: (n) => `Voir ${n} aspect${n > 1 ? "s" : ""} mineur${n > 1 ? "s" : ""} de plus`,
     showLessAspects: "Replier les aspects mineurs",
@@ -150,19 +130,11 @@ const TEXT: Record<
     positions: "Positions",
     house: "House",
     degree: "Degree:",
-    lifeMission: "Life mission",
-    lifeMissionIntro:
-      "A reading of the lunar Nodes axis: the North Node as a direction of growth to embrace, the South Node as already-familiar ground not to over-invest in.",
-    lifeMissionPremium: "Premium",
-    northNode: "☊ North Node",
-    southNode: "☋ South Node",
-    lifeMissionRulerHeading: "Your North Node's ruler",
-    lifeMissionAspectsHeading: "What supports or complicates this path",
-    lifeMissionAspectsIntro: "The planets that form an aspect to your North Node: a direct boost, or a friction to work with.",
-    lifeMissionSynthesisHeading: "In practice",
     aspects: "Aspects",
     noAspects: "No aspect detected within the orbs used.",
     ascendantRulerTitle: "Ascendant ruler",
+    ascendantRulerExplainer:
+      "Your rising sign has a planet that traditionally rules it: where that planet sits in your chart colors how you actually live out that first impression.",
     signHeading: "In sign",
     houseHeading: "In house",
     grimoireTitle: "The grimoire of your chart",
@@ -172,7 +144,6 @@ const TEXT: Record<
     navOverview: "Overview",
     navGrimoire: "Grimoire",
     navPositions: "Positions",
-    navMission: "Life mission",
     navAspects: "Aspects",
     showMoreMinorAspects: (n) => `Show ${n} more minor aspect${n > 1 ? "s" : ""}`,
     showLessAspects: "Collapse minor aspects",
@@ -225,17 +196,6 @@ export default async function ThemeNatalPage({
   const aspectKeys: PointKey[] = chart.hasReliableHouses ? DISPLAY_POINTS : [...PLANET_KEYS];
   const aspects = computeAspects(chart.points, aspectKeys);
   const chartHighlights = composeChartHighlights(chart, locale);
-
-  const mission = describeLifeMission(chart, aspects, locale);
-  const lifeMissionAccess = await hasFeatureAccess(userId, { feature: "lifeMission", primaryProfileId: profile.id });
-  let lifeMissionNarration = null;
-  if (lifeMissionAccess) {
-    const lunarNodeFacts = buildLunarNodeFacts(chart, aspects, locale);
-    lifeMissionNarration = await getOrGenerateLifeMissionSynthesis(
-      { type: "lifeMission", profileId: profile.id, locale },
-      lunarNodeFacts
-    );
-  }
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]))).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude, house: chart.points[k].house })
@@ -332,7 +292,6 @@ export default async function ThemeNatalPage({
             { id: "vue-ensemble", label: t.navOverview },
             { id: "grimoire", label: t.navGrimoire },
             { id: "positions", label: t.navPositions },
-            { id: "mission-de-vie", label: t.navMission },
             { id: "aspects", label: t.navAspects },
           ]}
         />
@@ -381,6 +340,7 @@ export default async function ThemeNatalPage({
       {ascendantRuler && ascendantRulerPoint && (
         <Card className="mt-6 p-6">
           <Eyebrow>{t.ascendantRulerTitle}</Eyebrow>
+          <p className="mt-1 text-xs text-muted">{t.ascendantRulerExplainer}</p>
           <p className="mt-3 flex items-center gap-2 font-display text-xl">
             <span>{planetMap[ascendantRuler].symbol}</span>
             <span>{planetMap[ascendantRuler].name}</span>
@@ -454,7 +414,7 @@ export default async function ThemeNatalPage({
                     {point.house && (
                       <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house, locale)}</p>
                     )}
-                    <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
+                    <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
                       {describeDegree(point.longitude, locale, chart.points)}
                     </p>
@@ -462,131 +422,6 @@ export default async function ThemeNatalPage({
                 );
               })}
             </div>
-          </section>
-
-          <section id="mission-de-vie" className="scroll-mt-24">
-            <div className="flex items-center gap-3">
-              <h2 className="font-display text-2xl">{t.lifeMission}</h2>
-              {!lifeMissionAccess && <Badge tone="gold">{t.lifeMissionPremium}</Badge>}
-            </div>
-            <p className="mt-1 text-xs text-muted">{t.lifeMissionIntro}</p>
-            <Card className="mt-4 p-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-gold/50 bg-gold/10 text-lg text-gold-strong">
-                  ☊
-                </span>
-                <div className="flex flex-1 items-center justify-between gap-2">
-                  <p className="font-medium">{t.northNode}</p>
-                  <Badge tone="gold">
-                    {signMap[mission.northSign].name}
-                    {mission.northHouse ? ` · ${t.house} ${mission.northHouse}` : ""}
-                  </Badge>
-                </div>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted">{mission.missionSignText}</p>
-            </Card>
-
-            {lifeMissionAccess ? (
-              <div className="mt-4 space-y-4">
-                <Card className="overflow-hidden p-6">
-                  <div className="flex items-center justify-center gap-4 sm:gap-8">
-                    <div className="flex flex-col items-center gap-2 text-center">
-                      <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gold/50 bg-gold/10 text-2xl text-gold-strong">
-                        ☊
-                      </span>
-                      <p className="text-sm font-medium">{signMap[mission.northSign].name}</p>
-                      <p className="text-[11px] text-muted">{t.northNode}</p>
-                    </div>
-                    <div className="h-px max-w-16 flex-1 bg-gradient-to-r from-gold/50 via-border-soft to-border-soft sm:max-w-24" />
-                    <div className="flex flex-col items-center gap-2 text-center opacity-75">
-                      <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-border-soft text-2xl text-muted">
-                        ☋
-                      </span>
-                      <p className="text-sm font-medium">{signMap[mission.southSign].name}</p>
-                      <p className="text-[11px] text-muted">{t.southNode}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{t.southNode}</p>
-                    <Badge>
-                      {signMap[mission.southSign].name}
-                      {mission.southHouse ? ` · ${t.house} ${mission.southHouse}` : ""}
-                    </Badge>
-                  </div>
-                  {lifeMissionNarration ? (
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{lifeMissionNarration.comfort}</p>
-                  ) : (
-                    <>
-                      <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortSignText}</p>
-                      {mission.comfortHouseText && (
-                        <p className="mt-2 text-xs leading-relaxed text-muted">{mission.comfortHouseText}</p>
-                      )}
-                    </>
-                  )}
-                </Card>
-
-                <Card className="p-4">
-                  <p className="font-medium">
-                    {t.lifeMissionRulerHeading}, {planetMap[mission.rulerPlanet].symbol} {planetMap[mission.rulerPlanet].name}
-                  </p>
-                  {lifeMissionNarration ? (
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{lifeMissionNarration.ruler}</p>
-                  ) : (
-                    <>
-                      <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerIntro}</p>
-                      <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerSignText}</p>
-                      {mission.rulerHouseText && (
-                        <p className="mt-2 text-xs leading-relaxed text-muted">{mission.rulerHouseText}</p>
-                      )}
-                    </>
-                  )}
-                </Card>
-
-                <Card className="p-4">
-                  <p className="font-medium">{t.lifeMissionAspectsHeading}</p>
-                  <p className="mt-1 text-xs text-muted/70">{t.lifeMissionAspectsIntro}</p>
-                  {mission.nodeAspects.length === 0 ? (
-                    <p className="mt-2 text-xs text-muted">{t.noAspects}</p>
-                  ) : (
-                    <div className="mt-3 space-y-3">
-                      {mission.nodeAspects.map((na, i) => (
-                        <div key={i} className="border-t border-border-soft pt-3 first:border-t-0 first:pt-0">
-                          <div className="flex items-center justify-between text-sm">
-                            <p className="font-medium">
-                              {planetMap[na.otherPoint].symbol} {planetMap[na.otherPoint].name} {aspectMap[na.aspect.aspect].symbol}
-                            </p>
-                            <Badge
-                              tone={
-                                aspectMap[na.aspect.aspect].tone === "harmonieux"
-                                  ? "sage"
-                                  : aspectMap[na.aspect.aspect].tone === "tendu"
-                                    ? "terracotta"
-                                    : "neutral"
-                              }
-                            >
-                              {aspectMap[na.aspect.aspect].name}
-                            </Badge>
-                          </div>
-                          <p className="mt-2 text-xs leading-relaxed text-muted">{na.text}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
-
-                <Card className="p-4">
-                  <p className="font-medium">{t.lifeMissionSynthesisHeading}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">{lifeMissionNarration?.synthesis ?? mission.synthesis}</p>
-                </Card>
-              </div>
-            ) : (
-              <div className="mt-4">
-                <UnlockGate feature="lifeMission" profileIdA={profile.id} credits={user.credits} locale={locale} compact />
-              </div>
-            )}
           </section>
 
           <section id="aspects" className="scroll-mt-24">

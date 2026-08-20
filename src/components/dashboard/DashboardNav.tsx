@@ -129,8 +129,10 @@ export function DashboardNav({
   const [compatOpen, setCompatOpen] = useState(false);
   const [profileSwitcherOpen, setProfileSwitcherOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hintOpenHref, setHintOpenHref] = useState<string | null>(null);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pointe vers la version personnalisée du dashboard (transits du jour
   // liés à un vrai profil), pas vers la page marketing publique /horoscope :
@@ -174,6 +176,14 @@ export function DashboardNav({
   }
   function scheduleCloseCompat() {
     closeTimeout.current = setTimeout(() => setCompatOpen(false), 150);
+  }
+
+  function openHint(href: string) {
+    if (hintCloseTimeout.current) clearTimeout(hintCloseTimeout.current);
+    setHintOpenHref(href);
+  }
+  function scheduleCloseHint() {
+    hintCloseTimeout.current = setTimeout(() => setHintOpenHref(null), 150);
   }
 
   function openProfileSwitcher() {
@@ -239,16 +249,26 @@ export function DashboardNav({
           </div>
 
           {mainLinks.slice(1).map((link) => (
-            <Link
+            <div
               key={link.href}
-              href={link.href}
-              title={link.hint}
-              className={`rounded-full px-3 py-1.5 transition-colors ${
-                pathname.startsWith(link.href) ? "bg-gold/15 text-gold-strong" : "hover:bg-gold/5 hover:text-foreground"
-              }`}
+              className="relative"
+              onMouseEnter={() => link.hint && openHint(link.href)}
+              onMouseLeave={scheduleCloseHint}
             >
-              {link.label}
-            </Link>
+              <Link
+                href={link.href}
+                className={`rounded-full px-3 py-1.5 transition-colors ${
+                  pathname.startsWith(link.href) ? "bg-gold/15 text-gold-strong" : "hover:bg-gold/5 hover:text-foreground"
+                }`}
+              >
+                {link.label}
+              </Link>
+              {link.hint && hintOpenHref === link.href && (
+                <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-xl border border-border-soft bg-surface p-4 text-xs leading-relaxed text-muted shadow-[0_12px_32px_-12px_#00000080]">
+                  {link.hint}
+                </div>
+              )}
+            </div>
           ))}
 
           <span className="mx-1 h-4 w-px bg-border-soft" aria-hidden="true" />

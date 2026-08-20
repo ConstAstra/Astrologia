@@ -154,10 +154,14 @@ export function describeDegree(
   chartPoints?: Partial<Record<PointKey, { longitude: number; house?: number }>>
 ): string {
   const r = computeDegreeReading(longitude, locale);
-  const parts = [r.decanText + rulerConnectionText(r.decanRuler, chartPoints, locale), r.phaseText];
+  const intro =
+    locale === "en"
+      ? "An extra layer of detail, useful but not essential to understanding the rest of the chart:"
+      : "Un niveau de détail en plus, utile mais pas indispensable pour comprendre le reste du thème :";
+  const parts = [intro, r.decanText + rulerConnectionText(r.decanRuler, chartPoints, locale), r.phaseText];
   if (r.isAnaretic) parts.push(r.anareticText!);
   if (r.isCritical) parts.push(r.criticalText!);
-  return parts.join(" ");
+  return parts.join("\n\n");
 }
 
 export function describePlanetInHouse(point: PointKey, houseNumber: number, locale: Locale = "fr"): string {

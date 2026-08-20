@@ -322,7 +322,7 @@ export default async function SolarReturnPage({
                     {point.house && (
                       <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house, locale)}</p>
                     )}
-                    <p className="mt-2 border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
+                    <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
                       {describeDegree(point.longitude, locale, returnChart.points)}
                     </p>
