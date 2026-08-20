@@ -130,4 +130,12 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
       "A traditional Arabic point combining the Ascendant, Sun and Moon, the Part of Fortune shows an area where things tend to flow naturally, a zone of relative ease and well-being.",
     keySpeed: "depends on the positions of the Sun and Moon",
   },
+  juno: {
+    name: "Juno",
+    symbol: "⚵",
+    keyword: "commitment, the partnership contract and what it takes to feel truly bonded",
+    essence:
+      "Juno is the asteroid most associated with romantic commitment: where Venus describes what attracts and Mars what excites, Juno describes what's actually needed to stay, to build a real long-term partnership rather than just an attraction. Its sign and house point to the kind of bond that holds, and to what, in a relationship, can land as betrayal or unfairness if it isn't honored.",
+    keySpeed: "about 4.4 years to circle the zodiac",
+  },
 };

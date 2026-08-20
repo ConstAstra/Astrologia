@@ -1,7 +1,7 @@
-import { Astronomy, computeNorthNodePoint, computePlanetPoint, computeRamc, normalizeDegrees, trueObliquity } from "./ephemeris";
+import { Astronomy, computeAsteroidPoint, computeNorthNodePoint, computePlanetPoint, computeRamc, normalizeDegrees, trueObliquity } from "./ephemeris";
 import { computeHouses, houseOfLongitude } from "./houses";
 import { birthInputToJsDate } from "./time";
-import { PLANET_KEYS } from "./types";
+import { ASTEROID_KEYS, PLANET_KEYS } from "./types";
 import type { BirthInput, EclipticPoint, HouseSystem, NatalChart, PointKey } from "./types";
 
 export function computeNatalChart(
@@ -33,6 +33,10 @@ export function computeNatalChart(
     ? normalizeDegrees(houses.ascendant + moon.longitude - sun.longitude)
     : normalizeDegrees(houses.ascendant + sun.longitude - moon.longitude);
   points.fortune = { key: "fortune", longitude: fortuneLongitude, latitude: 0 };
+
+  for (const key of ASTEROID_KEYS) {
+    points[key] = computeAsteroidPoint(key, time);
+  }
 
   const hasReliableHouses = !input.timeUnknown;
   for (const point of Object.values(points) as EclipticPoint[]) {

@@ -41,6 +41,7 @@ export const PLANET_SLUG_FR: Record<PointKey, string> = {
   desc: "descendant",
   ic: "fond-du-ciel",
   fortune: "part-de-fortune",
+  juno: "junon",
 };
 
 export const PLANET_SLUG_EN: Record<PointKey, string> = {
@@ -60,6 +61,7 @@ export const PLANET_SLUG_EN: Record<PointKey, string> = {
   desc: "descendant",
   ic: "ic",
   fortune: "part-of-fortune",
+  juno: "juno",
 };
 
 export function planetSlugToKey(slug: string, map: Record<PointKey, string>): PointKey | null {

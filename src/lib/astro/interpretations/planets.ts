@@ -20,6 +20,7 @@ export const PLANET_GENDER_FR: Record<PointKey, "m" | "f"> = {
   desc: "m",
   ic: "m",
   fortune: "f", // la Part de Fortune
+  juno: "f", // Junon
 };
 
 export interface PlanetMeta {
@@ -158,5 +159,13 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     essence:
       "Point arabe traditionnel combinant Ascendant, Soleil et Lune, la Part de Fortune indique une zone où les choses ont tendance à \"couler de source\", un terrain de bien-être et de facilité relative.",
     keySpeed: "dépend des positions du Soleil et de la Lune",
+  },
+  juno: {
+    name: "Junon",
+    symbol: "⚵",
+    keyword: "l'engagement, le contrat de couple et ce qu'il faut pour se sentir vraiment lié·e",
+    essence:
+      "Junon est l'astéroïde le plus associé à l'engagement amoureux : là où Vénus dit ce qui attire et Mars ce qui fait envie, Junon décrit ce dont on a besoin pour rester, pour construire un vrai partenariat dans la durée plutôt qu'une simple attirance. Son signe et sa maison éclairent le type de lien qui tient, et ce qui, dans une relation, peut être vécu comme une trahison ou une injustice si ce n'est pas respecté.",
+    keySpeed: "environ 4,4 ans pour faire le tour du zodiaque",
   },
 };

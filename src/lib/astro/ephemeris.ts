@@ -1,5 +1,5 @@
 import * as Astronomy from "astronomy-engine";
-import type { EclipticPoint, PlanetKey } from "./types";
+import type { AsteroidKey, EclipticPoint, PlanetKey } from "./types";
 
 const BODY_MAP: Record<
   Exclude<PlanetKey, "northNode">,
@@ -101,6 +101,133 @@ export function computeNorthNodePoint(time: Astronomy.AstroTime): EclipticPoint 
   // Le nœud moyen recule toujours (~ -0.053°/jour) : jamais "rétrograde" au
   // sens usuel, on ne calcule donc pas de vitesse instantanée ici.
   return { key: "northNode", longitude, latitude: 0, speed: -0.0529539, retrograde: true };
+}
+
+// ---------------------------------------------------------------------------
+// Astéroïdes : astronomy-engine ne couvre que le Soleil, la Lune et les 8
+// planètes (pas de corps mineurs). Leur position est donc calculée ici par
+// propagation képlérienne à deux corps à partir d'éléments orbitaux osculateurs
+// (JPL Small-Body Database) plutôt que lue dans une éphéméride réelle.
+//
+// Limite à avoir en tête : ces éléments ne sont exacts qu'à leur date
+// d'origine ; l'orbite réelle est perturbée par Jupiter notamment, donc plus
+// une naissance est éloignée de cette date, plus l'écart théorique grandit
+// (de l'ordre de quelques dixièmes de degré à quelques degrés selon l'écart
+// en années). Suffisant pour situer le signe et, dans la plupart des cas, la
+// maison ; pas une éphéméride de précision scientifique. Un futur passage
+// pourra rafraîchir les éléments ou ajouter une correction séculaire si le
+// besoin de précision augmente.
+export interface KeplerianElements {
+  /** Jour julien (TT) de l'époque des éléments osculateurs. */
+  epochJd: number;
+  /** Demi-grand axe, en unités astronomiques. */
+  a: number;
+  /** Excentricité. */
+  e: number;
+  /** Inclinaison sur l'écliptique J2000, en degrés. */
+  i: number;
+  /** Longitude du nœud ascendant (Ω), en degrés. */
+  node: number;
+  /** Argument du périhélie (ω), en degrés. */
+  peri: number;
+  /** Anomalie moyenne à l'époque (M₀), en degrés. */
+  meanAnomalyAtEpoch: number;
+}
+
+// Éléments osculateurs de 3 Junon, JPL Small-Body Database, époque JD
+// 2460200.5 (13 septembre 2023 TT).
+export const ASTEROID_ELEMENTS: Record<AsteroidKey, KeplerianElements> = {
+  juno: {
+    epochJd: 2460200.5,
+    a: 2.669,
+    e: 0.2562,
+    i: 12.99,
+    node: 169.84,
+    peri: 247.74,
+    meanAnomalyAtEpoch: 37.02,
+  },
+};
+
+const J2000_JD = 2451545.0;
+const GAUSSIAN_DEG_PER_DAY = 0.9856076686; // k (constante gravitationnelle de Gauss), convertie en °/jour pour a=1 UA
+const GENERAL_PRECESSION_DEG_PER_YEAR = 50.29 / 3600; // précession générale en longitude (IAU), correction J2000 -> écliptique de la date
+
+/** Résout l'équation de Kepler M = E - e·sin(E) par Newton-Raphson (converge vite pour e < 0.9). */
+function solveEccentricAnomaly(meanAnomalyRad: number, e: number): number {
+  let E = meanAnomalyRad;
+  for (let i = 0; i < 15; i++) {
+    const delta = (E - e * Math.sin(E) - meanAnomalyRad) / (1 - e * Math.cos(E));
+    E -= delta;
+    if (Math.abs(delta) < 1e-10) break;
+  }
+  return E;
+}
+
+/**
+ * Position héliocentrique (écliptique J2000, UA) d'un corps à partir de ses
+ * éléments képlériens osculateurs, par propagation à deux corps (pas de
+ * perturbation par les autres planètes, voir la note en tête de section).
+ */
+function keplerianHeliocentricEcliptic(elements: KeplerianElements, time: Astronomy.AstroTime): { x: number; y: number; z: number } {
+  const daysSinceEpoch = time.tt - (elements.epochJd - J2000_JD);
+  const n = GAUSSIAN_DEG_PER_DAY / Math.pow(elements.a, 1.5); // mouvement moyen, °/jour (3e loi de Kepler)
+  const M = normalizeDegrees(elements.meanAnomalyAtEpoch + n * daysSinceEpoch) * (Math.PI / 180);
+
+  const E = solveEccentricAnomaly(M, elements.e);
+  const xOrb = elements.a * (Math.cos(E) - elements.e);
+  const yOrb = elements.a * Math.sqrt(1 - elements.e * elements.e) * Math.sin(E);
+
+  const i = elements.i * (Math.PI / 180);
+  const node = elements.node * (Math.PI / 180);
+  const peri = elements.peri * (Math.PI / 180);
+  const cosNode = Math.cos(node);
+  const sinNode = Math.sin(node);
+  const cosPeri = Math.cos(peri);
+  const sinPeri = Math.sin(peri);
+  const cosI = Math.cos(i);
+  const sinI = Math.sin(i);
+
+  return {
+    x: xOrb * (cosNode * cosPeri - sinNode * sinPeri * cosI) - yOrb * (cosNode * sinPeri + sinNode * cosPeri * cosI),
+    y: xOrb * (sinNode * cosPeri + cosNode * sinPeri * cosI) - yOrb * (sinNode * sinPeri - cosNode * cosPeri * cosI),
+    z: xOrb * (sinPeri * sinI) + yOrb * (cosPeri * sinI),
+  };
+}
+
+/** Longitude/latitude écliptique géocentrique d'un astéroïde à partir de ses éléments képlériens (voir note en tête de section). */
+function asteroidEclipticOf(elements: KeplerianElements, time: Astronomy.AstroTime): { longitude: number; latitude: number } {
+  const bodyHelio = keplerianHeliocentricEcliptic(elements, time);
+  const earthHelioEqj = Astronomy.HelioVector(Astronomy.Body.Earth, time);
+  const earthHelioEcl = Astronomy.RotateVector(Astronomy.Rotation_EQJ_ECL(), earthHelioEqj);
+
+  const x = bodyHelio.x - earthHelioEcl.x;
+  const y = bodyHelio.y - earthHelioEcl.y;
+  const z = bodyHelio.z - earthHelioEcl.z;
+  const r = Math.sqrt(x * x + y * y + z * z);
+
+  const yearsSinceJ2000 = (time.tt - 0) / 365.25;
+  const precession = GENERAL_PRECESSION_DEG_PER_YEAR * yearsSinceJ2000;
+  const longitude = normalizeDegrees(Math.atan2(y, x) * (180 / Math.PI) + precession);
+  const latitude = Math.asin(Math.max(-1, Math.min(1, z / r))) * (180 / Math.PI);
+
+  return { longitude, latitude };
+}
+
+export function computeAsteroidPoint(key: AsteroidKey, time: Astronomy.AstroTime): EclipticPoint {
+  const elements = ASTEROID_ELEMENTS[key];
+  const here = asteroidEclipticOf(elements, time);
+
+  const before = asteroidEclipticOf(elements, new Astronomy.AstroTime(time.ut - SPEED_DELTA_DAYS));
+  const after = asteroidEclipticOf(elements, new Astronomy.AstroTime(time.ut + SPEED_DELTA_DAYS));
+  const speed = angleDiff(before.longitude, after.longitude) / (2 * SPEED_DELTA_DAYS);
+
+  return {
+    key,
+    longitude: here.longitude,
+    latitude: here.latitude,
+    speed,
+    retrograde: speed < 0,
+  };
 }
 
 /**
