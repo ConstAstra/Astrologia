@@ -14,7 +14,7 @@ export const METHODOLOGY_EN: MethodologySection[] = [
     body: [
       "Planetary positions are calculated with Astronomy Engine, an open source library based on the VSOP87/ELP2000 models for the positions of the Sun, Moon and planets — accuracy on the order of an arcsecond over the historical period the app covers, more than enough for astrological use.",
       "The North Node used is the mean Node (Meeus formula), which smooths out the true Node's short-term oscillations — the most common convention in Western astrology.",
-      "Chiron and other centaurs/asteroids aren't offered yet: they require specific ephemerides we want to validate before adding, rather than approximating them.",
+      "Juno and Chiron are computed via two-body Keplerian propagation from their osculating orbital elements (JPL Small-Body Database) rather than read from a full ephemeris: an approximation whose theoretical error grows slowly with distance from the elements' reference date, in the same spirit as the mean Node simplification described above.",
     ],
   },
   {

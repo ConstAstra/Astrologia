@@ -135,7 +135,12 @@ export interface KeplerianElements {
 }
 
 // Éléments osculateurs de 3 Junon, JPL Small-Body Database, époque JD
-// 2460200.5 (13 septembre 2023 TT).
+// 2460200.5 (13 septembre 2023 TT), et de 2060 Chiron, époque JD 2459396.5
+// (1er juillet 2021). Chiron est un centaure à l'orbite très excentrique
+// (périhélie ~8,5 UA, à l'intérieur de celle de Saturne ; aphélie ~18,9 UA),
+// ce qui le rend plus sensible aux perturbations de Saturne et d'Uranus que
+// Junon : l'approximation à deux corps (voir note en tête de section) se
+// dégrade donc un peu plus vite avec l'écart à l'époque de référence.
 export const ASTEROID_ELEMENTS: Record<AsteroidKey, KeplerianElements> = {
   juno: {
     epochJd: 2460200.5,
@@ -145,6 +150,15 @@ export const ASTEROID_ELEMENTS: Record<AsteroidKey, KeplerianElements> = {
     node: 169.84,
     peri: 247.74,
     meanAnomalyAtEpoch: 37.02,
+  },
+  chiron: {
+    epochJd: 2459396.5,
+    a: 13.70,
+    e: 0.3772,
+    i: 6.9299,
+    node: 209.27,
+    peri: 339.71,
+    meanAnomalyAtEpoch: 180.70,
   },
 };
 

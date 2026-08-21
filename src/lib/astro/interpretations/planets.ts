@@ -23,6 +23,7 @@ export const PLANET_GENDER_FR: Record<PointKey, "m" | "f"> = {
   juno: "f", // Junon
   vertex: "m", // le Vertex
   partMarriage: "f", // la Part Arabe du Mariage
+  chiron: "m", // Chiron
 };
 
 export interface PlanetMeta {
@@ -185,5 +186,13 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     essence:
       "Point arabe traditionnel combinant l'Ascendant, Vénus et Saturne, la Part du Mariage indique une zone du thème liée à l'engagement qui s'inscrit dans la durée, plus proche du contrat et de la solidité que de la passion du premier instant. En synastrie ou en thème composite, elle aide à repérer un potentiel d'engagement construit pour durer.",
     keySpeed: "dépend des positions de Vénus et de Saturne",
+  },
+  chiron: {
+    name: "Chiron",
+    symbol: "⚷",
+    keyword: "la blessure profonde et la capacité à en faire une force pour soi-même et pour les autres",
+    essence:
+      "Chiron est un centaure, un petit corps à mi-chemin entre astéroïde et comète, souvent surnommé « le guérisseur blessé ». Son signe et sa maison indiquent une zone sensible, une blessure ancienne qu'on ne choisit pas et qu'on ne referme jamais complètement, mais qui, une fois traversée plutôt qu'évitée, devient souvent une source de compréhension rare et une vraie capacité à aider les autres sur ce terrain précis.",
+    keySpeed: "environ 50 ans pour faire le tour du zodiaque (orbite très elliptique)",
   },
 };

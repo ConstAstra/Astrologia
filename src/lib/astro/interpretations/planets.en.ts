@@ -154,4 +154,12 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
       "A traditional Arabic point combining the Ascendant, Venus and Saturn, the Part of Marriage points to an area of the chart tied to commitment built to last, closer to contract and solidity than to first-instant passion. In synastry or a composite chart, it helps spot a potential for commitment built for the long term.",
     keySpeed: "depends on the positions of Venus and Saturn",
   },
+  chiron: {
+    name: "Chiron",
+    symbol: "⚷",
+    keyword: "the deep wound, and the ability to turn it into a strength for oneself and for others",
+    essence:
+      "Chiron is a centaur, a small body halfway between an asteroid and a comet, often nicknamed \"the wounded healer.\" Its sign and house point to a sensitive area, an old wound that wasn't chosen and never fully closes, but that, once faced rather than avoided, often becomes a source of rare understanding and a real ability to help others in that exact area.",
+    keySpeed: "about 50 years to circle the zodiac (a very elongated orbit)",
+  },
 };

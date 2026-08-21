@@ -56,6 +56,7 @@ const DISPLAY_POINTS: PointKey[] = [
   "mc",
   "fortune",
   "juno",
+  "chiron",
   "vertex",
   "partMarriage",
 ];
@@ -200,7 +201,7 @@ export default async function ThemeNatalPage({
   const aspects = computeAspects(chart.points, aspectKeys);
   const chartHighlights = composeChartHighlights(chart, locale);
 
-  const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]) || k === "juno")).map(
+  const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]) || k === "juno" || k === "chiron")).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude, house: chart.points[k].house })
   );
 

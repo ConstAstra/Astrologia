@@ -17,7 +17,7 @@ export const METHODOLOGY: MethodologySection[] = [
     body: [
       "Les positions planétaires sont calculées avec Astronomy Engine, une bibliothèque open source fondée sur les modèles VSOP87/ELP2000 pour les positions du Soleil, de la Lune et des planètes — une précision de l'ordre de la seconde d'arc sur la période historique couverte par l'application, largement suffisante pour un usage astrologique.",
       "Le Nœud Nord utilisé est le Nœud moyen (formule de Meeus), qui lisse les oscillations à court terme du Nœud vrai — c'est la convention la plus répandue en astrologie occidentale.",
-      "Chiron et les autres centaures/astéroïdes ne sont pas encore proposés : ils demandent des éphémérides spécifiques que nous validerons avant de les ajouter plutôt que de les approximer.",
+      "Junon et Chiron sont calculés par propagation képlérienne à deux corps à partir de leurs éléments orbitaux osculateurs (JPL Small-Body Database), plutôt que lus dans une éphéméride complète : une approximation dont l'écart théorique grandit doucement avec la distance à la date de référence des éléments, du même ordre que la simplification déjà faite pour le Nœud moyen ci-dessus.",
     ],
   },
   {

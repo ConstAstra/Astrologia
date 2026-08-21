@@ -27,12 +27,13 @@ export type PlanetKey = (typeof PLANET_KEYS)[number];
 export const ANGLE_KEYS = ["asc", "mc", "desc", "ic", "fortune", "partMarriage"] as const;
 export type AngleKey = (typeof ANGLE_KEYS)[number];
 
-// Astéroïdes : traités à part de PLANET_KEYS plutôt qu'ajoutés dedans, pour
-// ne pas les injecter silencieusement dans tout ce qui itère sur les 11
-// "planètes" (transits quotidiens, synastrie, composite, cartographie,
-// synthèse IA...) — chaque usage de juno est ajouté explicitement là où il a
-// un sens interprétatif réel, en commençant par le thème natal.
-export const ASTEROID_KEYS = ["juno"] as const;
+// Astéroïdes (+ Chiron, un centaure traité par le même calcul képlérien) :
+// traités à part de PLANET_KEYS plutôt qu'ajoutés dedans, pour ne pas les
+// injecter silencieusement dans tout ce qui itère sur les 11 "planètes"
+// (transits quotidiens, synastrie, composite, cartographie, synthèse IA...)
+// — chaque point est ajouté explicitement là où il a un sens interprétatif
+// réel, en commençant par le thème natal.
+export const ASTEROID_KEYS = ["juno", "chiron"] as const;
 export type AsteroidKey = (typeof ASTEROID_KEYS)[number];
 
 // Vertex : point calculé (comme l'Ascendant/le Milieu du Ciel), pas un corps
