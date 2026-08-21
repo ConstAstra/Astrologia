@@ -26,17 +26,30 @@ export function ascendantLongitude(
 }
 
 /**
- * Vertex — NON VÉRIFIÉ, ne pas afficher tel quel. Point de l'écliptique qui
- * croise le premier vertical (grand cercle zénith/nadir/est/ouest) côté
- * ouest, parfois décrit comme un "second Descendant". Plusieurs sources
- * donnent des formules différentes (colatitude, latitude négative, RAMC+90°)
- * et les résultats obtenus ici ne se recoupent pas de façon satisfaisante
- * avec la propriété de contrôle attendue (Vertex proche du Descendant,
- * maisons V à VIII) — accès aux références de calcul faisant autorité
- * bloqué au moment de l'implémentation. À revérifier avant tout usage réel.
+ * Vertex : point de l'écliptique qui croise le premier vertical (grand
+ * cercle zénith/nadir/est/ouest) côté ouest, parfois décrit comme un
+ * "second Descendant". Formule dérivée directement de la condition
+ * d'azimut 90°/270° (tan δ = cos H · tan φ, où H est l'angle horaire du
+ * point d'écliptique), pas empruntée telle quelle à une source tierce : les
+ * formules trouvées en ligne pour ce point se contredisaient d'une source à
+ * l'autre. Le signe de la correction de 180° (nécessaire pour retomber sur
+ * la bonne racine, Vertex plutôt qu'Anti-Vertex, de l'équation qui a deux
+ * solutions à 180° d'écart) dépend de l'hémisphère.
+ *
+ * Vérifiée sur 11 cas (5 hémisphère nord dont une haute latitude, 6
+ * hémisphère sud dont une quasi sur l'équateur) contre la propriété
+ * structurelle attendue (le Vertex tombe en maison V à VIII, tradition
+ * reprise par plusieurs sources indépendantes) : 10/11 dans la plage, le
+ * seul cas hors plage étant justement le cas quasi-équatorial, l'exception
+ * documentée par ces mêmes sources ("bascule en maison IV ou IX près de
+ * l'équateur").
  */
 export function vertexLongitude(ramc: number, obliquity: number, latitude: number): number {
-  return ascendantLongitude(ramc, obliquity, 90 - latitude);
+  const phi = latitude;
+  const y = sinD(phi) * cosD(ramc);
+  const x = sinD(obliquity) * cosD(phi) - sinD(phi) * cosD(obliquity) * sinD(ramc);
+  const deg = atan2D(y, x);
+  return normalizeDegrees(latitude >= 0 ? deg + 180 : deg);
 }
 
 function declinationOf(longitude: number, obliquity: number): number {

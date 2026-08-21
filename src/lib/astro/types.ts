@@ -16,7 +16,15 @@ export const PLANET_KEYS = [
 
 export type PlanetKey = (typeof PLANET_KEYS)[number];
 
-export const ANGLE_KEYS = ["asc", "mc", "desc", "ic", "fortune"] as const;
+// La Part Arabe du Mariage rejoint ANGLE_KEYS (comme la Part de Fortune) :
+// même famille de calcul (point dérivé de l'Ascendant, pas un corps
+// céleste), et on veut justement qu'elle s'invite dans le composite et la
+// synastrie, déjà branchés sur ANGLE_KEYS — c'est un marqueur de
+// compatibilité par nature. Formule volontairement unique (Ascendant +
+// Vénus - Saturne, inversée de nuit), sans la distinction homme/femme de la
+// tradition classique : l'app ne demande pas le genre des profils, et le
+// reste du contenu est déjà pensé de façon non genrée.
+export const ANGLE_KEYS = ["asc", "mc", "desc", "ic", "fortune", "partMarriage"] as const;
 export type AngleKey = (typeof ANGLE_KEYS)[number];
 
 // Astéroïdes : traités à part de PLANET_KEYS plutôt qu'ajoutés dedans, pour

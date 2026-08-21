@@ -43,6 +43,7 @@ export const PLANET_SLUG_FR: Record<PointKey, string> = {
   fortune: "part-de-fortune",
   juno: "junon",
   vertex: "vertex",
+  partMarriage: "part-du-mariage",
 };
 
 export const PLANET_SLUG_EN: Record<PointKey, string> = {
@@ -64,6 +65,7 @@ export const PLANET_SLUG_EN: Record<PointKey, string> = {
   fortune: "part-of-fortune",
   juno: "juno",
   vertex: "vertex",
+  partMarriage: "part-of-marriage",
 };
 
 export function planetSlugToKey(slug: string, map: Record<PointKey, string>): PointKey | null {

@@ -35,6 +35,19 @@ export function computeNatalChart(
     : normalizeDegrees(houses.ascendant + sun.longitude - moon.longitude);
   points.fortune = { key: "fortune", longitude: fortuneLongitude, latitude: 0 };
 
+  // Part Arabe du Mariage (Lot of Marriage) : Ascendant + Vénus - Saturne de
+  // jour, inversée de nuit — même mécanique jour/nuit que la Part de
+  // Fortune ci-dessus. La tradition classique distingue une formule pour un
+  // homme et une pour une femme (inversées l'une par rapport à l'autre) ;
+  // l'app ne collecte pas le genre des profils et le reste du contenu est
+  // déjà pensé de façon non genrée, donc une seule formule est utilisée ici.
+  const venus = points.venus!;
+  const saturn = points.saturn!;
+  const marriageLongitude = isDayBirth
+    ? normalizeDegrees(houses.ascendant + venus.longitude - saturn.longitude)
+    : normalizeDegrees(houses.ascendant + saturn.longitude - venus.longitude);
+  points.partMarriage = { key: "partMarriage", longitude: marriageLongitude, latitude: 0 };
+
   for (const key of ASTEROID_KEYS) {
     points[key] = computeAsteroidPoint(key, time);
   }

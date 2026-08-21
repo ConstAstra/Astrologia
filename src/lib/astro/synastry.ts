@@ -3,7 +3,7 @@ import { houseOfLongitude } from "./houses";
 import { ANGLE_KEYS, MAJOR_ASPECTS, MINOR_ASPECTS, PLANET_KEYS } from "./types";
 import type { AspectKey, NatalChart, PointKey } from "./types";
 
-export const SYNASTRY_POINT_KEYS: PointKey[] = [...PLANET_KEYS, "asc", "mc"];
+export const SYNASTRY_POINT_KEYS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "vertex"];
 
 export interface SynastryAspect {
   personA: PointKey;

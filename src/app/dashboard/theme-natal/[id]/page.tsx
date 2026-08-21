@@ -56,6 +56,8 @@ const DISPLAY_POINTS: PointKey[] = [
   "mc",
   "fortune",
   "juno",
+  "vertex",
+  "partMarriage",
 ];
 
 const TEXT: Record<
@@ -394,7 +396,7 @@ export default async function ThemeNatalPage({
               {DISPLAY_POINTS.map((key) => {
                 const point = chart.points[key];
                 if (!point) return null;
-                if (!chart.hasReliableHouses && (key === "asc" || key === "mc" || key === "fortune")) return null;
+                if (!chart.hasReliableHouses && (key === "asc" || key === "mc" || key === "fortune" || key === "vertex" || key === "partMarriage")) return null;
                 const meta = planetMap[key];
                 const sign = signOf(point.longitude);
                 return (

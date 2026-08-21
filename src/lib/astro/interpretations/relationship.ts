@@ -47,6 +47,10 @@ const RELATIONSHIP_PLANET_NOTES: Record<RelationshipType, Partial<Record<PointKe
       "Cet aspect touche la sécurité affective que vous vous inspirez mutuellement, la question de fond étant : est-ce que l'un se sent réellement en sécurité pour se livrer face à l'autre ?",
     sun:
       "Cet aspect touche la reconnaissance de qui vous êtes, chacun·e, aux yeux de l'autre, un couple où cet axe est fluide se sent vu·e, pas juste aimé·e.",
+    saturn:
+      "Cet aspect touche la solidité du lien dans la durée, moins l'étincelle du début que ce qui permet à un couple de tenir une fois l'enthousiasme initial retombé, souvent ce qui distingue une relation construite pour durer d'un simple emballement.",
+    northNode:
+      "Cet aspect touche la dimension de destin ressentie dans la rencontre, l'impression que cette relation n'est pas arrivée par hasard, qu'elle pousse chacun·e vers une direction de vie qu'il ou elle n'aurait pas prise seul·e.",
   },
   amitie: {
     mercury:
@@ -57,6 +61,8 @@ const RELATIONSHIP_PLANET_NOTES: Record<RelationshipType, Partial<Record<PointKe
       "Cet aspect touche le respect de la liberté de chacun·e dans l'amitié, la capacité à se retrouver sans se sentir obligé·e ni étouffé·e par l'autre.",
     sun:
       "Cet aspect touche la reconnaissance mutuelle au sein de l'amitié, se sentir vraiment vu·e par l'autre, pas juste toléré·e ou pratique à avoir sous la main.",
+    northNode:
+      "Cet aspect touche le sentiment que cette amitié compte plus qu'une rencontre ordinaire, comme si elle arrivait au bon moment pour pousser chacun·e vers une direction qu'il ou elle n'aurait pas prise seul·e.",
   },
   famille: {
     moon:
@@ -65,6 +71,8 @@ const RELATIONSHIP_PLANET_NOTES: Record<RelationshipType, Partial<Record<PointKe
       "Cet aspect touche le sens du devoir et les responsabilités partagées, ce qui, dans une famille, ressemble parfois à de l'amour et parfois à une charge, selon la façon dont c'est vécu.",
     sun:
       "Cet aspect touche la reconnaissance de la place de chacun·e dans la famille, un enjeu central quand plusieurs personnalités affirmées partagent le même toit ou la même histoire.",
+    northNode:
+      "Cet aspect touche la dimension presque écrite d'avance de ce lien familial, le sentiment que cette personne fait partie d'un chemin de vie plus large, pas seulement d'un hasard de naissance.",
   },
   collegue: {
     mercury:
@@ -75,6 +83,8 @@ const RELATIONSHIP_PLANET_NOTES: Record<RelationshipType, Partial<Record<PointKe
       "Cet aspect touche la façon de gérer les désaccords ou la compétition au travail, un axe à surveiller si les egos professionnels prennent le pas sur l'objectif commun.",
     jupiter:
       "Cet aspect touche les opportunités que cette collaboration peut ouvrir, souvent le signe que travailler ensemble sert les deux carrières, pas seulement le projet en cours.",
+    northNode:
+      "Cet aspect touche le sentiment que cette collaboration arrive au bon moment, presque comme une opportunité destinée à faire avancer quelque chose d'important pour l'un·e ou l'autre.",
   },
 };
 

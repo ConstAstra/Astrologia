@@ -22,6 +22,7 @@ export const PLANET_GENDER_FR: Record<PointKey, "m" | "f"> = {
   fortune: "f", // la Part de Fortune
   juno: "f", // Junon
   vertex: "m", // le Vertex
+  partMarriage: "f", // la Part Arabe du Mariage
 };
 
 export interface PlanetMeta {
@@ -176,5 +177,13 @@ export const PLANET_META: Record<PointKey, PlanetMeta> = {
     essence:
       "Le Vertex est un point calculé, pas une planète : parfois décrit comme un « second Descendant », il marque un endroit du thème lié aux rencontres qui paraissent relever du destin plus que du choix. En synastrie, un contact entre le Vertex de l'un et une planète personnelle ou l'Ascendant de l'autre est souvent noté comme un signe de lien marquant, presque inévitable.",
     keySpeed: "point calculé, ne se déplace pas dans le ciel",
+  },
+  partMarriage: {
+    name: "Part Arabe du Mariage",
+    symbol: "⚭",
+    keyword: "l'engagement durable et ce qui pousse à se lier pour de bon",
+    essence:
+      "Point arabe traditionnel combinant l'Ascendant, Vénus et Saturne, la Part du Mariage indique une zone du thème liée à l'engagement qui s'inscrit dans la durée, plus proche du contrat et de la solidité que de la passion du premier instant. En synastrie ou en thème composite, elle aide à repérer un potentiel d'engagement construit pour durer.",
+    keySpeed: "dépend des positions de Vénus et de Saturne",
   },
 };

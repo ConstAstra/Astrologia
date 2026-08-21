@@ -146,4 +146,12 @@ export const PLANET_META_EN: Record<PointKey, PlanetMeta> = {
       "The Vertex is a calculated point, not a planet: sometimes described as a \"second Descendant,\" it marks a spot in the chart tied to encounters that feel more like fate than choice. In synastry, a contact between one person's Vertex and the other's personal planets or Ascendant is often noted as a sign of a marking, almost unavoidable-feeling connection.",
     keySpeed: "a calculated point, doesn't move across the sky",
   },
+  partMarriage: {
+    name: "Part of Marriage",
+    symbol: "⚭",
+    keyword: "lasting commitment and what pushes toward a bond meant to last",
+    essence:
+      "A traditional Arabic point combining the Ascendant, Venus and Saturn, the Part of Marriage points to an area of the chart tied to commitment built to last, closer to contract and solidity than to first-instant passion. In synastry or a composite chart, it helps spot a potential for commitment built for the long term.",
+    keySpeed: "depends on the positions of Venus and Saturn",
+  },
 };
