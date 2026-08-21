@@ -86,3 +86,19 @@ export const HOUSE_META_EN: HouseMeta[] = [
       "The most elusive house: inner life, the unconscious, quiet ordeals, spirituality, the need for withdrawal. What acts \"behind the scenes,\" sometimes unbeknownst to oneself. This house asks to honor the need for withdrawal without living it as an escape, what's worked through in the shadows often quietly feeds everything else visible in the chart.",
   },
 ];
+
+// See ASCENDANT_RULER_HOUSE_LINE in houses.ts for the rationale.
+export const ASCENDANT_RULER_HOUSE_LINE_EN: Record<number, string> = {
+  1: "Here, it nearly merges with your image and your first instincts: you exist largely through the way you show up in the world, from the very first moment.",
+  2: "Here, it's built through what you own and your relationship to material security: what you build concretely matters a great deal for your sense of self.",
+  3: "Here, it's built through speech, learning, and everyday exchange: you exist largely through what you say, hear, and learn.",
+  4: "Here, it's built through home and family inheritance: your sense of self stays closely tied to your roots and to what was passed down before you.",
+  5: "Here, it's built through creative expression and unguarded pleasure: you feel most yourself when creating, playing, or asserting yourself without holding back.",
+  6: "Here, it's built through what's useful and concrete: work well done, health, and daily habits matter a great deal for your sense of self.",
+  7: "Here, it's built largely through contact with others: it's often through the mirror of a partner or a close relationship that you learn who you really are.",
+  8: "Here, it's built through what escapes direct control: crises, deep intimacy, and major transformations are often what reveal you to yourself.",
+  9: "Here, it's built through the search for meaning and the pull toward somewhere else: you feel most yourself while widening your horizon, through study, travel, or a philosophy of life that's genuinely your own.",
+  10: "Here, it's built through visible achievement and the place you take in the world: what you want to be recognized for matters a great deal for your sense of self.",
+  11: "Here, it's built through the circles you choose and the projects you share: you exist largely through what you build with a group, with friends, or for a cause bigger than yourself.",
+  12: "Here, it's built largely in the shadows: inner life, withdrawal, and whatever stays private or invisible to others matter more than usual for your sense of self.",
+};

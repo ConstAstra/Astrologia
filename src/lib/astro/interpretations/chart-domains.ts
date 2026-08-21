@@ -6,6 +6,8 @@ import { SIGN_META_EN } from "./signs.en";
 import { PLANET_META } from "./planets";
 import { PLANET_META_EN } from "./planets.en";
 import { describePlanetInSign, describePlanetInHouse, type Locale } from "./compose";
+import { ASCENDANT_RULER_HOUSE_LINE } from "./houses";
+import { ASCENDANT_RULER_HOUSE_LINE_EN } from "./houses.en";
 import { describeHouseDomain } from "./synthesis";
 import { describeCompositeHouseDomain } from "./composite-synthesis";
 import type { RelationshipType } from "./relationship";
@@ -270,19 +272,21 @@ function ascendantRulerParagraph(s: Signals, relationshipType: RelationshipType 
   const signText = describePlanetInSign(s.ascendantRulerKey, s.ascendantRulerSign, relationshipType, locale);
   const houseAlreadyCovered = Boolean(s.ascendantRulerHouse && COVERED_HOUSES.includes(s.ascendantRulerHouse));
   if (locale === "en") {
+    const identityLine = s.ascendantRulerHouse ? ` ${ASCENDANT_RULER_HOUSE_LINE_EN[s.ascendantRulerHouse]}` : "";
     const houseText = houseAlreadyCovered
       ? ` It sits in house ${s.ascendantRulerHouse}, detailed further in this reading.`
       : s.ascendantRulerHouse
         ? `\n\n${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
         : "";
-    return `\n\nTraditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits. ${signText}${houseText}`;
+    return `\n\nTraditionally, ${sn(s.asc, locale)} is ruled by ${rulerName}: how that first impression is actually lived day to day comes down to where this ruler sits.${identityLine} ${signText}${houseText}`;
   }
+  const identityLine = s.ascendantRulerHouse ? ` ${ASCENDANT_RULER_HOUSE_LINE[s.ascendantRulerHouse]}` : "";
   const houseText = houseAlreadyCovered
     ? ` Il se trouve en maison ${s.ascendantRulerHouse}, détaillée plus loin dans cette lecture.`
     : s.ascendantRulerHouse
       ? `\n\n${describePlanetInHouse(s.ascendantRulerKey, s.ascendantRulerHouse, locale)}`
       : "";
-  return `\n\nEn astrologie, ${sn(s.asc, locale)} est gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître. ${signText}${houseText}`;
+  return `\n\nEn astrologie, ${sn(s.asc, locale)} est gouverné par ${rulerName} : la façon dont cette première impression se vit concrètement au quotidien tient à la position de ce maître.${identityLine} ${signText}${houseText}`;
 }
 
 // ---------------------------------------------------------------------------

@@ -13,6 +13,8 @@ import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
+import { ASCENDANT_RULER_HOUSE_LINE } from "@/lib/astro/interpretations/houses";
+import { ASCENDANT_RULER_HOUSE_LINE_EN } from "@/lib/astro/interpretations/houses.en";
 import {
   describeAspect,
   describeDegree,
@@ -354,6 +356,13 @@ export default async function ThemeNatalPage({
             </span>
           </p>
           <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
+            {ascendantRulerPoint.house && (
+              <p>
+                {locale === "en"
+                  ? ASCENDANT_RULER_HOUSE_LINE_EN[ascendantRulerPoint.house]
+                  : ASCENDANT_RULER_HOUSE_LINE[ascendantRulerPoint.house]}
+              </p>
+            )}
             <p>
               <span className="text-xs uppercase tracking-wide text-muted/70">{t.signHeading} </span>
               {describePlanetInSign(ascendantRuler, signOf(ascendantRulerPoint.longitude), undefined, locale)}

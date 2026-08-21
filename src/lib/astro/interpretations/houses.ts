@@ -91,3 +91,23 @@ export const HOUSE_META: HouseMeta[] = [
       "La maison la plus insaisissable : vie intérieure, inconscient, épreuves discrètes, spiritualité, besoin de retrait. Ce qui agit \"en coulisses\", parfois à l'insu de soi-même. Cette maison demande d'apprendre à honorer le besoin de retrait sans le vivre comme une fuite, ce qui se travaille dans l'ombre y nourrit souvent, en silence, tout ce qui se voit ailleurs dans le thème.",
   },
 ];
+
+// Quand le maître de l'Ascendant tombe dans une maison, cette maison devient
+// le terrain privilégié où se construit l'identité elle-même, pas juste un
+// domaine de vie parmi d'autres : cette phrase le rend explicite avant les
+// paragraphes signe/maison génériques du maître (voir ascendantRulerParagraph
+// dans chart-domains.ts et la carte "Maître de l'Ascendant" du thème natal).
+export const ASCENDANT_RULER_HOUSE_LINE: Record<number, string> = {
+  1: "Ici, elle se confond presque avec l'image et les réflexes immédiats : vous existez beaucoup par la façon dont vous vous présentez au monde, dès le premier instant.",
+  2: "Ici, elle se construit à travers ce que vous possédez et votre rapport à la sécurité matérielle : ce que vous bâtissez concrètement compte particulièrement pour votre sentiment d'exister.",
+  3: "Ici, elle se construit à travers la parole, l'apprentissage et les échanges du quotidien : vous existez beaucoup par ce que vous dites, écoutez et apprenez.",
+  4: "Ici, elle se construit à travers le foyer et l'héritage familial : votre sentiment d'exister reste étroitement lié à vos racines et à ce qui s'est transmis avant vous.",
+  5: "Ici, elle se construit à travers l'expression créative et le plaisir assumé : vous existez pleinement quand vous créez, jouez ou vous affirmez sans retenue.",
+  6: "Ici, elle se construit à travers l'utile et le concret : le travail bien fait, la santé et les habitudes du quotidien comptent particulièrement pour votre sentiment d'exister.",
+  7: "Ici, elle se construit largement au contact de l'autre : c'est souvent à travers le miroir d'un partenaire ou d'une relation à deux que vous apprenez qui vous êtes vraiment.",
+  8: "Ici, elle se construit à travers ce qui échappe au contrôle direct : les crises, l'intimité profonde et les grandes transformations sont souvent ce qui vous révèle à vous-même.",
+  9: "Ici, elle se construit à travers la quête de sens et l'envie d'aller voir ailleurs : vous existez pleinement en élargissant votre horizon, par les études, les voyages ou une philosophie de vie qui vous est propre.",
+  10: "Ici, elle se construit à travers la réussite visible et la place prise dans le monde : ce pour quoi vous voulez être reconnu·e compte particulièrement pour votre sentiment d'exister.",
+  11: "Ici, elle se construit à travers les cercles choisis et les projets collectifs : vous existez beaucoup à travers ce que vous construisez avec un groupe, des ami·e·s ou une cause qui vous dépasse.",
+  12: "Ici, elle se construit en grande partie dans l'ombre : la vie intérieure, le retrait et ce qui reste discret ou invisible aux yeux des autres comptent plus que d'habitude pour votre sentiment d'exister.",
+};
