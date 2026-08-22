@@ -51,6 +51,12 @@ const RELATIONSHIP_PLANET_NOTES: Record<RelationshipType, Partial<Record<PointKe
       "Cet aspect touche la solidité du lien dans la durée, moins l'étincelle du début que ce qui permet à un couple de tenir une fois l'enthousiasme initial retombé, souvent ce qui distingue une relation construite pour durer d'un simple emballement.",
     northNode:
       "Cet aspect touche la dimension de destin ressentie dans la rencontre, l'impression que cette relation n'est pas arrivée par hasard, qu'elle pousse chacun·e vers une direction de vie qu'il ou elle n'aurait pas prise seul·e.",
+    juno:
+      "Cet aspect touche directement la nature de l'engagement entre vous, ce dont chacun·e a besoin pour se sentir vraiment lié·e plutôt que juste attiré·e, un contact marqué ici est souvent lu comme un signe de partenariat durable, au-delà de la simple alchimie du début.",
+    vertex:
+      "Cet aspect touche la dimension de rencontre marquante, presque écrite d'avance, un contact avec le Vertex de l'autre est souvent noté comme le signe d'un lien qui ne laisse personne indifférent, pour le meilleur comme pour ce qu'il faudra apprendre à traverser ensemble.",
+    partMarriage:
+      "Cet aspect touche directement la Part du Mariage, le point qui représente l'engagement durable dans sa version la plus littérale, un contact marqué ici est un signe classique de potentiel d'union à long terme entre vous.",
   },
   amitie: {
     mercury:

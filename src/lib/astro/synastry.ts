@@ -3,7 +3,11 @@ import { houseOfLongitude } from "./houses";
 import { ANGLE_KEYS, MAJOR_ASPECTS, MINOR_ASPECTS, PLANET_KEYS } from "./types";
 import type { AspectKey, NatalChart, PointKey } from "./types";
 
-export const SYNASTRY_POINT_KEYS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "vertex"];
+// juno et partMarriage rejoignent la synastrie : ce sont les deux marqueurs
+// de compatibilité/engagement ajoutés spécifiquement pour ça (voir leurs
+// commentaires dans types.ts) ; les laisser hors de SYNASTRY_POINT_KEYS
+// aurait vidé leur intérêt principal.
+export const SYNASTRY_POINT_KEYS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "vertex", "juno", "partMarriage"];
 
 export interface SynastryAspect {
   personA: PointKey;

@@ -1,6 +1,6 @@
 import { angleDiff, normalizeDegrees } from "./ephemeris";
 import { houseOfLongitude } from "./houses";
-import { ANGLE_KEYS, PLANET_KEYS } from "./types";
+import { ANGLE_KEYS, ASTEROID_KEYS, PLANET_KEYS, VERTEX_KEYS } from "./types";
 import type { CompositeChart, EclipticPoint, NatalChart, PointKey } from "./types";
 
 /** Point médian circulaire (arc le plus court) entre deux longitudes. */
@@ -28,7 +28,7 @@ function equalCuspsFrom(asc: number): number[] {
 export function computeComposite(chartA: NatalChart, chartB: NatalChart): CompositeChart {
   const points: Partial<Record<PointKey, EclipticPoint>> = {};
 
-  const keys: PointKey[] = [...PLANET_KEYS, ...ANGLE_KEYS];
+  const keys: PointKey[] = [...PLANET_KEYS, ...ANGLE_KEYS, ...ASTEROID_KEYS, ...VERTEX_KEYS];
   for (const key of keys) {
     const a = chartA.points[key];
     const b = chartB.points[key];

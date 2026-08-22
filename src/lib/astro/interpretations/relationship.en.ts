@@ -49,6 +49,12 @@ const RELATIONSHIP_PLANET_NOTES_EN: Record<RelationshipType, Partial<Record<Poin
       "This aspect touches on how solid the bond stays over time, less the early spark than what lets a couple hold together once initial excitement settles, often what separates a relationship built to last from a passing infatuation.",
     northNode:
       "This aspect touches on the sense of fate felt in the encounter, the feeling that this relationship didn't happen by chance, that it's pushing each of you toward a life direction you wouldn't have taken alone.",
+    juno:
+      "This aspect touches directly on the nature of commitment between you, what each of you needs to feel truly bonded rather than just attracted, a strong contact here is often read as a sign of a lasting partnership, beyond the initial chemistry.",
+    vertex:
+      "This aspect touches on the sense of a fated encounter, almost written in advance, a contact with the other person's Vertex is often noted as the sign of a bond that leaves no one indifferent, for better and for whatever you'll need to learn to work through together.",
+    partMarriage:
+      "This aspect touches directly on the Part of Marriage, the point that represents lasting commitment in its most literal form, a strong contact here is a classic sign of long-term union potential between you.",
   },
   amitie: {
     mercury:

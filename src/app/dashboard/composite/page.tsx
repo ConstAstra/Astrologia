@@ -43,7 +43,7 @@ import type { Aspect } from "@/lib/astro/types";
 
 type Locale = "fr" | "en";
 
-const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "fortune"];
+const DISPLAY_POINTS: PointKey[] = [...PLANET_KEYS, "asc", "mc", "fortune", "juno", "vertex", "partMarriage"];
 
 const TEXT: Record<
   Locale,
