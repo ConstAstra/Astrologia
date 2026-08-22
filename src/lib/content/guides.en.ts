@@ -442,4 +442,52 @@ export const GUIDES_EN: Guide[] = [
     relatedHref: "/en/method",
     relatedLabel: "See the detail of each house system →",
   },
+  {
+    slug: "junon-chiron-vertex",
+    title: "Juno, Chiron, Vertex: what these points add to your chart",
+    description:
+      "Beyond the Sun, Moon, and eight planets, this site also calculates four extra points. What they actually represent, and how much weight they deserve.",
+    readingMinutes: 7,
+    publishedAt: "2026-08-22",
+    intro:
+      "A complete natal chart doesn't stop at the ten classic planets. This site also calculates four more: Juno, an asteroid; Chiron, a centaur; the Vertex, a calculated point; and the Part of Marriage, an Arabic part. Each highlights a specific side of emotional life or identity, without carrying the same weight as a Sun or a Moon in the overall reading.",
+    sections: [
+      {
+        heading: "Juno: the commitment contract",
+        paragraphs: [
+          "Juno is an asteroid, one of the largest in the solar system, long associated with union and commitment in modern astrological tradition. Where Venus says what attracts and Mars what excites, Juno describes what's needed to stay committed over time: the kind of partner with whom a bond actually holds, and what, in a relationship, can feel like an injustice or a betrayal if it's not respected.",
+          "This site computes its position through Keplerian propagation from its orbital elements (see the method page), an approximation good enough to place the sign and, in most cases, the house, but not a scientific-precision ephemeris. Juno stays a complementary detail to read after the chart's main lines, not a replacement for Venus or the Moon.",
+        ],
+      },
+      {
+        heading: "Chiron: the wound that becomes a strength",
+        paragraphs: [
+          "Chiron is a centaur, a small body halfway between an asteroid and a comet, often nicknamed \"the wounded healer.\" Its sign and house point to a sensitive area, an old wound that wasn't chosen and never fully closes, but that, once faced rather than avoided, often becomes a source of rare understanding and a real ability to help others in that exact area.",
+          "Its orbit is highly elongated, which makes it more sensitive to the giant planets' pull than most asteroids: the approximation used here (the same method as for Juno) degrades a bit faster with distance from its reference date. Useful for spotting a recurring life theme, less reliable for extreme precision.",
+        ],
+      },
+      {
+        heading: "Vertex: the encounters you didn't see coming",
+        paragraphs: [
+          "The Vertex isn't a celestial body but a geometric point, sometimes described as a \"second Descendant.\" It marks a place in the chart tied to encounters that feel more like fate than choice: someone crossed paths with at the right (or wrong) moment, a bond that reshapes a life direction without ever being actively sought. In synastry, a contact between one person's Vertex and the other's personal planet or Ascendant is often noted as the sign of a meaningful bond.",
+          "Its formula was verified on this site by direct derivation from spherical-trigonometry conditions rather than taken from a single source, then validated across a range of locations in both hemispheres (see the method page). Like the Ascendant or Midheaven, it depends on a reliable birth time: without one, the calculation isn't shown.",
+        ],
+      },
+      {
+        heading: "The Part of Marriage: a calculated point, not a planet",
+        paragraphs: [
+          "The Part of Marriage belongs to the \"Arabic parts\" family, points fully calculated from three other chart positions rather than the position of a real body in the sky. Like the Part of Fortune, it combines the Ascendant with two planets, here Venus and Saturn, reversed depending on whether the birth happened during the day or at night. It points to an area of the chart tied to commitment built to last, closer to contract and solidity than to first-instant passion.",
+          "Classical tradition historically distinguishes a formula for a man and one for a woman. This site deliberately uses a single, non-gendered formula, consistent with the rest of its content and with the fact that profiles don't collect that information.",
+        ],
+      },
+      {
+        heading: "How much weight to give them in a reading",
+        paragraphs: [
+          "These four points stay complements, not pillars: the Sun, Moon, Ascendant, and eight classic planets still carry the bulk of a chart reading. Juno, Chiron, the Vertex, and the Part of Marriage each add a precise nuance on a precise topic, commitment, the wound, the fated encounter, lasting union, worth reading once the chart's main lines are already understood, not before.",
+        ],
+      },
+    ],
+    relatedHref: "/en/planets",
+    relatedLabel: "See each point across all 12 signs →",
+  },
 ];

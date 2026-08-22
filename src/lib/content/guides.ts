@@ -458,4 +458,52 @@ export const GUIDES: Guide[] = [
     relatedHref: "/methode",
     relatedLabel: "Voir le détail de chaque système de maisons →",
   },
+  {
+    slug: "junon-chiron-vertex",
+    title: "Junon, Chiron, Vertex : ce que ces points ajoutent à votre thème",
+    description:
+      "Au-delà du Soleil, de la Lune et des huit planètes, ce site calcule quatre points supplémentaires. Ce qu'ils représentent, concrètement, et le poids qu'il faut vraiment leur donner.",
+    readingMinutes: 7,
+    publishedAt: "2026-08-22",
+    intro:
+      "Un thème natal complet ne s'arrête pas aux dix planètes classiques. Ce site en calcule aussi quatre autres : Junon, un astéroïde ; Chiron, un centaure ; le Vertex, un point calculé ; et la Part du Mariage, un point arabe. Chacun éclaire un aspect précis de la vie affective ou de l'identité, sans pour autant peser autant qu'un Soleil ou une Lune dans la lecture d'ensemble.",
+    sections: [
+      {
+        heading: "Junon : le contrat d'engagement",
+        paragraphs: [
+          "Junon est un astéroïde, l'un des plus gros du système solaire, associé depuis longtemps à l'union et à l'engagement dans la tradition astrologique moderne. Là où Vénus dit ce qui attire et Mars ce qui fait envie, Junon décrit ce dont on a besoin pour rester engagé·e sur la durée : le type de partenaire avec qui un lien tient vraiment, et ce qui, dans une relation, peut être vécu comme une injustice ou une trahison si ce n'est pas respecté.",
+          "Ce site calcule sa position par propagation képlérienne à partir de ses éléments orbitaux (voir la page méthode), une approximation suffisante pour situer le signe et, dans la plupart des cas, la maison, mais pas une éphéméride de précision scientifique. Junon reste un détail complémentaire à lire après les grandes lignes du thème, pas un remplacement de Vénus ou de la Lune.",
+        ],
+      },
+      {
+        heading: "Chiron : la blessure qui devient une force",
+        paragraphs: [
+          "Chiron est un centaure, un petit corps à mi-chemin entre astéroïde et comète, souvent surnommé \"le guérisseur blessé\". Son signe et sa maison indiquent une zone sensible, une blessure ancienne qu'on ne choisit pas et qu'on ne referme jamais complètement, mais qui, une fois traversée plutôt qu'évitée, devient souvent une source de compréhension rare et une vraie capacité à aider les autres sur ce terrain précis.",
+          "Son orbite est très excentrique, ce qui le rend plus sensible aux perturbations des planètes géantes que la plupart des astéroïdes : l'approximation utilisée ici (la même méthode que pour Junon) se dégrade donc un peu plus vite avec l'écart à sa date de référence. Utile pour repérer une thématique de vie récurrente, moins fiable pour un calcul de précision extrême.",
+        ],
+      },
+      {
+        heading: "Vertex : les rencontres qu'on n'a pas vues venir",
+        paragraphs: [
+          "Le Vertex n'est pas un corps céleste mais un point géométrique, parfois décrit comme un \"second Descendant\". Il marque un endroit du thème lié aux rencontres qui semblent relever du destin plus que du choix : une personne croisée au bon (ou au mauvais) moment, un lien qui change durablement une trajectoire sans qu'on l'ait vraiment cherché. En synastrie, un contact entre le Vertex de l'un et une planète personnelle ou l'Ascendant de l'autre est souvent noté comme le signe d'un lien marquant.",
+          "Sa formule a été vérifiée sur ce site par dérivation directe des conditions de trigonométrie sphérique plutôt que reprise d'une source unique, puis validée sur une série de lieux dans les deux hémisphères (voir la page méthode). Comme l'Ascendant ou le Milieu du Ciel, il dépend d'une heure de naissance fiable : sans elle, le calcul n'est pas affiché.",
+        ],
+      },
+      {
+        heading: "La Part du Mariage : un point calculé, pas une planète",
+        paragraphs: [
+          "La Part du Mariage appartient à la famille des \"parts arabes\", des points entièrement calculés à partir de trois autres positions du thème plutôt que la position d'un corps réel dans le ciel. Comme la Part de Fortune, elle combine l'Ascendant avec deux planètes, ici Vénus et Saturne, inversées selon que la naissance a eu lieu de jour ou de nuit. Elle indique une zone du thème liée à l'engagement qui s'inscrit dans la durée, plus proche du contrat et de la solidité que de la passion du premier instant.",
+          "La tradition classique distingue historiquement une formule pour un homme et une pour une femme. Ce site utilise volontairement une seule formule, non genrée, cohérente avec le reste du contenu et avec le fait que les profils ne demandent pas cette information.",
+        ],
+      },
+      {
+        heading: "Quelle place leur donner dans une lecture",
+        paragraphs: [
+          "Ces quatre points restent des compléments, pas des piliers : le Soleil, la Lune, l'Ascendant et les huit planètes classiques continuent de porter l'essentiel d'une lecture de thème. Junon, Chiron, le Vertex et la Part du Mariage ajoutent une nuance précise sur un terrain précis, l'engagement, la blessure, la rencontre marquante, l'union durable, utile à lire une fois les grandes lignes du thème déjà comprises, pas avant.",
+        ],
+      },
+    ],
+    relatedHref: "/planetes",
+    relatedLabel: "Voir chaque point dans les 12 signes →",
+  },
 ];
