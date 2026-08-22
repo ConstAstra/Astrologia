@@ -1,10 +1,14 @@
 import type { PointKey } from "@/lib/astro/types";
 
 /**
- * Les 11 points pour lesquels planet-in-sign.ts / .en.ts fournissent un
- * texte dédié par signe (voir PLANET_IN_SIGN) — sert de source unique pour
- * générer les pages publiques /planetes/[slug] et /en/planets/[slug]
- * (generateStaticParams, sitemap, page d'index).
+ * Les points pour lesquels planet-in-sign.ts / .en.ts fournissent un texte
+ * dédié par signe (voir PLANET_IN_SIGN) — sert de source unique pour générer
+ * les pages publiques /planetes/[slug] et /en/planets/[slug]
+ * (generateStaticParams, sitemap, page d'index). Junon et Chiron y figurent
+ * depuis qu'ils ont chacun leurs 12 textes de signe dédiés ; Vertex et la
+ * Part du Mariage restent hors de cette liste tant qu'ils n'ont que le
+ * texte générique de repli (voir compose.ts), pour ne pas publier de pages
+ * SEO moins riches que le reste du site.
  */
 export const PLANET_PAGE_KEYS: PointKey[] = [
   "sun",
@@ -18,6 +22,8 @@ export const PLANET_PAGE_KEYS: PointKey[] = [
   "neptune",
   "pluto",
   "asc",
+  "juno",
+  "chiron",
 ];
 
 // Mot-clé d'URL par point — FR privilégie un mot français lisible dans la

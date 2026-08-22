@@ -24,9 +24,9 @@ export default function PlanetesIndexPage() {
           <Eyebrow>Planètes en signe</Eyebrow>
           <h1 className="font-display mt-4 text-4xl sm:text-5xl">Que fait chaque planète dans chaque signe ?</h1>
           <p className="mt-5 text-muted">
-            Un thème natal n&apos;est jamais qu&apos;un Soleil : 11 points s&apos;y positionnent, chacun dans l&apos;un
-            des 12 signes. Choisissez une planète, puis un signe, pour lire ce que ce placement précis met en
-            jeu — étant entendu que la maison et les aspects affinent toujours cette lecture de base.
+            Un thème natal n&apos;est jamais qu&apos;un Soleil : {PLANET_PAGE_KEYS.length} points s&apos;y positionnent,
+            chacun dans l&apos;un des 12 signes. Choisissez une planète, puis un signe, pour lire ce que ce placement
+            précis met en jeu, étant entendu que la maison et les aspects affinent toujours cette lecture de base.
           </p>
         </section>
 

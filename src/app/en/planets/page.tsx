@@ -24,9 +24,9 @@ export default function PlanetsIndexEnPage() {
           <Eyebrow>Planets in sign</Eyebrow>
           <h1 className="font-display mt-4 text-4xl sm:text-5xl">What does each planet do in each sign?</h1>
           <p className="mt-5 text-muted">
-            A natal chart is never just a Sun sign: 11 points are placed there, each in one of the 12 signs.
-            Pick a planet, then a sign, to read what that specific placement means — keeping in mind that the
-            house and aspects always refine this base reading further.
+            A natal chart is never just a Sun sign: {PLANET_PAGE_KEYS.length} points are placed there, each in one
+            of the 12 signs. Pick a planet, then a sign, to read what that specific placement means, keeping in
+            mind that the house and aspects always refine this base reading further.
           </p>
         </section>
 
