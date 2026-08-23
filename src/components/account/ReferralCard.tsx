@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { playSoftChime } from "@/lib/sound";
+import { Badge } from "@/components/ui/Card";
 
 const TEXT = {
   fr: {
@@ -13,7 +14,8 @@ const TEXT = {
     ),
     copy: "Copier",
     copied: "Copié !",
-    converted: (n: number) => `${n} filleul${n > 1 ? "s" : ""} converti${n > 1 ? "s" : ""} jusqu'ici — merci !`,
+    convertedBadge: (n: number) => `+${n * 2} crédits gagnés`,
+    converted: (n: number) => `${n} filleul${n > 1 ? "s" : ""} converti${n > 1 ? "s" : ""} jusqu'ici, merci !`,
   },
   en: {
     invite: (
@@ -24,7 +26,8 @@ const TEXT = {
     ),
     copy: "Copy",
     copied: "Copied!",
-    converted: (n: number) => `${n} referral${n > 1 ? "s" : ""} converted so far — thank you!`,
+    convertedBadge: (n: number) => `+${n * 2} credits earned`,
+    converted: (n: number) => `${n} referral${n > 1 ? "s" : ""} converted so far, thank you!`,
   },
 };
 
@@ -73,7 +76,12 @@ export function ReferralCard({
           {copied ? `✓ ${t.copied}` : t.copy}
         </button>
       </div>
-      {successfulReferrals > 0 && <p className="mt-2 text-xs text-muted/70">{t.converted(successfulReferrals)}</p>}
+      {successfulReferrals > 0 && (
+        <p className="mt-2 flex items-center gap-2 text-xs text-muted/70">
+          <Badge tone="pop">{t.convertedBadge(successfulReferrals)}</Badge>
+          {t.converted(successfulReferrals)}
+        </p>
+      )}
     </div>
   );
 }

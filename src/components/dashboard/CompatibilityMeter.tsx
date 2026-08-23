@@ -14,8 +14,12 @@ function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
 
+// >= 75% utilise le pop réservé aux moments de récompense (voir globals.css)
+// plutôt que le gold générique : la même couleur que "record battu" ou
+// "lecture confirmée" ailleurs dans l'app, pour que le langage visuel de la
+// réussite reste cohérent d'un endroit à l'autre.
 function tierColor(pct: number): string {
-  if (pct >= 75) return "var(--gold-strong)";
+  if (pct >= 75) return "var(--pop-strong)";
   if (pct >= 50) return "var(--sage)";
   return "var(--terracotta)";
 }
