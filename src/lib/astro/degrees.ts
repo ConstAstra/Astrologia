@@ -40,24 +40,28 @@ import type { PointKey } from "./types";
 const CHALDEAN_SEQUENCE = ["Mars", "Soleil", "Vénus", "Mercure", "Lune", "Saturne", "Jupiter"] as const;
 export type DecanRuler = (typeof CHALDEAN_SEQUENCE)[number];
 
+// Formulées comme un complément à "touche" (nom féminin) plutôt qu'à la
+// personne elle-même : ça affirme clairement l'impact sur la personnalité
+// ("plus directe, plus impatiente...") sans avoir à gérer l'accord de genre
+// de la personne qui lit, jamais connu par l'app.
 const DECAN_RULER_FLAVOR: Record<DecanRuler, string> = {
-  Mars: "une coloration Mars : plus direct, plus impatient, plus tourné vers l'action immédiate que le reste du signe.",
-  Soleil: "une coloration Soleil : plus affirmé, plus centré sur la reconnaissance et l'expression consciente de soi.",
-  Vénus: "une coloration Vénus : plus doux, plus sensible à l'harmonie, aux relations et au plaisir esthétique.",
-  Mercure: "une coloration Mercure : plus mental, plus curieux, plus attentif au détail et à la communication.",
-  Lune: "une coloration Lune : plus instinctif, plus sensible, plus dépendant de l'humeur et du besoin de sécurité affective.",
-  Saturne: "une coloration Saturne : plus sérieux, plus structuré, plus concerné par la durée et la responsabilité.",
-  Jupiter: "une coloration Jupiter : plus ample, plus optimiste, plus tourné vers l'expansion et la confiance.",
+  Mars: "une touche Mars à votre personnalité : plus directe, plus impatiente, plus tournée vers l'action immédiate que le reste du signe ne le laisse deviner.",
+  Soleil: "une touche Soleil à votre personnalité : plus affirmée, plus centrée sur le besoin de reconnaissance et sur l'expression consciente de qui vous êtes.",
+  Vénus: "une touche Vénus à votre personnalité : plus douce, plus sensible à l'harmonie, aux relations et au plaisir esthétique.",
+  Mercure: "une touche Mercure à votre personnalité : plus mentale, plus curieuse, plus attentive au détail et à la communication.",
+  Lune: "une touche Lune à votre personnalité : plus instinctive, plus sensible, plus dépendante de l'humeur et du besoin de sécurité affective.",
+  Saturne: "une touche Saturne à votre personnalité : plus sérieuse, plus structurée, plus concernée par la durée et la responsabilité.",
+  Jupiter: "une touche Jupiter à votre personnalité : plus ample dans ses vues, plus optimiste, plus tournée vers l'expansion et la confiance.",
 };
 
 const DECAN_RULER_FLAVOR_EN: Record<DecanRuler, string> = {
-  Mars: "a Mars coloring: more direct, more impatient, more focused on immediate action than the rest of the sign.",
-  Soleil: "a Sun coloring: more assertive, more centered on recognition and conscious self-expression.",
-  Vénus: "a Venus coloring: gentler, more attuned to harmony, relationships and aesthetic pleasure.",
-  Mercure: "a Mercury coloring: more mental, more curious, more attentive to detail and communication.",
-  Lune: "a Moon coloring: more instinctive, more sensitive, more dependent on mood and the need for emotional security.",
-  Saturne: "a Saturn coloring: more serious, more structured, more concerned with staying power and responsibility.",
-  Jupiter: "a Jupiter coloring: broader, more optimistic, more focused on expansion and confidence.",
+  Mars: "a Mars touch to your personality: more direct, more impatient, more focused on immediate action than the rest of the sign would suggest.",
+  Soleil: "a Sun touch to your personality: more assertive, more centered on the need for recognition and on consciously expressing who you are.",
+  Vénus: "a Venus touch to your personality: gentler, more attuned to harmony, relationships, and aesthetic pleasure.",
+  Mercure: "a Mercury touch to your personality: more mental, more curious, more attentive to detail and communication.",
+  Lune: "a Moon touch to your personality: more instinctive, more sensitive, more dependent on mood and the need for emotional security.",
+  Saturne: "a Saturn touch to your personality: more serious, more structured, more concerned with staying power and responsibility.",
+  Jupiter: "a Jupiter touch to your personality: broader in outlook, more optimistic, more focused on expansion and confidence.",
 };
 
 // Point du thème natal correspondant à chaque planète-maîtresse de décan —
@@ -181,20 +185,20 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   const maturityText =
     locale === "en"
       ? phase === "précoce"
-        ? "the energy shows up here still raw and spontaneous, the most instinctive, least filtered version of the sign"
+        ? "this portion of the sign pushes you to express a still-raw, spontaneous version of it, the most instinctive, least filtered one there is"
         : phase === "tardive"
-          ? "the energy here has matured, sometimes already leaning toward the next sign's theme, a more conscious, occasionally more world-weary version of it"
-          : "the energy here is fully settled into its most stable, most typical version of the sign"
+          ? "this portion of the sign pushes you to express a matured version of it, sometimes already leaning toward the next sign's theme, a more conscious, occasionally more world-weary form of that same energy"
+          : "this portion of the sign pushes you to express its most stable, most typical version, fully settled into its usual way of working"
       : phase === "précoce"
-        ? "l'énergie s'exprime ici de façon encore brute et spontanée, la version la plus instinctive, la moins filtrée du signe"
+        ? "cette portion du signe vous pousse à en exprimer une version encore brute et spontanée, la plus instinctive, la moins filtrée qui soit"
         : phase === "tardive"
-          ? "l'énergie est ici mûrie, parfois déjà tournée vers la thématique du signe suivant, une forme plus consciente, parfois plus lasse, de cette même énergie"
-          : "l'énergie est ici pleinement installée, dans sa version la plus stable et la plus typique du signe";
+          ? "cette portion du signe vous pousse à en exprimer une version mûrie, parfois déjà tournée vers la thématique du signe suivant, une forme plus consciente, parfois plus lasse, de cette même énergie"
+          : "cette portion du signe vous pousse à en exprimer la version la plus stable et la plus typique, pleinement installée dans son fonctionnement habituel";
 
   const decanText =
     locale === "en"
-      ? `You're in the ${decanNumberLabelEn(decanIndex)} third of this sign (${decanStart}°-${decanStart + 10}°): ${maturityText}. Classical astrology also calls this third a "decan", and this one carries ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
-      : `Vous êtes dans le ${decanNumberLabel(decanIndex)} tiers de ce signe (${decanStart}°-${decanStart + 10}°) : ${maturityText}. Ce tiers est aussi appelé "décan" en astrologie classique, et celui-ci porte ${DECAN_RULER_FLAVOR[decanRuler]}`;
+      ? `You're in the ${decanNumberLabelEn(decanIndex)} third of this sign (${decanStart}°-${decanStart + 10}°): ${maturityText}. Classical astrology also calls this third a "decan", and this one adds ${DECAN_RULER_FLAVOR_EN[decanRuler]}`
+      : `Vous êtes dans le ${decanNumberLabel(decanIndex)} tiers de ce signe (${decanStart}°-${decanStart + 10}°) : ${maturityText}. Ce tiers est aussi appelé "décan" en astrologie classique, et il ajoute ${DECAN_RULER_FLAVOR[decanRuler]}`;
 
   return {
     exactDegreeInSign: exact,
