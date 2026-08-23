@@ -19,11 +19,13 @@ import {
   ascendantHouseOneOccupantsText,
   describeAspect,
   describeDegree,
+  describeHouseConcentration,
   describeHouseSystem,
   describePlanetInHouse,
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
 import { computeDegreeReading } from "@/lib/astro/degrees";
+import { detectAspectPatterns } from "@/lib/astro/interpretations/aspect-patterns";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartDomains } from "@/lib/astro/interpretations/chart-domains";
@@ -89,6 +91,7 @@ const TEXT: Record<
     phaseLate: string;
     housesExplainer: string;
     housesExplainerLink: string;
+    houseConcentrationTitle: string;
     grimoireTitle: string;
     grimoireSubtitle: string;
     grimoireAspectsNote: string;
@@ -126,6 +129,7 @@ const TEXT: Record<
     housesExplainer:
       "Les maisons ne sont pas les signes : le signe dit COMMENT une énergie s'exprime, la maison dit OÙ, dans quel domaine concret de la vie (l'identité, l'argent, la famille, le couple...). Une planète en maison VII, par exemple, joue surtout son rôle dans les relations à deux, quel que soit son signe.",
     housesExplainerLink: "Voir les 12 maisons en détail →",
+    houseConcentrationTitle: "Concentration en maison",
     grimoireTitle: "Le grimoire de votre thème",
     grimoireSubtitle: "Toute la charte résumée bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
     grimoireAspectsNote: "Les aspects détaillés, planète par planète, sont à lire plus bas dans cette page.",
@@ -162,6 +166,7 @@ const TEXT: Record<
     housesExplainer:
       "Houses aren't signs: the sign says HOW an energy shows up, the house says WHERE, in which concrete area of life (identity, money, family, partnership...). A planet in the 7th house, for instance, mainly plays its role in one-on-one relationships, whatever sign it's in.",
     housesExplainerLink: "See all 12 houses in detail →",
+    houseConcentrationTitle: "House concentration",
     grimoireTitle: "The grimoire of your chart",
     grimoireSubtitle: "The whole chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
     grimoireAspectsNote: "The planet-by-planet aspect details are further down this page.",
@@ -221,6 +226,12 @@ export default async function ThemeNatalPage({
   const aspectKeys: PointKey[] = chart.hasReliableHouses ? DISPLAY_POINTS : [...PLANET_KEYS];
   const aspects = computeAspects(chart.points, aspectKeys);
   const chartHighlights = composeChartHighlights(chart, locale);
+
+  const houseConcentrations = chart.hasReliableHouses
+    ? detectAspectPatterns(aspects, chart.points).filter(
+        (p): p is typeof p & { house: number } => p.type === "house-concentration" && p.house != null
+      )
+    : [];
 
   const wheelPoints = DISPLAY_POINTS.filter((k) => chart.points[k] && (chart.hasReliableHouses || PLANET_KEYS.includes(k as (typeof PLANET_KEYS)[number]) || k === "juno" || k === "chiron")).map(
     (k) => ({ key: k, longitude: chart.points[k].longitude, house: chart.points[k].house })
@@ -421,6 +432,16 @@ export default async function ThemeNatalPage({
       <div className="mt-8 space-y-8">
           <section id="positions" className="scroll-mt-24">
             <h2 className="font-display text-2xl">{t.positions}</h2>
+            {houseConcentrations.map((pattern) => (
+              <Card key={`house-concentration-${pattern.house}`} className="mt-4 border-gold/30 bg-gold/5 p-5">
+                <p className="text-sm text-gold-strong">
+                  {t.houseConcentrationTitle} {pattern.house}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {describeHouseConcentration(pattern.house, pattern.points, locale)}
+                </p>
+              </Card>
+            ))}
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {DISPLAY_POINTS.map((key) => {
                 const point = chart.points[key];

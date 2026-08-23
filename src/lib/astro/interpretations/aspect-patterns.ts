@@ -2,12 +2,14 @@ import type { Aspect, AspectKey, EclipticPoint, PointKey, ZodiacSign } from "../
 import { signOf } from "../signs";
 
 export interface AspectPattern {
-  type: "t-square" | "grand-trine" | "grand-cross" | "stellium";
+  type: "t-square" | "grand-trine" | "grand-cross" | "stellium" | "house-concentration";
   points: PointKey[];
   /** Le point carré aux deux extrémités de l'opposition, pour un T-carré. */
   apex?: PointKey;
   /** Le signe partagé, pour un stellium. */
   sign?: ZodiacSign;
+  /** La maison partagée, pour une concentration de maison. */
+  house?: number;
   aspects: Aspect[];
 }
 
@@ -101,6 +103,25 @@ export function detectAspectPatterns(
   for (const [sign, keys] of bySign.entries()) {
     if (keys.length >= 3) {
       patterns.push({ type: "stellium", points: keys, sign, aspects: [] });
+    }
+  }
+
+  // Concentration de maison : même principe que le stellium de signe
+  // ci-dessus, mais par maison plutôt que par signe — un domaine de vie
+  // (pas une façon d'agir) qui concentre trois points ou plus mérite d'être
+  // signalé, indépendamment de leurs signes respectifs. Ignoré si les
+  // maisons ne sont pas fiables (house undefined sur tous les points).
+  const byHouse = new Map<number, PointKey[]>();
+  for (const key of allKeys) {
+    const point = points[key];
+    if (!point || point.house == null) continue;
+    const arr = byHouse.get(point.house) ?? [];
+    arr.push(key);
+    byHouse.set(point.house, arr);
+  }
+  for (const [house, keys] of byHouse.entries()) {
+    if (keys.length >= 3) {
+      patterns.push({ type: "house-concentration", points: keys, house, aspects: [] });
     }
   }
 

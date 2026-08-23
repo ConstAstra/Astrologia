@@ -223,6 +223,35 @@ export function ascendantHouseOneOccupantsText(
   return ` ${joinListFr(names)} ${verb} aussi dans cette maison, ce qui ajoute ${possessive} propre couleur à cette première impression.`;
 }
 
+/**
+ * Synthèse d'une concentration de maison (3 points ou plus dans la même
+ * maison, voir detectAspectPatterns dans aspect-patterns.ts) : le pendant,
+ * par maison plutôt que par signe, du "stellium" déjà détecté ailleurs.
+ * Compositionnelle plutôt qu'un texte par combinaison (le nombre de
+ * combinaisons possibles est trop grand) : elle assemble le paragraphe de
+ * la maison (déjà écrit pour être autonome) avec les mots-clés courts de
+ * chaque point présent, plutôt que de dupliquer les textes déjà affichés
+ * individuellement ailleurs sur la page pour chaque point.
+ */
+export function describeHouseConcentration(
+  houseNumber: number,
+  pointKeys: PointKey[],
+  locale: Locale = "fr"
+): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const houseList = locale === "en" ? HOUSE_META_EN : HOUSE_META;
+  const house = houseList[houseNumber - 1];
+  if (!house || pointKeys.length < 2) return "";
+
+  const names = pointKeys.map((k) => planetMap[k].name);
+  const keywords = pointKeys.map((k) => planetMap[k].keyword);
+
+  if (locale === "en") {
+    return `${joinListEn(names)} are all concentrated in your house ${houseNumber}: a real concentration of energy around ${house.keyword}, a sign that this area isn't a side note in your life, it's a central axis. ${house.paragraph} With ${joinListEn(names)} gathered here, this touches especially on ${joinListEn(keywords)}. A concentration like this gives real strength in this area, with the risk of pouring all your energy into it at the expense of the rest of the chart: the real balance is making room for the other houses of your life too.`;
+  }
+  return `${joinListFr(names)} se concentrent dans votre maison ${houseNumber} : une vraie concentration d'énergie autour de ${house.keyword}, signe que ce domaine n'est pas un simple à-côté dans votre vie, mais un axe central. ${house.paragraph} Avec ${joinListFr(names)} réunis ici, cela touche particulièrement ${joinListFr(keywords)}. Une telle concentration donne une vraie force dans ce domaine, avec le risque d'y investir toute son énergie au détriment du reste du thème : le vrai équilibre consiste à laisser aussi de la place aux autres maisons de votre vie.`;
+}
+
 // Contraction de "de" + un groupe nominal français commençant par un article
 // défini (le/la/l'/les) — évite les "de les" ou "de le" mal formés quand un
 // keyword de maison/planète (qui inclut déjà son propre article) est inséré

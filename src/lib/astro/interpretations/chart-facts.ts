@@ -51,6 +51,7 @@ export interface PatternFact {
   points: string[];
   apex?: string;
   sign?: string;
+  house?: number;
 }
 
 export interface ChartFacts {
@@ -181,6 +182,7 @@ export function buildChartFacts(
     points: p.points.map(nameOf),
     apex: p.apex ? nameOf(p.apex) : undefined,
     sign: p.sign ? signMap[p.sign].name : undefined,
+    house: p.house,
   }));
 
   const dominance = computeDominance(chart.points, chart.hasReliableHouses);

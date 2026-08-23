@@ -181,6 +181,7 @@ function patternLine(p: PatternFact, locale: Locale): string {
     "grand-trine": { fr: "Grand trigone", en: "Grand trine" },
     "grand-cross": { fr: "Grand carré", en: "Grand cross" },
     stellium: { fr: "Stellium", en: "Stellium" },
+    "house-concentration": { fr: "Concentration en maison", en: "House concentration" },
   };
   const label = labels[p.type][locale];
   if (p.type === "t-square") {
@@ -190,6 +191,11 @@ function patternLine(p: PatternFact, locale: Locale): string {
   }
   if (p.type === "stellium") {
     return locale === "en" ? `- ${label} in ${p.sign}: ${p.points.join(", ")}` : `- ${label} en ${p.sign} : ${p.points.join(", ")}`;
+  }
+  if (p.type === "house-concentration") {
+    return locale === "en"
+      ? `- ${label} in house ${p.house}: ${p.points.join(", ")}`
+      : `- ${label} en maison ${p.house} : ${p.points.join(", ")}`;
   }
   return `- ${label}: ${p.points.join(", ")}`;
 }
