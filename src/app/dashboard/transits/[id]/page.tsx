@@ -77,6 +77,7 @@ const TEXT: Record<Locale, {
   eventPertinent: string;
   eventTypeLabels: Record<EventType, string>;
   checkInStatsLine: (confirmed: number, total: number, pct: number) => string;
+  checkInStatsGoodBadge: string;
 }> = {
   fr: {
     eyebrow: "Transits",
@@ -121,6 +122,7 @@ const TEXT: Record<Locale, {
     eventPertinent: "pertinent",
     eventTypeLabels: { voyage: "Voyage", anniversaire: "Anniversaire", mariage: "Mariage", soutenance: "Soutenance / examen" },
     checkInStatsLine: (confirmed, total, pct) => `Sur ${total} avis donnés, ${confirmed} lecture${confirmed > 1 ? "s" : ""} jugée${confirmed > 1 ? "s" : ""} confirmée${confirmed > 1 ? "s" : ""} (${pct}%).`,
+    checkInStatsGoodBadge: "Bien vu",
   },
   en: {
     eyebrow: "Transits",
@@ -164,6 +166,7 @@ const TEXT: Record<Locale, {
     eventPertinent: "relevant",
     eventTypeLabels: { voyage: "Trip", anniversaire: "Birthday", mariage: "Wedding", soutenance: "Thesis defense / exam" },
     checkInStatsLine: (confirmed, total, pct) => `Out of ${total} reading${total > 1 ? "s" : ""} rated, ${confirmed} felt accurate (${pct}%).`,
+    checkInStatsGoodBadge: "Spot on",
   },
 };
 
@@ -434,7 +437,8 @@ export default async function TransitsPage({
                 />
               )}
               {checkInTotal >= 3 && (
-                <p className="mt-3 text-xs text-muted">
+                <p className="mt-3 flex items-center gap-2 text-xs text-muted">
+                  {Math.round((checkInConfirmed / checkInTotal) * 100) >= 70 && <Badge tone="pop">{t.checkInStatsGoodBadge}</Badge>}
                   {t.checkInStatsLine(checkInConfirmed, checkInTotal, Math.round((checkInConfirmed / checkInTotal) * 100))}
                 </p>
               )}

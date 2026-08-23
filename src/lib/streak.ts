@@ -4,7 +4,10 @@ const MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
 
 export interface StreakResult {
   currentStreak: number;
+  longestStreak: number;
   isNewMilestone: boolean;
+  /** Vrai le jour où la série dépasse le record précédent (jamais le tout premier jour, ce n'est pas encore un "record" à fêter). */
+  isNewRecord: boolean;
 }
 
 function todayUTC(): string {
@@ -31,11 +34,12 @@ export async function recordDailyActivity(
 ): Promise<StreakResult> {
   const today = todayUTC();
   if (current.lastActiveDate === today) {
-    return { currentStreak: current.currentStreak, isNewMilestone: false };
+    return { currentStreak: current.currentStreak, longestStreak: current.longestStreak, isNewMilestone: false, isNewRecord: false };
   }
 
   const continued = current.lastActiveDate ? isYesterday(current.lastActiveDate, today) : false;
   const currentStreak = continued ? current.currentStreak + 1 : 1;
+  const isNewRecord = currentStreak > current.longestStreak && currentStreak >= 2;
   const longestStreak = Math.max(current.longestStreak, currentStreak);
 
   await prisma.user.update({
@@ -43,5 +47,5 @@ export async function recordDailyActivity(
     data: { currentStreak, longestStreak, lastActiveDate: today },
   });
 
-  return { currentStreak, isNewMilestone: MILESTONES.includes(currentStreak) };
+  return { currentStreak, longestStreak, isNewMilestone: MILESTONES.includes(currentStreak), isNewRecord };
 }

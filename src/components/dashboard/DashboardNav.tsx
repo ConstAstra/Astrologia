@@ -35,6 +35,8 @@ const TEXT: Record<
     logout: string;
     streakDay: string;
     streakDays: string;
+    streakBest: (n: number) => string;
+    streakNewRecord: string;
     addProfile: string;
     openMenu: string;
     closeMenu: string;
@@ -66,6 +68,8 @@ const TEXT: Record<
     logout: "Déconnexion",
     streakDay: "jour",
     streakDays: "jours",
+    streakBest: (n) => `record : ${n} j`,
+    streakNewRecord: "Nouveau record !",
     openMenu: "Ouvrir le menu",
     closeMenu: "Fermer le menu",
     switchProfile: "Changer de profil",
@@ -94,6 +98,8 @@ const TEXT: Record<
     logout: "Log out",
     streakDay: "day",
     streakDays: "days",
+    streakBest: (n) => `best: ${n}d`,
+    streakNewRecord: "New record!",
     addProfile: "Add a profile",
     openMenu: "Open menu",
     closeMenu: "Close menu",
@@ -109,7 +115,9 @@ export function DashboardNav({
   isPremium,
   locale = "fr",
   streak = 0,
+  longestStreak = 0,
   streakMilestone = false,
+  streakNewRecord = false,
   isAdmin = false,
   profiles = [],
 }: {
@@ -118,7 +126,9 @@ export function DashboardNav({
   isPremium: boolean;
   locale?: Locale;
   streak?: number;
+  longestStreak?: number;
   streakMilestone?: boolean;
+  streakNewRecord?: boolean;
   isAdmin?: boolean;
   /** Profils actifs de l'utilisateur, pour le sélecteur rapide du header. */
   profiles?: { id: string; label: string; isSelf: boolean }[];
@@ -347,7 +357,15 @@ export function DashboardNav({
           >
             <span aria-hidden="true" className="text-lg leading-none">+</span>
           </Link>
-          <StreakBadge streak={streak} isNewMilestone={streakMilestone} label={streak > 1 ? t.streakDays : t.streakDay} />
+          <StreakBadge
+            streak={streak}
+            longestStreak={longestStreak}
+            isNewMilestone={streakMilestone}
+            isNewRecord={streakNewRecord}
+            label={streak > 1 ? t.streakDays : t.streakDay}
+            bestLabel={t.streakBest}
+            newRecordLabel={t.streakNewRecord}
+          />
           {isPremium ? <Badge tone="gold">Premium</Badge> : <Badge>{credits} {credits > 1 ? t.credits : t.credit}</Badge>}
           {isAdmin && (
             <Link href="/dashboard/admin" className="text-xs text-muted/70 hover:text-gold-strong">

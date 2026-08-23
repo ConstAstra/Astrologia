@@ -24,7 +24,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect(PROFILE_SELECTION_PATH);
   }
 
-  const { currentStreak, isNewMilestone } = await recordDailyActivity(user.id, {
+  const { currentStreak, longestStreak, isNewMilestone, isNewRecord } = await recordDailyActivity(user.id, {
     currentStreak: user.currentStreak,
     longestStreak: user.longestStreak,
     lastActiveDate: user.lastActiveDate,
@@ -47,7 +47,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         isPremium={isPremiumActive(user)}
         locale={user.locale === "en" ? "en" : "fr"}
         streak={currentStreak}
+        longestStreak={longestStreak}
         streakMilestone={isNewMilestone}
+        streakNewRecord={isNewRecord}
         isAdmin={isAdminEmail(user.email)}
         profiles={profiles}
       />
