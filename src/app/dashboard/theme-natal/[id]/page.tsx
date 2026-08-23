@@ -16,12 +16,14 @@ import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import { ASCENDANT_RULER_HOUSE_LINE } from "@/lib/astro/interpretations/houses";
 import { ASCENDANT_RULER_HOUSE_LINE_EN } from "@/lib/astro/interpretations/houses.en";
 import {
+  ascendantHouseOneOccupantsText,
   describeAspect,
   describeDegree,
   describeHouseSystem,
   describePlanetInHouse,
   describePlanetInSign,
 } from "@/lib/astro/interpretations/compose";
+import { computeDegreeReading } from "@/lib/astro/degrees";
 import { ASPECT_META } from "@/lib/astro/interpretations/aspects";
 import { ASPECT_META_EN } from "@/lib/astro/interpretations/aspects.en";
 import { composeChartDomains } from "@/lib/astro/interpretations/chart-domains";
@@ -82,6 +84,11 @@ const TEXT: Record<
     ascendantRulerExplainer: string;
     signHeading: string;
     houseHeading: string;
+    phaseEarly: string;
+    phaseMid: string;
+    phaseLate: string;
+    housesExplainer: string;
+    housesExplainerLink: string;
     grimoireTitle: string;
     grimoireSubtitle: string;
     grimoireAspectsNote: string;
@@ -113,6 +120,12 @@ const TEXT: Record<
       "Chaque signe a une planète qui le gouverne (son maître) : la position de cette planète dans votre thème colore la façon dont vous vivez concrètement cette première impression.",
     signHeading: "En signe",
     houseHeading: "En maison",
+    phaseEarly: "Début de",
+    phaseMid: "Milieu de",
+    phaseLate: "Fin de",
+    housesExplainer:
+      "Les maisons ne sont pas les signes : le signe dit COMMENT une énergie s'exprime, la maison dit OÙ, dans quel domaine concret de la vie (l'identité, l'argent, la famille, le couple...). Une planète en maison VII, par exemple, joue surtout son rôle dans les relations à deux, quel que soit son signe.",
+    housesExplainerLink: "Voir les 12 maisons en détail →",
     grimoireTitle: "Le grimoire de votre thème",
     grimoireSubtitle: "Toute la charte résumée bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
     grimoireAspectsNote: "Les aspects détaillés, planète par planète, sont à lire plus bas dans cette page.",
@@ -143,6 +156,12 @@ const TEXT: Record<
       "Every sign has a planet that rules it (its ruler): where that planet sits in your chart colors how you actually live out that first impression.",
     signHeading: "In sign",
     houseHeading: "In house",
+    phaseEarly: "Early",
+    phaseMid: "Mid",
+    phaseLate: "Late",
+    housesExplainer:
+      "Houses aren't signs: the sign says HOW an energy shows up, the house says WHERE, in which concrete area of life (identity, money, family, partnership...). A planet in the 7th house, for instance, mainly plays its role in one-on-one relationships, whatever sign it's in.",
+    housesExplainerLink: "See all 12 houses in detail →",
     grimoireTitle: "The grimoire of your chart",
     grimoireSubtitle: "The whole chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
     grimoireAspectsNote: "The planet-by-planet aspect details are further down this page.",
@@ -409,6 +428,8 @@ export default async function ThemeNatalPage({
                 if (!chart.hasReliableHouses && (key === "asc" || key === "mc" || key === "fortune" || key === "vertex" || key === "partMarriage")) return null;
                 const meta = planetMap[key];
                 const sign = signOf(point.longitude);
+                const phase = computeDegreeReading(point.longitude, locale).phase;
+                const phaseLabel = phase === "précoce" ? t.phaseEarly : phase === "tardive" ? t.phaseLate : t.phaseMid;
                 return (
                   <Card key={key} className="p-4">
                     <div className="flex items-center justify-between">
@@ -421,11 +442,14 @@ export default async function ThemeNatalPage({
                       </div>
                     </div>
                     <p className="mt-1 text-sm text-gold-strong">
-                      {formatLongitude(point.longitude)} {signMap[sign].name}
+                      {phaseLabel} {signMap[sign].name}
                     </p>
                     <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, undefined, locale)}</p>
                     {point.house && (
-                      <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInHouse(key, point.house, locale)}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted">
+                        {describePlanetInHouse(key, point.house, locale)}
+                        {key === "asc" && ascendantHouseOneOccupantsText(chart.points, locale)}
+                      </p>
                     )}
                     <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
@@ -435,6 +459,15 @@ export default async function ThemeNatalPage({
                 );
               })}
             </div>
+            <p className="mt-4 text-xs leading-relaxed text-muted/80">
+              {t.housesExplainer}{" "}
+              <Link
+                href={locale === "en" ? "/en/guides/les-12-maisons" : "/guides/les-12-maisons"}
+                className="text-gold-strong hover:underline"
+              >
+                {t.housesExplainerLink}
+              </Link>
+            </p>
           </section>
 
           <section id="aspects" className="scroll-mt-24">

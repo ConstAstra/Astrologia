@@ -214,4 +214,7 @@ export const PLANET_IN_HOUSE_EN: Partial<Record<PointKey, Record<number, string>
     11: "The Part of Marriage in the 11th house wants a partner who's an ally first, committed to the same causes and future dreams: friendship often precedes union, which comes to resemble a team working for something bigger than itself. This placement thrives in less conventional unions. The risk is keeping emotional distance under the guise of camaraderie.",
     12: "The Part of Marriage in the 12th house lives commitment quietly, sometimes secretly: a union not shown right away, an attachment built behind the scenes before being revealed. This placement can feel the union as \"written in advance,\" almost karmic. A love lived in the background, though, doesn't need to stay invisible to be real.",
   },
+  asc: {
+    1: "House I is the house of the very first impression: what others pick up on before you've even said a word, your bearing, your posture, the way you walk into a room. It's the most visible house in the chart, often what people notice about you first, before your Sun or Moon have had time to show themselves.",
+  },
 };

@@ -220,4 +220,13 @@ export const PLANET_IN_HOUSE: Partial<Record<PointKey, Record<number, string>>> 
     11: "La Part du Mariage en maison XI veut un partenaire qui soit d'abord un allié, engagé dans les mêmes causes, les mêmes rêves d'avenir : l'amitié précède souvent l'union, qui ressemble à une équipe engagée pour quelque chose de plus grand qu'elle-même. Ce placement s'épanouit dans des unions moins conventionnelles. Le risque est de garder une distance émotionnelle sous couvert de camaraderie.",
     12: "La Part du Mariage en maison XII vit l'engagement de façon discrète, parfois secrète : une union qu'on ne montre pas tout de suite, un attachement qui se construit en coulisses avant d'être révélé au grand jour. Ce placement peut ressentir l'union comme « écrite d'avance », presque karmique. Un amour vécu en retrait n'a pourtant pas besoin de rester invisible pour être réel.",
   },
+  // L'Ascendant définit toujours le tout début de la maison I (dans les 4
+  // systèmes de maisons proposés ici), donc une seule entrée suffit : il ne
+  // tombera jamais dans une autre maison. Le complément dynamique (quelles
+  // planètes partagent cette maison I) est ajouté séparément par
+  // ascendantHouseOneOccupantsText dans compose.ts, à partir du thème
+  // complet plutôt que de ce texte statique seul.
+  asc: {
+    1: "La maison I est celle de la toute première impression : ce que les autres perçoivent de vous avant même d'avoir échangé un mot, votre allure, votre posture, la façon dont vous entrez dans une pièce. C'est la maison la plus visible du thème, souvent ce par quoi on vous reconnaît en premier, avant même que votre Soleil ou votre Lune n'aient eu le temps de se révéler.",
+  },
 };

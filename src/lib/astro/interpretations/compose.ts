@@ -1,5 +1,5 @@
-import { ZODIAC_SIGNS } from "../types";
-import type { Aspect, AspectKey, HouseCusps, PointKey, ZodiacSign } from "../types";
+import { PLANET_KEYS, ZODIAC_SIGNS } from "../types";
+import type { Aspect, AspectKey, EclipticPoint, HouseCusps, PointKey, ZodiacSign } from "../types";
 import type { SynastryAspect } from "../synastry";
 import type { TransitAspect } from "../transits";
 import type { ActivatedSynastryAspect } from "../synastry-transits";
@@ -176,9 +176,51 @@ export function describePlanetInHouse(point: PointKey, houseNumber: number, loca
   if (custom) return custom;
 
   if (locale === "en") {
-    return `${planet.name} in ${house.name}: this energy (${planet.essence}) expresses itself above all through ${house.keyword}. ${house.paragraph}`;
+    return `${house.paragraph} With ${planet.name} in house ${houseNumber}, this touches especially on ${planet.keyword}.`;
   }
-  return `${planet.name} en ${house.name} : cette énergie (${planet.essence}) s'exprime avant tout à travers ${house.keyword}. ${house.paragraph}`;
+  return `${house.paragraph} Avec ${planet.name} en maison ${houseNumber}, cela touche particulièrement ${planet.keyword}.`;
+}
+
+function joinListFr(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")} et ${items[items.length - 1]}`;
+}
+
+function joinListEn(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+/**
+ * L'Ascendant définit toujours le tout début de la maison I, dans les
+ * quatre systèmes de maisons proposés ici : ce n'est donc jamais un fait
+ * personnel à signaler. Ce qui l'est, en revanche, c'est la présence
+ * éventuelle d'autres planètes dans cette même maison I, qui colorent
+ * directement la première impression donnée — un fait que describePlanetInHouse
+ * ne peut pas connaître seul (il ne reçoit qu'un point et un numéro de
+ * maison, pas le thème entier), d'où cette fonction séparée à appeler en
+ * complément, avec le thème complet, partout où l'Ascendant est affiché.
+ */
+export function ascendantHouseOneOccupantsText(
+  points: Partial<Record<PointKey, EclipticPoint>>,
+  locale: Locale = "fr"
+): string {
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const occupantKeys = [...PLANET_KEYS, "juno", "chiron"].filter(
+    (k) => points[k as PointKey]?.house === 1
+  ) as PointKey[];
+  if (occupantKeys.length === 0) return "";
+  const names = occupantKeys.map((k) => planetMap[k].name);
+
+  if (locale === "en") {
+    const verb = names.length === 1 ? "is" : "are";
+    const possessive = names.length === 1 ? "its" : "their";
+    return ` ${joinListEn(names)} ${verb} also placed in this house, adding ${possessive} own touch to that first impression.`;
+  }
+  const verb = names.length === 1 ? "se trouve" : "se trouvent";
+  const possessive = names.length === 1 ? "sa" : "leur";
+  return ` ${joinListFr(names)} ${verb} aussi dans cette maison, ce qui ajoute ${possessive} propre couleur à cette première impression.`;
 }
 
 // Contraction de "de" + un groupe nominal français commençant par un article
