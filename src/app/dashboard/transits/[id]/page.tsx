@@ -82,7 +82,7 @@ const TEXT: Record<Locale, {
   fr: {
     eyebrow: "Transits",
     transitIntro:
-      "Un « transit », c'est la position des planètes aujourd'hui, comparée à celle qu'elles occupaient le jour de votre naissance. Quand une planète du jour touche un point sensible de votre thème, ça active quelque chose — parfois une ambiance, parfois un événement concret.",
+      "Le ciel bouge chaque jour, et ça vous touche directement : quand une planète en mouvement touche un point sensible de votre thème de naissance, quelque chose s'active, parfois une ambiance, parfois un événement concret. C'est ce qu'on appelle un « transit » : la position des planètes aujourd'hui, comparée à celle qu'elles occupaient le jour de votre naissance.",
     illuminated: (pct) => `${pct}% illuminée`,
     planetsToday: "Planètes en transit",
     majorAspects: "Aspects actifs majeurs",
@@ -127,7 +127,7 @@ const TEXT: Record<Locale, {
   en: {
     eyebrow: "Transits",
     transitIntro:
-      "A \"transit\" is where the planets sit today, compared to where they sat on the day you were born. When today's sky touches a sensitive point in your chart, it activates something — sometimes a mood, sometimes a concrete event.",
+      "The sky moves every day, and it touches you directly: when a moving planet hits a sensitive point in your birth chart, something activates, sometimes a mood, sometimes a concrete event. That's what a \"transit\" is: where the planets sit today, compared to where they sat on the day you were born.",
     illuminated: (pct) => `${pct}% illuminated`,
     planetsToday: "Planets in transit",
     majorAspects: "Active major aspects",
