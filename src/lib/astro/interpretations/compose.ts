@@ -144,23 +144,59 @@ function rulerConnectionText(
 
 /**
  * Lecture du degré exact (décan, phase précoce/médiane/tardive, degré
- * anarétique ou critique). `chartPoints` (optionnel) permet d'ajouter où se
- * trouve réellement le maître du décan dans le thème de la personne — voir
- * rulerConnectionText.
+ * anarétique ou critique), ancrée dans le point réellement concerné
+ * (`point`) plutôt que laissée abstraite : chaque couche générique de
+ * computeDegreeReading (phase, degré critique, degré anarétique) est
+ * complétée ici par une phrase qui la relie au thème propre de ce point (son
+ * `keyword`), pour que la même phase "précoce" par exemple ne se lise pas de
+ * façon identique pour Vénus et pour Saturne. `chartPoints` (optionnel)
+ * permet en plus d'ajouter où se trouve réellement le maître du décan dans
+ * le thème de la personne, voir rulerConnectionText.
  */
 export function describeDegree(
   longitude: number,
+  point: PointKey,
   locale: Locale = "fr",
   chartPoints?: Partial<Record<PointKey, { longitude: number; house?: number }>>
 ): string {
   const r = computeDegreeReading(longitude, locale);
+  const planetMap = locale === "en" ? PLANET_META_EN : PLANET_META;
+  const planetName = planetMap[point].name;
+  const keyword = planetMap[point].keyword;
+
   const intro =
     locale === "en"
-      ? "An extra layer of detail, useful but not essential to understanding the rest of the chart:"
-      : "Un niveau de détail en plus, utile mais pas indispensable pour comprendre le reste du thème :";
-  const parts = [intro, r.decanText + rulerConnectionText(r.decanRuler, chartPoints, locale)];
-  if (r.isAnaretic) parts.push(r.anareticText!);
-  if (r.isCritical) parts.push(r.criticalText!);
+      ? `The exact degree adds a personal nuance to how ${planetName} plays out for you:`
+      : `Le degré exact ajoute une nuance personnelle à la façon dont ${planetName} se vit chez vous :`;
+
+  const phaseGrounding =
+    locale === "en"
+      ? r.phase === "précoce"
+        ? ` For ${planetName}, this still shows up in a raw, instinctive way through ${keyword}.`
+        : r.phase === "tardive"
+          ? ` For ${planetName}, this shows up in a matured, sometimes already weary way through ${keyword}.`
+          : ` For ${planetName}, this shows up in its most stable, settled way through ${keyword}.`
+      : r.phase === "précoce"
+        ? ` Pour ${planetName}, cela s'exprime encore de façon brute et instinctive à travers ${keyword}.`
+        : r.phase === "tardive"
+          ? ` Pour ${planetName}, cela s'exprime de façon mûrie, parfois déjà lasse, à travers ${keyword}.`
+          : ` Pour ${planetName}, cela s'exprime de façon stable et bien installée à travers ${keyword}.`;
+
+  const parts = [intro, r.decanText + phaseGrounding + rulerConnectionText(r.decanRuler, chartPoints, locale)];
+  if (r.isAnaretic) {
+    const anareticGrounding =
+      locale === "en"
+        ? ` For ${planetName}, that translates into an urge to fully live out ${keyword} before the next sign takes over.`
+        : ` Pour ${planetName}, cela se traduit par une urgence à vivre pleinement ${keyword} avant que le signe suivant ne prenne le relais.`;
+    parts.push(r.anareticText! + anareticGrounding);
+  }
+  if (r.isCritical) {
+    const criticalGrounding =
+      locale === "en"
+        ? ` For ${planetName}, that means ${keyword} can show up here with unusual intensity, worth paying attention to.`
+        : ` Pour ${planetName}, cela signifie que ${keyword} peut se manifester ici avec une intensité inhabituelle, un point à ne pas négliger.`;
+    parts.push(r.criticalText! + criticalGrounding);
+  }
   return parts.join("\n\n");
 }
 

@@ -474,7 +474,7 @@ export default async function ThemeNatalPage({
                     )}
                     <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
-                      {describeDegree(point.longitude, locale, chart.points)}
+                      {describeDegree(point.longitude, key, locale, chart.points)}
                     </p>
                   </Card>
                 );

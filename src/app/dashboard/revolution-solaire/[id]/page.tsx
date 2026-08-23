@@ -11,7 +11,8 @@ import {
 import { computeAspects } from "@/lib/astro/aspects";
 import { PLANET_KEYS } from "@/lib/astro/types";
 import type { PointKey } from "@/lib/astro/types";
-import { signOf, formatLongitude } from "@/lib/astro/signs";
+import { signOf } from "@/lib/astro/signs";
+import { computeDegreeReading } from "@/lib/astro/degrees";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
@@ -56,6 +57,9 @@ const TEXT: Record<
     positions: string;
     house: string;
     degree: string;
+    phaseEarly: string;
+    phaseMid: string;
+    phaseLate: string;
     aspects: string;
     noAspects: string;
     lockedTitle: string;
@@ -83,6 +87,9 @@ const TEXT: Record<
     positions: "Positions de l'année",
     house: "Maison",
     degree: "Degré :",
+    phaseEarly: "Début de",
+    phaseMid: "Milieu de",
+    phaseLate: "Fin de",
     aspects: "Aspects de l'année",
     noAspects: "Aucun aspect détecté dans les orbes retenues.",
     lockedTitle: "Votre thème de l'année",
@@ -110,6 +117,9 @@ const TEXT: Record<
     positions: "This year's positions",
     house: "House",
     degree: "Degree:",
+    phaseEarly: "Early",
+    phaseMid: "Mid",
+    phaseLate: "Late",
     aspects: "This year's aspects",
     noAspects: "No aspect detected within the orbs used.",
     lockedTitle: "Your chart for the year",
@@ -304,6 +314,8 @@ export default async function SolarReturnPage({
                 if (!point) return null;
                 const meta = planetMap[key];
                 const sign = signOf(point.longitude);
+                const phase = computeDegreeReading(point.longitude, locale).phase;
+                const phaseLabel = phase === "précoce" ? t.phaseEarly : phase === "tardive" ? t.phaseLate : t.phaseMid;
                 return (
                   <Card key={key} className="p-4">
                     <div className="flex items-center justify-between">
@@ -316,7 +328,7 @@ export default async function SolarReturnPage({
                       </div>
                     </div>
                     <p className="mt-1 text-sm text-gold-strong">
-                      {formatLongitude(point.longitude)} {signMap[sign].name}
+                      {phaseLabel} {signMap[sign].name}
                     </p>
                     <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, undefined, locale)}</p>
                     {point.house && (
@@ -324,7 +336,7 @@ export default async function SolarReturnPage({
                     )}
                     <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
-                      {describeDegree(point.longitude, locale, returnChart.points)}
+                      {describeDegree(point.longitude, key, locale, returnChart.points)}
                     </p>
                   </Card>
                 );

@@ -51,25 +51,34 @@ describe("computeDegreeReading", () => {
 describe("describeDegree ruler connection", () => {
   // 0° Bélier -> decan ruler Mars (see the Chaldean sequence test above).
   it("omits the ruler-connection sentence when chartPoints isn't provided", () => {
-    const text = describeDegree(0);
+    const text = describeDegree(0, "sun");
     expect(text).not.toMatch(/maître de ce décan/);
   });
 
   it("mentions the ruler's real sign and house once chartPoints is provided", () => {
-    const text = describeDegree(0, "fr", { mars: { longitude: 40, house: 5 } }); // Mars at 10° Taureau
+    const text = describeDegree(0, "sun", "fr", { mars: { longitude: 40, house: 5 } }); // Mars at 10° Taureau
     expect(text).toMatch(/maître de ce décan, Mars, se trouve lui-même en Taureau \(maison 5\)/);
   });
 
   it("flags domicile when the ruler sits on one of its own classical signs", () => {
-    const inDomicile = describeDegree(0, "fr", { mars: { longitude: 5 } }); // 5° Bélier: Mars domicile
-    const notInDomicile = describeDegree(0, "fr", { mars: { longitude: 40 } }); // 10° Taureau: not
+    const inDomicile = describeDegree(0, "sun", "fr", { mars: { longitude: 5 } }); // 5° Bélier: Mars domicile
+    const notInDomicile = describeDegree(0, "sun", "fr", { mars: { longitude: 40 } }); // 10° Taureau: not
     expect(inDomicile).toMatch(/chez lui/);
     expect(notInDomicile).not.toMatch(/chez lui/);
   });
 
   it("produces bilingual ruler-connection text without leaking the other language", () => {
-    const en = describeDegree(0, "en", { mars: { longitude: 5 } });
+    const en = describeDegree(0, "sun", "en", { mars: { longitude: 5 } });
     expect(en).toMatch(/This decan's ruler, Mars, sits in Aries/);
     expect(en).not.toMatch(/maître de ce décan/);
+  });
+
+  it("grounds the phase, critical, and anaretic text in the specific point's own keyword", () => {
+    // 5° Bélier: précoce phase, Soleil.
+    const early = describeDegree(5, "sun", "fr");
+    expect(early).toMatch(/Pour Soleil, cela s'exprime encore de façon brute et instinctive à travers/);
+    // 29° Bélier: anaretic degree, Lune.
+    const anaretic = describeDegree(29, "moon", "fr");
+    expect(anaretic).toMatch(/Pour Lune, cela se traduit par une urgence à vivre pleinement/);
   });
 });

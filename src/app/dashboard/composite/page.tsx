@@ -7,7 +7,8 @@ import { computeAspects } from "@/lib/astro/aspects";
 import { quickSunSign } from "@/lib/astro/quick";
 import { PLANET_KEYS } from "@/lib/astro/types";
 import type { PointKey } from "@/lib/astro/types";
-import { signOf, formatLongitude } from "@/lib/astro/signs";
+import { signOf } from "@/lib/astro/signs";
+import { computeDegreeReading } from "@/lib/astro/degrees";
 import { PLANET_META } from "@/lib/astro/interpretations/planets";
 import { PLANET_META_EN } from "@/lib/astro/interpretations/planets.en";
 import { SIGN_META } from "@/lib/astro/interpretations/signs";
@@ -56,6 +57,9 @@ const TEXT: Record<
     positions: string;
     house: string;
     degree: string;
+    phaseEarly: string;
+    phaseMid: string;
+    phaseLate: string;
     internalAspects: string;
     grimoireTitle: string;
     grimoireSubtitle: string;
@@ -76,6 +80,9 @@ const TEXT: Record<
     positions: "Positions du composite",
     house: "Maison",
     degree: "Degré :",
+    phaseEarly: "Début de",
+    phaseMid: "Milieu de",
+    phaseLate: "Fin de",
     internalAspects: "Aspects internes",
     grimoireTitle: "Le grimoire de cette relation",
     grimoireSubtitle: "Le thème composite résumé bout à bout, chapitre par chapitre, sans entrer dans le détail des aspects.",
@@ -95,6 +102,9 @@ const TEXT: Record<
     positions: "Composite positions",
     house: "House",
     degree: "Degree:",
+    phaseEarly: "Early",
+    phaseMid: "Mid",
+    phaseLate: "Late",
     internalAspects: "Internal aspects",
     grimoireTitle: "The grimoire of this relationship",
     grimoireSubtitle: "The composite chart summarized end to end, chapter by chapter, without going into aspect-by-aspect detail.",
@@ -297,6 +307,8 @@ export default async function CompositePage({
                 const point = composite.points[key];
                 if (!point) return null;
                 const sign = signOf(point.longitude);
+                const phase = computeDegreeReading(point.longitude, locale).phase;
+                const phaseLabel = phase === "précoce" ? t.phaseEarly : phase === "tardive" ? t.phaseLate : t.phaseMid;
                 return (
                   <Card key={key} className="p-4">
                     <div className="flex items-center justify-between">
@@ -306,7 +318,7 @@ export default async function CompositePage({
                       {point.house && <Badge>{t.house} {point.house}</Badge>}
                     </div>
                     <p className="mt-1 text-sm text-gold-strong">
-                      {formatLongitude(point.longitude)} {signMap[sign].name}
+                      {phaseLabel} {signMap[sign].name}
                     </p>
                     <p className="mt-2 text-xs leading-relaxed text-muted">
                       {describePlanetInSign(key, sign, relationshipType, locale)}
@@ -318,7 +330,7 @@ export default async function CompositePage({
                     )}
                     <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
                       <span className="text-gold-strong/90">{t.degree} </span>
-                      {describeDegree(point.longitude, locale, composite.points)}
+                      {describeDegree(point.longitude, key, locale, composite.points)}
                     </p>
                   </Card>
                 );
