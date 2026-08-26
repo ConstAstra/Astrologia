@@ -21,13 +21,13 @@ export interface DailyHoroscope {
 const ELEMENT_LABEL_EN: Record<string, string> = { Feu: "Fire", Terre: "Earth", Air: "Air", Eau: "Water" };
 
 const RETURN_CYCLE_YEARS: Partial<Record<string, string>> = {
-  saturn: "environ tous les 29 ans — un jalon classique de bilan et de restructuration",
-  jupiter: "environ tous les 12 ans — une période d'expansion et de nouvelles opportunités",
+  saturn: "environ tous les 29 ans, un jalon classique de bilan et de restructuration",
+  jupiter: "environ tous les 12 ans, une période d'expansion et de nouvelles opportunités",
 };
 
 const RETURN_CYCLE_YEARS_EN: Partial<Record<string, string>> = {
-  saturn: "about every 29 years — a classic milestone for stock-taking and restructuring",
-  jupiter: "about every 12 years — a period of expansion and new opportunities",
+  saturn: "about every 29 years, a classic milestone for stock-taking and restructuring",
+  jupiter: "about every 12 years, a period of expansion and new opportunities",
 };
 
 // Comment chaque élément dominant tend à « colorer » la manière dont un
@@ -132,7 +132,7 @@ export function composeDailyHoroscope(
         }`;
 
   const moonLabel = locale === "en" ? MOON_PHASE_LABEL_EN[moon.name] : moon.name;
-  const paragraphs = [`☾ ${moonLabel} — ${moonTextMap[moon.name]}`];
+  const paragraphs = [locale === "en" ? `☾ ${moonLabel}: ${moonTextMap[moon.name]}` : `☾ ${moonLabel} : ${moonTextMap[moon.name]}`];
 
   if (featured) {
     paragraphs.push(describeTransitAspect(featured, locale, true));
@@ -157,8 +157,8 @@ export function composeDailyHoroscope(
   return {
     subject:
       locale === "en"
-        ? `${subjectPrefix}Your sky for ${dateLabel} — ${profileLabel}`
-        : `${subjectPrefix}Votre ciel du ${dateLabel} — ${profileLabel}`,
+        ? `${subjectPrefix}Your sky for ${dateLabel} · ${profileLabel}`
+        : `${subjectPrefix}Votre ciel du ${dateLabel} · ${profileLabel}`,
     headline:
       locale === "en"
         ? `${signatureLine} · ${MOON_PHASE_LABEL_EN[moon.name]} (${Math.round(moon.illuminatedFraction * 100)}% illuminated)`

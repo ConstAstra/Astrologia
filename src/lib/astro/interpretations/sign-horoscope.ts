@@ -79,13 +79,13 @@ const PUNCHLINE_PHRASE: Record<Locale, string[]> = {
 
 const PUNCHLINE_TONE_SUFFIX: Record<Locale, Record<"harmonieux" | "tendu" | "neutre", string>> = {
   fr: {
-    harmonieux: " — le terrain est porteur.",
-    tendu: " — pas sans un peu de friction.",
+    harmonieux: ", le terrain est porteur.",
+    tendu: ", pas sans un peu de friction.",
     neutre: ".",
   },
   en: {
-    harmonieux: " — the ground is favorable.",
-    tendu: " — not without a little friction.",
+    harmonieux: ", the ground is favorable.",
+    tendu: ", not without a little friction.",
     neutre: ".",
   },
 };
@@ -97,7 +97,7 @@ function wholeSignHouse(anchorSignIndex: number, longitude: number): number {
 
 const PRECISION_NOTE: Record<Locale, string> = {
   fr: "Cette lecture se base sur votre signe solaire seul (méthode des maisons entières depuis ce signe) : la même pour tout le monde né sous ce signe. Avec votre heure et lieu de naissance exacts, votre thème natal personnel affine considérablement cette image.",
-  en: "This reading is based on your sun sign alone (whole-sign houses from that sign) — the same for everyone born under it. With your exact birth time and place, your personal natal chart refines this picture considerably.",
+  en: "This reading is based on your sun sign alone (whole-sign houses from that sign): the same for everyone born under it. With your exact birth time and place, your personal natal chart refines this picture considerably.",
 };
 
 export function composeSignHoroscope(sign: ZodiacSign, date: Date = new Date(), locale: Locale = "fr"): SignHoroscope {
@@ -128,14 +128,14 @@ export function composeSignHoroscope(sign: ZodiacSign, date: Date = new Date(), 
   const moonLabel = locale === "en" ? MOON_PHASE_LABEL_EN[moon.name] : moon.name;
   const moonPhaseLine =
     locale === "en"
-      ? `${moonLabel} (${Math.round(moon.illuminatedFraction * 100)}% illuminated) — ${moonTextMap[moon.name]}`
-      : `${moonLabel} (${Math.round(moon.illuminatedFraction * 100)}% illuminée) — ${moonTextMap[moon.name]}`;
+      ? `${moonLabel} (${Math.round(moon.illuminatedFraction * 100)}% illuminated): ${moonTextMap[moon.name]}`
+      : `${moonLabel} (${Math.round(moon.illuminatedFraction * 100)}% illuminée) : ${moonTextMap[moon.name]}`;
 
   const featuredHouse = housePlacements.find((p) => p.planet === "sun") ?? housePlacements[0];
   const headline =
     locale === "en"
-      ? `${signMeta.name} ${signMeta.symbol}: today's focus falls on ${featuredHouse.houseName.replace(/^House [IVX]+ — /, "")}`
-      : `${signMeta.name} ${signMeta.symbol} : le foyer du jour tombe en ${featuredHouse.houseName.replace(/^Maison [IVX]+ — /, "")}`;
+      ? `${signMeta.name} ${signMeta.symbol}: today's focus falls on ${featuredHouse.houseName.replace(/^House [IVX]+: /, "")}`
+      : `${signMeta.name} ${signMeta.symbol} : le foyer du jour tombe en ${featuredHouse.houseName.replace(/^Maison [IVX]+ : /, "")}`;
 
   const toneKey = featuredAspect ? ASPECT_META[featuredAspect.aspect].tone : "neutre";
   const punchline = `${signMeta.symbol} ${signMeta.name} : ${PUNCHLINE_PHRASE[locale][featuredHouse.house - 1]}${PUNCHLINE_TONE_SUFFIX[locale][toneKey]}`;
