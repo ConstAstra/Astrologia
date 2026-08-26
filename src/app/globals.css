@@ -2,24 +2,25 @@
 
 /*
  * Palette "Bloom" (mode jour, thème par défaut) : l'aube plutôt que le
- * minuit — prune profond en fond, halos abricot/rose. Les noms de tokens
- * (--gold, --violet…) sont conservés tels quels pour éviter de renommer les
- * classes Tailwind text-gold/bg-violet/etc. utilisées dans ~45 fichiers ;
- * seules leurs valeurs changent de registre selon le thème.
+ * minuit — prune chaud en fond (éclairci et plus saturé qu'à l'origine,
+ * pour ne pas lire comme austère), halos abricot/rose vifs. Les noms de
+ * tokens (--gold, --violet…) sont conservés tels quels pour éviter de
+ * renommer les classes Tailwind text-gold/bg-violet/etc. utilisées dans
+ * ~45 fichiers ; seules leurs valeurs changent de registre selon le thème.
  */
 :root {
-  --background: #1f1420;
-  --background-elevated: #2b1d29;
-  --surface: #2a1a2799;
-  --surface-solid: #2f1e2c;
-  --border-soft: #f7ece217;
+  --background: #331e2e;
+  --background-elevated: #442a3d;
+  --surface: #442a3da3;
+  --surface-solid: #4a2f42;
+  --border-soft: #f7ece226;
   --foreground: #f7ece2;
-  --muted: #c9a8ad;
-  --gold: #e8935f;
-  --gold-strong: #f2b799;
-  --violet: #c77b8a;
-  --sage: #9fc0a3;
-  --terracotta: #c96b4a;
+  --muted: #e3a3ac;
+  --gold: #ef9a5c;
+  --gold-strong: #f7c391;
+  --violet: #d1699b;
+  --sage: #8fcb9e;
+  --terracotta: #d1704c;
   /* Accent "pop" — réservé aux moments de récompense (déblocage, streak,
      pulse de fin d'animation) : le reste de la palette reste sage et
      lisible pour que ce rose électrique garde son effet quand il apparaît. */
