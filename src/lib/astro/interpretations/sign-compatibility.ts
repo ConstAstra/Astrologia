@@ -1,6 +1,26 @@
 import { SIGN_META } from "./signs";
 import type { ZodiacSign } from "../types";
 
+// Ce que ce signe montre concrètement en cas de désaccord, et ce dont il a
+// besoin pour se sentir en confiance : sert à ancrer le champ "challenges"
+// de composeSignCompatibility dans les deux signes réellement concernés,
+// plutôt que dans une phrase générique valable pour n'importe laquelle des
+// 144 paires (seul le score, binaire, variait jusqu'ici).
+const SIGN_FRICTION_TRAIT: Record<ZodiacSign, string> = {
+  belier: "s'agace vite d'un rythme trop lent et veut qu'on tranche sans attendre",
+  taureau: "se braque si on le bouscule et a besoin de temps pour changer d'avis",
+  gemeaux: "se lasse d'une conversation qui tourne en rond et a besoin de nouveauté pour garder son attention",
+  cancer: "se referme si le ton devient froid et a besoin d'un geste rassurant avant de rouvrir",
+  lion: "supporte mal de ne pas être reconnu à sa juste valeur et a besoin qu'on valorise ce qu'il apporte",
+  vierge: "pointe les détails qui ne collent pas et a besoin que les choses soient faites proprement",
+  balance: "évite le conflit frontal tant qu'elle le peut et a besoin d'un vrai dialogue plutôt que d'un rapport de force",
+  scorpion: "se méfie dès qu'il sent une zone d'ombre et a besoin d'une confiance totale pour se livrer",
+  sagittaire: "s'étouffe dès qu'on veut cadrer son emploi du temps ou ses idées et a besoin de marge de manœuvre",
+  capricorne: "perd patience devant un manque de sérieux et a besoin qu'on tienne ses engagements",
+  verseau: "prend ses distances si on veut le faire rentrer dans un moule et a besoin d'espace pour rester lui-même",
+  poissons: "se noie dans le doute si l'ambiance devient trop dure et a besoin de douceur pour se sentir en sécurité",
+};
+
 export interface SignCompatibility {
   score: number; // 1 à 5, indicatif, pas une prédiction
   elementText: string;
@@ -99,8 +119,8 @@ export function composeSignCompatibility(signA: ZodiacSign, signB: ZodiacSign): 
   const strengths = `${a.name} apporte ${a.keyword}, ${b.name} apporte ${b.keyword}, deux forces qui, bien articulées, s'enrichissent plus qu'elles ne se concurrencent.`;
   const challenges =
     score >= 4
-      ? `Peu de friction structurelle entre ${a.name} et ${b.name} : l'essentiel se joue ailleurs (Lune, Vénus, Mars, Ascendant de chacun), pas sur ce plan-là.`
-      : `La friction principale entre ${a.name} et ${b.name} est un rythme ou un langage différent, pas une incompatibilité de fond, elle se travaille avec de la conscience et de la communication.`;
+      ? `Peu de friction structurelle entre ${a.name} et ${b.name} : l'essentiel se joue ailleurs (Lune, Vénus, Mars, Ascendant de chacun), pas sur ce plan-là. Si friction il y a malgré tout, elle vient plutôt de là : ${a.name} ${SIGN_FRICTION_TRAIT[signA]}, tandis que ${b.name} ${SIGN_FRICTION_TRAIT[signB]}.`
+      : `Le point de friction concret entre ${a.name} et ${b.name} : ${a.name} ${SIGN_FRICTION_TRAIT[signA]}, tandis que ${b.name} ${SIGN_FRICTION_TRAIT[signB]}. Rien d'incompatible sur le fond, plutôt un rythme ou un langage différent qui se travaille avec de la conscience et de la communication.`;
   const advice = `Cette lecture ${a.name}-${b.name} reste basée sur les seuls signes solaires : une vraie synastrie (Lune, Vénus, Mars, Ascendant, maisons) donne une image bien plus fine et personnelle du lien entre deux personnes précises.`;
 
   return {

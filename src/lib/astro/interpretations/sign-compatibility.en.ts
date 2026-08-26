@@ -2,6 +2,24 @@ import { SIGN_META_EN } from "./signs.en";
 import type { ZodiacSign } from "../types";
 import type { SignCompatibility } from "./sign-compatibility";
 
+// English mirror of SIGN_FRICTION_TRAIT — see sign-compatibility.ts for why
+// this exists (grounds the "challenges" field in the two actual signs
+// rather than a generic line shared by all 144 pairs).
+const SIGN_FRICTION_TRAIT: Record<ZodiacSign, string> = {
+  belier: "gets irritated by a slow pace and wants a decision made quickly",
+  taureau: "digs in when pushed and needs time to change its mind",
+  gemeaux: "gets bored by a conversation going in circles and needs novelty to stay engaged",
+  cancer: "shuts down when the tone turns cold and needs a reassuring gesture before opening back up",
+  lion: "struggles when its contribution goes unrecognized and needs its input to be valued",
+  vierge: "zeroes in on the details that don't add up and needs things done properly",
+  balance: "avoids direct conflict as long as it can and needs real dialogue rather than a power struggle",
+  scorpion: "grows wary the moment it senses something hidden and needs total trust to open up",
+  sagittaire: "feels stifled the moment its schedule or ideas get boxed in and needs room to move",
+  capricorne: "loses patience with a lack of seriousness and needs commitments to be kept",
+  verseau: "pulls back if pushed into a mold and needs space to stay itself",
+  poissons: "drowns in doubt when the mood turns harsh and needs gentleness to feel safe",
+};
+
 // English mirror of sign-compatibility.ts — same element/modality scoring
 // (see that file for the astrological reasoning behind each score), English
 // text. Kept as a separate module rather than a parametrized one to match
@@ -92,8 +110,8 @@ export function composeSignCompatibilityEn(signA: ZodiacSign, signB: ZodiacSign)
   const strengths = `${a.name} brings ${a.keyword}, ${b.name} brings ${b.keyword}, two strengths that, well combined, enrich each other more than they compete.`;
   const challenges =
     score >= 4
-      ? `Little structural friction between ${a.name} and ${b.name}: what matters most plays out elsewhere (Moon, Venus, Mars, Ascendant of each person), not on this level.`
-      : `The main friction between ${a.name} and ${b.name} is a difference in pace or language, not a fundamental incompatibility, it's worked through with awareness and communication.`;
+      ? `Little structural friction between ${a.name} and ${b.name}: what matters most plays out elsewhere (Moon, Venus, Mars, Ascendant of each person), not on this level. If friction does show up, it's more likely to come from here: ${a.name} ${SIGN_FRICTION_TRAIT[signA]}, while ${b.name} ${SIGN_FRICTION_TRAIT[signB]}.`
+      : `The concrete friction point between ${a.name} and ${b.name}: ${a.name} ${SIGN_FRICTION_TRAIT[signA]}, while ${b.name} ${SIGN_FRICTION_TRAIT[signB]}. Nothing fundamentally incompatible, more a difference in pace or language worked through with awareness and communication.`;
   const advice = `This ${a.name}-${b.name} reading is based on sun signs alone: a real synastry (Moon, Venus, Mars, Ascendant, houses) gives a much finer, more personal picture of the bond between two specific people.`;
 
   return {
