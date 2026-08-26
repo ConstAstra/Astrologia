@@ -178,9 +178,24 @@ export async function unlockFeature(userId: string, target: FeatureTarget): Prom
     throw new PaywallError(target.feature);
   }
 
-  await prisma.$transaction([
-    prisma.user.update({ where: { id: userId }, data: { credits: { decrement: 1 } } }),
-    prisma.unlock.create({
+  // La lecture de user.credits ci-dessus n'offre aucune garantie contre deux
+  // requêtes concurrentes (même dernier crédit, deux features différentes
+  // débloquées en même temps) : le solde n'est vérifié qu'ici, avant la
+  // transaction, donc les deux passeraient le test avant que l'une ou
+  // l'autre ne décrémente. Le garde-fou réel doit vivre dans la clause WHERE
+  // du décrément lui-même (credits >= 1), pas dans un test fait à part :
+  // updateMany() ne touchera la ligne que si la condition est encore vraie
+  // au moment de l'écriture, et Postgres sérialise les écritures concurrentes
+  // sur la même ligne (la seconde requête revoit un solde à jour une fois la
+  // première validée).
+  const unlocked = await prisma.$transaction(async (tx) => {
+    const decremented = await tx.user.updateMany({
+      where: { id: userId, credits: { gte: 1 } },
+      data: { credits: { decrement: 1 } },
+    });
+    if (decremented.count === 0) return false;
+
+    await tx.unlock.create({
       data: {
         userId,
         feature: target.feature,
@@ -188,8 +203,13 @@ export async function unlockFeature(userId: string, target: FeatureTarget): Prom
         secondaryProfileId: target.secondaryProfileId ?? null,
         method: "credit",
       },
-    }),
-  ]);
+    });
+    return true;
+  });
+
+  if (!unlocked) {
+    throw new PaywallError(target.feature);
+  }
 
   return { method: "credit" };
 }
