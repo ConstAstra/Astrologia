@@ -13,7 +13,7 @@ import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
 import { EyeIcon, SunIcon, OrbitIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
-  title: "Pricing — Astrologium",
+  title: "Pricing · Astrologium",
   description: "Free natal chart. Synastry, composite and astrocartography one at a time, or unlimited with Premium.",
 };
 
@@ -53,14 +53,14 @@ export default function PricingPage() {
                 <li>✓ Full, unlimited natal chart</li>
                 <li>✓ Up to {FREE_PROFILE_LIMIT} saved profiles</li>
                 <li>✓ Detailed natal chart interpretations</li>
-                <li className="text-muted/60">— Synastry, composite, astrocartography: one at a time (see credits)</li>
+                <li className="text-muted/60">Synastry, composite, astrocartography: one at a time (see credits)</li>
               </ul>
             </Card>
 
             <Card className="flex flex-col border-gold/50 p-8 shadow-[0_0_0_1px_#e8935f33]">
               <SunIcon className="h-6 w-6 text-gold-strong" />
               <div className="mt-2">
-                <Badge tone="gold">Premium — most popular</Badge>
+                <Badge tone="gold">Premium, most popular</Badge>
               </div>
               <p className="font-display mt-2 text-3xl">
                 €{(SUBSCRIPTION_PLANS.monthly.amountCents / 100).toFixed(2)} <span className="text-base text-muted">/ month</span>
@@ -90,7 +90,7 @@ export default function PricingPage() {
                 €{(SUBSCRIPTION_PLANS.annual.amountCents / 100).toFixed(0)} <span className="text-base text-muted">/ year</span>
               </p>
               <p className="text-xs text-sage">
-                That&apos;s €{(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)}/month — save about{" "}
+                That&apos;s €{(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)}/month, save about{" "}
                 {Math.round((1 - SUBSCRIPTION_PLANS.annual.amountCents / (SUBSCRIPTION_PLANS.monthly.amountCents * 12)) * 100)}
                 %
               </p>
@@ -117,7 +117,7 @@ export default function PricingPage() {
             <Eyebrow>One at a time</Eyebrow>
             <h2 className="font-display mt-3 text-3xl">Don&apos;t want to subscribe?</h2>
             <p className="mx-auto mt-3 max-w-xl text-muted">
-              Buy credits and unlock exactly the reading you need — a synastry, a composite or an
+              Buy credits and unlock exactly the reading you need: a synastry, a composite or an
               astrocartography. A credit spent on a pair of profiles unlocks it forever, no need to pay again
               to re-read it.
             </p>

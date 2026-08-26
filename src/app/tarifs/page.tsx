@@ -13,7 +13,7 @@ import { FREE_PROFILE_LIMIT } from "@/lib/billing/entitlements";
 import { EyeIcon, SunIcon, OrbitIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
-  title: "Tarifs — Astrologium",
+  title: "Tarifs · Astrologium",
   description: "Thème natal gratuit. Synastrie, composite et cartographie à l'unité ou en illimité avec Premium.",
 };
 
@@ -47,14 +47,14 @@ export default function TarifsPage() {
                 <li>✓ Thème astral complet, illimité</li>
                 <li>✓ Jusqu&apos;à {FREE_PROFILE_LIMIT} profils enregistrés</li>
                 <li>✓ Interprétations détaillées du thème natal</li>
-                <li className="text-muted/60">— Synastrie, composite, cartographie : à l&apos;unité (voir crédits)</li>
+                <li className="text-muted/60">Synastrie, composite, cartographie : à l&apos;unité (voir crédits)</li>
               </ul>
             </Card>
 
             <Card className="relative flex flex-col border-gold/70 p-8 shadow-[0_0_32px_-8px_#e8935f66,0_0_0_1px_#e8935f55] sm:-translate-y-2">
               <SunIcon className="h-6 w-6 text-gold-strong" />
               <div className="mt-2">
-                <Badge tone="gold">Premium — le plus populaire</Badge>
+                <Badge tone="gold">Premium, le plus populaire</Badge>
               </div>
               <p className="font-display mt-2 text-3xl">
                 {(SUBSCRIPTION_PLANS.monthly.amountCents / 100).toFixed(2)} € <span className="text-base text-muted">/ mois</span>
@@ -83,7 +83,7 @@ export default function TarifsPage() {
                 {(SUBSCRIPTION_PLANS.annual.amountCents / 100).toFixed(0)} € <span className="text-base text-muted">/ an</span>
               </p>
               <p className="text-xs text-sage">
-                Soit {(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)} €/mois — économisez environ{" "}
+                Soit {(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)} €/mois, économisez environ{" "}
                 {Math.round((1 - SUBSCRIPTION_PLANS.annual.amountCents / (SUBSCRIPTION_PLANS.monthly.amountCents * 12)) * 100)}
                 %
               </p>
@@ -109,7 +109,7 @@ export default function TarifsPage() {
             <Eyebrow>À l&apos;unité</Eyebrow>
             <h2 className="font-display mt-3 text-3xl">Pas envie de vous abonner ?</h2>
             <p className="mx-auto mt-3 max-w-xl text-muted">
-              Achetez des crédits et débloquez exactement la lecture dont vous avez besoin — une synastrie,
+              Achetez des crédits et débloquez exactement la lecture dont vous avez besoin : une synastrie,
               un composite ou une cartographie. Un crédit dépensé sur une paire de profils la débloque pour
               toujours, sans repayer pour la relire.
             </p>
