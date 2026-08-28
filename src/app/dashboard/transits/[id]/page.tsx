@@ -27,6 +27,7 @@ import { Card, Eyebrow, Badge } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { TransitCheckIn } from "@/components/dashboard/TransitCheckIn";
 import { TransitWheel } from "@/components/chart/TransitWheel";
+import { CrescentMoonIcon, LockIcon } from "@/components/icons/FeatureIcons";
 
 const EVENT_TYPE_SET = new Set<string>(EVENT_TYPES);
 function isEventType(value: string | undefined): value is EventType {
@@ -347,8 +348,9 @@ export default async function TransitsPage({
           >
             {tab.label}
             {tab.offset > 0 && !isPremium && (
-              <span className="ml-1 whitespace-nowrap text-[10px] normal-case opacity-70">
-                🔒{locale === "en" ? `${tab.offset}d` : `${tab.offset}j`}
+              <span className="ml-1 inline-flex items-center gap-0.5 whitespace-nowrap text-[10px] normal-case opacity-70">
+                <LockIcon className="h-2.5 w-2.5" />
+                {locale === "en" ? `${tab.offset}d` : `${tab.offset}j`}
               </span>
             )}
           </Link>
@@ -424,7 +426,10 @@ export default async function TransitsPage({
 
             <Card className="p-6">
               <div className="flex items-center justify-between">
-                <p className="font-display text-2xl">☾ {moonLabel}</p>
+                <p className="flex items-center gap-1.5 font-display text-2xl">
+                  <CrescentMoonIcon className="h-5 w-5" />
+                  {moonLabel}
+                </p>
                 <Badge tone="gold">{t.illuminated(Math.round(moon.illuminatedFraction * 100))}</Badge>
               </div>
               <p className="mt-2 text-sm leading-relaxed text-muted">{moonTextMap[moon.name]}</p>
@@ -623,7 +628,10 @@ export default async function TransitsPage({
               <Card className="mx-4 max-w-sm p-6 text-center shadow-[0_20px_60px_-15px_#00000090]">
                 <p className="font-display text-xl">{t.lockedTitle}</p>
                 <div className="mt-2">
-                  <Badge tone="gold">🔒 {t.unlocksIn(offset)}</Badge>
+                  <Badge tone="gold">
+                    <LockIcon className="mr-1 inline h-3 w-3 align-[-1px]" />
+                    {t.unlocksIn(offset)}
+                  </Badge>
                 </div>
                 <p className="mt-3 text-sm text-muted">{t.lockedBody}</p>
                 <div className="mt-4">

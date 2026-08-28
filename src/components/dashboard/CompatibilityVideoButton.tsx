@@ -6,14 +6,15 @@ import type { AvatarOverrides } from "@/components/avatar/avatarTraits";
 import { renderAvatarDataUri } from "@/components/avatar/renderAvatarDataUri";
 import { renderQrDataUri } from "@/lib/qr";
 import { playSoftChime } from "@/lib/sound";
+import { VideoIcon } from "@/components/icons/FeatureIcons";
 
 const WIDTH = 720;
 const HEIGHT = 1280;
 const DURATION_MS = 3800;
 
 const TEXT = {
-  fr: { button: "🎬 Vidéo", recording: "…", label: "Notre compatibilité", shareText: "Notre compatibilité astrale, en vidéo, généré sur Astrologium.", unsupported: "Vidéo non disponible sur ce navigateur" },
-  en: { button: "🎬 Video", recording: "…", label: "Our compatibility", shareText: "Our astro compatibility, on video, generated on Astrologium.", unsupported: "Video not available on this browser" },
+  fr: { button: "Vidéo", recording: "…", label: "Notre compatibilité", shareText: "Notre compatibilité astrale, en vidéo, généré sur Astrologium.", unsupported: "Vidéo non disponible sur ce navigateur" },
+  en: { button: "Video", recording: "…", label: "Our compatibility", shareText: "Our astro compatibility, on video, generated on Astrologium.", unsupported: "Video not available on this browser" },
 };
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -292,9 +293,14 @@ export function CompatibilityVideoButton({
       type="button"
       onClick={handleClick}
       disabled={busy}
-      className="inline-block rounded-full border border-gold/40 px-3 py-1 text-xs text-gold-strong hover:bg-gold/10 disabled:opacity-60"
+      className="inline-flex items-center gap-1 rounded-full border border-gold/40 px-3 py-1 text-xs text-gold-strong hover:bg-gold/10 disabled:opacity-60"
     >
-      {busy ? t.recording : t.button}
+      {busy ? t.recording : (
+        <>
+          <VideoIcon className="h-3 w-3" />
+          {t.button}
+        </>
+      )}
     </button>
   );
 }

@@ -12,14 +12,14 @@ const TEXT: Record<Locale, { prompt: string; vrai: string; partiellement: string
   fr: {
     prompt: "Avec le recul, cette lecture s'est révélée…",
     vrai: "✓ Confirmée",
-    partiellement: "🤏 En partie",
+    partiellement: "≈ En partie",
     pas_du_tout: "✕ Pas vraiment",
     error: "Réessayez.",
   },
   en: {
     prompt: "Looking back, this reading turned out to be…",
     vrai: "✓ Accurate",
-    partiellement: "🤏 Partly",
+    partiellement: "≈ Partly",
     pas_du_tout: "✕ Not really",
     error: "Please try again.",
   },
