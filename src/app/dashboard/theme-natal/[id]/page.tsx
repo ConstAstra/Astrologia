@@ -35,6 +35,7 @@ import { composeChartHighlights } from "@/lib/astro/interpretations/chart-highli
 import { hasFeatureAccess } from "@/lib/billing/entitlements";
 import { canViewProfile } from "@/lib/friends";
 import { Card, Eyebrow, Badge } from "@/components/ui/Card";
+import { CrescentMoonIcon, SunIcon } from "@/components/icons/FeatureIcons";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { OverviewCard } from "@/components/chart/OverviewCard";
 import { ShareChartToggle } from "@/components/account/ShareChartToggle";
@@ -108,8 +109,8 @@ const TEXT: Record<
     eyebrow: "Thème natal",
     unknownTime: "· heure inconnue",
     at: "à",
-    transits: "☾ Voir les transits du jour",
-    solarReturn: "✷ Révolution solaire",
+    transits: "Voir les transits du jour",
+    solarReturn: "Révolution solaire",
     inBrief: "En bref",
     unreliableHouses:
       "Heure de naissance inconnue : l'Ascendant, le Milieu du Ciel et les maisons ne sont pas affichés, plutôt que d'afficher une estimation trompeuse.",
@@ -145,8 +146,8 @@ const TEXT: Record<
     eyebrow: "Natal chart",
     unknownTime: "· unknown time",
     at: "at",
-    transits: "☾ See today's transits",
-    solarReturn: "✷ Solar return",
+    transits: "See today's transits",
+    solarReturn: "Solar return",
     inBrief: "In brief",
     unreliableHouses:
       "Unknown birth time: the Ascendant, Midheaven and houses aren't shown, rather than displaying a misleading estimate.",
@@ -286,14 +287,16 @@ export default async function ThemeNatalPage({
           <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href={`/dashboard/transits/${profile.id}`}
-              className="inline-block rounded-full border border-sage/40 px-3 py-1 text-xs text-sage hover:bg-sage/10"
+              className="inline-flex items-center gap-1.5 rounded-full border border-sage/40 px-3 py-1 text-xs text-sage hover:bg-sage/10"
             >
+              <CrescentMoonIcon className="h-3 w-3" />
               {t.transits}
             </Link>
             <Link
               href={`/dashboard/revolution-solaire/${profile.id}`}
-              className="inline-block rounded-full border border-violet/40 px-3 py-1 text-xs text-violet hover:bg-violet/10"
+              className="inline-flex items-center gap-1.5 rounded-full border border-violet/40 px-3 py-1 text-xs text-violet hover:bg-violet/10"
             >
+              <SunIcon className="h-3 w-3" />
               {t.solarReturn}
             </Link>
             {isOwner && (
