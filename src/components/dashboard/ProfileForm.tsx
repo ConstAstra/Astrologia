@@ -19,6 +19,7 @@ const TEXT: Record<Locale, {
   locationPlaceholder: string;
   searching: string;
   timezoneDetected: (tz: string) => string;
+  errorNoLabel: string;
   errorNoLocation: string;
   errorNoDate: string;
   errorNoTime: string;
@@ -38,6 +39,7 @@ const TEXT: Record<Locale, {
     locationPlaceholder: "Ex : Lyon, France",
     searching: "Recherche…",
     timezoneDetected: (tz) => `Fuseau détecté : ${tz}`,
+    errorNoLabel: "Donnez un nom à ce profil.",
     errorNoLocation: "Choisissez un lieu de naissance dans la liste proposée.",
     errorNoDate: "La date de naissance est requise.",
     errorNoTime: "Indiquez l'heure de naissance, ou cochez \"heure inconnue\".",
@@ -57,6 +59,7 @@ const TEXT: Record<Locale, {
     locationPlaceholder: "E.g.: Lyon, France",
     searching: "Searching…",
     timezoneDetected: (tz) => `Detected time zone: ${tz}`,
+    errorNoLabel: "Give this profile a name.",
     errorNoLocation: "Choose a birth place from the suggested list.",
     errorNoDate: "Birth date is required.",
     errorNoTime: "Enter the birth time, or check \"unknown time\".",
@@ -65,6 +68,13 @@ const TEXT: Record<Locale, {
     submitting: "Calculating…",
     submit: "Create the profile and view the chart",
   },
+};
+
+type FieldErrors = {
+  label?: string;
+  birthDate?: string;
+  birthTime?: string;
+  location?: string;
 };
 
 export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
@@ -84,6 +94,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   function handleQueryChange(value: string) {
     setQuery(value);
@@ -116,18 +127,14 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
     e.preventDefault();
     setError(null);
 
-    if (!selected) {
-      setError(t.errorNoLocation);
-      return;
-    }
-    if (!birthDate) {
-      setError(t.errorNoDate);
-      return;
-    }
-    if (!timeUnknown && !birthTime) {
-      setError(t.errorNoTime);
-      return;
-    }
+    const nextFieldErrors: FieldErrors = {};
+    if (!label.trim()) nextFieldErrors.label = t.errorNoLabel;
+    if (!birthDate) nextFieldErrors.birthDate = t.errorNoDate;
+    if (!timeUnknown && !birthTime) nextFieldErrors.birthTime = t.errorNoTime;
+    if (!selected) nextFieldErrors.location = t.errorNoLocation;
+
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0 || !selected) return;
 
     setSubmitting(true);
     try {
@@ -157,19 +164,23 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form onSubmit={onSubmit} noValidate className="space-y-5">
       <div>
         <label className="mb-1 block text-sm text-muted" htmlFor="label">
           {t.labelField}
         </label>
         <input
           id="label"
-          required
           value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          onChange={(e) => {
+            setLabel(e.target.value);
+            if (fieldErrors.label) setFieldErrors((prev) => ({ ...prev, label: undefined }));
+          }}
+          aria-invalid={Boolean(fieldErrors.label)}
+          className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 ${fieldErrors.label ? "border-terracotta/60" : "border-border-soft"}`}
           placeholder={t.labelPlaceholder}
         />
+        {fieldErrors.label && <p className="mt-1 text-xs text-terracotta">{fieldErrors.label}</p>}
       </div>
 
       <label className="flex items-center gap-2 text-sm text-muted">
@@ -185,11 +196,15 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
           <input
             id="birthDate"
             type="date"
-            required
             value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+            onChange={(e) => {
+              setBirthDate(e.target.value);
+              if (fieldErrors.birthDate) setFieldErrors((prev) => ({ ...prev, birthDate: undefined }));
+            }}
+            aria-invalid={Boolean(fieldErrors.birthDate)}
+            className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 ${fieldErrors.birthDate ? "border-terracotta/60" : "border-border-soft"}`}
           />
+          {fieldErrors.birthDate && <p className="mt-1 text-xs text-terracotta">{fieldErrors.birthDate}</p>}
         </div>
         <div>
           <label className="mb-1 block text-sm text-muted" htmlFor="birthTime">
@@ -200,13 +215,25 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
             type="time"
             disabled={timeUnknown}
             value={birthTime}
-            onChange={(e) => setBirthTime(e.target.value)}
-            className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 disabled:opacity-40"
+            onChange={(e) => {
+              setBirthTime(e.target.value);
+              if (fieldErrors.birthTime) setFieldErrors((prev) => ({ ...prev, birthTime: undefined }));
+            }}
+            aria-invalid={Boolean(fieldErrors.birthTime)}
+            className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 disabled:opacity-40 ${fieldErrors.birthTime ? "border-terracotta/60" : "border-border-soft"}`}
           />
           <label className="mt-1 flex items-center gap-2 text-xs text-muted">
-            <input type="checkbox" checked={timeUnknown} onChange={(e) => setTimeUnknown(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={timeUnknown}
+              onChange={(e) => {
+                setTimeUnknown(e.target.checked);
+                if (fieldErrors.birthTime) setFieldErrors((prev) => ({ ...prev, birthTime: undefined }));
+              }}
+            />
             {t.timeUnknown}
           </label>
+          {fieldErrors.birthTime && <p className="mt-1 text-xs text-terracotta">{fieldErrors.birthTime}</p>}
         </div>
       </div>
 
@@ -217,9 +244,13 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
         <input
           id="location"
           value={query}
-          onChange={(e) => handleQueryChange(e.target.value)}
+          onChange={(e) => {
+            handleQueryChange(e.target.value);
+            if (fieldErrors.location) setFieldErrors((prev) => ({ ...prev, location: undefined }));
+          }}
           placeholder={t.locationPlaceholder}
-          className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
+          aria-invalid={Boolean(fieldErrors.location)}
+          className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 ${fieldErrors.location ? "border-terracotta/60" : "border-border-soft"}`}
           autoComplete="off"
         />
         {searching && <p className="mt-1 text-xs text-muted">{t.searching}</p>}
@@ -233,6 +264,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
                     setSelected(r);
                     setQuery(r.label);
                     setResults([]);
+                    if (fieldErrors.location) setFieldErrors((prev) => ({ ...prev, location: undefined }));
                   }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-gold/10"
                 >
@@ -243,6 +275,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
           </ul>
         )}
         {selected && <p className="mt-1 text-xs text-sage">{t.timezoneDetected(selected.tzName)}</p>}
+        {fieldErrors.location && <p className="mt-1 text-xs text-terracotta">{fieldErrors.location}</p>}
       </div>
 
       {error && <p className="text-sm text-terracotta">{error}</p>}
