@@ -1,9 +1,11 @@
+import type { ComponentType } from "react";
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { METHODOLOGY } from "@/lib/astro/interpretations/methodology";
 import { SunIcon, OverlapIcon, MergeIcon, MapPinIcon, OrbitIcon, WheelIcon, EyeIcon } from "@/components/icons/FeatureIcons";
+import { ZodiacSeasonDiagram, HouseSystemsDiagram, CartographyLinesDiagram } from "@/components/method/MethodDiagrams";
 
 export const metadata: Metadata = {
   title: "La méthode · Astrologium",
@@ -17,6 +19,15 @@ export const metadata: Metadata = {
 // une logique d'observation précise) plutôt que d'inventer un pictogramme
 // arbitraire par section.
 const SECTION_ICONS = [WheelIcon, OrbitIcon, WheelIcon, EyeIcon, OverlapIcon, OverlapIcon, MergeIcon, MapPinIcon, EyeIcon, SunIcon];
+
+// Schémas explicatifs réservés aux sections où un dessin dit plus qu'un
+// paragraphe (ancrage du zodiaque, écarts entre systèmes de maisons,
+// lignes de cartographie) plutôt qu'à toutes les sections.
+const SECTION_DIAGRAMS: Partial<Record<number, ComponentType<{ className?: string }>>> = {
+  0: ZodiacSeasonDiagram,
+  2: HouseSystemsDiagram,
+  7: CartographyLinesDiagram,
+};
 
 export default function MethodePage() {
   return (
@@ -36,6 +47,7 @@ export default function MethodePage() {
           <div className="space-y-6">
             {METHODOLOGY.map((section, i) => {
               const Icon = SECTION_ICONS[i % SECTION_ICONS.length];
+              const Diagram = SECTION_DIAGRAMS[i];
               return (
                 <Card key={section.title} className="p-7">
                   <div className="flex items-center gap-3">
@@ -44,10 +56,17 @@ export default function MethodePage() {
                     </span>
                     <h2 className="font-display text-2xl text-gold-strong">{section.title}</h2>
                   </div>
-                  <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
-                    {section.body.map((paragraph, i) => (
-                      <p key={i}>{paragraph}</p>
-                    ))}
+                  <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
+                    <div className="flex-1 space-y-3 text-sm leading-relaxed text-muted">
+                      {section.body.map((paragraph, i) => (
+                        <p key={i}>{paragraph}</p>
+                      ))}
+                    </div>
+                    {Diagram && (
+                      <div className="flex shrink-0 justify-center border-t border-border-soft pt-5 sm:w-56 sm:justify-end sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6">
+                        <Diagram />
+                      </div>
+                    )}
                   </div>
                 </Card>
               );
