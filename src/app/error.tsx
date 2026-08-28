@@ -10,14 +10,14 @@ const TEXT = {
   fr: {
     eyebrow: "Éclipse imprévue",
     title: "Une erreur est survenue.",
-    body: "Ce n'est pas votre thème qui a un problème, c'est nous — l'équipe (ou plutôt, la seule personne) derrière Astrologium en a été informée.",
+    body: "Ce n'est pas votre thème qui a un problème, c'est nous : l'équipe (ou plutôt, la seule personne) derrière Astrologium en a été informée.",
     retry: "Réessayer",
     home: "Retour à l'accueil",
   },
   en: {
     eyebrow: "Unexpected eclipse",
     title: "Something went wrong.",
-    body: "It's not your chart that has a problem, it's us — the team (well, the one person) behind Astrologium has been notified.",
+    body: "It's not your chart that has a problem, it's us: the team (well, the one person) behind Astrologium has been notified.",
     retry: "Try again",
     home: "Back to home",
   },

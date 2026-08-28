@@ -8,7 +8,7 @@ import { HeroChartWheel } from "@/components/HeroChartWheel";
 import { SunIcon, OverlapIcon, MergeIcon, MapPinIcon, OrbitIcon, WheelIcon, EyeIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
-  title: "Astrologium — Natal Chart, Synastry, Composite & Astrocartography",
+  title: "Astrologium · Natal Chart, Synastry, Composite & Astrocartography",
   description:
     "Create your natal chart, synastry, composite chart and astrocartography. Precise calculations, method fully explained, in English.",
 };
@@ -31,7 +31,7 @@ const TOOLS = [
   {
     title: "Composite chart",
     description:
-      "The chart \"of the couple\" itself, calculated with the midpoint method — a third entity, beyond the two individuals.",
+      "The chart \"of the couple\" itself, calculated with the midpoint method, a third entity, beyond the two individuals.",
     icon: MergeIcon,
   },
   {
@@ -52,7 +52,7 @@ const ENGAGEMENTS = [
   },
   {
     title: "Transparent houses",
-    description: "Placidus, whole sign, equal houses or Porphyry — you choose, we explain the difference.",
+    description: "Placidus, whole sign, equal houses or Porphyry, you choose, we explain the difference.",
     icon: WheelIcon,
   },
   {
@@ -88,7 +88,7 @@ export default function HomeEn() {
                 Understand the method
               </ButtonLink>
             </div>
-            <p className="mt-4 text-xs text-muted/70">Full natal chart, free and unlimited — no card required.</p>
+            <p className="mt-4 text-xs text-muted/70">Full natal chart, free and unlimited, no card required.</p>
           </div>
           <div className="hidden lg:block">
             <HeroChartWheel className="mx-auto max-w-md" />

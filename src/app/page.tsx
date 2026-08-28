@@ -24,7 +24,7 @@ const TOOLS = [
   {
     title: "Thème composite",
     description:
-      "Le thème \"du couple\" lui-même, calculé par la méthode des points médians — une troisième entité, au-delà des deux personnes.",
+      "Le thème \"du couple\" lui-même, calculé par la méthode des points médians, une troisième entité, au-delà des deux personnes.",
     icon: MergeIcon,
   },
   {
@@ -45,7 +45,7 @@ const ENGAGEMENTS = [
   },
   {
     title: "Maisons transparentes",
-    description: "Placidus, signes entiers, maisons égales ou Porphyre — vous choisissez, on vous explique la différence.",
+    description: "Placidus, signes entiers, maisons égales ou Porphyre, vous choisissez, on vous explique la différence.",
     icon: WheelIcon,
   },
   {
@@ -82,7 +82,7 @@ export default function Home() {
                 Comprendre la méthode
               </ButtonLink>
             </div>
-            <p className="mt-4 text-xs text-muted/70">Thème natal complet, gratuit et illimité — sans carte bancaire.</p>
+            <p className="mt-4 text-xs text-muted/70">Thème natal complet, gratuit et illimité, sans carte bancaire.</p>
           </div>
           <div className="hidden lg:block">
             <HeroChartWheel className="mx-auto max-w-md" />

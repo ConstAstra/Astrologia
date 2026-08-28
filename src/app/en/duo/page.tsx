@@ -6,13 +6,13 @@ import { DuoTeaserForm } from "@/components/duo/DuoTeaserForm";
 import { getDuoSocialProofCount } from "@/lib/duo-social-proof";
 
 export const metadata: Metadata = {
-  title: "Quick compatibility test — Astrologium",
+  title: "Quick compatibility test · Astrologium",
   description:
-    "Two names, two signs, a shareable card in 10 seconds — no account needed. For a full reading based on your real charts, real synastry is free when you sign up.",
+    "Two names, two signs, a shareable card in 10 seconds, no account needed. For a full reading based on your real charts, real synastry is free when you sign up.",
 };
 
 // Without this, Next prerenders the page once at build time and freezes the
-// social-proof count at whatever it was then — never updated in production.
+// social-proof count at whatever it was then, never updated in production.
 export const revalidate = 300;
 
 export default async function DuoEnPage() {
@@ -26,7 +26,7 @@ export default async function DuoEnPage() {
           <Eyebrow>Quick test</Eyebrow>
           <h1 className="font-display mt-4 text-4xl sm:text-5xl">You & someone, what does it give?</h1>
           <p className="mt-5 text-muted">
-            Two names, two signs, a shareable card — no account needed. Based on sun signs only; for real
+            Two names, two signs, a shareable card, no account needed. Based on sun signs only; for real
             synastry (Moon, Venus, Mars, Ascendant), signing up stays free.
           </p>
           {socialProofCount !== null && (

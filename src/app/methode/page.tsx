@@ -6,11 +6,11 @@ import { METHODOLOGY } from "@/lib/astro/interpretations/methodology";
 import { SunIcon, OverlapIcon, MergeIcon, MapPinIcon, OrbitIcon, WheelIcon, EyeIcon } from "@/components/icons/FeatureIcons";
 
 export const metadata: Metadata = {
-  title: "La méthode — Astrologium",
+  title: "La méthode · Astrologium",
   description: "Comment Astrologium calcule vos thèmes : zodiaque, éphémérides, maisons, aspects, synastrie, composite, cartographie.",
 };
 
-// Une icône par section, dans l'ordre de METHODOLOGY — purement décoratif,
+// Une icône par section, dans l'ordre de METHODOLOGY, purement décoratif,
 // pensé pour casser l'effet "mur de texte" plutôt que pour ajouter du sens.
 // Les icônes se répètent volontairement entre sections apparentées (zodiaque
 // et maisons partagent une logique de roue, degré exact et limites assumées
@@ -28,7 +28,7 @@ export default function MethodePage() {
           <h1 className="font-display mt-4 text-4xl sm:text-5xl">Comment on calcule votre ciel</h1>
           <p className="mt-5 text-muted">
             Aucune boîte noire. Voici, dans le détail, les méthodes et conventions utilisées pour chaque
-            outil — pour que vous puissiez lire vos thèmes en toute connaissance de cause.
+            outil, pour que vous puissiez lire vos thèmes en toute connaissance de cause.
           </p>
         </section>
 
