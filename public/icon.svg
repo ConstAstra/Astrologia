@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <rect width="24" height="24" rx="5" fill="#1f1420" />
+  <path
+    d="M12 3 L13.6 9.6 L20 11 L13.6 12.4 L12 19 L10.4 12.4 L4 11 L10.4 9.6 Z"
+    fill="url(#astrologium-icon-gradient)"
+  />
+  <defs>
+    <linearGradient id="astrologium-icon-gradient" x1="4" y1="3" x2="20" y2="19">
+      <stop offset="0" stop-color="#f2b799" />
+      <stop offset="1" stop-color="#c77b8a" />
+    </linearGradient>
+  </defs>
+</svg>

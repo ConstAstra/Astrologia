@@ -1,0 +1,417 @@
+// Schéma Prisma — Astrologia
+// PostgreSQL en local comme en production (voir README, section "Base de
+// données") : SQLite ne survit pas à un déploiement serverless (filesystem
+// éphémère sur Vercel notamment), donc même le développement local tourne
+// sur un vrai Postgres pour éviter toute divergence dev/prod.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  name         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Entitlement unifié (indépendant du moyen de paiement) ---
+  // "free" | "trialing" | "active" | "past_due" | "canceled"
+  subscriptionStatus String    @default("free")
+  // "monthly" | "annual" | null
+  subscriptionPlan   String?
+  // "stripe" | "apple" | null — quelle plateforme a vendu l'abonnement en cours
+  entitlementSource  String?
+  currentPeriodEnd   DateTime?
+
+  // Solde de jetons (achats à l'unité, Stripe ou Apple consumable IAP)
+  credits Int @default(0)
+
+  // --- Préférences ---
+  // Langue de l'interface tableau de bord + des e-mails ("fr" | "en").
+  // Le site marketing (public, non authentifié) utilise des URLs séparées
+  // (/en/*) plutôt que cette préférence, car il doit rester indexable par
+  // les moteurs de recherche dans les deux langues.
+  locale String @default("fr")
+
+  // --- Notifications ---
+  dailyHoroscopeOptIn Boolean @default(true)
+  // Permet un désabonnement en un clic depuis l'e-mail, sans authentification.
+  unsubscribeToken    String  @unique @default(cuid())
+  // Notification push "transit du jour" (web push) — opt-in explicite
+  // contrairement à l'e-mail, car elle nécessite la permission navigateur.
+  dailyTransitPushOptIn Boolean @default(false)
+  // Notification push "ta série va se rompre ce soir" — préférence distincte
+  // de dailyTransitPushOptIn : un utilisateur peut vouloir l'une sans l'autre,
+  // ce sont deux contenus différents avec un consentement séparé.
+  streakReminderOptIn   Boolean @default(false)
+  // Notification push "quelqu'un a testé sa compatibilité avec toi" ou "un
+  // ami a accepté ton invitation" — troisième préférence indépendante, même
+  // logique que les deux ci-dessus.
+  friendActivityPushOptIn Boolean @default(false)
+  // Notification push "un transit fort approche" — prévient 3 jours à
+  // l'avance qu'un aspect majeur touchant une planète personnelle va
+  // devenir exact, plutôt que d'attendre que la personne revienne d'elle-
+  // même consulter. Quatrième préférence indépendante, même logique que
+  // les trois ci-dessus.
+  upcomingTransitAlertOptIn Boolean @default(false)
+
+  // --- Série de connexions (streak) ---
+  // Jours consécutifs avec au moins une visite du tableau de bord. Mis à
+  // jour par recordDailyActivity() (src/lib/streak.ts), appelé une fois par
+  // requête dans le layout du dashboard — idempotent sur une même journée UTC.
+  currentStreak  Int     @default(0)
+  longestStreak  Int     @default(0)
+  lastActiveDate String? // "YYYY-MM-DD" (UTC), date de la dernière visite comptée
+
+  // --- Parrainage ---
+  // Code court à partager (ex: ?ref=CODE à l'inscription). Généré côté
+  // application (pas de @default ici : voir la migration pour le backfill
+  // des lignes existantes).
+  referralCode          String  @unique
+  referredByUserId      String?
+  referredBy            User?   @relation("Referrals", fields: [referredByUserId], references: [id], onDelete: SetNull)
+  referrals             User[]  @relation("Referrals")
+  // Empêche de créditer deux fois le même parrainage (1er achat du filleul seulement).
+  referralRewardGranted Boolean @default(false)
+
+  // --- Stripe (web) ---
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String? @unique
+
+  // --- Apple (App Store) ---
+  // originalTransactionId Apple : identifiant stable qui suit un abonnement
+  // à travers ses renouvellements, utilisé pour relier les notifications
+  // App Store Server à ce compte.
+  appleOriginalTransactionId String? @unique
+
+  profiles           Profile[]
+  creditGrants       CreditGrant[]
+  unlocks            Unlock[]
+  passwordResetTokens PasswordResetToken[]
+  pushSubscriptions   PushSubscription[]
+  friendInvites       FriendInvite[]
+  friendshipsAsA      Friendship[] @relation("FriendshipA")
+  friendshipsAsB      Friendship[] @relation("FriendshipB")
+  giftCodeRedemptions GiftCodeRedemption[]
+}
+
+model Profile {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label  String
+  isSelf Boolean @default(false)
+
+  birthDate   String // format ISO "YYYY-MM-DD"
+  birthTime   String? // format "HH:mm", null si heure inconnue
+  timeUnknown Boolean @default(false)
+
+  locationName String
+  latitude     Float
+  longitude    Float
+  tzName       String // fuseau IANA, ex: "Europe/Paris"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unlocksAsPrimary   Unlock[] @relation("UnlockPrimaryProfile")
+  unlocksAsSecondary Unlock[] @relation("UnlockSecondaryProfile")
+
+  // Jeton opaque pour le widget iOS : WidgetKit ne partage pas les cookies
+  // de session du navigateur, donc l'accès en lecture seule au résumé du
+  // jour passe par ce jeton plutôt que par l'authentification classique.
+  widgetToken String @unique @default(cuid())
+
+  // Autorise les amis acceptés (voir Friendship) à consulter en lecture
+  // seule le thème natal complet et les transits de ce profil, pas
+  // seulement l'aperçu carte d'identité déjà visible dans /dashboard/amis.
+  // Sans effet si isSelf=false : on ne partage jamais le profil d'un tiers
+  // (mère, ex...) enregistré par erreur avec ce réglage activé.
+  shareWithFriends Boolean @default(false)
+
+  // Choix manuels de l'éditeur d'avatar (JSON sérialisé, voir AvatarOverrides
+  // dans avatarTraits.ts) — null tant que l'utilisateur n'a rien personnalisé
+  // à la main, auquel cas l'avatar reste généré automatiquement depuis le thème.
+  avatarOverrides String?
+
+  // Non null quand un compte non-Premium repasse sous le seuil de profils
+  // gratuits (voir FREE_PROFILE_LIMIT) et que ce profil fait partie de ceux
+  // mis de côté lors de la sélection obligatoire (/dashboard/profils/choisir).
+  // Un profil archivé reste en base avec tout son historique (déblocages,
+  // avis de transit) mais disparaît des listes, pickers et accès aux
+  // fonctionnalités, jusqu'à réarchivage manuel ou reprise d'un abonnement
+  // Premium (qui désarchive automatiquement tous les profils du compte).
+  archivedAt DateTime?
+
+  checkIns TransitCheckIn[]
+
+  deepSynthesesAsPrimary   DeepSynthesis[] @relation("DeepSynthesisPrimaryProfile")
+  deepSynthesesAsSecondary DeepSynthesis[] @relation("DeepSynthesisSecondaryProfile")
+}
+
+// Synthèse profonde du grimoire (5 chapitres general/love/money/career/spiritual),
+// générée par l'API Claude et mise en cache pour ne jamais être régénérée à
+// chaque visite (voir narrateDeepSynthesis dans src/lib/ai/deep-synthesis.ts).
+// Une seule table pour les 4 contextes (natal/synastrie/composite/révolution
+// solaire) plutôt que des champs dédiés sur Profile, pour ne pas polluer ce
+// modèle avec des colonnes qui ne concernent qu'un seul type de lecture.
+model DeepSynthesis {
+  id String @id @default(cuid())
+
+  // "natal" | "synastry" | "composite" | "solarReturn"
+  type String
+
+  profileId String
+  profile   Profile @relation("DeepSynthesisPrimaryProfile", fields: [profileId], references: [id], onDelete: Cascade)
+
+  // Synastrie/composite uniquement : second profil impliqué.
+  secondaryProfileId String?
+  secondaryProfile   Profile? @relation("DeepSynthesisSecondaryProfile", fields: [secondaryProfileId], references: [id], onDelete: Cascade)
+
+  // Révolution solaire uniquement : année du retour concerné.
+  year Int?
+
+  // Synastrie/composite uniquement : nature de la relation, le ton du texte en dépend.
+  relationshipType String?
+
+  locale String
+
+  // JSON sérialisé de DeepSynthesisResult (general/love/money/career/spiritual).
+  contentJson String
+
+  generatedAt DateTime @default(now())
+
+  @@index([type, profileId, secondaryProfileId, year, locale])
+}
+
+// Retour subjectif du propriétaire du profil sur une lecture de transits
+// passée ("cette journée-là, la lecture vous a semblé... confirmée /
+// partielle / pas vraiment") — ferme la boucle contenu à sens unique
+// (astro → utilisateur) en gardant une trace consultable dans le temps.
+// Un seul avis par jour et par profil (on corrige en réécrivant, pas en
+// empilant) ; jamais pour un jour futur (voir la validation de la route),
+// une lecture ne peut être jugée qu'une fois vécue.
+model TransitCheckIn {
+  id String @id @default(cuid())
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  date String // "YYYY-MM-DD", jour concerné (pas forcément aujourd'hui)
+  // "vrai" | "partiellement" | "pas_du_tout"
+  reaction String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([profileId, date])
+  @@index([profileId])
+}
+
+// Historique des achats de crédits (packs), quelle que soit la plateforme.
+// Sert de journal d'audit + idempotence (un transactionId Apple/Stripe ne
+// doit jamais être crédité deux fois).
+model CreditGrant {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  source        String // "stripe" | "apple"
+  externalId    String @unique // Stripe payment_intent / session id, ou Apple transactionId
+  creditsAdded  Int
+  amountCents   Int?
+  currency      String?
+
+  createdAt DateTime @default(now())
+}
+
+// Une "interprétation" débloquée (synastrie, composite, cartographie...) :
+// soit via un crédit dépensé, soit via l'abonnement actif. Permet de savoir
+// ce à quoi l'utilisateur a déjà accès sans re-payer, et sert d'audit trail.
+model Unlock {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // "natal" | "synastry" | "composite" | "astrocartography"
+  feature String
+
+  primaryProfileId String
+  primaryProfile   Profile @relation("UnlockPrimaryProfile", fields: [primaryProfileId], references: [id], onDelete: Cascade)
+
+  secondaryProfileId String?
+  secondaryProfile   Profile? @relation("UnlockSecondaryProfile", fields: [secondaryProfileId], references: [id], onDelete: Cascade)
+
+  // "credit" | "subscription"
+  method String
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, feature, primaryProfileId, secondaryProfileId])
+}
+
+// Jeton à usage unique pour la réinitialisation de mot de passe. Seul le
+// hash du jeton est stocké (comme un mot de passe) : le jeton en clair
+// n'existe que dans l'e-mail envoyé à l'utilisateur et dans l'URL qu'il
+// visite, jamais en base.
+model PasswordResetToken {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Un abonnement Web Push (API standard du navigateur, PushManager) pour
+// l'envoi de la notification "transit du jour". Un utilisateur peut avoir
+// plusieurs abonnements (un par appareil/navigateur où il a activé la
+// fonctionnalité) ; supprimé automatiquement si le navigateur renvoie une
+// erreur 404/410 (abonnement expiré côté navigateur) lors d'un envoi.
+model PushSubscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  endpoint String @unique
+  p256dh   String // clé publique de chiffrement du navigateur
+  auth     String // secret d'authentification du navigateur
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Lien d'invitation "ajoute-moi en ami" — le principal levier de viralité de
+// l'app : réutilisable jusqu'à expiration (comme un code de parrainage),
+// pointe vers /amis/[token]. Quiconque n'est pas connecté est redirigé vers
+// connexion/inscription (avec ?next= vers cette même page) avant de pouvoir
+// accepter — l'acceptation est un geste explicite, jamais automatique.
+model FriendInvite {
+  id    String @id @default(cuid())
+  token String @unique @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+}
+
+// Amitié acceptée entre deux comptes : donne accès mutuel à la carte
+// d'identité astrale de l'autre (avatar, Big 3) dans /dashboard/amis, et
+// permet de choisir le profil "soi" de l'ami comme second profil en
+// synastrie sans avoir à ressaisir sa date de naissance. userAId < userBId
+// toujours (ordre canonique, même logique que canonicalPair() pour Unlock)
+// pour qu'une paire ne puisse pas exister deux fois en sens inverse.
+model Friendship {
+  id String @id @default(cuid())
+
+  userAId String
+  userA   User   @relation("FriendshipA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId String
+  userB   User   @relation("FriendshipB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userAId])
+  @@index([userBId])
+}
+
+// Une ligne par carte générée sur /duo (test de compatibilité sans compte,
+// voir /api/share/duo) — sert uniquement à afficher un compteur honnête
+// ("X cartes générées cette semaine") sur la page publique. Pas de lien vers
+// un User : le flux /duo est délibérément anonyme, aucune donnée
+// personnelle n'y transite.
+model DuoGeneration {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Code cadeau créé manuellement depuis /dashboard/admin (accès Premium ou
+// crédits offerts, ex: cadeau à un proche) — indépendant de Stripe/Apple,
+// donc utilisable même sans moyen de paiement de la part du bénéficiaire.
+model GiftCode {
+  id String @id @default(cuid())
+
+  // Normalisé en majuscules à la création pour une saisie insensible à la casse.
+  code String @unique
+
+  // Note interne (jamais affichée à l'utilisateur qui rédime le code).
+  label String?
+
+  // "subscription" | "credits"
+  grantType String
+
+  // --- grantType = "subscription" ---
+  subscriptionPlan String? // "monthly" | "annual", purement informatif (label affiché)
+  // Nombre de jours d'accès Premium offerts à la rédemption. null = à vie
+  // (jamais de currentPeriodEnd posé, comme un abonnement sans date de fin).
+  durationDays Int?
+
+  // --- grantType = "credits" ---
+  creditsAmount Int?
+
+  maxRedemptions  Int     @default(1)
+  redemptionCount Int     @default(0)
+  active          Boolean @default(true)
+  expiresAt       DateTime?
+
+  createdAt DateTime @default(now())
+
+  redemptions GiftCodeRedemption[]
+}
+
+// Une rédemption = un utilisateur a saisi un GiftCode et en a reçu le gain.
+// Unique par (giftCode, user) : un même compte ne peut pas rédimer deux fois
+// le même code, même si maxRedemptions autorise plusieurs bénéficiaires
+// différents (ex: un code "cadeau anniversaire" partagé à plusieurs amis).
+model GiftCodeRedemption {
+  id String @id @default(cuid())
+
+  giftCodeId String
+  giftCode   GiftCode @relation(fields: [giftCodeId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([giftCodeId, userId])
+  @@index([userId])
+}
+
+// Compteur de pages vues agrégé par jour — volontairement sans identifiant
+// de visiteur (pas de cookie, pas d'IP stockée) : juste "combien de fois
+// ce chemin a été chargé ce jour-là", pour un tableau de bord de trafic
+// sans données personnelles à protéger ni bandeau de consentement requis.
+model PageView {
+  id String @id @default(cuid())
+
+  path  String
+  date  String // "YYYY-MM-DD" UTC
+  count Int    @default(1)
+
+  @@unique([path, date])
+  @@index([date])
+}
