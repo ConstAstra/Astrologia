@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import * as Astronomy from "astronomy-engine";
 import { computeNatalChart } from "@/lib/astro/chart";
-import { PLANET_KEYS } from "@/lib/astro/types";
+import { normalizeDegrees } from "@/lib/astro/ephemeris";
+import { ASTEROID_KEYS, PLANET_KEYS } from "@/lib/astro/types";
 
 // Cross-checks the ephemeris wrapper against known solar events (equinoxes/
 // solstices have a well-documented, easily-verified ecliptic solar longitude:
@@ -93,5 +94,86 @@ describe("computeNatalChart", () => {
     );
     expect(again.points.sun.longitude).toBeCloseTo(chart.points.sun.longitude, 9);
     expect(again.houses.ascendant).toBeCloseTo(chart.houses.ascendant, 9);
+  });
+});
+
+// Vertex/Part of Marriage/Chiron/Juno were added later in the project and,
+// until now, had zero test coverage — none of the surrounding formulas
+// (day/night flip, the Vertex trig derivation) had a regression guard.
+describe("Vertex and Part of Marriage", () => {
+  it("computes the Vertex within [0, 360) and, away from the equator, in houses V-VIII (property documented and manually verified in houses.ts)", () => {
+    const cases: [string, string, string, number][] = [
+      ["Paris", "1990-06-15", "14:30", 48.8566],
+      ["Sydney", "1990-06-15", "14:30", -33.8688],
+      ["Reykjavik (high N latitude)", "1990-06-15", "14:30", 64.1466],
+      ["Cape Town", "1990-06-15", "14:30", -33.9249],
+      ["Oslo, night birth", "1990-01-10", "03:00", 59.9139],
+    ];
+    for (const [label, date, time, latitude] of cases) {
+      const chart = computeNatalChart({ date, time, tzName: "UTC", latitude, longitude: 0 }, "whole-sign");
+      expect(chart.points.vertex.longitude, label).toBeGreaterThanOrEqual(0);
+      expect(chart.points.vertex.longitude, label).toBeLessThan(360);
+      expect(chart.points.vertex.house, label).toBeGreaterThanOrEqual(5);
+      expect(chart.points.vertex.house, label).toBeLessThanOrEqual(8);
+    }
+  });
+
+  it("uses the day formula (Asc + Venus - Saturn) for a day birth, matching chart.ts's own documented mechanic", () => {
+    const dayChart = computeNatalChart(
+      { date: "1990-06-15", time: "14:30", tzName: "Europe/Paris", latitude: 48.8566, longitude: 2.3522 },
+      "placidus"
+    );
+    const sunHouse = dayChart.points.sun.house!;
+    const isDay = sunHouse >= 7 && sunHouse <= 12;
+    expect(isDay).toBe(true);
+    const expected = normalizeDegrees(
+      dayChart.houses.ascendant + dayChart.points.venus.longitude - dayChart.points.saturn.longitude
+    );
+    expect(dayChart.points.partMarriage.longitude).toBeCloseTo(expected, 6);
+  });
+
+  it("flips to the night formula (Asc + Saturn - Venus) for a night birth", () => {
+    const nightChart = computeNatalChart(
+      { date: "1990-06-15", time: "02:30", tzName: "Europe/Paris", latitude: 48.8566, longitude: 2.3522 },
+      "placidus"
+    );
+    const sunHouse = nightChart.points.sun.house!;
+    const isDay = sunHouse >= 7 && sunHouse <= 12;
+    expect(isDay).toBe(false);
+    const expected = normalizeDegrees(
+      nightChart.houses.ascendant + nightChart.points.saturn.longitude - nightChart.points.venus.longitude
+    );
+    expect(nightChart.points.partMarriage.longitude).toBeCloseTo(expected, 6);
+  });
+});
+
+describe("Chiron and Juno (asteroid points)", () => {
+  const chart = computeNatalChart(
+    { date: "1990-06-15", time: "14:30", tzName: "Europe/Paris", latitude: 48.8566, longitude: 2.3522 },
+    "placidus"
+  );
+
+  it.each(ASTEROID_KEYS)("computes %s within [0, 360) with a speed consistent with its retrograde flag", (key) => {
+    const point = chart.points[key];
+    expect(point).toBeDefined();
+    expect(point.longitude).toBeGreaterThanOrEqual(0);
+    expect(point.longitude).toBeLessThan(360);
+    expect(typeof point.speed).toBe("number");
+    expect(point.retrograde).toBe(point.speed! < 0);
+  });
+
+  it.each(ASTEROID_KEYS)("assigns %s a house when the birth time is known", (key) => {
+    expect(chart.points[key].house).toBeGreaterThanOrEqual(1);
+    expect(chart.points[key].house).toBeLessThanOrEqual(12);
+  });
+
+  it("is deterministic for the same input", () => {
+    const again = computeNatalChart(
+      { date: "1990-06-15", time: "14:30", tzName: "Europe/Paris", latitude: 48.8566, longitude: 2.3522 },
+      "placidus"
+    );
+    for (const key of ASTEROID_KEYS) {
+      expect(again.points[key].longitude).toBeCloseTo(chart.points[key].longitude, 9);
+    }
   });
 });
