@@ -73,6 +73,18 @@ export async function POST(request: Request) {
       });
       if (alreadyRedeemed) return { error: m.alreadyRedeemed as string };
 
+      // Réserve atomiquement une rédemption avant d'accorder quoi que ce
+      // soit : deux requêtes concurrentes (comptes différents) qui liraient
+      // toutes les deux `redemptionCount < maxRedemptions` avant que l'une
+      // des deux ne committe pourraient sinon dépasser la limite d'un code à
+      // usage unique — même défaut que la course sur les crédits déjà
+      // corrigée dans unlockFeature (billing/entitlements.ts).
+      const claimed = await tx.giftCode.updateMany({
+        where: { id: giftCode.id, redemptionCount: { lt: giftCode.maxRedemptions } },
+        data: { redemptionCount: { increment: 1 } },
+      });
+      if (claimed.count === 0) return { error: m.exhausted as string };
+
       if (giftCode.grantType === "subscription") {
         const currentPeriodEnd = giftCode.durationDays
           ? new Date(Date.now() + giftCode.durationDays * 24 * 60 * 60 * 1000)
@@ -103,7 +115,6 @@ export async function POST(request: Request) {
       }
 
       await tx.giftCodeRedemption.create({ data: { giftCodeId: giftCode.id, userId } });
-      await tx.giftCode.update({ where: { id: giftCode.id }, data: { redemptionCount: { increment: 1 } } });
 
       return {
         success: giftCode.grantType === "subscription" ? m.successSubscription : m.successCredits(giftCode.creditsAmount ?? 0),
