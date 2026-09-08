@@ -21,13 +21,20 @@ export interface DegreeParts {
 }
 
 export function toDegreeParts(longitude: number): DegreeParts {
-  const inSign = degreeInSign(longitude);
-  const degrees = Math.floor(inSign);
-  const minutes = Math.round((inSign - degrees) * 60);
-  if (minutes === 60) {
-    return { sign: signOf(longitude), degrees: degrees + 1, minutes: 0 };
-  }
-  return { sign: signOf(longitude), degrees, minutes };
+  // Arrondit en minutes entières AVANT de dériver signe/degré/minute, dans un
+  // seul espace entier (minutes depuis 0° Bélier) : arrondir la partie
+  // fractionnaire puis ré-appeler signOf() sur le longitude d'origine
+  // désynchronisait signe et degré quand l'arrondi faisait déborder les
+  // minutes (ex: 29.9998° donnait Bélier 30°00' au lieu de Taureau 0°00').
+  const normalizedMinutes = Math.round((((longitude % 360) + 360) % 360) * 60);
+  const totalMinutes = ((normalizedMinutes % (360 * 60)) + 360 * 60) % (360 * 60);
+  const signIdx = Math.floor(totalMinutes / (30 * 60));
+  const minutesInSign = totalMinutes - signIdx * 30 * 60;
+  return {
+    sign: ZODIAC_SIGNS[signIdx],
+    degrees: Math.floor(minutesInSign / 60),
+    minutes: minutesInSign % 60,
+  };
 }
 
 export function formatLongitude(longitude: number): string {

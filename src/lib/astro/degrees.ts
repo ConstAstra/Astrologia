@@ -117,15 +117,18 @@ const SIGN_MODALITY: Record<string, "Cardinal" | "Fixe" | "Mutable"> = {
   poissons: "Mutable",
 };
 
-/** Formate une valeur en degrés (0-30, fraction) en "12°34'". */
+/**
+ * Formate une valeur en degrés (0-30, fraction) en "12°34'". Arrondit en
+ * minutes entières dans un espace entier plutôt que degré puis minute
+ * séparément : sinon un arrondi à 60' pouvait afficher "30°00'", une valeur
+ * hors de la plage 0-30° du signe (même défaut que toDegreeParts dans
+ * signs.ts, ici sans signe suivant vers lequel déborder — donc plafonné à
+ * 29°59' au lieu de déborder).
+ */
 function formatDegMin(value: number): string {
-  const deg = Math.floor(value);
-  let min = Math.round((value - deg) * 60);
-  let d = deg;
-  if (min === 60) {
-    min = 0;
-    d += 1;
-  }
+  const totalMinutes = Math.min(Math.round(value * 60), 30 * 60 - 1);
+  const d = Math.floor(totalMinutes / 60);
+  const min = totalMinutes % 60;
   return `${d}°${String(min).padStart(2, "0")}'`;
 }
 

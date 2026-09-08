@@ -63,6 +63,20 @@ describe("toDegreeParts", () => {
     expect(parts.minutes).toBe(0);
     expect(parts.degrees).toBe(1);
   });
+
+  it("rolls over into the next sign when rounding pushes past 29°59' at a sign boundary", () => {
+    const parts = toDegreeParts(29.9998);
+    expect(parts.sign).toBe("taureau");
+    expect(parts.degrees).toBe(0);
+    expect(parts.minutes).toBe(0);
+  });
+
+  it("rolls over from Poissons back to Bélier at the 360° wraparound", () => {
+    const parts = toDegreeParts(359.9998);
+    expect(parts.sign).toBe("belier");
+    expect(parts.degrees).toBe(0);
+    expect(parts.minutes).toBe(0);
+  });
 });
 
 describe("formatLongitude", () => {

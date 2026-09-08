@@ -46,6 +46,13 @@ describe("computeDegreeReading", () => {
     expect(en.decanText).toMatch(/decan/i);
     expect(en.decanText).not.toMatch(/décan/i);
   });
+
+  it("caps degreeLabel at 29°59' instead of showing an out-of-range 30°00' when rounding pushes past the sign", () => {
+    // 29.9998° in-sign rounds to 60' at the minute level; the label must stay
+    // within the 0-30° range of the current sign rather than reading 30°00'.
+    const reading = computeDegreeReading(29.9998);
+    expect(reading.degreeLabel).toBe("29°59'");
+  });
 });
 
 describe("describeDegree ruler connection", () => {
