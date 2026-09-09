@@ -12,6 +12,7 @@ import { SIGN_META } from "@/lib/astro/interpretations/signs";
 import { SIGN_META_EN } from "@/lib/astro/interpretations/signs.en";
 import type { ZodiacSign } from "@/lib/astro/types";
 import { Button } from "@/components/ui/Button";
+import { CelestialSpinner } from "@/components/ui/CelestialSpinner";
 import { playSoftChime } from "@/lib/sound";
 import { safeJson } from "@/lib/safe-json";
 
@@ -354,15 +355,25 @@ export function MapTeaserForm({ locale = "fr" }: { locale?: Locale }) {
           <label className="mb-1 block text-sm text-muted" htmlFor="carte-location">
             {t.location}
           </label>
-          <input
-            id="carte-location"
-            value={query}
-            onChange={(e) => handleQueryChange(e.target.value)}
-            placeholder={t.locationPlaceholder}
-            className="w-full rounded-lg border border-border-soft bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60"
-            autoComplete="off"
-          />
-          {searching && <p className="mt-1 text-xs text-muted">{t.searching}</p>}
+          <div className="relative">
+            <input
+              id="carte-location"
+              value={query}
+              onChange={(e) => handleQueryChange(e.target.value)}
+              placeholder={t.locationPlaceholder}
+              className="w-full rounded-lg border border-border-soft bg-background-elevated py-2.5 pl-4 pr-9 text-sm outline-none focus:border-gold/60"
+              autoComplete="off"
+            />
+            {searching && (
+              <CelestialSpinner
+                variant="moon"
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+              />
+            )}
+          </div>
+          <p className="sr-only" role="status">
+            {searching ? t.searching : ""}
+          </p>
           {results.length > 0 && !selected && (
             <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border-soft bg-background-elevated shadow-lg">
               {results.map((r, i) => (

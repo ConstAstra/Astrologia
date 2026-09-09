@@ -44,6 +44,7 @@ import { ShareCardButton } from "@/components/dashboard/ShareCardButton";
 import { GrimoireOpeningReveal } from "@/components/dashboard/GrimoireOpeningReveal";
 import { SectionNav } from "@/components/dashboard/SectionNav";
 import { CollapsibleAspects } from "@/components/dashboard/CollapsibleAspects";
+import { CollapsiblePlanetDetails } from "@/components/dashboard/CollapsiblePlanetDetails";
 
 type Locale = "fr" | "en";
 
@@ -103,6 +104,8 @@ const TEXT: Record<
     navAspects: string;
     showMoreMinorAspects: (n: number) => string;
     showLessAspects: string;
+    expandPlanetDetails: string;
+    collapsePlanetDetails: string;
   }
 > = {
   fr: {
@@ -141,6 +144,8 @@ const TEXT: Record<
     navAspects: "Aspects",
     showMoreMinorAspects: (n) => `Voir ${n} aspect${n > 1 ? "s" : ""} mineur${n > 1 ? "s" : ""} de plus`,
     showLessAspects: "Replier les aspects mineurs",
+    expandPlanetDetails: "Lire l'interprétation complète",
+    collapsePlanetDetails: "Replier",
   },
   en: {
     eyebrow: "Natal chart",
@@ -178,6 +183,8 @@ const TEXT: Record<
     navAspects: "Aspects",
     showMoreMinorAspects: (n) => `Show ${n} more minor aspect${n > 1 ? "s" : ""}`,
     showLessAspects: "Collapse minor aspects",
+    expandPlanetDetails: "Read full interpretation",
+    collapsePlanetDetails: "Collapse",
   },
 };
 
@@ -468,17 +475,23 @@ export default async function ThemeNatalPage({
                     <p className="mt-1 text-sm text-gold-strong">
                       {phaseLabel} {signMap[sign].name}
                     </p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, undefined, locale)}</p>
-                    {point.house && (
-                      <p className="mt-2 text-xs leading-relaxed text-muted">
-                        {describePlanetInHouse(key, point.house, locale)}
-                        {key === "asc" && ascendantHouseOneOccupantsText(chart.points, locale)}
+                    <CollapsiblePlanetDetails
+                      expandLabel={t.expandPlanetDetails}
+                      collapseLabel={t.collapsePlanetDetails}
+                      defaultExpanded={key === "sun" || key === "moon" || key === "asc"}
+                    >
+                      <p className="mt-2 text-xs leading-relaxed text-muted">{describePlanetInSign(key, sign, undefined, locale)}</p>
+                      {point.house && (
+                        <p className="mt-2 text-xs leading-relaxed text-muted">
+                          {describePlanetInHouse(key, point.house, locale)}
+                          {key === "asc" && ascendantHouseOneOccupantsText(chart.points, locale)}
+                        </p>
+                      )}
+                      <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
+                        <span className="text-gold-strong/90">{t.degree} </span>
+                        {describeDegree(point.longitude, key, locale, chart.points)}
                       </p>
-                    )}
-                    <p className="mt-2 whitespace-pre-line border-t border-border-soft pt-2 text-xs leading-relaxed text-muted/80">
-                      <span className="text-gold-strong/90">{t.degree} </span>
-                      {describeDegree(point.longitude, key, locale, chart.points)}
-                    </p>
+                    </CollapsiblePlanetDetails>
                   </Card>
                 );
               })}

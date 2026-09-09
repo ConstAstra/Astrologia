@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { CelestialSpinner } from "@/components/ui/CelestialSpinner";
 import type { GeocodeResult } from "@/app/api/geocode/route";
 import { safeJson } from "@/lib/safe-json";
 
@@ -241,19 +242,33 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
         <label className="mb-1 block text-sm text-muted" htmlFor="location">
           {t.location}
         </label>
-        <input
-          id="location"
-          value={query}
-          onChange={(e) => {
-            handleQueryChange(e.target.value);
-            if (fieldErrors.location) setFieldErrors((prev) => ({ ...prev, location: undefined }));
-          }}
-          placeholder={t.locationPlaceholder}
-          aria-invalid={Boolean(fieldErrors.location)}
-          className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 ${fieldErrors.location ? "border-terracotta/60" : "border-border-soft"}`}
-          autoComplete="off"
-        />
-        {searching && <p className="mt-1 text-xs text-muted">{t.searching}</p>}
+        <div className="relative">
+          <input
+            id="location"
+            value={query}
+            onChange={(e) => {
+              handleQueryChange(e.target.value);
+              if (fieldErrors.location) setFieldErrors((prev) => ({ ...prev, location: undefined }));
+            }}
+            placeholder={t.locationPlaceholder}
+            aria-invalid={Boolean(fieldErrors.location)}
+            className={`w-full rounded-lg border bg-background-elevated py-2.5 pl-4 pr-9 text-sm outline-none focus:border-gold/60 ${fieldErrors.location ? "border-terracotta/60" : "border-border-soft"}`}
+            autoComplete="off"
+          />
+          {/* Icône visible directement dans le champ, là où l'oeil est déjà
+              posé pendant la frappe — le texte "Recherche…" plus bas passait
+              inaperçu et provoquait en plus un saut de mise en page à
+              chaque apparition/disparition. */}
+          {searching && (
+            <CelestialSpinner
+              variant="moon"
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+            />
+          )}
+        </div>
+        <p className="sr-only" role="status">
+          {searching ? t.searching : ""}
+        </p>
         {results.length > 0 && !selected && (
           <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border-soft bg-background-elevated shadow-lg">
             {results.map((r, i) => (
