@@ -102,6 +102,25 @@ const CRITICAL_DEGREES_BY_MODALITY: Record<"Cardinal" | "Fixe" | "Mutable", numb
 const CRITICAL_ORB = 1; // dans un rayon d'1°, on considère le degré critique "actif"
 const EXACT_THRESHOLD = 1 / 6; // 10' d'arc : en dessous, on parle d'un degré critique "exact"
 
+// Ce qu'un degré critique change concrètement, selon la modalité du signe —
+// pas une simple affirmation d'"intensité" (qui ne dit rien de vérifiable),
+// mais un mécanisme précis propre à chaque modalité.
+const CRITICAL_MODALITY_TEXT: Record<"Cardinal" | "Fixe" | "Mutable", string> = {
+  Cardinal:
+    "l'énergie de départ propre à ce signe atteint un point de bascule : les choses se décident ou changent de cap ici, rarement à mi-mesure",
+  Fixe: "la stabilité propre à ce signe se durcit encore : ce que vous tenez ici, vous le tenez avec une ténacité difficile à faire plier, un vrai atout tant qu'elle ne vire pas à la rigidité",
+  Mutable:
+    "la capacité d'adaptation propre à ce signe s'accentue : vous captez et intégrez le changement plus vite qu'ailleurs dans le signe, parfois au prix d'une certaine dispersion",
+};
+
+const CRITICAL_MODALITY_TEXT_EN: Record<"Cardinal" | "Fixe" | "Mutable", string> = {
+  Cardinal:
+    "this sign's starting energy reaches a tipping point here: things get decided or change direction, rarely by half-measures",
+  Fixe: "this sign's stability hardens further here: what you hold onto, you hold with a tenacity that's hard to shift, a real asset as long as it doesn't tip into rigidity",
+  Mutable:
+    "this sign's adaptability sharpens here: you pick up and integrate change faster than elsewhere in the sign, sometimes at the cost of some scatter",
+};
+
 const SIGN_MODALITY: Record<string, "Cardinal" | "Fixe" | "Mutable"> = {
   belier: "Cardinal",
   cancer: "Cardinal",
@@ -140,6 +159,7 @@ export interface DegreeReading {
   decanRuler: DecanRuler;
   decanText: string;
   phase: "précoce" | "médiane" | "tardive";
+  modality: "Cardinal" | "Fixe" | "Mutable";
   isAnaretic: boolean;
   anareticText?: string;
   nearestCriticalDegree: number;
@@ -184,19 +204,22 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
   // vocabulaires différents. Ici, la maturité de l'énergie (brute, stable,
   // mûrie) sert d'accroche en langage courant, et le nom technique "décan"
   // n'arrive qu'ensuite, avec sa propre définition entre parenthèses plutôt
-  // que supposée connue.
+  // que supposée connue. Chaque variante affirme UNE chose vérifiable (la
+  // réaction précède la réflexion / la version montrée est la plus
+  // reconnaissable / le vécu annonce déjà le signe suivant) plutôt que
+  // d'empiler des synonymes de "brut" ou "mûr" qui ne disent rien de plus.
   const maturityText =
     locale === "en"
       ? phase === "précoce"
-        ? "this portion of the sign pushes you to express a still-raw, spontaneous version of it, the most instinctive, least filtered one there is"
+        ? "you live out this sign before having had time to master it: reaction comes before reflection, a spontaneity that experience will later smooth out"
         : phase === "tardive"
-          ? "this portion of the sign pushes you to express a matured version of it, sometimes already leaning toward the next sign's theme, a more conscious, occasionally more world-weary form of that same energy"
-          : "this portion of the sign pushes you to express its most stable, most typical version, fully settled into its usual way of working"
+          ? "you've already been all the way around this sign: the version you show is more calculated, sometimes tired of repeating itself, and already lets some of the next sign's themes show through"
+          : "you express its most recognizable version, the one people spontaneously associate with this sign, without overplaying or underplaying it"
       : phase === "précoce"
-        ? "cette portion du signe vous pousse à en exprimer une version encore brute et spontanée, la plus instinctive, la moins filtrée qui soit"
+        ? "vous vivez ce signe avant d'avoir eu le temps de l'apprivoiser : la réaction précède la réflexion, une spontanéité que l'expérience affinera plus tard"
         : phase === "tardive"
-          ? "cette portion du signe vous pousse à en exprimer une version mûrie, parfois déjà tournée vers la thématique du signe suivant, une forme plus consciente, parfois plus lasse, de cette même énergie"
-          : "cette portion du signe vous pousse à en exprimer la version la plus stable et la plus typique, pleinement installée dans son fonctionnement habituel";
+          ? "vous en avez déjà fait le tour : la version que vous en montrez est plus calculée, parfois lasse de se répéter, et laisse déjà transparaître certains thèmes du signe suivant"
+          : "vous en exprimez la version la plus reconnaissable, celle que les gens associent spontanément à ce signe, sans la surjouer ni la sous-jouer";
 
   const decanText =
     locale === "en"
@@ -210,11 +233,12 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
     decanRuler,
     decanText,
     phase,
+    modality,
     isAnaretic,
     anareticText: isAnaretic
       ? locale === "en"
-        ? `You're at the very last degree of the sign (29°, ${formatDegMin(remainingInSign)} from the switch to the next one): what tradition calls the "anaretic" degree, a point of maximum tension before the sign changes, often felt as an urgency to "wrap up" what this sign had to teach before moving on, a raw, sometimes rushed, energy.`
-        : `Vous êtes au tout dernier degré du signe (29e, à ${formatDegMin(remainingInSign)} du passage au signe suivant) : ce que la tradition appelle le degré "anarétique", point de tension maximale avant le changement de signe, souvent vécu comme une urgence à "boucler" ce que ce signe avait à enseigner avant de passer à autre chose, une énergie à vif, parfois précipitée.`
+        ? `You're at the very last degree of the sign (29°, ${formatDegMin(remainingInSign)} from the switch to the next one): what tradition calls the "anaretic" degree. Decisions taken here tend to move faster than usual, even if that means revisiting them once the next sign has settled in.`
+        : `Vous êtes au tout dernier degré du signe (29e, à ${formatDegMin(remainingInSign)} du passage au signe suivant) : ce que la tradition appelle le degré "anarétique". Les décisions prises ici ont tendance à aller plus vite que d'habitude, quitte à devoir y revenir une fois le signe suivant installé.`
       : undefined,
     nearestCriticalDegree,
     criticalOrb,
@@ -223,10 +247,10 @@ export function computeDegreeReading(longitude: number, locale: "fr" | "en" = "f
       ? locale === "en"
         ? `You're ${
             criticalOrb <= EXACT_THRESHOLD ? "almost exactly on" : `${formatDegMin(criticalOrb)} from`
-          } ${nearestCriticalDegree}°, a marker classical tradition calls a "critical" degree: a point astrologers have long considered charged, where the sign's theme shows up with particular intensity or sharpness.`
+          } ${nearestCriticalDegree}°, a marker classical tradition calls a "critical" degree: ${CRITICAL_MODALITY_TEXT_EN[modality]}.`
         : `Vous êtes ${
             criticalOrb <= EXACT_THRESHOLD ? "quasi exactement sur" : `à ${formatDegMin(criticalOrb)} de`
-          } ${nearestCriticalDegree}°, un repère que la tradition classique appelle degré "critique" : un point que les astrologues considèrent de longue date comme chargé, où le thème du signe se manifeste avec une intensité ou une netteté particulière.`
+          } ${nearestCriticalDegree}°, un repère que la tradition classique appelle degré "critique" : ${CRITICAL_MODALITY_TEXT[modality]}.`
       : undefined,
   };
 }

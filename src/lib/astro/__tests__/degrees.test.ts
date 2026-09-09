@@ -53,6 +53,26 @@ describe("computeDegreeReading", () => {
     const reading = computeDegreeReading(29.9998);
     expect(reading.degreeLabel).toBe("29°59'");
   });
+
+  it("exposes the sign's modality and a distinct, concrete critical-degree text per modality", () => {
+    // 0° Bélier: cardinal sign, exactly on a critical degree (0°).
+    const cardinal = computeDegreeReading(0);
+    expect(cardinal.modality).toBe("Cardinal");
+    expect(cardinal.isCritical).toBe(true);
+    expect(cardinal.criticalText).toMatch(/point de bascule/);
+
+    // 8° Taureau: fixed sign, exactly on a critical degree (8°).
+    const fixed = computeDegreeReading(38);
+    expect(fixed.modality).toBe("Fixe");
+    expect(fixed.isCritical).toBe(true);
+    expect(fixed.criticalText).toMatch(/ténacité/);
+
+    // 4° Gémeaux: mutable sign, exactly on a critical degree (4°).
+    const mutable = computeDegreeReading(64);
+    expect(mutable.modality).toBe("Mutable");
+    expect(mutable.isCritical).toBe(true);
+    expect(mutable.criticalText).toMatch(/dispersion/);
+  });
 });
 
 describe("describeDegree ruler connection", () => {
@@ -87,5 +107,14 @@ describe("describeDegree ruler connection", () => {
     // 29° Bélier: anaretic degree, Lune.
     const anaretic = describeDegree(29, "moon", "fr");
     expect(anaretic).toMatch(/Pour Lune, cela se traduit par une urgence à vivre pleinement/);
+  });
+
+  it("grounds the critical-degree text differently depending on the sign's modality", () => {
+    // 0° Bélier: cardinal.
+    expect(describeDegree(0, "mars", "fr")).toMatch(/à-coups décisifs/);
+    // 8° Taureau: fixed.
+    expect(describeDegree(38, "mars", "fr")).toMatch(/s'ancre plus profondément/);
+    // 4° Gémeaux: mutable.
+    expect(describeDegree(64, "mars", "fr")).toMatch(/risque de se disperser/);
   });
 });

@@ -191,10 +191,17 @@ export function describeDegree(
     parts.push(r.anareticText! + anareticGrounding);
   }
   if (r.isCritical) {
-    const criticalGrounding =
-      locale === "en"
-        ? ` For ${planetName}, that means ${keyword} can show up here with unusual intensity, worth paying attention to.`
-        : ` Pour ${planetName}, cela signifie que ${keyword} peut se manifester ici avec une intensité inhabituelle, un point à ne pas négliger.`;
+    const criticalGroundingEn: Record<typeof r.modality, string> = {
+      Cardinal: ` For ${planetName}, that means ${keyword} tends to play out here in decisive jumps rather than gradual steps.`,
+      Fixe: ` For ${planetName}, that means ${keyword} anchors more deeply here and resists change more than elsewhere in the sign.`,
+      Mutable: ` For ${planetName}, that means ${keyword} reacts to change faster here than elsewhere in the sign, at the risk of scattering.`,
+    };
+    const criticalGroundingFr: Record<typeof r.modality, string> = {
+      Cardinal: ` Pour ${planetName}, cela veut dire qu'ici, ${keyword} se joue par à-coups décisifs plutôt que par paliers progressifs.`,
+      Fixe: ` Pour ${planetName}, cela veut dire qu'ici, ${keyword} s'ancre plus profondément et résiste davantage au changement qu'ailleurs dans le signe.`,
+      Mutable: ` Pour ${planetName}, cela veut dire qu'ici, ${keyword} réagit plus vite au changement qu'ailleurs dans le signe, au risque de se disperser.`,
+    };
+    const criticalGrounding = locale === "en" ? criticalGroundingEn[r.modality] : criticalGroundingFr[r.modality];
     parts.push(r.criticalText! + criticalGrounding);
   }
   return parts.join("\n\n");
