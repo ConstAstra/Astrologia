@@ -1,12 +1,15 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 // CSP volontairement stricte : aucun script/style/image/police externe n'est
 // chargé nulle part dans l'app (next/font auto-héberge les polices, Stripe
-// est utilisé en redirection serveur, jamais via son SDK client, il n'y a ni
-// analytics ni carte à tuiles externes) — seule 'unsafe-inline' sur
-// script-src reste nécessaire pour le petit script inline de layout.tsx qui
-// pose le thème jour/nuit avant hydratation (voir ce fichier). connect-src
-// 'self' bloque déjà l'exfiltration vers un domaine tiers en cas d'injection.
+// est utilisé en redirection serveur, jamais via son SDK client, il n'y a
+// pas de carte à tuiles externe ; Sentry — voir tunnelRoute plus bas — passe
+// par une route de ce domaine plutôt que par un domaine tiers) — seule
+// 'unsafe-inline' sur script-src reste nécessaire pour le petit script
+// inline de layout.tsx qui pose le thème jour/nuit avant hydratation (voir
+// ce fichier). connect-src 'self' bloque déjà l'exfiltration vers un
+// domaine tiers en cas d'injection.
 // 'unsafe-eval' n'est nécessaire qu'en dev (React/Turbopack Fast Refresh
 // l'utilisent pour reconstruire les stack traces) — jamais en production, où
 // React ne l'appelle jamais.
@@ -42,4 +45,16 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// tunnelRoute fait transiter les événements Sentry émis par le navigateur
+// par une route de CE domaine (réécrite au build) plutôt que directement
+// vers ingest.sentry.io : connect-src 'self' ci-dessus reste donc valable
+// sans exception tierce à ajouter. Sans SENTRY_DSN/NEXT_PUBLIC_SENTRY_DSN
+// configurées, le SDK n'envoie simplement rien (voir sentry.*.config.ts) —
+// build-time source map upload silencieusement ignoré sans SENTRY_AUTH_TOKEN.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  tunnelRoute: "/monitoring",
+});
