@@ -5,6 +5,7 @@ import { computeCountryLineMatches } from "@/lib/astro/astrocartography-countrie
 import { computeBigThree } from "@/lib/astro/dominance";
 import { projectAstroCartoLines } from "@/components/map/ProjectedLine";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
+import { isNonexistentLocalTime } from "@/lib/astro/time";
 
 // Calcul de thème + astrocartographie complet (éphémérides + maisons), bien
 // plus coûteux qu'un simple géocodage : seuil nettement plus bas que
@@ -60,6 +61,12 @@ export async function POST(request: Request) {
   }
   if (typeof tzName !== "string" || !tzName.includes("/")) {
     return NextResponse.json({ error: "Fuseau horaire invalide." }, { status: 400 });
+  }
+  if (isNonexistentLocalTime({ date: birthDate, time: birthTime, tzName, latitude, longitude })) {
+    return NextResponse.json(
+      { error: "Cette heure n'existe pas à cet endroit ce jour-là (passage à l'heure d'été). Vérifiez l'heure de naissance." },
+      { status: 400 }
+    );
   }
   const mapLocale = locale === "en" ? "en" : "fr";
 

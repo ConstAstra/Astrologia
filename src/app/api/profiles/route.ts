@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { canCreateProfile } from "@/lib/billing/entitlements";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { isNonexistentLocalTime } from "@/lib/astro/time";
 
 // Défense en profondeur au-delà du quota gratuit (canCreateProfile) : un
 // compte Premium n'a normalement jamais besoin de créer autant de profils
@@ -32,7 +33,23 @@ const schema = z.object({
     .trim()
     .min(1, "Fuseau horaire requis")
     .refine((tz) => Intl.supportedValuesOf("timeZone").includes(tz), "Fuseau horaire invalide"),
-});
+}).refine(
+  (data) =>
+    data.timeUnknown ||
+    !data.birthTime ||
+    !isNonexistentLocalTime({
+      date: data.birthDate,
+      time: data.birthTime,
+      tzName: data.tzName,
+      latitude: data.latitude,
+      longitude: data.longitude,
+    }),
+  {
+    message:
+      "Cette heure n'existe pas à cet endroit ce jour-là (passage à l'heure d'été : l'horloge saute directement à l'heure suivante). Vérifiez l'heure de naissance.",
+    path: ["birthTime"],
+  }
+);
 
 export async function GET() {
   const userId = await getCurrentUserId();

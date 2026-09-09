@@ -52,6 +52,21 @@ describe("POST /api/public/astrocartography", () => {
     expect(res.status).toBe(400);
   });
 
+  it("rejects a local birth time that never existed due to a DST spring-forward gap", async () => {
+    // Clocks in America/New_York jump from 1:59:59 straight to 3:00:00 on
+    // this date — 2:30 never existed, and this tool has no "unknown time"
+    // fallback to silently substitute instead.
+    const res = await POST(
+      mkReq(
+        { ...VALID_BODY, birthDate: "2024-03-10", birthTime: "02:30", tzName: "America/New_York" },
+        "198.51.100.9"
+      )
+    );
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toMatch(/heure d'été/i);
+  });
+
   it(
     "rate-limits a single IP after 8 requests within the window",
     async () => {
