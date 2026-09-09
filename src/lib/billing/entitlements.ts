@@ -12,21 +12,32 @@ export const REFERRAL_REWARD_CREDITS = 2;
  * (abonnement ou pack de crédits, Stripe ou Apple) — jamais à l'inscription
  * seule, pour limiter la fraude aux faux comptes. Idempotent via
  * `referralRewardGranted` : ne récompense jamais deux fois le même filleul.
+ *
+ * Stripe et Apple peuvent tous deux livrer plusieurs webhooks/vérifications
+ * pour un même achat en quasi-simultané (ex: checkout.session.completed et
+ * customer.subscription.created, ou deux appels à verify-purchase avec le
+ * même reçu) : lire `referralRewardGranted` puis l'écrire à part laisserait
+ * passer deux appels concurrents avant que l'un des deux ne committe, comme
+ * pour le crédit de unlockFeature ou la rédemption de gift code. Le
+ * décrément est donc réservé atomiquement via la clause WHERE de
+ * updateMany, avant tout crédit.
  */
 export async function grantReferralRewardOnce(referredUserId: string): Promise<void> {
   const referred = await prisma.user.findUnique({ where: { id: referredUserId } });
   if (!referred || !referred.referredByUserId || referred.referralRewardGranted) return;
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: referred.id },
+  await prisma.$transaction(async (tx) => {
+    const claimed = await tx.user.updateMany({
+      where: { id: referred.id, referralRewardGranted: false },
       data: { credits: { increment: REFERRAL_REWARD_CREDITS }, referralRewardGranted: true },
-    }),
-    prisma.user.update({
-      where: { id: referred.referredByUserId },
+    });
+    if (claimed.count === 0) return;
+
+    await tx.user.update({
+      where: { id: referred.referredByUserId! },
       data: { credits: { increment: REFERRAL_REWARD_CREDITS } },
-    }),
-  ]);
+    });
+  });
 }
 
 export type UnlockFeature = "synastry" | "composite" | "astrocartography" | "synthesis" | "lifeMission";

@@ -25,6 +25,14 @@ export async function consumePasswordResetToken(token: string): Promise<string |
   const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) } });
   if (!record || record.usedAt || record.expiresAt < new Date()) return null;
 
-  await prisma.passwordResetToken.update({ where: { id: record.id }, data: { usedAt: new Date() } });
+  // updateMany avec usedAt: null dans le WHERE plutôt qu'un update direct :
+  // deux requêtes concurrentes avec le même jeton liraient toutes les deux
+  // usedAt=null avant que l'une des deux ne committe, permettant au même
+  // lien de réinitialisation de servir deux fois.
+  const claimed = await prisma.passwordResetToken.updateMany({
+    where: { id: record.id, usedAt: null },
+    data: { usedAt: new Date() },
+  });
+  if (claimed.count === 0) return null;
   return record.userId;
 }
