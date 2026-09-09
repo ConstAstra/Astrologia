@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { applyAppleTransaction, verifyAppleTransaction } from "@/lib/billing/apple";
@@ -36,7 +37,12 @@ export async function POST(request: Request) {
     await applyAppleTransaction(decoded, userId);
     return NextResponse.json({ ok: true });
   } catch (error) {
+    // Distinct d'une vraie transaction falsifiée (rare) : peut aussi signaler
+    // un certificat racine Apple expiré ou une panne côté Apple — un
+    // utilisateur qui a réellement payé verrait alors "Transaction invalide"
+    // sans qu'aucune alerte ne parte, d'où la remontée Sentry.
     console.error("Vérification transaction Apple échouée:", error);
+    Sentry.captureException(error, { extra: { userId } });
     return NextResponse.json({ error: "Transaction invalide" }, { status: 400 });
   }
 }

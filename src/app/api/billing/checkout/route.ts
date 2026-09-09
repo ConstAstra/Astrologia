@@ -6,6 +6,7 @@ import { getStripe } from "@/lib/billing/stripe";
 import { CREDIT_PACKS, CURRENCY, SUBSCRIPTION_PLANS } from "@/lib/billing/plans";
 import type { CreditPackId, SubscriptionPlanId } from "@/lib/billing/plans";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { trackEvent } from "@/lib/analytics";
 
 const schema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("subscription"), plan: z.enum(["monthly", "annual"]) }),
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
       cancel_url: `${base}/dashboard/abonnement?canceled=1`,
     });
 
+    await trackEvent("checkout_started", user.id, { kind: "subscription", plan: planId });
     return NextResponse.json({ url: session.url });
   }
 
@@ -101,5 +103,6 @@ export async function POST(request: Request) {
     cancel_url: `${base}/dashboard/abonnement?canceled=1`,
   });
 
+  await trackEvent("checkout_started", user.id, { kind: "credits", pack: packId });
   return NextResponse.json({ url: session.url });
 }

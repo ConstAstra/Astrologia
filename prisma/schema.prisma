@@ -110,6 +110,7 @@ model User {
   friendshipsAsA      Friendship[] @relation("FriendshipA")
   friendshipsAsB      Friendship[] @relation("FriendshipB")
   giftCodeRedemptions GiftCodeRedemption[]
+  productEvents       ProductEvent[]
 }
 
 model Profile {
@@ -423,4 +424,32 @@ model PageView {
 
   @@unique([path, date])
   @@index([date])
+}
+
+// Événements du tunnel de conversion (inscription, profil créé, paywall
+// rencontré, achat démarré/abouti...) — une ligne par occurrence plutôt
+// qu'un compteur agrégé comme PageView, volume bien plus faible et on veut
+// pouvoir croiser par utilisateur/plan/fonctionnalité a posteriori. Le
+// tableau de bord admin n'affichait jusqu'ici que le trafic brut et le MRR,
+// jamais le tunnel entre les deux (combien de comptes créent un thème,
+// combien tombent sur un paywall, combien achètent) : ce modèle comble ce
+// trou plutôt que de faire appel à un outil d'analytics tiers, cohérent
+// avec le choix déjà fait pour PageView de ne rien envoyer hors de ce serveur.
+model ProductEvent {
+  id String @id @default(cuid())
+
+  // "signup" | "profile_created" | "paywall_hit" | "checkout_started" | "purchase_completed"
+  name     String
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Contexte structuré propre à chaque événement (ex: {"feature":"synastry"}
+  // pour paywall_hit, {"plan":"annual"} pour checkout_started) — volontairement
+  // libre plutôt qu'une colonne par cas d'usage, la liste des événements
+  // grandira sans nouvelle migration à chaque fois.
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([userId])
 }

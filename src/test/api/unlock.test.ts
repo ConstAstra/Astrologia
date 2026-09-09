@@ -76,4 +76,11 @@ describe("credit unlock race condition", () => {
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
     expect(user.credits).toBe(0);
   });
+
+  it("records a paywall_hit funnel event for every refused unlock", async () => {
+    // Two refusals so far: the losing side of the concurrent race, and the
+    // third unlock above.
+    const events = await prisma.productEvent.findMany({ where: { userId, name: "paywall_hit" } });
+    expect(events.length).toBeGreaterThanOrEqual(2);
+  });
 });

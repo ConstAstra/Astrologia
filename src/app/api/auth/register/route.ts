@@ -7,6 +7,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { createSessionCookie } from "@/lib/auth/session";
 import { createRateLimiter, clientIp } from "@/lib/rate-limit";
 import { hasSiteAccess } from "@/lib/site-access";
+import { trackEvent } from "@/lib/analytics";
 
 const MESSAGES = {
   fr: {
@@ -106,6 +107,7 @@ export async function POST(request: Request) {
     }
 
     await createSessionCookie(user.id);
+    await trackEvent("signup", user.id, { hasReferrer: Boolean(referrer) });
 
     return NextResponse.json({ id: user.id, email: user.email, name: user.name });
   } catch (err) {

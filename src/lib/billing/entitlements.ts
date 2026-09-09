@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { isAdminEmail } from "@/lib/admin";
+import { trackEvent } from "@/lib/analytics";
 
 // Volontairement bas : assez pour tester la synastrie (vous + 1 autre)
 // sans lever toute pression à passer Premium, qui vend justement les
@@ -186,6 +187,7 @@ export async function unlockFeature(userId: string, target: FeatureTarget): Prom
   }
 
   if (user.credits < 1) {
+    await trackEvent("paywall_hit", userId, { feature: target.feature });
     throw new PaywallError(target.feature);
   }
 
@@ -219,6 +221,10 @@ export async function unlockFeature(userId: string, target: FeatureTarget): Prom
   });
 
   if (!unlocked) {
+    // Course perdue sur le dernier crédit (voir le commentaire ci-dessus) :
+    // même événement que le manque de crédit direct, le résultat pour
+    // l'utilisateur est identique (paywall affiché).
+    await trackEvent("paywall_hit", userId, { feature: target.feature, reason: "race-lost" });
     throw new PaywallError(target.feature);
   }
 

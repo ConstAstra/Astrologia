@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import * as Sentry from "@sentry/nextjs";
+import { trackEvent } from "@/lib/analytics";
 import {
   AppStoreServerAPIClient,
   Environment,
@@ -103,7 +105,12 @@ export async function applyAppleTransaction(decoded: JWSTransactionDecodedPayloa
 
   const mapping = APPLE_PRODUCT_MAP[productId];
   if (!mapping) {
+    // Un achat Apple réel qu'on ne sait pas rattacher à un produit connu —
+    // typiquement un product ID ajouté sur App Store Connect mais pas encore
+    // dans APPLE_PRODUCT_MAP. Silencieux sinon : l'utilisateur a payé, rien
+    // n'est crédité, et rien ne le signale hors des logs serveur.
     console.error("Apple: Product ID inconnu", productId);
+    Sentry.captureMessage("Apple IAP: product ID inconnu", { level: "error", extra: { productId, transactionId } });
     return;
   }
 
@@ -113,6 +120,10 @@ export async function applyAppleTransaction(decoded: JWSTransactionDecodedPayloa
 
   if (!user) {
     console.error("Apple: utilisateur introuvable pour la transaction", originalTransactionId);
+    Sentry.captureMessage("Apple IAP: utilisateur introuvable pour la transaction", {
+      level: "error",
+      extra: { originalTransactionId, transactionId, productId },
+    });
     return;
   }
 
@@ -133,6 +144,7 @@ export async function applyAppleTransaction(decoded: JWSTransactionDecodedPayloa
     if (!revoked) {
       await grantReferralRewardOnce(user.id);
       await restoreArchivedProfiles(user.id);
+      await trackEvent("purchase_completed", user.id, { kind: "subscription", source: "apple", plan: mapping.plan });
     }
     return;
   }
@@ -155,4 +167,5 @@ export async function applyAppleTransaction(decoded: JWSTransactionDecodedPayloa
     prisma.user.update({ where: { id: user.id }, data: { credits: { increment: mapping.credits } } }),
   ]);
   await grantReferralRewardOnce(user.id);
+  await trackEvent("purchase_completed", user.id, { kind: "credits", source: "apple", credits: mapping.credits });
 }

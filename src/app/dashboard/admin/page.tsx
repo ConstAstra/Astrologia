@@ -4,6 +4,7 @@ import { getAdminUser } from "@/lib/admin";
 import { SUBSCRIPTION_PLANS } from "@/lib/billing/plans";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { GiftCodeManager } from "@/components/admin/GiftCodeManager";
+import type { ProductEventName } from "@/lib/analytics";
 
 function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -28,7 +29,8 @@ export default async function AdminPage() {
   if (!admin) notFound();
 
   const now = new Date();
-  const cutoff30 = isoDate(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000));
+  const cutoff30Date = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const cutoff30 = isoDate(cutoff30Date);
 
   const [
     totalUsers,
@@ -41,6 +43,7 @@ export default async function AdminPage() {
     giftCodes,
     pageViewsByPath,
     pageViewsTotalAgg,
+    funnelGroups,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.groupBy({ by: ["subscriptionStatus"], _count: { _all: true } }),
@@ -71,6 +74,11 @@ export default async function AdminPage() {
       take: 15,
     }),
     prisma.pageView.aggregate({ where: { date: { gte: cutoff30 } }, _sum: { count: true } }),
+    prisma.productEvent.groupBy({
+      by: ["name"],
+      where: { createdAt: { gte: cutoff30Date } },
+      _count: { _all: true },
+    }),
   ]);
 
   const statusCount = (status: string) =>
@@ -101,6 +109,18 @@ export default async function AdminPage() {
   const creditsGranted = creditAgg._sum.creditsAdded ?? 0;
   const creditsRevenueCents = creditAgg._sum.amountCents ?? 0;
   const pageViewsTotal = pageViewsTotalAgg._sum.count ?? 0;
+
+  const funnelCount = (name: ProductEventName) =>
+    funnelGroups.find((g: { name: string; _count: { _all: number } }) => g.name === name)?._count._all ?? 0;
+  // Ordre du tunnel plutôt que l'ordre alphabétique des noms d'événement :
+  // chaque étape n'a de sens qu'en proportion de celle qui la précède.
+  const funnelSteps: { name: ProductEventName; label: string }[] = [
+    { name: "signup", label: "Inscriptions" },
+    { name: "profile_created", label: "Thèmes créés" },
+    { name: "paywall_hit", label: "Paywall rencontré" },
+    { name: "checkout_started", label: "Paiement démarré" },
+    { name: "purchase_completed", label: "Achat abouti" },
+  ];
 
   return (
     <div>
@@ -182,6 +202,40 @@ export default async function AdminPage() {
                   <span className="shrink-0 text-gold-strong">{p._sum.count}</span>
                 </li>
               ))}
+            </ul>
+          )}
+        </Card>
+      </section>
+
+      <section className="mt-10">
+        <Card className="p-5">
+          <p className="font-medium">Tunnel de conversion — 30 derniers jours</p>
+          <p className="mt-1 text-xs text-muted">
+            Chaque pourcentage est relatif à l&apos;étape précédente (pas au total des inscriptions).
+          </p>
+          {funnelSteps.every((s) => funnelCount(s.name) === 0) ? (
+            <p className="mt-3 text-sm text-muted">
+              Pas encore de données. Le tunnel se remplit au fil des inscriptions/achats une fois déployé.
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-1.5 text-sm">
+              {funnelSteps.map((step, i) => {
+                const count = funnelCount(step.name);
+                const previous = i > 0 ? funnelCount(funnelSteps[i - 1].name) : null;
+                const pct = previous ? Math.round((count / previous) * 100) : null;
+                return (
+                  <li
+                    key={step.name}
+                    className="flex items-center justify-between gap-3 border-t border-border-soft pt-1.5 first:border-t-0 first:pt-0"
+                  >
+                    <span className="text-muted">{step.label}</span>
+                    <span className="shrink-0">
+                      <span className="text-gold-strong">{count}</span>
+                      {pct !== null && <span className="ml-2 text-xs text-muted/70">({pct}%)</span>}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Card>

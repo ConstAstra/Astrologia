@@ -5,6 +5,7 @@ import { getCurrentUserId } from "@/lib/auth/session";
 import { canCreateProfile } from "@/lib/billing/entitlements";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { isNonexistentLocalTime } from "@/lib/astro/time";
+import { trackEvent } from "@/lib/analytics";
 
 // Défense en profondeur au-delà du quota gratuit (canCreateProfile) : un
 // compte Premium n'a normalement jamais besoin de créer autant de profils
@@ -97,6 +98,7 @@ export async function POST(request: Request) {
       tzName: data.tzName,
     },
   });
+  await trackEvent("profile_created", userId, { isSelf: data.isSelf });
 
   return NextResponse.json({ profile });
 }

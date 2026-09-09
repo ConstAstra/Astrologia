@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/db";
 import { getStripe } from "@/lib/billing/stripe";
 import type { SubscriptionPlanId } from "@/lib/billing/plans";
 import { grantReferralRewardOnce, restoreArchivedProfiles } from "@/lib/billing/entitlements";
 import { sendEmail } from "@/lib/email";
+import { trackEvent } from "@/lib/analytics";
 
 const PAYMENT_ISSUE_TEXT = {
   fr: {
@@ -36,7 +38,15 @@ async function syncSubscription(subscription: Stripe.Subscription) {
     typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
   const userId = await findUserIdForCustomer(customerId, subscription.metadata?.userId);
   if (!userId) {
+    // Silencieux jusqu'ici (le webhook retourne quand même 200 à Stripe) :
+    // un abonnement Stripe réel qui ne peut jamais être rattaché à un compte
+    // est une perte de revenu invisible sans remontée active — Sentry est le
+    // seul endroit qui le signale, rien dans les métriques produit ne le voit.
     console.error("Webhook Stripe: impossible de retrouver l'utilisateur pour le customer", customerId);
+    Sentry.captureMessage("Webhook Stripe: customer sans utilisateur correspondant", {
+      level: "error",
+      extra: { customerId, subscriptionId: subscription.id, subscriptionStatus: subscription.status },
+    });
     return;
   }
 
@@ -83,6 +93,10 @@ async function notifyPaymentIssue(invoice: Stripe.Invoice, kind: "failed" | "act
   const userId = await findUserIdForCustomer(customerId, null);
   if (!userId) {
     console.error(`Webhook Stripe: impossible de retrouver l'utilisateur pour le paiement ${kind}`, customerId);
+    Sentry.captureMessage("Webhook Stripe: customer sans utilisateur correspondant (paiement)", {
+      level: "error",
+      extra: { customerId, kind },
+    });
     return;
   }
 
@@ -155,6 +169,11 @@ export async function POST(request: Request) {
           typeof session.subscription === "string" ? session.subscription : session.subscription.id;
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         await syncSubscription(subscription);
+        await trackEvent("purchase_completed", userId, {
+          kind: "subscription",
+          plan: session.metadata?.plan,
+          amountCents: session.amount_total,
+        });
       } else if (session.mode === "payment") {
         const credits = Number(session.metadata?.credits ?? 0);
         if (credits > 0) {
@@ -166,6 +185,11 @@ export async function POST(request: Request) {
             currency: session.currency,
           });
           await grantReferralRewardOnce(userId);
+          await trackEvent("purchase_completed", userId, {
+            kind: "credits",
+            pack: session.metadata?.pack,
+            amountCents: session.amount_total,
+          });
         }
       }
       break;
@@ -205,6 +229,12 @@ export async function POST(request: Request) {
       console.error(
         `[ALERTE] Litige Stripe (chargeback) créé : charge=${dispute.charge}, montant=${dispute.amount}${dispute.currency}, motif=${dispute.reason}. Répondre dans le dashboard Stripe avant l'échéance.`
       );
+      // Délai de réponse à un chargeback compté en jours : sans alerte
+      // active, ça dort dans les logs jusqu'à l'échéance manquée.
+      Sentry.captureMessage("Litige Stripe (chargeback) créé", {
+        level: "warning",
+        extra: { chargeId: dispute.charge, amount: dispute.amount, currency: dispute.currency, reason: dispute.reason },
+      });
       break;
     }
     default:
