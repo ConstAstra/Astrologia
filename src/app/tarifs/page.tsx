@@ -76,17 +76,18 @@ export default function TarifsPage() {
               </div>
             </Card>
 
-            <Card className="flex flex-col p-8">
+            <Card className="flex flex-col border-sage/50 p-8">
               <OrbitIcon className="h-6 w-6 text-gold-strong" />
-              <Eyebrow>Premium annuel</Eyebrow>
+              <div className="mt-2">
+                <Badge tone="sage">
+                  Économisez{" "}
+                  {Math.round((1 - SUBSCRIPTION_PLANS.annual.amountCents / (SUBSCRIPTION_PLANS.monthly.amountCents * 12)) * 100)}%
+                </Badge>
+              </div>
               <p className="font-display mt-2 text-3xl">
                 {(SUBSCRIPTION_PLANS.annual.amountCents / 100).toFixed(0)} € <span className="text-base text-muted">/ an</span>
               </p>
-              <p className="text-xs text-sage">
-                Soit {(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)} €/mois, économisez environ{" "}
-                {Math.round((1 - SUBSCRIPTION_PLANS.annual.amountCents / (SUBSCRIPTION_PLANS.monthly.amountCents * 12)) * 100)}
-                %
-              </p>
+              <p className="text-xs text-sage">Soit {(SUBSCRIPTION_PLANS.annual.amountCents / 1200).toFixed(2)} €/mois</p>
               <ul className="mt-6 flex-1 space-y-3 text-sm text-muted">
                 <li>✓ Tout Premium</li>
                 <li>✓ Facturation annuelle simplifiée</li>
