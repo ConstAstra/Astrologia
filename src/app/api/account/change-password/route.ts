@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { getCurrentUserId } from "@/lib/auth/session";
+import { getCurrentUserId, createSessionCookie } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createRateLimiter } from "@/lib/rate-limit";
 
@@ -60,7 +60,11 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await hashPassword(parsed.data.newPassword);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash, passwordChangedAt: new Date() } });
+  // Réémet un jeton pour cet appareil : sans ça, la vérification de
+  // passwordChangedAt dans getCurrentUserId déconnecterait aussi la session
+  // qui vient elle-même de faire ce changement.
+  await createSessionCookie(userId);
 
   return NextResponse.json({ ok: true });
 }

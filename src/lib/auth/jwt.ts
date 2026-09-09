@@ -2,6 +2,8 @@ import { SignJWT, jwtVerify } from "jose";
 
 export interface SessionPayload {
   userId: string;
+  /** Horodatage d'émission du jeton (secondes epoch), posé par setIssuedAt() — sert à détecter un jeton émis avant un changement de mot de passe (voir getCurrentUserId). */
+  iat?: number;
   [key: string]: unknown;
 }
 

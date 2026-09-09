@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await hashPassword(parsed.data.password);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash, passwordChangedAt: new Date() } });
   await createSessionCookie(userId);
 
   return NextResponse.json({ ok: true });

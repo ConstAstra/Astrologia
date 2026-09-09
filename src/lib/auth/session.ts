@@ -24,7 +24,27 @@ export async function getCurrentUserId(): Promise<string | null> {
   const token = store.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
   const payload = await verifySession(token);
-  return payload?.userId ?? null;
+  if (!payload) return null;
+
+  // Un JWT est valide de façon purement stateless jusqu'à son expiration
+  // (30 jours) : sans ce contrôle, changer son mot de passe (ou le
+  // réinitialiser suite à un vol) ne révoque aucun jeton déjà émis ailleurs.
+  // On compare donc l'émission du jeton (`iat`, en secondes) au dernier
+  // changement de mot de passe connu en base ; un jeton émis avant reste
+  // volontairement valide (comparaison à la seconde près) pour ne pas
+  // invalider la session tout juste recréée par change-password/reset-password.
+  if (typeof payload.iat === "number") {
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { passwordChangedAt: true },
+    });
+    if (!user) return null;
+    if (user.passwordChangedAt && payload.iat < Math.floor(user.passwordChangedAt.getTime() / 1000)) {
+      return null;
+    }
+  }
+
+  return payload.userId;
 }
 
 export async function getCurrentUser() {

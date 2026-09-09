@@ -19,6 +19,15 @@ model User {
   passwordHash String
   name         String?
 
+  // Rempli uniquement lors d'un changement de mot de passe explicite
+  // (formulaire "changer mon mot de passe" ou lien de réinitialisation) —
+  // jamais à l'inscription. Un jeton de session dont le `iat` précède cette
+  // date est traité comme périmé (voir getCurrentUserId), pour que changer
+  // son mot de passe révoque réellement les sessions déjà émises ailleurs :
+  // sans ça, un jeton JWT volé restait valide jusqu'à ses 30 jours
+  // d'expiration même après un changement de mot de passe motivé par un vol.
+  passwordChangedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

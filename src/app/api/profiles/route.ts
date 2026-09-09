@@ -23,7 +23,15 @@ const schema = z.object({
   locationName: z.string().trim().min(1, "Lieu requis").max(200),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
-  tzName: z.string().trim().min(1, "Fuseau horaire requis"),
+  // Un fuseau non reconnu par l'ICU du runtime plantait plus loin, au calcul
+  // du thème (birthInputToUtc dans lib/astro/time.ts lève une Error brute) :
+  // autant le refuser ici avec un message clair plutôt que de laisser
+  // remonter une 500 la première fois que ce profil sert à un calcul.
+  tzName: z
+    .string()
+    .trim()
+    .min(1, "Fuseau horaire requis")
+    .refine((tz) => Intl.supportedValuesOf("timeZone").includes(tz), "Fuseau horaire invalide"),
 });
 
 export async function GET() {
