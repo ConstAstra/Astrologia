@@ -2,8 +2,12 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import { SESSION_COOKIE_NAME, SESSION_MAX_AGE, signSession, verifySession } from "./jwt";
 
-export async function createSessionCookie(userId: string) {
-  const token = await signSession({ userId });
+// `forceIssuedAtSeconds` : voir le commentaire dans getCurrentUserId sur la
+// granularité à la seconde du `iat` — change-password/reset-password
+// l'utilisent pour garantir que le jeton réémis pour cet appareil survit à
+// l'invalidation qu'ils viennent eux-mêmes de déclencher.
+export async function createSessionCookie(userId: string, forceIssuedAtSeconds?: number) {
+  const token = await signSession({ userId }, forceIssuedAtSeconds);
   const store = await cookies();
   store.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
@@ -30,16 +34,20 @@ export async function getCurrentUserId(): Promise<string | null> {
   // (30 jours) : sans ce contrôle, changer son mot de passe (ou le
   // réinitialiser suite à un vol) ne révoque aucun jeton déjà émis ailleurs.
   // On compare donc l'émission du jeton (`iat`, en secondes) au dernier
-  // changement de mot de passe connu en base ; un jeton émis avant reste
-  // volontairement valide (comparaison à la seconde près) pour ne pas
-  // invalider la session tout juste recréée par change-password/reset-password.
+  // changement de mot de passe connu en base. Comparaison avec <= (pas <) :
+  // le `iat` n'a qu'une résolution de la seconde, donc un jeton émis avant
+  // le changement peut porter le même `iat` (arrondi) que le seuil — <= le
+  // traite comme invalide dans ce cas limite. Le jeton fraîchement réémis
+  // par change-password/reset-password échappe à cette invalidation non
+  // pas grâce à l'horloge, mais parce qu'il est explicitement signé avec un
+  // `iat` forcé à seuil+1 (voir createSessionCookie).
   if (typeof payload.iat === "number") {
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
       select: { passwordChangedAt: true },
     });
     if (!user) return null;
-    if (user.passwordChangedAt && payload.iat < Math.floor(user.passwordChangedAt.getTime() / 1000)) {
+    if (user.passwordChangedAt && payload.iat <= Math.floor(user.passwordChangedAt.getTime() / 1000)) {
       return null;
     }
   }

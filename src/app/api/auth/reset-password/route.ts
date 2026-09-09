@@ -39,8 +39,11 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await hashPassword(parsed.data.password);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash, passwordChangedAt: new Date() } });
-  await createSessionCookie(userId);
+  const changedAt = new Date();
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash, passwordChangedAt: changedAt } });
+  // `iat` forcé à seuil+1 : voir le commentaire équivalent dans
+  // change-password/route.ts et session.ts.
+  await createSessionCookie(userId, Math.floor(changedAt.getTime() / 1000) + 1);
 
   return NextResponse.json({ ok: true });
 }

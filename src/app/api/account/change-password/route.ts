@@ -60,11 +60,14 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await hashPassword(parsed.data.newPassword);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash, passwordChangedAt: new Date() } });
-  // Réémet un jeton pour cet appareil : sans ça, la vérification de
-  // passwordChangedAt dans getCurrentUserId déconnecterait aussi la session
-  // qui vient elle-même de faire ce changement.
-  await createSessionCookie(userId);
+  const changedAt = new Date();
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash, passwordChangedAt: changedAt } });
+  // Réémet un jeton pour cet appareil, avec un `iat` forcé à seuil+1 : sans
+  // ça, la vérification de passwordChangedAt dans getCurrentUserId
+  // déconnecterait aussi la session qui vient elle-même de faire ce
+  // changement (voir le commentaire dans session.ts sur la granularité à la
+  // seconde du `iat`, qui peut sinon coïncider avec ce seuil).
+  await createSessionCookie(userId, Math.floor(changedAt.getTime() / 1000) + 1);
 
   return NextResponse.json({ ok: true });
 }

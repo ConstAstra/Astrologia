@@ -30,11 +30,17 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(value);
 }
 
-export async function signSession(payload: SessionPayload): Promise<string> {
+// `issuedAtSeconds` permet de forcer un `iat` précis plutôt que "maintenant"
+// — utilisé quand on réémet un jeton juste après avoir posé
+// passwordChangedAt, pour garantir qu'il tombe strictement après le seuil
+// d'invalidation même si les deux opérations se produisent dans la même
+// seconde (voir createSessionCookie et le commentaire dans getCurrentUserId).
+export async function signSession(payload: SessionPayload, issuedAtSeconds?: number): Promise<string> {
+  const iat = issuedAtSeconds ?? Math.floor(Date.now() / 1000);
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime(Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS)
+    .setIssuedAt(iat)
+    .setExpirationTime(iat + SESSION_DURATION_SECONDS)
     .sign(getSecret());
 }
 
