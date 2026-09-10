@@ -152,6 +152,7 @@ export async function canViewProfile(
 export interface FriendSummary {
   userId: string;
   name: string | null;
+  email: string;
   profile: FriendSelfProfile;
 }
 
@@ -160,8 +161,8 @@ export async function listFriendSelfProfiles(userId: string): Promise<FriendSumm
   const friendships = await prisma.friendship.findMany({
     where: { OR: [{ userAId: userId }, { userBId: userId }] },
     include: {
-      userA: { select: { id: true, name: true, profiles: { where: { isSelf: true, archivedAt: null }, take: 1 } } },
-      userB: { select: { id: true, name: true, profiles: { where: { isSelf: true, archivedAt: null }, take: 1 } } },
+      userA: { select: { id: true, name: true, email: true, profiles: { where: { isSelf: true, archivedAt: null }, take: 1 } } },
+      userB: { select: { id: true, name: true, email: true, profiles: { where: { isSelf: true, archivedAt: null }, take: 1 } } },
     },
   });
 
@@ -173,6 +174,7 @@ export async function listFriendSelfProfiles(userId: string): Promise<FriendSumm
       return {
         userId: friend.id,
         name: friend.name,
+        email: friend.email,
         profile: {
           id: p.id,
           label: p.label,

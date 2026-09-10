@@ -130,12 +130,15 @@ export default async function SynastriePage({
   // Le profil "soi" d'un ami accepté peut être choisi comme second profil,
   // au même titre que ses propres profils — sans jamais exposer les autres
   // profils enregistrés de l'ami (voir listFriendSelfProfiles). Le label
-  // affiché devient le prénom du compte ami plutôt que l'intitulé "Moi" que
-  // l'ami a pu donner à son propre profil, sans quoi deux profils "Moi"
-  // (le vôtre et le sien) seraient indiscernables dans le sélecteur.
+  // affiché devient le prénom du compte ami (ou, à défaut, la partie locale
+  // de son e-mail) plutôt que l'intitulé "Moi" que l'ami a pu donner à son
+  // propre profil — un ami qui n'a jamais renseigné de prénom (le cas le
+  // plus courant : ce n'est demandé nulle part après l'inscription) verrait
+  // sinon littéralement "Moi" utilisé pour désigner SON profil dans VOTRE
+  // sélecteur, l'exact defaut que ce commentaire dit vouloir éviter.
   const profiles = [
     ...ownProfiles,
-    ...friends.map((f) => ({ ...f.profile, label: f.name?.trim() || f.profile.label })),
+    ...friends.map((f) => ({ ...f.profile, label: f.name?.trim() || f.email.split("@")[0] })),
   ];
   const locale: Locale = currentUser.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];

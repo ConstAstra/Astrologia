@@ -14,11 +14,13 @@ const TEXT = {
     eyebrow: "Test rapide",
     title: (name: string) => `${name} & toi, ça donne quoi ?`,
     body: "Choisis ton prénom et ton signe pour voir votre compatibilité en 10 secondes — sans créer de compte.",
+    genericOwnerName: "Quelqu'un",
   },
   en: {
     eyebrow: "Quick test",
     title: (name: string) => `${name} & you, what does it give?`,
     body: "Pick your name and sign to see your compatibility in 10 seconds — no account needed.",
+    genericOwnerName: "Someone",
   },
 } as const;
 
@@ -31,7 +33,7 @@ export async function generateMetadata({
   const owner = await prisma.user.findUnique({ where: { referralCode: code }, select: { name: true, locale: true } });
   if (!owner) return {};
   const locale = owner.locale === "en" ? "en" : "fr";
-  const name = owner.name?.trim() || (locale === "en" ? "Someone" : "Quelqu'un");
+  const name = owner.name?.trim() || TEXT[locale].genericOwnerName;
   return {
     title: `${TEXT[locale].title(name)} — Astrologium`,
     description: TEXT[locale].body,
@@ -53,7 +55,13 @@ export default async function CompatInvitePage({ params }: { params: Promise<{ c
   const locale: "fr" | "en" = owner.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
   const signMap = locale === "en" ? SIGN_META_EN : SIGN_META;
-  const ownerName = owner.name?.trim() || profile.label;
+  // Jamais profile.label en repli : c'est l'intitulé privé que le
+  // propriétaire a donné à SON PROPRE profil ("Moi" est même la suggestion
+  // par défaut du formulaire) — un visiteur anonyme verrait sinon "Moi & toi,
+  // ça donne quoi ?" en titre. Repli générique plutôt que l'e-mail (contrairement
+  // aux pages partagées entre amis) : cette page est ouverte à qui a le lien,
+  // pas seulement à un ami déjà accepté.
+  const ownerName = owner.name?.trim() || t.genericOwnerName;
   const ownerSign = quickSunSign({
     date: profile.birthDate,
     time: profile.birthTime,

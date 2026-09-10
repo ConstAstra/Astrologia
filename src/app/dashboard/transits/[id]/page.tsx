@@ -221,7 +221,9 @@ export default async function TransitsPage({
   if (!isOwner && !(await canViewProfile(userId, profile))) notFound();
 
   const ownerUser = isOwner ? user : await prisma.user.findUniqueOrThrow({ where: { id: profile.userId } });
-  const displayLabel = isOwner ? profile.label : ownerUser.name?.trim() || profile.label;
+  // Voir le commentaire équivalent dans theme-natal/[id]/page.tsx : jamais
+  // profile.label en repli, c'est l'intitulé privé du propriétaire pour lui-même.
+  const displayLabel = isOwner ? profile.label : ownerUser.name?.trim() || ownerUser.email.split("@")[0];
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];

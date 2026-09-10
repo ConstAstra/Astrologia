@@ -87,7 +87,12 @@ export default async function AmisPage() {
     return {
       userId: friend.userId,
       profileId: friend.profile.id,
-      displayName: friend.name?.trim() || friend.profile.label,
+      // Jamais le label du profil de l'ami en repli (friend.profile.label) :
+      // c'est le nom qu'IL a donné à SON propre profil pour s'y retrouver
+      // ("Moi" est même la première suggestion du formulaire), pas un nom
+      // pensé pour être lu par quelqu'un d'autre — l'afficher ici affichait
+      // littéralement "Moi" pour désigner un ami dans sa propre liste.
+      displayName: friend.name?.trim() || friend.email.split("@")[0],
       sunSign: signMap[big3.sun].name,
       sunKeyword: keywordMap[big3.sun],
       moonSign: big3.moon,

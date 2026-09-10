@@ -209,7 +209,12 @@ export default async function ThemeNatalPage({
   if (!isOwner && !(await canViewProfile(userId, profile))) notFound();
 
   const ownerUser = isOwner ? user : await prisma.user.findUniqueOrThrow({ where: { id: profile.userId } });
-  const displayLabel = isOwner ? profile.label : ownerUser.name?.trim() || profile.label;
+  // Jamais profile.label en repli pour un ami qui consulte ce thème : c'est
+  // l'intitulé que le propriétaire a donné à SON PROPRE profil ("Moi" est
+  // même la suggestion par défaut du formulaire), pas un nom pensé pour être
+  // lu par quelqu'un d'autre — l'ami verrait sinon littéralement "Moi" comme
+  // titre de page et dans "Vous voyez le thème de Moi en tant qu'ami".
+  const displayLabel = isOwner ? profile.label : ownerUser.name?.trim() || ownerUser.email.split("@")[0];
 
   const locale: Locale = user.locale === "en" ? "en" : "fr";
   const t = TEXT[locale];
