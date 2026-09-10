@@ -10,6 +10,7 @@ import { describeAstroCartoLine } from "@/lib/astro/interpretations/compose";
 import type { CountryLineMatch } from "@/lib/astro/astrocartography-countries";
 import type { PlanetKey } from "@/lib/astro/types";
 import { playClickTick } from "@/lib/sound";
+import { LockIcon } from "@/components/icons/FeatureIcons";
 
 const PLANET_COLORS: Record<string, string> = {
   sun: "#f2b799",
@@ -46,7 +47,7 @@ const LINE_TYPES: Record<"fr" | "en", { key: "MC" | "IC" | "AC" | "DC"; label: s
 
 const TEXT = {
   fr: {
-    tapHint: "👉 Touchez un pays sur la carte (surligné au survol) pour voir ce que vos lignes y racontent.",
+    tapHint: "Touchez un pays sur la carte (surligné au survol) pour voir ce que vos lignes y racontent.",
     heading: (name: string) => `Ce qui se passerait en ${name}`,
     orPick: "ou choisissez un pays dans la liste",
     placeholder: "Choisir un pays…",
@@ -55,7 +56,7 @@ const TEXT = {
     lockedPrompt: "Débloquez votre thème pour lire ce que cette ligne raconte vraiment.",
   },
   en: {
-    tapHint: "👉 Tap a country on the map (highlighted on hover) to see what your lines say about it.",
+    tapHint: "Tap a country on the map (highlighted on hover) to see what your lines say about it.",
     heading: (name: string) => `What would happen in ${name}`,
     orPick: "or pick a country from the list",
     placeholder: "Choose a country…",
@@ -288,7 +289,10 @@ export function AstrocartographyMap({
                     {planetMap[m.planet].symbol} {planetMap[m.planet].name} — {lineTypeMap[m.type].name}
                   </p>
                   {locked ? (
-                    <p className="mt-1 leading-relaxed text-muted/70">🔒 {t.lockedPrompt}</p>
+                    <p className="mt-1 leading-relaxed text-muted/70">
+                      <LockIcon className="mr-1 inline h-3 w-3 align-[-1px]" />
+                      {t.lockedPrompt}
+                    </p>
                   ) : (
                     <p className="mt-1 leading-relaxed text-muted">{describeAstroCartoLine(m.planet, m.type, locale)}</p>
                   )}
