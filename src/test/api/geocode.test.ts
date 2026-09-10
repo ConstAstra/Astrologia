@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GET } from "@/app/api/geocode/route";
 
 function mkReq(q: string, ip: string) {
@@ -72,5 +72,30 @@ describe("GET /api/geocode", () => {
     );
     const res = await GET(mkReq("some-failing-query", "203.0.113.6"));
     expect(res.status).toBe(502);
+  });
+
+  describe("with LOCATIONIQ_API_KEY configured", () => {
+    beforeEach(() => {
+      vi.stubEnv("LOCATIONIQ_API_KEY", "test-key-123");
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("calls LocationIQ instead of Nominatim, with the key as a query param", async () => {
+      const res = await GET(mkReq("locationiq-query", "203.0.113.7"));
+      expect(res.status).toBe(200);
+
+      const calledUrl = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as URL;
+      expect(calledUrl.toString()).toContain("locationiq.com");
+      expect(calledUrl.searchParams.get("key")).toBe("test-key-123");
+      expect(calledUrl.searchParams.get("q")).toBe("locationiq-query");
+    });
+
+    it("maps LocationIQ's Nominatim-shaped response the same way as the free path", async () => {
+      const res = await GET(mkReq("locationiq-query-2", "203.0.113.8"));
+      const data = await res.json();
+      expect(data.results[0]).toMatchObject({ label: "Paris, France", latitude: 48.8566, longitude: 2.3522 });
+    });
   });
 });

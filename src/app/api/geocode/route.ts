@@ -37,14 +37,51 @@ const geocodeLimiter = createRateLimiter({ max: 10, windowMs: 60_000 });
 const CACHE_TTL_MS = 10 * 60_000;
 const resultCache = new Map<string, { results: GeocodeResult[]; expiresAt: number }>();
 
+function resultsFromNominatimShape(data: Array<{ display_name: string; lat: string; lon: string }>): GeocodeResult[] {
+  return data.map((entry) => {
+    const latitude = parseFloat(entry.lat);
+    const longitude = parseFloat(entry.lon);
+    return {
+      label: entry.display_name,
+      latitude,
+      longitude,
+      tzName: tzLookup(latitude, longitude),
+    };
+  });
+}
+
 /**
- * Géocodage du lieu de naissance via Nominatim (OpenStreetMap), qui ne
- * demande pas de clé d'API — pratique pour démarrer. Sa politique d'usage
- * limite cependant à 1 requête/seconde et interdit un usage commercial
- * intensif sans instance auto-hébergée : au-delà d'un certain volume
- * d'utilisateurs, prévoir de migrer vers un fournisseur payant (Google
- * Places, Mapbox, LocationIQ...) — ce module est conçu pour être remplacé
- * facilement (une seule fonction `geocode`).
+ * LocationIQ (fournisseur payant, clé API requise) exécute Nominatim en
+ * interne : mêmes paramètres de requête, même forme de réponse
+ * (display_name/lat/lon) — d'où la réutilisation directe de
+ * resultsFromNominatimShape. Pas de sérialisation façon
+ * scheduleNominatimCall ici : c'est un service payant avec son propre
+ * quota par clé (2 req/s sur le palier gratuit, plus sur les palier
+ * payants), pas une ressource communautaire à ménager tous utilisateurs
+ * confondus.
+ */
+async function geocodeViaLocationIq(query: string, apiKey: string): Promise<GeocodeResult[]> {
+  const url = new URL("https://us1.locationiq.com/v1/search");
+  url.searchParams.set("key", apiKey);
+  url.searchParams.set("q", query);
+  url.searchParams.set("format", "json");
+  url.searchParams.set("limit", "5");
+
+  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!res.ok) {
+    throw new Error(`LocationIQ a répondu ${res.status}`);
+  }
+  const data: Array<{ display_name: string; lat: string; lon: string }> = await res.json();
+  return resultsFromNominatimShape(data);
+}
+
+/**
+ * Nominatim (OpenStreetMap), sans clé d'API — pratique pour démarrer, mais
+ * sa politique d'usage limite à 1 requête/seconde tous utilisateurs
+ * confondus et interdit un usage commercial intensif sans instance
+ * auto-hébergée. Repli automatique tant que LOCATIONIQ_API_KEY n'est pas
+ * configurée (voir .env.example) — au-delà d'un certain volume, ajouter la
+ * clé bascule silencieusement vers LocationIQ, sans changement de code.
  *
  * Remarque : cet appel réseau n'a pas pu être testé en conditions réelles
  * dans l'environnement de développement de cette session (accès sortant
@@ -52,12 +89,8 @@ const resultCache = new Map<string, { results: GeocodeResult[]; expiresAt: numbe
  * l'implémentation suit néanmoins fidèlement le contrat documenté de
  * l'API Nominatim.
  */
-async function geocode(query: string): Promise<GeocodeResult[]> {
-  const cacheKey = query.trim().toLowerCase();
-  const cached = resultCache.get(cacheKey);
-  if (cached && cached.expiresAt > Date.now()) return cached.results;
-
-  const results = await scheduleNominatimCall(async () => {
+async function geocodeViaNominatim(query: string): Promise<GeocodeResult[]> {
+  return scheduleNominatimCall(async () => {
     const url = new URL("https://nominatim.openstreetmap.org/search");
     url.searchParams.set("q", query);
     url.searchParams.set("format", "jsonv2");
@@ -76,18 +109,17 @@ async function geocode(query: string): Promise<GeocodeResult[]> {
     }
 
     const data: Array<{ display_name: string; lat: string; lon: string }> = await res.json();
-
-    return data.map((entry) => {
-      const latitude = parseFloat(entry.lat);
-      const longitude = parseFloat(entry.lon);
-      return {
-        label: entry.display_name,
-        latitude,
-        longitude,
-        tzName: tzLookup(latitude, longitude),
-      };
-    });
+    return resultsFromNominatimShape(data);
   });
+}
+
+async function geocode(query: string): Promise<GeocodeResult[]> {
+  const cacheKey = query.trim().toLowerCase();
+  const cached = resultCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return cached.results;
+
+  const apiKey = process.env.LOCATIONIQ_API_KEY;
+  const results = apiKey ? await geocodeViaLocationIq(query, apiKey) : await geocodeViaNominatim(query);
 
   resultCache.set(cacheKey, { results, expiresAt: Date.now() + CACHE_TTL_MS });
   return results;

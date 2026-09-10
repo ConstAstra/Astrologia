@@ -149,10 +149,12 @@ du navigateur.
 
 ### Géocodage
 
-Le lieu de naissance est géocodé via Nominatim (OpenStreetMap), sans clé
-requise. Sa politique d'usage limite à 1 requête/seconde et interdit un usage
-commercial intensif sans instance auto-hébergée — au-delà d'un certain
-volume, prévoir un fournisseur payant (voir commentaire dans
+Le lieu de naissance est géocodé via Nominatim (OpenStreetMap) par défaut,
+sans clé requise. Sa politique d'usage limite à 1 requête/seconde et interdit
+un usage commercial intensif sans instance auto-hébergée — au-delà d'un
+certain volume, renseignez `LOCATIONIQ_API_KEY` (voir `.env.example`) : la
+bascule vers LocationIQ (même moteur Nominatim, avec quota par clé) est
+automatique, sans autre changement de code (voir commentaire dans
 `src/app/api/geocode/route.ts`).
 
 ### Horoscope quotidien
