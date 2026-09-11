@@ -35,7 +35,7 @@ const HREFS: Record<Locale, NavHrefs> = {
     compatibility: "/compatibilite",
     pricing: "/tarifs",
     login: "/connexion",
-    signup: "/inscription",
+    signup: "/theme-astral",
   },
   en: {
     home: "/en",
@@ -48,7 +48,7 @@ const HREFS: Record<Locale, NavHrefs> = {
     compatibility: "/en/compatibility",
     pricing: "/en/pricing",
     login: "/en/login",
-    signup: "/en/signup",
+    signup: "/en/natal-chart",
   },
 };
 
