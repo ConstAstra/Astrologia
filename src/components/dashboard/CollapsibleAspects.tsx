@@ -37,6 +37,7 @@ export function CollapsibleAspects({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
         className="w-full rounded-xl border border-dashed border-border-soft px-4 py-3 text-center text-xs text-muted transition-colors hover:border-gold/40 hover:text-gold-strong"
       >
         {expanded ? showLessLabel : showMoreLabel}

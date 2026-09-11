@@ -167,7 +167,9 @@ export function AstrocartographyMap({
           {allPlanets.map((p) => (
             <button
               key={p}
+              type="button"
               onClick={() => togglePlanet(p)}
+              aria-pressed={visiblePlanets.has(p)}
               className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-all duration-150 active:scale-95"
               style={{
                 borderColor: visiblePlanets.has(p) ? PLANET_COLORS[p] : "var(--border-soft)",
@@ -183,8 +185,10 @@ export function AstrocartographyMap({
           {LINE_TYPES[locale].map((lt) => (
             <button
               key={lt.key}
+              type="button"
               onClick={() => toggleType(lt.key)}
               title={lt.title}
+              aria-pressed={visibleTypes.has(lt.key)}
               className={`rounded-full border px-2.5 py-1 text-xs transition-all duration-150 active:scale-95 ${
                 visibleTypes.has(lt.key) ? "border-gold/50 text-gold-strong" : "border-border-soft text-muted opacity-50"
               }`}
@@ -204,6 +208,7 @@ export function AstrocartographyMap({
           {data.countryPaths.map((cp, i) => {
             const isSelected = cp.countryId !== undefined && cp.countryId === selectedCountryId;
             const isClickable = cp.countryId !== undefined;
+            const toggle = () => selectCountry(cp.countryId === selectedCountryId ? null : cp.countryId!);
             return (
               <path
                 key={i}
@@ -212,7 +217,21 @@ export function AstrocartographyMap({
                 stroke={isSelected ? "#f2b799" : "#ffffff22"}
                 strokeWidth={isSelected ? 1.25 : 0.5}
                 className={isClickable ? "cursor-pointer transition-colors duration-150 hover:fill-[#f2b79930]" : undefined}
-                onClick={isClickable ? () => selectCountry(cp.countryId === selectedCountryId ? null : cp.countryId!) : undefined}
+                onClick={isClickable ? toggle : undefined}
+                tabIndex={isClickable ? 0 : undefined}
+                role={isClickable ? "button" : undefined}
+                aria-pressed={isClickable ? isSelected : undefined}
+                aria-label={isClickable ? (countryName.get(cp.countryId!) ?? cp.countryId) : undefined}
+                onKeyDown={
+                  isClickable
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          toggle();
+                        }
+                      }
+                    : undefined
+                }
               >
                 {isClickable && <title>{countryName.get(cp.countryId!) ?? cp.countryId}</title>}
               </path>

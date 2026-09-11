@@ -178,10 +178,15 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
             if (fieldErrors.label) setFieldErrors((prev) => ({ ...prev, label: undefined }));
           }}
           aria-invalid={Boolean(fieldErrors.label)}
+          aria-describedby={fieldErrors.label ? "label-error" : undefined}
           className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 ${fieldErrors.label ? "border-terracotta/60" : "border-border-soft"}`}
           placeholder={t.labelPlaceholder}
         />
-        {fieldErrors.label && <p className="mt-1 text-xs text-terracotta">{fieldErrors.label}</p>}
+        {fieldErrors.label && (
+          <p id="label-error" className="mt-1 text-xs text-terracotta">
+            {fieldErrors.label}
+          </p>
+        )}
       </div>
 
       <label className="flex items-center gap-2 text-sm text-muted">
@@ -203,9 +208,14 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
               if (fieldErrors.birthDate) setFieldErrors((prev) => ({ ...prev, birthDate: undefined }));
             }}
             aria-invalid={Boolean(fieldErrors.birthDate)}
+            aria-describedby={fieldErrors.birthDate ? "birthDate-error" : undefined}
             className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 ${fieldErrors.birthDate ? "border-terracotta/60" : "border-border-soft"}`}
           />
-          {fieldErrors.birthDate && <p className="mt-1 text-xs text-terracotta">{fieldErrors.birthDate}</p>}
+          {fieldErrors.birthDate && (
+            <p id="birthDate-error" className="mt-1 text-xs text-terracotta">
+              {fieldErrors.birthDate}
+            </p>
+          )}
         </div>
         <div>
           <label className="mb-1 block text-sm text-muted" htmlFor="birthTime">
@@ -221,6 +231,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
               if (fieldErrors.birthTime) setFieldErrors((prev) => ({ ...prev, birthTime: undefined }));
             }}
             aria-invalid={Boolean(fieldErrors.birthTime)}
+            aria-describedby={fieldErrors.birthTime ? "birthTime-error" : undefined}
             className={`w-full rounded-lg border bg-background-elevated px-4 py-2.5 text-sm outline-none focus:border-gold/60 disabled:opacity-40 ${fieldErrors.birthTime ? "border-terracotta/60" : "border-border-soft"}`}
           />
           <label className="mt-1 flex items-center gap-2 text-xs text-muted">
@@ -234,7 +245,11 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
             />
             {t.timeUnknown}
           </label>
-          {fieldErrors.birthTime && <p className="mt-1 text-xs text-terracotta">{fieldErrors.birthTime}</p>}
+          {fieldErrors.birthTime && (
+            <p id="birthTime-error" className="mt-1 text-xs text-terracotta">
+              {fieldErrors.birthTime}
+            </p>
+          )}
         </div>
       </div>
 
@@ -252,6 +267,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
             }}
             placeholder={t.locationPlaceholder}
             aria-invalid={Boolean(fieldErrors.location)}
+            aria-describedby={fieldErrors.location ? "location-error" : undefined}
             className={`w-full rounded-lg border bg-background-elevated py-2.5 pl-4 pr-9 text-sm outline-none focus:border-gold/60 ${fieldErrors.location ? "border-terracotta/60" : "border-border-soft"}`}
             autoComplete="off"
           />
@@ -290,7 +306,11 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
           </ul>
         )}
         {selected && <p className="mt-1 text-xs text-sage">{t.timezoneDetected(selected.tzName)}</p>}
-        {fieldErrors.location && <p className="mt-1 text-xs text-terracotta">{fieldErrors.location}</p>}
+        {fieldErrors.location && (
+          <p id="location-error" className="mt-1 text-xs text-terracotta">
+            {fieldErrors.location}
+          </p>
+        )}
       </div>
 
       {error && <p className="text-sm text-terracotta">{error}</p>}

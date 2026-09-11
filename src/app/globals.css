@@ -15,12 +15,17 @@
   --surface-solid: #4a2f42;
   --border-soft: #f7ece226;
   --foreground: #f7ece2;
-  --muted: #e3a3ac;
+  /* Légèrement éclaircis par rapport aux teintes d'origine (#e3a3ac,
+     #d1704c) : à l'opacité réduite couramment utilisée pour le texte
+     secondaire (text-muted/70) et pour les messages d'erreur
+     (text-terracotta), le contraste sur --background tombait juste sous
+     le seuil AA (4.5:1) — 4.39:1 et 4.49:1 respectivement. */
+  --muted: #e8b0b8;
   --gold: #ef9a5c;
   --gold-strong: #f7c391;
   --violet: #d1699b;
   --sage: #8fcb9e;
-  --terracotta: #d1704c;
+  --terracotta: #d67955;
   /* Accent "pop" — réservé aux moments de récompense (déblocage, streak,
      pulse de fin d'animation) : le reste de la palette reste sage et
      lisible pour que ce rose électrique garde son effet quand il apparaît. */
