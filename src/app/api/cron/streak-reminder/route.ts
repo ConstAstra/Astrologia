@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAuthorizedCronRequest } from "@/lib/cron-auth";
 import { sendPushNotification, isGoneSubscriptionError } from "@/lib/push";
+import { processWithConcurrency } from "@/lib/concurrency";
+
+// Envois en parallèle par lots plutôt qu'un par un : voir le commentaire dans
+// src/lib/concurrency.ts.
+const PUSH_CONCURRENCY = 10;
 
 const TITLE: Record<"fr" | "en", string> = {
   fr: "🔥 Ta série est en jeu ce soir",
@@ -51,11 +56,11 @@ async function runStreakReminder(request: Request) {
   let pruned = 0;
   const errors: string[] = [];
 
-  for (const user of users) {
+  await processWithConcurrency(users, PUSH_CONCURRENCY, async (user) => {
     const profile = user.profiles[0];
     if (!profile) {
       skipped += 1;
-      continue;
+      return;
     }
 
     const locale: "fr" | "en" = user.locale === "en" ? "en" : "fr";
@@ -77,7 +82,7 @@ async function runStreakReminder(request: Request) {
         errors.push(`${user.id}/${sub.id}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
-  }
+  });
 
   return NextResponse.json({ sent, skipped, pruned, errors });
 }

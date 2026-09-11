@@ -6,6 +6,11 @@ import { composeDailyHoroscope } from "@/lib/astro/interpretations/daily-horosco
 import type { BirthInput } from "@/lib/astro/types";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 import { sendPushNotification, isGoneSubscriptionError } from "@/lib/push";
+import { processWithConcurrency } from "@/lib/concurrency";
+
+// Envois en parallèle par lots plutôt qu'un par un : voir le commentaire dans
+// src/lib/concurrency.ts.
+const PUSH_CONCURRENCY = 10;
 
 const TITLE: Record<Locale, string> = {
   fr: "🔮 Votre transit du jour",
@@ -59,11 +64,11 @@ async function runDailyTransitPush(request: Request) {
   let pruned = 0;
   const errors: string[] = [];
 
-  for (const user of users) {
+  await processWithConcurrency(users, PUSH_CONCURRENCY, async (user) => {
     const profile = user.profiles[0];
     if (!profile) {
       skipped += 1;
-      continue;
+      return;
     }
 
     const locale: Locale = user.locale === "en" ? "en" : "fr";
@@ -87,7 +92,7 @@ async function runDailyTransitPush(request: Request) {
         errors.push(`${user.id}/${sub.id}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
-  }
+  });
 
   return NextResponse.json({ sent, skipped, pruned, errors, siteUrl });
 }

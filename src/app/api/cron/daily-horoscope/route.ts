@@ -8,6 +8,11 @@ import { composeCompositeTransitSection, composeSynastryTransitSection } from "@
 import type { BirthInput } from "@/lib/astro/types";
 import type { Locale } from "@/lib/astro/interpretations/compose";
 import { sendEmail } from "@/lib/email";
+import { processWithConcurrency } from "@/lib/concurrency";
+
+// Envois en parallèle par lots plutôt qu'un par un : voir le commentaire dans
+// src/lib/concurrency.ts.
+const EMAIL_CONCURRENCY = 10;
 
 const EMAIL_TEXT: Record<Locale, { viewTransits: string; footer: string; unsubscribe: string }> = {
   fr: {
@@ -63,11 +68,11 @@ async function runDailyHoroscope(request: Request) {
   let skipped = 0;
   const errors: string[] = [];
 
-  for (const user of users) {
+  await processWithConcurrency(users, EMAIL_CONCURRENCY, async (user) => {
     const profile = user.profiles[0];
     if (!profile) {
       skipped += 1;
-      continue;
+      return;
     }
 
     try {
@@ -133,7 +138,7 @@ async function runDailyHoroscope(request: Request) {
     } catch (err) {
       errors.push(`${user.id}: ${err instanceof Error ? err.message : String(err)}`);
     }
-  }
+  });
 
   return NextResponse.json({ sent, skipped, errors });
 }
