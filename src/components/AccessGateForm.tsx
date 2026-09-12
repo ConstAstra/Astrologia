@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { safeJson } from "@/lib/safe-json";
+import { safeNextPath } from "@/lib/safeRedirect";
 
 const TEXT = {
   title: "Accès privé",
@@ -34,8 +35,7 @@ export function AccessGateForm() {
       });
       const data = await safeJson(res);
       if (!res.ok) throw new Error(data?.error ?? TEXT.genericError);
-      const next = searchParams.get("next") || "/";
-      router.push(next);
+      router.push(safeNextPath(searchParams.get("next"), "/"));
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : TEXT.genericError);

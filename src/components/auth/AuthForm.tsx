@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { safeJson } from "@/lib/safe-json";
+import { safeNextPath } from "@/lib/safeRedirect";
 
 type Locale = "fr" | "en";
 
@@ -74,8 +75,7 @@ export function AuthForm({ mode, locale = "fr" }: { mode: "login" | "register"; 
       const data = await safeJson(res);
       if (!res.ok) throw new Error(data?.error ?? t.genericError);
 
-      const next = searchParams.get("next");
-      router.push(next && next.startsWith("/") ? next : "/dashboard");
+      router.push(safeNextPath(searchParams.get("next"), "/dashboard"));
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t.genericError);
