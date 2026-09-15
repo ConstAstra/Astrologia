@@ -1,0 +1,7 @@
+DejaVu Sans is derived from the Bitstream Vera Fonts, distributed under a
+permissive free license that allows use, modification and redistribution
+(including in commercial products). Bundled here for its broad Unicode
+coverage (needed to render zodiac glyphs, ♈–♓, in the generated share
+card at src/app/api/share/theme-natal/[id]/route.tsx).
+
+Full license text: https://dejavu-fonts.github.io/License.html
