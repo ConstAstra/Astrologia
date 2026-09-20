@@ -15,20 +15,20 @@ export default function LegalNoticeEnPage() {
           <h1 className="font-display text-4xl">Legal notice</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              Business registration (French SIRET number) is in progress. Fields marked [TO COMPLETE] will be
-              filled in once it is issued; no identity information is invented in the meantime. The rest of
-              this page reflects the service&apos;s real configuration.
+              The business is registered (SIRET number below). Fields marked [TO COMPLETE] will be filled
+              in shortly; no identity information is invented in the meantime. The rest of this page
+              reflects the service&apos;s real configuration.
             </p>
 
             <div>
               <h2 className="font-display text-xl text-foreground">Publisher</h2>
               <p className="mt-2">
                 Trade name: Constastra<br />
-                Legal form: Sole proprietorship (French micro-entreprise), registration in progress with the
-                French business registry (Guichet unique / INPI)<br />
+                Legal form: Sole proprietorship (French micro-entreprise), registered with the French
+                business registry (Guichet unique / INPI)<br />
                 Operator&apos;s full name: [TO COMPLETE]<br />
                 Registered address: [TO COMPLETE]<br />
-                Registration number (SIRET): [TO COMPLETE — pending issuance]<br />
+                Registration number (SIRET): 108 585 415 00012<br />
                 Publication director: the operator named above<br />
                 Contact: [TO COMPLETE — contact e-mail]
               </p>

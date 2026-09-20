@@ -15,20 +15,20 @@ export default function MentionsLegalesPage() {
           <h1 className="font-display text-4xl">Mentions légales</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              L&apos;immatriculation de l&apos;entreprise (SIRET) est en cours. Les champs marqués
-              [À COMPLÉTER] seront renseignés dès sa délivrance ; aucune information d&apos;identité n&apos;est
-              inventée en attendant. Le reste de cette page reflète la configuration réelle du service.
+              L&apos;entreprise est immatriculée (SIRET ci-dessous). Les champs marqués [À COMPLÉTER]
+              seront renseignés sous peu ; aucune information d&apos;identité n&apos;est inventée en
+              attendant. Le reste de cette page reflète la configuration réelle du service.
             </p>
 
             <div>
               <h2 className="font-display text-xl text-foreground">Éditeur du site</h2>
               <p className="mt-2">
                 Nom commercial : Constastra<br />
-                Forme juridique : Entreprise individuelle (micro-entreprise), immatriculation en cours auprès
-                du Guichet unique (INPI)<br />
+                Forme juridique : Entreprise individuelle (micro-entreprise), immatriculée auprès du
+                Guichet unique (INPI)<br />
                 Nom et prénom de l&apos;exploitant : [À COMPLÉTER]<br />
                 Adresse de l&apos;établissement : [À COMPLÉTER]<br />
-                SIRET : [À COMPLÉTER — en cours d&apos;attribution]<br />
+                SIRET : 108 585 415 00012<br />
                 Directeur de la publication : l&apos;exploitant nommé ci-dessus<br />
                 Contact : [À COMPLÉTER — adresse e-mail de contact]
               </p>

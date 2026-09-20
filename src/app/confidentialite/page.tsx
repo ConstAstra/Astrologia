@@ -14,9 +14,9 @@ export default function ConfidentialitePage() {
           <h1 className="font-display text-4xl">Politique de confidentialité</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              Cette page décrit le traitement réel de vos données par Astrologium. L&apos;immatriculation de
-              l&apos;entreprise (SIRET) est en cours ; seuls l&apos;identité de l&apos;exploitant et l&apos;adresse
-              de contact restent à compléter, sans que cela affecte les engagements décrits ici.
+              Cette page décrit le traitement réel de vos données par Astrologium. L&apos;entreprise est
+              immatriculée ; seuls l&apos;identité de l&apos;exploitant et l&apos;adresse de contact restent
+              à compléter, sans que cela affecte les engagements décrits ici.
             </p>
 
             <div>

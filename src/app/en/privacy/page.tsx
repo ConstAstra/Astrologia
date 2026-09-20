@@ -14,9 +14,9 @@ export default function PrivacyEnPage() {
           <h1 className="font-display text-4xl">Privacy policy</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              This page describes how Astrologium actually processes your data. Business registration (French
-              SIRET) is in progress; only the operator&apos;s identity and contact address remain to be filled
-              in, which does not affect the commitments described here.
+              This page describes how Astrologium actually processes your data. The business is registered;
+              only the operator&apos;s identity and contact address remain to be filled in, which does not
+              affect the commitments described here.
             </p>
 
             <div>
