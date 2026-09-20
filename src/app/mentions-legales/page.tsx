@@ -15,9 +15,9 @@ export default function MentionsLegalesPage() {
           <h1 className="font-display text-4xl">Mentions légales</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              L&apos;entreprise est immatriculée (SIRET ci-dessous). Les champs marqués [À COMPLÉTER]
-              seront renseignés sous peu ; aucune information d&apos;identité n&apos;est inventée en
-              attendant. Le reste de cette page reflète la configuration réelle du service.
+              Le code postal et la ville de l&apos;établissement restent à compléter ; aucune information
+              d&apos;identité n&apos;est inventée en attendant. Le reste de cette page reflète la
+              configuration réelle du service.
             </p>
 
             <div>
@@ -26,11 +26,11 @@ export default function MentionsLegalesPage() {
                 Nom commercial : Constastra<br />
                 Forme juridique : Entreprise individuelle (micro-entreprise), immatriculée auprès du
                 Guichet unique (INPI)<br />
-                Nom et prénom de l&apos;exploitant : [À COMPLÉTER]<br />
-                Adresse de l&apos;établissement : [À COMPLÉTER]<br />
+                Nom et prénom de l&apos;exploitant : ConstAstra<br />
+                Adresse de l&apos;établissement : 8bis Rue Abel, [À COMPLÉTER — code postal et ville]<br />
                 SIRET : 108 585 415 00012<br />
                 Directeur de la publication : l&apos;exploitant nommé ci-dessus<br />
-                Contact : [À COMPLÉTER — adresse e-mail de contact]
+                Contact : constastra25@gmail.com
               </p>
             </div>
 

@@ -14,9 +14,9 @@ export default function ConfidentialitePage() {
           <h1 className="font-display text-4xl">Politique de confidentialité</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              Cette page décrit le traitement réel de vos données par Astrologium. L&apos;entreprise est
-              immatriculée ; seuls l&apos;identité de l&apos;exploitant et l&apos;adresse de contact restent
-              à compléter, sans que cela affecte les engagements décrits ici.
+              Cette page décrit le traitement réel de vos données par Astrologium. Seuls le code postal et
+              la ville de l&apos;établissement restent à compléter, sans que cela affecte les engagements
+              décrits ici.
             </p>
 
             <div>
@@ -95,7 +95,7 @@ export default function ConfidentialitePage() {
                 et de portabilité de vos données. Vous pouvez exercer la plupart de ces droits directement et
                 immédiatement depuis votre tableau de bord : modifier vos informations de compte, supprimer un
                 profil astrologique, ou supprimer intégralement votre compte. Pour toute autre demande, écrivez
-                à [À COMPLÉTER — adresse e-mail de contact].
+                à constastra25@gmail.com.
               </p>
               <p className="mt-2">
                 Vous disposez également du droit d&apos;introduire une réclamation auprès de la Commission

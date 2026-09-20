@@ -14,9 +14,9 @@ export default function PrivacyEnPage() {
           <h1 className="font-display text-4xl">Privacy policy</h1>
           <Card className="mt-8 space-y-6 p-8 text-sm leading-relaxed text-muted">
             <p className="rounded-lg border border-terracotta/40 bg-terracotta/10 p-4 text-terracotta">
-              This page describes how Astrologium actually processes your data. The business is registered;
-              only the operator&apos;s identity and contact address remain to be filled in, which does not
-              affect the commitments described here.
+              This page describes how Astrologium actually processes your data. Only the postal code and
+              city of the registered address remain to be filled in, which does not affect the
+              commitments described here.
             </p>
 
             <div>
@@ -93,7 +93,7 @@ export default function PrivacyEnPage() {
                 Under the GDPR, you have the right to access, rectify, erase, and port your data. You can
                 exercise most of these rights directly and immediately from your dashboard: update your
                 account information, delete an astrological profile, or delete your account entirely. For any
-                other request, write to us at [TO COMPLETE — contact e-mail].
+                other request, write to us at constastra25@gmail.com.
               </p>
               <p className="mt-2">
                 You also have the right to lodge a complaint with your national data protection authority
