@@ -26,12 +26,16 @@ const TOOLS = [
     title: "Synastry",
     description:
       "Overlay two charts to understand the dynamics of a couple or a relationship: cross-aspects, overlapping houses, strengths and friction points.",
+    teaserHref: "/en/guides/synastrie-vs-composite",
+    teaserLabel: "See how it works →",
     icon: OverlapIcon,
   },
   {
     title: "Composite chart",
     description:
       "The chart \"of the couple\" itself, calculated with the midpoint method, a third entity, beyond the two individuals.",
+    teaserHref: "/en/guides/composite-vs-davison",
+    teaserLabel: "See how it works →",
     icon: MergeIcon,
   },
   {

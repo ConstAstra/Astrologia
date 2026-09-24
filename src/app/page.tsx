@@ -19,12 +19,16 @@ const TOOLS = [
     title: "Synastrie",
     description:
       "Superposez deux thèmes pour comprendre la dynamique d'un couple ou d'une relation : aspects croisés, maisons superposées, forces et frictions.",
+    teaserHref: "/guides/synastrie-vs-composite",
+    teaserLabel: "Comprendre comment ça marche →",
     icon: OverlapIcon,
   },
   {
     title: "Thème composite",
     description:
       "Le thème \"du couple\" lui-même, calculé par la méthode des points médians, une troisième entité, au-delà des deux personnes.",
+    teaserHref: "/guides/composite-vs-davison",
+    teaserLabel: "Comprendre comment ça marche →",
     icon: MergeIcon,
   },
   {
