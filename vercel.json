@@ -1,0 +1,8 @@
+{
+  "crons": [
+    { "path": "/api/cron/daily-horoscope", "schedule": "0 7 * * *" },
+    { "path": "/api/cron/daily-transit-push", "schedule": "0 7 * * *" },
+    { "path": "/api/cron/streak-reminder", "schedule": "0 20 * * *" },
+    { "path": "/api/cron/upcoming-transit-alert", "schedule": "0 8 * * *" }
+  ]
+}
