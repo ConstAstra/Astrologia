@@ -490,4 +490,85 @@ export const GUIDES_EN: Guide[] = [
     relatedHref: "/en/planets",
     relatedLabel: "See each point across all 12 signs →",
   },
+  {
+    slug: "astrocartographie",
+    title: "Astrocartography: what the lines on the map actually mean",
+    description:
+      "Every planet traces four lines all around the globe at the instant of your birth. What they actually represent, how to read them, and what they don't promise.",
+    readingMinutes: 7,
+    publishedAt: "2026-09-24",
+    intro:
+      "Astrocartography takes the same natal chart as usual and projects it onto a world map instead of a wheel. The result, curved lines crossing continents, looks visually striking, but rests on a precise principle, not geographic magic. Here's what it actually calculates.",
+    sections: [
+      {
+        heading: "The principle: replaying your birth at every longitude",
+        paragraphs: [
+          "At the exact instant of your birth, each planet held a fixed position in the sky. What changed, though, was the angle from which that position was seen from each point on the globe: at the very same instant, a planet could be rising at the eastern horizon as seen from Lisbon while culminating overhead as seen from Nairobi. Astrocartography calculates, for each planet and across the whole globe, every place where it held one of these four particular roles at the exact instant of your birth: repeating that calculation point by point is what draws a continuous line rather than a single point.",
+          "This site's engine (see the method page) uses the same ephemerides as for a classic natal chart; astrocartography adds no new data, it only changes the angle from which the same positions are viewed.",
+        ],
+      },
+      {
+        heading: "The four types of lines",
+        paragraphs: [
+          "A Midheaven line (MC) marks the places where the planet was culminating exactly overhead at your birth: it colors public life, vocation, and social image for whoever settles there. An Imum Coeli line (IC), by contrast, marks where the planet sat exactly at the lowest point of the sky: it touches inner life, home, and roots.",
+          "An Ascendant line (AC) marks where the planet was rising exactly at the eastern horizon: it strongly tints displayed personality and everyday experience. A Descendant line (DC), at the western horizon, marks where it was setting: it mainly influences encounters and one-on-one relationships. Four different planets each trace four lines, which quickly makes for a dense map once all ten planets are layered on.",
+        ],
+      },
+      {
+        heading: "Planet + line: the combination that creates meaning",
+        paragraphs: [
+          "A line alone says nothing without knowing which planet traces it: a Jupiter Midheaven line and a Saturn Midheaven line both speak to vocation and public life, but with opposite tones, the first leaning toward opportunity and expansion, the second toward effort, structure, and recognition earned over time. This site details that exact combination, planet by planet and line by line, in a full reading rather than settling for a generic \"best places\" ranking.",
+          "The lines themselves carry no inherent good or bad valence: a Mars line can bring energy and boldness as much as impatience and friction, often both at once depending on the life context of whoever settles there.",
+        ],
+      },
+      {
+        heading: "What it doesn't tell you",
+        paragraphs: [
+          "Astrocartography predicts no event, guarantees no geographic happiness, and replaces no life decision grounded in concrete criteria (work, family, cost of living). It's a symbolic reading grid, worth taking for what it is, one possible lens among others, never a prescription. It also assumes a reliable birth time: without a known time, the AC, DC, MC, and IC lines simply cannot be calculated correctly, and this site always flags that rather than showing a made-up result.",
+        ],
+      },
+    ],
+    relatedHref: "/en/map",
+    relatedLabel: "Try the interactive map, no account needed →",
+  },
+  {
+    slug: "elements-et-modalites",
+    title: "Elements and modalities: the grid behind the twelve signs",
+    description:
+      "Fire, earth, air, water; cardinal, fixed, mutable. The two axes that organize the twelve signs long before their symbols, and that your chart can lean toward sharply.",
+    readingMinutes: 6,
+    publishedAt: "2026-09-24",
+    intro:
+      "Aries, Taurus, Gemini... the twelve signs first look like a simple list. In reality, they're sorted along two independent grids that intersect: four elements and three modalities. Understanding these two axes explains why some signs feel alike despite very different symbols, and why a natal chart, once every point is tallied, can lean sharply toward one of them.",
+    sections: [
+      {
+        heading: "The four elements: the substance of the energy",
+        paragraphs: [
+          "Fire (Aries, Leo, Sagittarius) runs on action and immediate enthusiasm, sometimes leaping before finishing the thought. Earth (Taurus, Virgo, Capricorn) seeks the concrete, the measurable, the result you can touch. Air (Gemini, Libra, Aquarius) thinks in words, ideas, and connections between people and topics. Water (Cancer, Scorpio, Pisces) picks up on emotion and the unspoken, sensing what's happening for someone else before it's ever said.",
+          "Each element has a downside as much as a strength: Fire that fades as fast as it rises, Earth that clings to an outdated method out of fear of change, Air that stays at the idea stage without ever grounding it, Water that gets overwhelmed by what it feels. A chart evenly balanced across all four elements is rare; most lean noticeably toward one or two.",
+        ],
+      },
+      {
+        heading: "The three modalities: the way of acting",
+        paragraphs: [
+          "Cardinal signs (Aries, Cancer, Libra, Capricorn) open each season: they start, launch, initiate, with a real talent for kicking things off, and a tendency to have too many things going at once. Fixed signs (Taurus, Leo, Scorpio, Aquarius) hold steady over time, loyal to a choice once it's made, with the risk of holding on even after the situation has changed. Mutable signs (Gemini, Virgo, Sagittarius, Pisces) close each season by adjusting: flexible, adaptable, sometimes at the cost of a direction that dissolves for lack of a clear course.",
+        ],
+      },
+      {
+        heading: "Twelve signs, one intersection each",
+        paragraphs: [
+          "Each sign is the unique intersection of one element and one modality: Aries is Cardinal Fire (launches with fire), Taurus is Fixed Earth (settles durably into the concrete), Gemini is Mutable Air (adapts in thought and speech), and so on for all twelve combinations. This double classification, more than the animal or object symbol tied to a sign, explains why some signs understand each other easily despite very different birth dates.",
+        ],
+      },
+      {
+        heading: "A chart-wide tendency, not a single sign",
+        paragraphs: [
+          "The Sun sign tells only part of the story: a full chart counts around ten points (Sun, Moon, Ascendant, planets), each placed in a sign and therefore in one element and one modality. Adding up these placements brings out a dominant tendency, for example a majority of points in Earth and Fixed signs, which describes overall functioning more reliably than the Sun sign alone. This site calculates that dominance automatically across your full chart and displays it plainly, with no need to count signs by hand.",
+          "An element or modality missing from your chart doesn't mean that quality is entirely foreign to you, only that it naturally takes up less room than the others. It's neither a flaw to fix nor a box to be stuck in, just one statistical tendency among others inside a chart that's always richer than four letters.",
+        ],
+      },
+    ],
+    relatedHref: "/en/natal-chart",
+    relatedLabel: "See your own elemental dominance, no account needed →",
+  },
 ];

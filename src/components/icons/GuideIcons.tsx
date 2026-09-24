@@ -136,3 +136,28 @@ export function MinorPointsIcon({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+export function WorldMeridiansIcon({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+      <ellipse cx="12" cy="12" rx="3.2" ry="9" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
+      <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
+      <path d="M4.5 7c2 1.5 13 1.5 15 0" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+      <path d="M4.5 17c2-1.5 13-1.5 15 0" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+    </svg>
+  );
+}
+
+export function ElementsGridIcon({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path d="M6 4l3 5H3l3-5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M18 4l3 5h-6l3-5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M6 20l-3-5h6l-3 5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M18 20l-3-5h6l3 5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <line x1="8" y1="6.5" x2="10" y2="6.5" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="14" y1="17.5" x2="16" y2="17.5" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}

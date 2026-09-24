@@ -506,4 +506,85 @@ export const GUIDES: Guide[] = [
     relatedHref: "/planetes",
     relatedLabel: "Voir chaque point dans les 12 signes →",
   },
+  {
+    slug: "astrocartographie",
+    title: "Astrocartographie : que disent vraiment les lignes sur la carte ?",
+    description:
+      "Chaque planète trace quatre lignes tout autour du globe à l'instant de votre naissance. Ce qu'elles représentent réellement, comment les lire, et ce qu'elles ne promettent pas.",
+    readingMinutes: 7,
+    publishedAt: "2026-09-24",
+    intro:
+      "L'astrocartographie prend le même thème natal que d'habitude et le projette sur une carte du monde plutôt que sur une roue. Le résultat, des lignes courbes qui traversent les continents, impressionne visuellement, mais repose sur un principe précis, pas sur de la magie géographique. Voici ce qu'il calcule vraiment.",
+    sections: [
+      {
+        heading: "Le principe : rejouer votre naissance à chaque longitude",
+        paragraphs: [
+          "À l'instant exact de votre naissance, chaque planète occupait une position fixe dans le ciel. Ce qui changeait, en revanche, c'est l'angle sous lequel cette position était vue depuis chaque point du globe : au même instant, une planète pouvait se lever à l'horizon Est vue de Lisbonne et culminer au zénith vue de Nairobi. L'astrocartographie calcule, pour chaque planète et pour tout le globe, l'ensemble des lieux où elle occupait l'un de ces quatre rôles particuliers à l'instant précis de votre naissance : c'est ce calcul, répété point par point, qui dessine une ligne continue plutôt qu'un point unique.",
+          "Le moteur de ce site (voir la page méthode) utilise les mêmes éphémérides que pour le thème natal classique ; l'astrocartographie n'ajoute aucune donnée nouvelle, elle change seulement l'angle sous lequel les mêmes positions sont regardées.",
+        ],
+      },
+      {
+        heading: "Les quatre types de lignes",
+        paragraphs: [
+          "Une ligne de Milieu du Ciel (MC) marque les lieux où la planète culminait exactement au sommet du ciel à votre naissance : elle colore la vie publique, la vocation, l'image sociale de qui s'y installe. Une ligne de Fond du Ciel (IC), à l'opposé, marque où la planète se trouvait exactement au point le plus bas : elle touche la vie intérieure, le foyer, les racines.",
+          "Une ligne d'Ascendant (AC) marque où la planète se levait exactement à l'horizon Est : elle teinte fortement la personnalité affichée et le vécu quotidien. Une ligne de Descendant (DC), à l'horizon Ouest, marque où elle se couchait : elle influence surtout les rencontres et les relations à deux. Quatre planètes différentes tracent donc quatre lignes chacune, ce qui fait rapidement une carte dense une fois les dix planètes superposées.",
+        ],
+      },
+      {
+        heading: "Planète + ligne : la combinaison qui fait le sens",
+        paragraphs: [
+          "Une ligne seule ne dit rien sans savoir quelle planète la trace : une ligne de Milieu du Ciel de Jupiter et une ligne de Milieu du Ciel de Saturne parlent toutes les deux de vocation et de vie publique, mais avec des tonalités opposées, la première plutôt portée vers l'opportunité et l'expansion, la seconde vers l'effort, la structure et la reconnaissance méritée sur la durée. C'est cette combinaison précise, planète par planète et ligne par ligne, que ce site détaille dans une lecture complète plutôt que de se contenter d'un classement générique de \"meilleurs endroits\".",
+          "Les lignes elles-mêmes n'ont pas de valence bonne ou mauvaise a priori : une ligne de Mars peut apporter de l'énergie et de l'audace comme de l'impatience et de la friction, souvent les deux à la fois selon le contexte de vie de la personne qui s'y installe.",
+        ],
+      },
+      {
+        heading: "Ce que ça ne dit pas",
+        paragraphs: [
+          "L'astrocartographie ne prédit aucun événement, ne garantit aucun bonheur géographique et ne remplace aucune décision de vie fondée sur des critères concrets (travail, famille, coût de la vie). C'est une grille de lecture symbolique, à prendre pour ce qu'elle est, un éclairage possible parmi d'autres, jamais une prescription. Elle suppose aussi une heure de naissance fiable : sans heure connue, les lignes AC, DC, MC et IC ne peuvent tout simplement pas être calculées correctement, ce site le signale toujours plutôt que d'afficher un résultat inventé.",
+        ],
+      },
+    ],
+    relatedHref: "/carte",
+    relatedLabel: "Essayer la carte interactive, sans compte →",
+  },
+  {
+    slug: "elements-et-modalites",
+    title: "Éléments et modalités : la grille derrière les douze signes",
+    description:
+      "Feu, terre, air, eau ; cardinal, fixe, mutable. Les deux axes qui organisent les douze signes bien avant leurs symboles, et que votre thème peut faire pencher nettement d'un côté.",
+    readingMinutes: 6,
+    publishedAt: "2026-09-24",
+    intro:
+      "Bélier, Taureau, Gémeaux... les douze signes semblent d'abord une simple liste. En réalité, ils se rangent selon deux grilles indépendantes qui se croisent : quatre éléments et trois modalités. Comprendre ces deux axes explique pourquoi certains signes se ressemblent malgré des symboles très différents, et pourquoi un thème natal peut, une fois tous ses points comptés, pencher nettement vers l'un d'eux.",
+    sections: [
+      {
+        heading: "Les quatre éléments : la matière de l'énergie",
+        paragraphs: [
+          "Le Feu (Bélier, Lion, Sagittaire) carbure à l'action et à l'enthousiasme immédiat, quitte à se lancer avant d'avoir fini de réfléchir. La Terre (Taureau, Vierge, Capricorne) cherche le concret, le mesurable, le résultat qu'on peut toucher. L'Air (Gémeaux, Balance, Verseau) pense en mots, en idées, en mise en relation entre les gens et les sujets. L'Eau (Cancer, Scorpion, Poissons) capte l'émotion, l'implicite, ce qui se passe chez l'autre avant même que ce soit dit.",
+          "Chaque élément a son revers, pas seulement sa force : le Feu qui retombe aussi vite qu'il est monté, la Terre qui s'accroche à une méthode dépassée par peur du changement, l'Air qui reste à l'idée sans jamais l'ancrer, l'Eau qui se laisse submerger par ce qu'elle ressent. Un thème équilibré entre les quatre élements est rare, la plupart penchent nettement vers un ou deux d'entre eux.",
+        ],
+      },
+      {
+        heading: "Les trois modalités : la manière d'agir",
+        paragraphs: [
+          "Les signes Cardinaux (Bélier, Cancer, Balance, Capricorne) ouvrent chaque saison : ils démarrent, lancent, initient, avec un vrai talent pour donner le coup d'envoi, et une tendance à multiplier les chantiers ouverts en même temps. Les signes Fixes (Taureau, Lion, Scorpion, Verseau) tiennent dans la durée, loyaux à un choix une fois qu'il est fait, avec le risque de s'accrocher même quand la situation a changé. Les signes Mutables (Gémeaux, Vierge, Sagittaire, Poissons) ferment chaque saison en s'ajustant : souples, adaptables, parfois au prix d'un cap qui se dilue faute de direction claire.",
+        ],
+      },
+      {
+        heading: "Douze signes, un seul croisement",
+        paragraphs: [
+          "Chaque signe est l'intersection unique d'un élément et d'une modalité : le Bélier est Feu Cardinal (lance avec fougue), le Taureau est Terre Fixe (s'installe durablement dans le concret), les Gémeaux sont Air Mutable (s'adaptent en pensée et en parole), et ainsi de suite pour les douze combinaisons. C'est ce double classement, plus que le symbole de l'animal ou de l'objet associé au signe, qui explique pourquoi certains signes se comprennent facilement entre eux malgré des dates de naissance très éloignées.",
+        ],
+      },
+      {
+        heading: "Une dominante de thème, pas un signe unique",
+        paragraphs: [
+          "Le signe solaire ne dit qu'une part de l'histoire : un thème complet compte une dizaine de points (Soleil, Lune, Ascendant, planètes), chacun placé dans un signe donc dans un élément et une modalité. Additionner ces placements fait ressortir une dominante, par exemple une majorité de points en Terre et en Fixe, qui décrit un fonctionnement d'ensemble plus fiable que le seul signe solaire. Ce site calcule cette dominante automatiquement sur votre thème complet et l'affiche en clair, sans qu'il soit besoin de compter soi-même les signes un par un.",
+          "Un élément ou une modalité absente de votre thème ne signifie pas que cette qualité vous est totalement étrangère, seulement qu'elle y occupe moins de place naturellement que les autres. Ce n'est ni un défaut à corriger ni une case dans laquelle s'enfermer, juste une tendance statistique parmi d'autres à l'intérieur d'un thème toujours plus riche que quatre lettres.",
+        ],
+      },
+    ],
+    relatedHref: "/theme-astral",
+    relatedLabel: "Voir sa propre dominante élémentaire, sans compte →",
+  },
 ];

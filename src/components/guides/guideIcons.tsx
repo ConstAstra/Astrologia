@@ -11,6 +11,8 @@ import {
   ScaleIcon,
   UnevenWheelIcon,
   MinorPointsIcon,
+  WorldMeridiansIcon,
+  ElementsGridIcon,
 } from "@/components/icons/GuideIcons";
 
 // Une icône par concept de guide, indexée par slug (identique fr/en). Les
@@ -32,4 +34,6 @@ export const GUIDE_ICONS: Record<string, ComponentType<{ className?: string }>> 
   "composite-vs-davison": MergeIcon,
   "choisir-systeme-maisons": UnevenWheelIcon,
   "junon-chiron-vertex": MinorPointsIcon,
+  astrocartographie: WorldMeridiansIcon,
+  "elements-et-modalites": ElementsGridIcon,
 };
