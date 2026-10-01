@@ -63,6 +63,7 @@ const TEXT: Record<
     comparabilityIntro: string;
     easyGround: string;
     frictionGround: string;
+    unreliableHouses: (names: string[]) => string;
   }
 > = {
   fr: {
@@ -86,6 +87,8 @@ const TEXT: Record<
       "Pour chaque planète, comment vos signes respectifs dialoguent (ou frottent) sur ce terrain précis, du plus friable au plus fluide.",
     easyGround: "Terrain facile",
     frictionGround: "Terrain de friction",
+    unreliableHouses: (names) =>
+      `Heure de naissance inconnue pour ${names.join(" et ")} : l'Ascendant, le Milieu du Ciel et les maisons superposées ne sont pas utilisés dans cette synastrie, plutôt que d'afficher une estimation trompeuse.`,
   },
   en: {
     synastry: "Synastry",
@@ -108,6 +111,8 @@ const TEXT: Record<
       "For each planet, how your respective signs get along (or clash) on that specific ground, from the most friable to the smoothest.",
     easyGround: "Easy ground",
     frictionGround: "Friction ground",
+    unreliableHouses: (names) =>
+      `Unknown birth time for ${names.join(" and ")}: the Ascendant, Midheaven, and overlapping houses are not used in this synastry, rather than showing a misleading estimate.`,
   },
 };
 
@@ -214,10 +219,24 @@ export default async function SynastriePage({
     </div>
   );
 
+  // hasReliableHouses d'un thème ne dépend que de timeUnknown (voir chart.ts) :
+  // pas besoin d'avoir déjà calculé le thème complet pour savoir si l'une des
+  // deux personnes (ou les deux) a une heure de naissance inconnue.
+  const missingTimeLabels = [
+    profileA.timeUnknown ? profileA.label : null,
+    profileB.timeUnknown ? profileB.label : null,
+  ].filter((label): label is string => label !== null);
+  const unreliableBanner = missingTimeLabels.length > 0 && (
+    <Card className="mt-6 border-terracotta/40 bg-terracotta/5 p-4 text-sm text-terracotta">
+      {t.unreliableHouses(missingTimeLabels)}
+    </Card>
+  );
+
   if (!access) {
     return (
       <div>
         {header}
+        {unreliableBanner}
         <div className="mt-8">
           <UnlockGate feature="synastry" profileIdA={a} profileIdB={b} credits={currentUser.credits} locale={locale} />
         </div>
@@ -298,6 +317,7 @@ export default async function SynastriePage({
   return (
     <div>
       {header}
+      {unreliableBanner}
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[380px_1fr]">
         <Card className="flex flex-col items-center p-6">

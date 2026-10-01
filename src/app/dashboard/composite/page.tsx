@@ -72,6 +72,7 @@ const TEXT: Record<
     showLessAspects: string;
     expandPlanetDetails: string;
     collapsePlanetDetails: string;
+    unreliableHouses: (names: string[]) => string;
   }
 > = {
   fr: {
@@ -97,6 +98,8 @@ const TEXT: Record<
     showLessAspects: "Replier les aspects mineurs",
     expandPlanetDetails: "Lire l'interprétation complète",
     collapsePlanetDetails: "Replier",
+    unreliableHouses: (names) =>
+      `Heure de naissance inconnue pour ${names.join(" et ")} : l'Ascendant, le Milieu du Ciel et les maisons du thème composite ne sont pas utilisés dans ce calcul, plutôt que d'afficher une estimation trompeuse.`,
   },
   en: {
     composite: "Composite chart",
@@ -121,6 +124,8 @@ const TEXT: Record<
     showLessAspects: "Collapse minor aspects",
     expandPlanetDetails: "Read full interpretation",
     collapsePlanetDetails: "Collapse",
+    unreliableHouses: (names) =>
+      `Unknown birth time for ${names.join(" and ")}: the Ascendant, Midheaven, and composite houses are not used in this calculation, rather than showing a misleading estimate.`,
   },
 };
 
@@ -209,10 +214,24 @@ export default async function CompositePage({
     </div>
   );
 
+  // hasReliableHouses d'un thème ne dépend que de timeUnknown (voir chart.ts) :
+  // pas besoin d'avoir déjà calculé le composite pour savoir si l'une des deux
+  // personnes (ou les deux) a une heure de naissance inconnue.
+  const missingTimeLabels = [
+    profileA.timeUnknown ? profileA.label : null,
+    profileB.timeUnknown ? profileB.label : null,
+  ].filter((label): label is string => label !== null);
+  const unreliableBanner = missingTimeLabels.length > 0 && (
+    <Card className="mt-6 border-terracotta/40 bg-terracotta/5 p-4 text-sm text-terracotta">
+      {t.unreliableHouses(missingTimeLabels)}
+    </Card>
+  );
+
   if (!access) {
     return (
       <div>
         {header}
+        {unreliableBanner}
         <div className="mt-8">
           <UnlockGate feature="composite" profileIdA={a} profileIdB={b} credits={currentUser.credits} locale={locale} />
         </div>
@@ -272,6 +291,7 @@ export default async function CompositePage({
   return (
     <div>
       {header}
+      {unreliableBanner}
       <Card className="mt-6 p-5 text-sm text-muted">{relationshipMeta[relationshipType].compositeFraming}</Card>
 
       <div className="mt-6">
