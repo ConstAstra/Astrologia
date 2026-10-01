@@ -9,6 +9,19 @@ import { safeJson } from "@/lib/safe-json";
 
 type Locale = "fr" | "en";
 
+export interface ExistingProfile {
+  id: string;
+  label: string;
+  isSelf: boolean;
+  birthDate: string;
+  birthTime: string | null;
+  timeUnknown: boolean;
+  locationName: string;
+  latitude: number;
+  longitude: number;
+  tzName: string;
+}
+
 const TEXT: Record<Locale, {
   labelField: string;
   labelPlaceholder: string;
@@ -25,9 +38,12 @@ const TEXT: Record<Locale, {
   errorNoDate: string;
   errorNoTime: string;
   errorCreate: string;
+  errorUpdate: string;
   errorGeneric: string;
   submitting: string;
   submit: string;
+  updating: string;
+  update: string;
 }> = {
   fr: {
     labelField: "Nom / prénom (pour vous y retrouver)",
@@ -45,9 +61,12 @@ const TEXT: Record<Locale, {
     errorNoDate: "La date de naissance est requise.",
     errorNoTime: "Indiquez l'heure de naissance, ou cochez \"heure inconnue\".",
     errorCreate: "Erreur lors de la création du profil.",
+    errorUpdate: "Erreur lors de la mise à jour du profil.",
     errorGeneric: "Une erreur est survenue.",
     submitting: "Calcul en cours…",
     submit: "Créer le profil et voir le thème",
+    updating: "Mise à jour…",
+    update: "Enregistrer les modifications",
   },
   en: {
     labelField: "Name (so you can tell profiles apart)",
@@ -65,9 +84,12 @@ const TEXT: Record<Locale, {
     errorNoDate: "Birth date is required.",
     errorNoTime: "Enter the birth time, or check \"unknown time\".",
     errorCreate: "Error creating the profile.",
+    errorUpdate: "Error updating the profile.",
     errorGeneric: "Something went wrong.",
     submitting: "Calculating…",
     submit: "Create the profile and view the chart",
+    updating: "Updating…",
+    update: "Save changes",
   },
 };
 
@@ -78,18 +100,22 @@ type FieldErrors = {
   location?: string;
 };
 
-export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
+export function ProfileForm({ locale = "fr", profile }: { locale?: Locale; profile?: ExistingProfile }) {
   const t = TEXT[locale];
   const router = useRouter();
-  const [label, setLabel] = useState("");
-  const [isSelf, setIsSelf] = useState(false);
-  const [birthDate, setBirthDate] = useState("");
-  const [birthTime, setBirthTime] = useState("");
-  const [timeUnknown, setTimeUnknown] = useState(false);
+  const [label, setLabel] = useState(profile?.label ?? "");
+  const [isSelf, setIsSelf] = useState(profile?.isSelf ?? false);
+  const [birthDate, setBirthDate] = useState(profile?.birthDate ?? "");
+  const [birthTime, setBirthTime] = useState(profile?.birthTime ?? "");
+  const [timeUnknown, setTimeUnknown] = useState(profile?.timeUnknown ?? false);
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(profile?.locationName ?? "");
   const [results, setResults] = useState<GeocodeResult[]>([]);
-  const [selected, setSelected] = useState<GeocodeResult | null>(null);
+  const [selected, setSelected] = useState<GeocodeResult | null>(
+    profile
+      ? { label: profile.locationName, latitude: profile.latitude, longitude: profile.longitude, tzName: profile.tzName }
+      : null
+  );
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -139,8 +165,8 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/profiles", {
-        method: "POST",
+      const res = await fetch(profile ? `/api/profiles/${profile.id}` : "/api/profiles", {
+        method: profile ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           label,
@@ -155,8 +181,8 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
         }),
       });
       const data = await safeJson(res);
-      if (!res.ok) throw new Error(data?.error ?? t.errorCreate);
-      router.push(`/dashboard/theme-natal/${data.profile.id}`);
+      if (!res.ok) throw new Error(data?.error ?? (profile ? t.errorUpdate : t.errorCreate));
+      router.push(`/dashboard/theme-natal/${profile ? profile.id : data.profile.id}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errorGeneric);
@@ -316,7 +342,7 @@ export function ProfileForm({ locale = "fr" }: { locale?: Locale }) {
       {error && <p className="text-sm text-terracotta">{error}</p>}
 
       <Button type="submit" loading={submitting} className="w-full">
-        {submitting ? t.submitting : t.submit}
+        {profile ? (submitting ? t.updating : t.update) : submitting ? t.submitting : t.submit}
       </Button>
     </form>
   );

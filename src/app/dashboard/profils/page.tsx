@@ -42,6 +42,7 @@ const TEXT: Record<
     avatarLegend: string;
     glowActive: string;
     glowProgress: (daysLeft: number) => string;
+    editProfile: string;
   }
 > = {
   fr: {
@@ -70,6 +71,7 @@ const TEXT: Record<
         : `Ajoutez le thème d'un proche pour tester une synastrie ou un thème composite — il vous reste ${remaining} profils gratuits.`,
     addAnotherCta: "Ajouter un profil",
     avatarLegend: "🌙 Le petit badge en bas à gauche de l'avatar est un compagnon lié à l'élément de sa Lune (survolez-le pour voir lequel).",
+    editProfile: "Modifier",
     glowActive: "✨ Halo doré actif — Premium ou série de connexions ≥ 7 jours.",
     glowProgress: (daysLeft) =>
       daysLeft === 1
@@ -102,6 +104,7 @@ const TEXT: Record<
         : `Add a friend or family member's chart to try a synastry or composite chart — you have ${remaining} free profiles left.`,
     addAnotherCta: "Add a profile",
     avatarLegend: "🌙 The small badge on the avatar's bottom-left is a companion tied to its Moon's element (hover it to see which one).",
+    editProfile: "Edit",
     glowActive: "✨ Golden glow active — Premium or a 7-day-or-longer login streak.",
     glowProgress: (daysLeft) =>
       daysLeft === 1
@@ -208,6 +211,12 @@ export default async function ProfilsPage() {
               </p>
               <p className="text-sm text-muted">{profile.locationName}</p>
               <div className="mt-5 flex flex-wrap gap-2 text-sm">
+                <Link
+                  href={`/dashboard/profils/${profile.id}/modifier`}
+                  className="rounded-full border border-border-soft px-3 py-1 text-muted hover:text-foreground"
+                >
+                  {t.editProfile}
+                </Link>
                 <Link
                   href={`/dashboard/profils/${profile.id}/avatar`}
                   className="rounded-full border border-violet/40 px-3 py-1 text-violet hover:bg-violet/10"

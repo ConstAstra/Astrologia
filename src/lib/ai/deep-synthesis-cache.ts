@@ -63,6 +63,21 @@ export async function getCachedDeepSynthesis(key: DeepSynthesisCacheKey): Promis
   return getCachedRow<DeepSynthesisResult>(key);
 }
 
+/**
+ * À appeler chaque fois que la date, l'heure, le lieu ou le fuseau d'un
+ * profil changent (voir PUT /api/profiles/[id]) : une synthèse mise en
+ * cache décrit le thème calculé à partir de l'ancienne naissance, elle
+ * deviendrait fausse mais resterait servie indéfiniment sans cette purge.
+ * Couvre aussi bien les synthèses où ce profil est le principal (thème
+ * natal, révolution solaire, mission de vie) que secondaire (synastrie,
+ * composite avec un autre profil).
+ */
+export async function invalidateDeepSynthesisForProfile(profileId: string): Promise<void> {
+  await prisma.deepSynthesis.deleteMany({
+    where: { OR: [{ profileId }, { secondaryProfileId: profileId }] },
+  });
+}
+
 function substituteLabels(result: DeepSynthesisResult, replacements: [string, string][]): DeepSynthesisResult {
   const apply = (text: string) => replacements.reduce((acc, [from, to]) => acc.split(from).join(to), text);
   return {
