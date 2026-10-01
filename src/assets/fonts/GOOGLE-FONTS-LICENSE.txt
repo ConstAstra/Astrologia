@@ -1,0 +1,9 @@
+Caveat (Bold) and Unbounded (Bold) are distributed by Google Fonts under the
+SIL Open Font License 1.1, a permissive free license that allows use,
+modification and redistribution (including in commercial products).
+Bundled here for the astrocartography postcard share card
+(src/app/api/share/cartographie/[id]/route.tsx) — Caveat for the
+handwritten message, Unbounded to match the site's own display font in
+the letterhead/stamp.
+
+Full license text: https://openfontlicense.org
