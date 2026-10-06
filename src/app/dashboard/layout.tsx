@@ -39,6 +39,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
     orderBy: [{ isSelf: "desc" }, { createdAt: "asc" }],
   });
 
+  // Le profil actuellement consulté (ex: /dashboard/theme-natal/{id}) remonte
+  // en tête du sélecteur rapide : on vient de choisir précisément celui-là,
+  // pas forcément "soi" ni le plus ancien, autant confirmer ce choix plutôt
+  // que de le laisser se perdre dans un ordre fixe.
+  const pathSegments = pathname.split("/").filter(Boolean);
+  const activeProfileIndex = profiles.findIndex((p) => pathSegments.includes(p.id));
+  const orderedProfiles =
+    activeProfileIndex > 0
+      ? [profiles[activeProfileIndex], ...profiles.filter((_, i) => i !== activeProfileIndex)]
+      : profiles;
+
   return (
     <>
       <DashboardNav
@@ -51,7 +62,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         streakMilestone={isNewMilestone}
         streakNewRecord={isNewRecord}
         isAdmin={isAdminEmail(user.email)}
-        profiles={profiles}
+        profiles={orderedProfiles}
       />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">{children}</main>
     </>
